@@ -1,0 +1,1239 @@
+{
+ "category": "عقود-ونماذج",
+ "document_count": 176,
+ "note": "regenerated from catalog/عقود-ونماذج.json — the slim catalog is authoritative",
+ "documents": [
+  {
+   "id": "doc-0009",
+   "title": "نموذج اتفاقية مشاركة في أرباح مقاولات",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0009_نموذج-اتفاقية-مشاركة-في-أرباح-مقاولات.md"
+  },
+  {
+   "id": "doc-0010",
+   "title": "نموذج تعهد خطي بنقل ملكية عقار",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0010_نموذج-تعهد-خطي-بنقل-ملكية-عقار.md"
+  },
+  {
+   "id": "doc-0014",
+   "title": "نموذج اتفاقية أتعاب محاماة عامة",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0014_نموذج-اتفاقية-أتعاب-محاماة-عامة.md"
+  },
+  {
+   "id": "doc-0015",
+   "title": "اتفاقية تسوية حقوق مالية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0015_اتفاقية-تسوية-حقوق-مالية.md"
+  },
+  {
+   "id": "doc-0016",
+   "title": "إقرار خطي باستلام سيارة و تعهد بمسؤوليتها",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0016_إقرار-خطي-باستلام-سيارة-و-تعهد-بمسؤوليتها.md"
+  },
+  {
+   "id": "doc-0029",
+   "title": "retainer-agreement-contingent-fee-d986d985d988d8b0d8ac-d8a7d8aad8b9d8a7d8a8-d985d8add8a7d985d8a7d8a9-d984d985d988d8b6d988d8b9-d985d8add8afd8af",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0029_RETAINER-AGREEMENT-Sample.md"
+  },
+  {
+   "id": "doc-0030",
+   "title": "نموذج عقد خدمات استشارية لعطاء",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0030_نموذج-عقد-خدمات-استشارية-لعطاء.md"
+  },
+  {
+   "id": "doc-0033",
+   "title": "نموذج عقد تحكيم",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0033_نموذج-عقد-تحكيم.md"
+  },
+  {
+   "id": "doc-0034",
+   "title": "نموذج عقد مدير عمل محل تجارى",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0034_نموذج-عقد-مدير-عمل-محل-تجارى.md"
+  },
+  {
+   "id": "doc-0041",
+   "title": "نموذج عقد سمسرة وكالة تجارية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0041_نموذج-عقد-سمسرة-وكالة-تجارية.md"
+  },
+  {
+   "id": "doc-0042",
+   "title": "اتفاق هلسنكي",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0042_اتفاق-هلسنكي.md"
+  },
+  {
+   "id": "doc-0043",
+   "title": "اتفاقية أوسلو",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0043_اتفاقية-أوسلو.md"
+  },
+  {
+   "id": "doc-0045",
+   "title": "اتفاقية حقوق الطفل",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0045_اتفاقية-حقوق-الطفل.md"
+  },
+  {
+   "id": "doc-0046",
+   "title": "اتفاقية رامسار للأراضي أو المناطق الرطبة",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0046_اتفاقية-رامسار-للأراضي-أو-المناطق-الرطبة.md"
+  },
+  {
+   "id": "doc-0047",
+   "title": "اتفاقية فيينا بشأن خلافة الدول في المعاهدات",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0047_اتفاقية-فيينا-بشأن-خلافة-الدول-في-المعاهدات.md"
+  },
+  {
+   "id": "doc-0048",
+   "title": "اتفاقية فيينا للعلاقات القنصلية 1963",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0048_اتفاقية-فيينا-للعلاقات-القنصلية-1963.md"
+  },
+  {
+   "id": "doc-0050",
+   "title": "اتفاقية تيسير وتنمية التبادل التجارى بين الدول العربية",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0050_اتفاقية-تيسير-وتنمية-التبادل-التجارى-بين-الدول-العربية.md"
+  },
+  {
+   "id": "doc-0051",
+   "title": "نموذج اتفاقية سرية معلومات وعدم إفشاء أسرار",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0051_نموذج-اتفاقية-سرية-معلومات-وعدم-إفشاء-أسرار.md"
+  },
+  {
+   "id": "doc-0054",
+   "title": "نموذج عطاء إستقطاب مزودي خدمات",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0054_نموذج-عطاء-إستقطاب-مزودي-خدمات.md"
+  },
+  {
+   "id": "doc-0055",
+   "title": "gatt-convintion-d8a7d8aad981d8a7d982d98ad8a9-d8a7d984d8acd8a7d8aa",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0055_تعريف-باتفاقية-الجات-GATT.md"
+  },
+  {
+   "id": "doc-0057",
+   "title": "non-disclosure-agreement",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0057_NON-DISCLOSURE-AGREEMENT-sample.md"
+  },
+  {
+   "id": "doc-0102",
+   "title": "ما هو العقد النموذجي المعياري",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0102_ما-هو-العقد-النموذجي-المعياري.md"
+  },
+  {
+   "id": "doc-0166",
+   "title": "نموذج إنسحاب بالإرداة المنفردة و إعلام الشركاء",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0166_نموذج-إنسحاب-بالإرداة-المنفردة-و-إعلام-الشركاء.md"
+  },
+  {
+   "id": "doc-0182",
+   "title": "power-of-attorney-non-operating-foreign-company-representative-office",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0182_Power-of-Attorney-sample-Non-–-Operating-Foreign-Company.md"
+  },
+  {
+   "id": "doc-0183",
+   "title": "power-of-attorney-operating-foreign-company",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0183_ٍSample-–-Power-of-attorney-Operating-Foreign-Company-Jordan.md"
+  },
+  {
+   "id": "doc-0217",
+   "title": "هل يجوز لعضو مجلس الاعيان و النواب التعديل في صيغة القسم",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0217_هل-يجوز-لعضو-مجلس-الاعيان-و-النواب-التعديل-في-صيغة-القسم.md"
+  },
+  {
+   "id": "doc-0261",
+   "title": "الاتفاقية الخاصة بوضع اللاجئين لعام 1951",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0261_الاتفاقية-الخاصة-بوضع-اللاجئين-لعام-1951.md"
+  },
+  {
+   "id": "doc-0267",
+   "title": "النموذج الخاص بطلب ايصال التيار الكهربائي",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0267_النموذج-الخاص-بطلب-ايصال-التيار-الكهربائي.md"
+  },
+  {
+   "id": "doc-0271",
+   "title": "إعـــلان منطقة التجارة الحرة العربية الكـبرى قرار المجلس الاقنصادي والاجتماعي",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0271_إعـــلان-منطقة-التجارة-الحرة-العربية-الكـبرى-قرار-المجلس-الاقنصادي-والاجتماعي.md"
+  },
+  {
+   "id": "doc-0273",
+   "title": "اتفاقية إنشاء لجنة مشتركة للتعاون بين الأردن  الكويت",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0273_اتفاقية-إنشاء-لجنة-مشتركة-للتعاون-بين-الأردن-الكويت.md"
+  },
+  {
+   "id": "doc-0274",
+   "title": "اتفاقية التبادل التجاري الحر بين الأردن الكويت",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0274_اتفاقية-التبادل-التجاري-الحر-بين-الأردن-الكويت.md"
+  },
+  {
+   "id": "doc-0275",
+   "title": "اتفاقية التجارة الحرة بين الأردن ودول اتفاقية التجارة الحرة الأوروبية ( الافتا )",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0275_اتفاقية-التجارة-الحرة-بين-الأردن-ودول-اتفاقية-التجارة-الحرة-الأوروبية-(-الافتا-).md"
+  },
+  {
+   "id": "doc-0277",
+   "title": "اتفاقية التعاون في تحصيل الضرائب والرسوم بين دول مجلس الوحدة الاقتصادية العربية",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0277_اتفاقية-التعاون-في-تحصيل-الضرائب-والرسوم-بين-دول-مجلس-الوحدة-الاقتصادية-العربية.md"
+  },
+  {
+   "id": "doc-0278",
+   "title": "اتفاقية التعاون في مجال البري للركاب والبضائع بين الأردن ومصر",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0278_اتفاقية-التعاون-في-مجال-البري-للركاب-والبضائع-بين-الأردن-ومصر.md"
+  },
+  {
+   "id": "doc-0279",
+   "title": "اتفاقية التعاون في مجال الصحة الحيوانية  بين الأردن و  السودان",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0279_اتفاقية-التعاون-في-مجال-الصحة-الحيوانية-بين-الأردن-و-السودان.md"
+  },
+  {
+   "id": "doc-0280",
+   "title": "اتفاقية التعاون في ميدان الملاحة البحرية التجارية بين الأردن و المغرب",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0280_اتفاقية-التعاون-في-ميدان-الملاحة-البحرية-التجارية-بين-الأردن-و-المغرب.md"
+  },
+  {
+   "id": "doc-0281",
+   "title": "اتفاقية الحجر الصحي الزراعي بين الأردن ولبنان",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0281_اتفاقية-الحجر-الصحي-الزراعي-بين-الأردن-ولبنان.md"
+  },
+  {
+   "id": "doc-0282",
+   "title": "اتفاقية انشاء لجنة عليا مشتركة بين الأردن و لبنان",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0282_اتفاقية-انشاء-لجنة-عليا-مشتركة-بين-الأردن-و-لبنان.md"
+  },
+  {
+   "id": "doc-0285",
+   "title": "اتفاقية بين الأردن وسوريا  في مجال الحجر الصحي الزراعي",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0285_اتفاقية-بين-الأردن-وسوريا-في-مجال-الحجر-الصحي-الزراعي.md"
+  },
+  {
+   "id": "doc-0287",
+   "title": "اتفاقية تجنب الازدواج الضريبي بين الأردن و سوريا",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0287_اتفاقية-تجنب-الازدواج-الضريبي-بين-الأردن-و-سوريا.md"
+  },
+  {
+   "id": "doc-0288",
+   "title": "اتفاقية تجنب الازدواج الضريبي دول مجلس الوحدة العربية الاقتصادية العربية",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0288_اتفاقية-تجنب-الازدواج-الضريبي-دول-مجلس-الوحدة-العربية-الاقتصادية-العربية.md"
+  },
+  {
+   "id": "doc-0290",
+   "title": "اتفاقية تشكيل لجنة مشتركة الأردن و موريتانيا",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0290_اتفاقية-تشكيل-لجنة-مشتركة-الأردن-و-موريتانيا.md"
+  },
+  {
+   "id": "doc-0291",
+   "title": "اتفاقية تعاون إداري متبادل  الأردنية و السورية",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0291_اتفاقية-تعاون-إداري-متبادل-الأردنية-و-السورية.md"
+  },
+  {
+   "id": "doc-0292",
+   "title": "اتفاقية تعاون اقتصادي وتجاري بين الأردن و  اوكرانيا",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0292_اتفاقية-تعاون-اقتصادي-وتجاري-بين-الأردن-و-اوكرانيا.md"
+  },
+  {
+   "id": "doc-0293",
+   "title": "اتفاقية تعاون صحي بين الأردن و سوريا",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-0293_اتفاقية-تعاون-صحي-بين-الأردن-و-سوريا.md"
+  },
+  {
+   "id": "doc-0294",
+   "title": "اتفاقية تعاون في المجال البيئي بيــن الأردن و سوريا",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0294_اتفاقية-تعاون-في-المجال-البيئي-بيــن-الأردن-و-سوريا.md"
+  },
+  {
+   "id": "doc-0295",
+   "title": "اتفاقية حجز زراعي ووقاية النباتات بين الأردن والمغرب",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0295_اتفاقية-حجز-زراعي-ووقاية-النباتات-بين-الأردن-والمغرب.md"
+  },
+  {
+   "id": "doc-0298",
+   "title": "اتفاقية الإطار بشأن نظام الأفضليات التجارية بين الدول الأعضاء في منظمة المؤتمر الاسلامي",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0298_اتفاقية-الإطار-بشأن-نظام-الأفضليات-التجارية-بين-الدول-الأعضاء-في-منظمة-المؤتمر-ا.md"
+  },
+  {
+   "id": "doc-0300",
+   "title": "قواعد المنشأ العربية لأغراض تطبيق اتفاقية تيسير وتنمية التبادل التجاري بين الدول العربية",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0300_قواعد-المنشأ-العربية-لأغراض-تطبيق-اتفاقية-تيسير-وتنمية-التبادل-التجاري-بين-الدول.md"
+  },
+  {
+   "id": "doc-0304",
+   "title": "اتفاقية التعاون الاقتصادي والتجارة الحرة بين الأردن والبحرين",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0304_اتفاقية-التعاون-الاقتصادي-والتجارة-الحرة-بين-الأردن-والبحرين.md"
+  },
+  {
+   "id": "doc-0305",
+   "title": "اتفاقية التعاون الثقافي بين الأردن و البحرين",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0305_اتفاقية-التعاون-الثقافي-بين-الأردن-و-البحرين.md"
+  },
+  {
+   "id": "doc-0306",
+   "title": "اتفاقية التعاون القضائي بين الأردن واليمن",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0306_اتفاقية-التعاون-القضائي-بين-الأردن-واليمن.md"
+  },
+  {
+   "id": "doc-0307",
+   "title": "اتفاقية انشاء لجنة عليا مشتركة بين البحرين و الأردن",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0307_اتفاقية-انشاء-لجنة-عليا-مشتركة-بين-البحرين-و-الأردن.md"
+  },
+  {
+   "id": "doc-0308",
+   "title": "اتفاقية بين الأردن وسويسرا  حول التشجيع والحماية المتبادلة للإستثمارات .",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0308_اتفاقية-بين-الأردن-وسويسرا-حول-التشجيع-والحماية-المتبادلة-للإستثمارات-..md"
+  },
+  {
+   "id": "doc-0309",
+   "title": "اتفاقية بين حكومة الأردن و الكويت للتشجيع و الحماية المتبادلة للأستثمارات",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0309_اتفاقية-بين-حكومة-الأردن-و-الكويت-للتشجيع-و-الحماية-المتبادلة-للأستثمارات.md"
+  },
+  {
+   "id": "doc-0310",
+   "title": "اتفاقية تجارية بين حكومة الأردن و الجمهورية التشيكية",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0310_اتفاقية-تجارية-بين-حكومة-الأردن-و-الجمهورية-التشيكية.md"
+  },
+  {
+   "id": "doc-0357",
+   "title": "نص اتفاقية الرياض للتعاون القضائي",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0357_نص-اتفاقية-الرياض-للتعاون-القضائي.md"
+  },
+  {
+   "id": "doc-0358",
+   "title": "اتفاقيات تسليم المجرمين في الأردن",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0358_اتفاقيات-تسليم-المجرمين-في-الأردن.md"
+  },
+  {
+   "id": "doc-0371",
+   "title": "exclusive-commercial-agency-agreement",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0371_EXCLUSIVE-COMMERCIAL-AGENCY-AGREEMENT.md"
+  },
+  {
+   "id": "doc-0373",
+   "title": "general-power-of-attorney-translated-to-arabic-jordan-lawyer",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0373_General-Power-of-Attorney-Sample.md"
+  },
+  {
+   "id": "doc-0374",
+   "title": "retainer-agreement-sample",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0374_Retainer-Agreement-–-sample.md"
+  },
+  {
+   "id": "doc-0375",
+   "title": "special-power-of-attorney-jordan-lawyer",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0375_Lawyer-Power-of-Attorney-form.md"
+  },
+  {
+   "id": "doc-0381",
+   "title": "نموذج رد على لائحة الادعاء في مخالفات نظام المنافسة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0381_نموذج-رد-على-لائحة-الادعاء-في-مخالفات-نظام-المنافسة-السعودية.md"
+  },
+  {
+   "id": "doc-0383",
+   "title": "نموذج مذكرة شارحة حول تقرير خبرة",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0383_نموذج-مذكرة-شارحة-حول-تقرير-خبرة.md"
+  },
+  {
+   "id": "doc-0386",
+   "title": "نموذج إنذار عدلي لإخلاء مأجور و عدم رغبة بتجديد",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0386_نموذج-إنذار-عدلي-لإخلاء-مأجور-و-عدم-رغبة-بتجديد.md"
+  },
+  {
+   "id": "doc-0387",
+   "title": "نموذج تسوية على شيك تقدم للبنوك الأردنية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0387_نموذج-تسوية-على-شيك-تقدم-للبنوك-الأردنية.md"
+  },
+  {
+   "id": "doc-0425",
+   "title": "sample-of-retainer-agreement-for-cheque-case-in-jordan",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0425_Retainer-Agreement-sample-Cheque-case.md"
+  },
+  {
+   "id": "doc-0431",
+   "title": "اتفاقية تعاون إداري  بين الدول أعضاء الاتفاقية  أغادير لسنة 2015",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0431_اتفاقية-تعاون-إداري-بين-الدول-أعضاء-الاتفاقية-أغادير-لسنة-2015.md"
+  },
+  {
+   "id": "doc-0454",
+   "title": "lease-contract-sample",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0454_نموذج-عقد-إيجار-2025.md"
+  },
+  {
+   "id": "doc-0474",
+   "title": "نموذج عقد شراكة لفتح مطعم",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0474_نموذج-عقد-شراكة-لفتح-مطعم.md"
+  },
+  {
+   "id": "doc-0518",
+   "title": "نموذج عقد شراكة في شركة تسويق",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0518_نموذج-عقد-شراكة-في-شركة-تسويق.md"
+  },
+  {
+   "id": "doc-0520",
+   "title": "foreign-non-profit-organization-representative-rower-of-attorney-form",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0520_Sample-of-NGO-legal-representative-power-of-Attorney.md"
+  },
+  {
+   "id": "doc-0521",
+   "title": "legal-requirements-for-registering-ngo-in-jordan",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0521_Legal-requirements-for-registering-NGO-in-Jordan.md"
+  },
+  {
+   "id": "doc-0549",
+   "title": "corporation-contract-form-1",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0549_نموذج-اتفاقية-شراكة-مخابز.md"
+  },
+  {
+   "id": "doc-0551",
+   "title": "نموذج إقرار بعدم المنافسة",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0551_نموذج-إقرار-بعدم-المنافسة.md"
+  },
+  {
+   "id": "doc-0552",
+   "title": "نموذج استشارة قانونية خطية- قابل للطباعة والنسخ",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0552_نموذج-استشارة-قانونية-خطية-قابل-للطباعة-والنسخ.md"
+  },
+  {
+   "id": "doc-0553",
+   "title": "legal-consultation-web-site-designing-dispute",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0553_نموذج-رد-قانوني-حول-تطبيق-إلكتروني.md"
+  },
+  {
+   "id": "doc-0556",
+   "title": "trade-name-license",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-0556_اتفاقية-استخدام-اسم-تجاري.md"
+  },
+  {
+   "id": "doc-0570",
+   "title": "نموذج تعهد خطي بإخلاء شقة",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0570_نموذج-تعهد-خطي-بإخلاء-شقة.md"
+  },
+  {
+   "id": "doc-0669",
+   "title": "نموذج وصل استلام وسند قبض- قابل للطباعة والنسخ",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0669_نموذج-وصل-استلام-وسند-قبض-قابل-للطباعة-والنسخ.md"
+  },
+  {
+   "id": "doc-0672",
+   "title": "اتفاقية فينا لقانون المعاهدات",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0672_اتفاقية-فينا-لقانون-المعاهدات.md"
+  },
+  {
+   "id": "doc-0698",
+   "title": "عقد الفيديك الموحد",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0698_عقد-الفيديك-الموحد.md"
+  },
+  {
+   "id": "doc-0700",
+   "title": "كيفية كتابة العقد",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0700_كيفية-كتابة-العقد.md"
+  },
+  {
+   "id": "doc-0767",
+   "title": "نماذج اتفاقية توزيع تجاري حصري وغير حصري 2025",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0767_نماذج-اتفاقية-توزيع-تجاري-حصري-وغير-حصري-2025.md"
+  },
+  {
+   "id": "doc-0768",
+   "title": "عقد تصميم موقع الكتروني 2025",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0768_عقد-تصميم-موقع-الكتروني-2025.md"
+  },
+  {
+   "id": "doc-0770",
+   "title": "نموذج عقد فرنشايز 2025",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0770_نموذج-عقد-فرنشايز-2025.md"
+  },
+  {
+   "id": "doc-0775",
+   "title": "سند الأمانة",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0775_سند-الأمانة.md"
+  },
+  {
+   "id": "doc-0784",
+   "title": "d8a7d8aad981d8a7d982d98ad8a9-d8b9d8afd985-d8a7d984d8a5d981d8b4d8a7d8a1-nda-d8b3d8b1d98ad8a9-d985d8b9d984d988d985d8a7d8aa",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0784_أحكام-اتفاقية-سرية-المعلومات-ونموذج-لها.md"
+  },
+  {
+   "id": "doc-0787",
+   "title": "نموذج وكالة محامي",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0787_نموذج-وكالة-محامي.md"
+  },
+  {
+   "id": "doc-0838",
+   "title": "عقد تسويق إلكتروني",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0838_عقد-تسويق-إلكتروني.md"
+  },
+  {
+   "id": "doc-0840",
+   "title": "d8a7d8aad981d8a7d982d98ad8a9-d985d8b3d8aad988d989-d8a7d984d8aed8afd985d8a9-sla",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0840_أحكام-اتفاقية-مستوى-الخدمة-SLA.md"
+  },
+  {
+   "id": "doc-0842",
+   "title": "d986d985d988d8b0d8ac-d8a7d8aad981d8a7d982d98ad8a9-sla",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0842_نموذج-اتفاقية-مستوى-الخدمة-SlA.md"
+  },
+  {
+   "id": "doc-0845",
+   "title": "كيفية كتابة المذكرات واللوائح القانونية في السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0845_كيفية-كتابة-المذكرات-واللوائح-القانونية-في-السعودية.md"
+  },
+  {
+   "id": "doc-0846",
+   "title": "كيفية كتابة اللوائح الاعتراضية في السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0846_كيفية-كتابة-اللوائح-الاعتراضية-في-السعودية.md"
+  },
+  {
+   "id": "doc-0887",
+   "title": "نموذج عقد تنازل عن شركة سعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0887_نموذج-عقد-تنازل-عن-شركة-سعودية.md"
+  },
+  {
+   "id": "doc-0992",
+   "title": "حجية السجل الإلكتروني",
+   "subcategory": "شرح-قانون",
+   "type": "article",
+   "file": "doc-0992_حجية-السجل-الإلكتروني.md"
+  },
+  {
+   "id": "doc-0996",
+   "title": "المقاصة وأحكامها",
+   "subcategory": "شرح-قانون",
+   "type": "article",
+   "file": "doc-0996_المقاصة-وأحكامها.md"
+  },
+  {
+   "id": "doc-1072",
+   "title": "wipo-world-intellectual-property-organization",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-1072_المنظمة-العالمية-للملكية-الفكرية-(الوايبو).md"
+  },
+  {
+   "id": "doc-1080",
+   "title": "التبليغات في اتفاقية الرياض",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-1080_التبليغات-في-اتفاقية-الرياض.md"
+  },
+  {
+   "id": "doc-1106",
+   "title": "إجراءات  التسليم في اتفاقية الرياض",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-1106_إجراءات-التسليم-في-اتفاقية-الرياض.md"
+  },
+  {
+   "id": "doc-1107",
+   "title": "التسليم في اتفاقية الرياض",
+   "subcategory": "عقود-عقارية",
+   "type": "article",
+   "file": "doc-1107_التسليم-في-اتفاقية-الرياض.md"
+  },
+  {
+   "id": "doc-1120",
+   "title": "world-trade-organization-agreement",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-1120_اتفاقية-إنشاء-منظمة-التجارة-العالمية.md"
+  },
+  {
+   "id": "doc-1144",
+   "title": "مبادئ اتفاقية نيويورك",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-1144_مبادئ-اتفاقية-نيويورك.md"
+  },
+  {
+   "id": "doc-1195",
+   "title": "نموذج اتفاقية شراكة في تطبيق إلكتروني",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1195_نموذج-اتفاقية-شراكة-في-تطبيق-إلكتروني.md"
+  },
+  {
+   "id": "doc-1234",
+   "title": "المعاهدة في القانون الدولي",
+   "subcategory": "قانون-دولي",
+   "type": "article",
+   "file": "doc-1234_المعاهدة-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1244",
+   "title": "الأسلحة البيولوجية في القانون الدولي",
+   "subcategory": "قانون-دولي",
+   "type": "article",
+   "file": "doc-1244_الأسلحة-البيولوجية-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1316",
+   "title": "car-accident-reconciliation-forms",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1316_نماذج-مخالصات-حادث-سير.md"
+  },
+  {
+   "id": "doc-1319",
+   "title": "نموذج لائحة دعوى فسخ عقد إيجار",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1319_نموذج-لائحة-دعوى-فسخ-عقد-إيجار.md"
+  },
+  {
+   "id": "doc-1375",
+   "title": "riyadh-arab-agreement-for-judicial-cooperation",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-1375_تعريف-باتفاقية-الرياض-للتعاون-القضائي.md"
+  },
+  {
+   "id": "doc-1392",
+   "title": "diplomatic-representation",
+   "subcategory": "قانون-دولي",
+   "type": "article",
+   "file": "doc-1392_التمثيل-الدبلوماسي.md"
+  },
+  {
+   "id": "doc-1446",
+   "title": "trademark-assignment",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-1446_نقل-ملكية-العلامة-التجارية-مع-النماذج.md"
+  },
+  {
+   "id": "doc-1462",
+   "title": "tax-coordination-between-countries",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-1462_التنسيق-الضريبي-بين-الدول.md"
+  },
+  {
+   "id": "doc-1472",
+   "title": "endangered-marine-creatures",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-1472_التعدي-على-الكائنات-البحرية-المهددة-بالانقراض.md"
+  },
+  {
+   "id": "doc-1598",
+   "title": "commercial-agents-and-brokers-law",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-1598_قانون-الوكلاء-والوسطاء-التجاريين-حتى-2025.md"
+  },
+  {
+   "id": "doc-1666",
+   "title": "the-concept-of-the-author-in-copyright-law",
+   "subcategory": "شرح-قانون",
+   "type": "article",
+   "file": "doc-1666_مفهوم-المُؤلِف-في-قانون-حق-المؤلف.md"
+  },
+  {
+   "id": "doc-1784",
+   "title": "اتفاقية الإعلانات والإنابات القضائية",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-1784_اتفاقية-الإعلانات-والإنابات-القضائية.md"
+  },
+  {
+   "id": "doc-1888",
+   "title": "application-investment-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1888_عقد-استثمار-تطبيق-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1891",
+   "title": "brokerage-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1891_كيفية-كتابة-عقد-السمسرة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1896",
+   "title": "investment-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1896_كيفية-كتابة-عقد-الاستثمار-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1901",
+   "title": "commercial-lease-agreement-template",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1901_نموذج-عقد-إيجار-مكتب-تجاري-2025.md"
+  },
+  {
+   "id": "doc-1921",
+   "title": "how-to-draft-digital-marketing-agreement",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1921_كيفية-كتابة-عقد-التسويق-الإلكتروني-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1922",
+   "title": "how-to-make-partnership-contracts-on-know-how-vs-capital",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1922_كيفية-كتابة-عقد-مشاركة-رأس-مال-مقابل-الخبرة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1923",
+   "title": "how-to-write-a-confidentiality-agreement",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1923_كيفية-كتابة-اتفاقية-سرية-المعلومات-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1924",
+   "title": "how-to-write-a-programming-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1924_كيفية-كتابة-عقد-برمجة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1931",
+   "title": "how-to-write-a-check-in-saudi-law",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1931_كيفية-كتابة-الشيك-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1932",
+   "title": "how-to-write-a-clearing-contract-between-two-parties-according-to-the-saudi-system",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1932_كيفية-كتابة-عقد-مخالصة-بين-طرفين-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1935",
+   "title": "how-to-write-a-money-investment-contract-in-saudi-arabia",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1935_كيفية-كتابة-عقد-استثمار-الأموال-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1936",
+   "title": "how-to-write-a-non-disclosure-agreement",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1936_كيفية-كتابة-اتفاقية-عدم-إفشاء-المعلومات-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1937",
+   "title": "how-to-write-a-property-management-contract-in-saudi-law",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1937_كيفية-كتابة-عقد-إدارة-أملاك-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1940",
+   "title": "partnership-contract-between-a-saudi-and-a-non-saudi-resident",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1940_كيفية-كتابة-عقد-الشراكة-بين-سعودي-ومقيم-غير-سعودي.md"
+  },
+  {
+   "id": "doc-1944",
+   "title": "barter-agreement-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1944_كيفية-كتابة-عقد-مقايضة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1945",
+   "title": "business-partnership-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1945_كيفية-كتابة-عقد-شراكة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1948",
+   "title": "how-to-write-a-franchise-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1948_كيفية-كتابة-عقد-الفرنشايز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1951",
+   "title": "how-to-write-a-speculative-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-1951_كيفية-كتابة-عقد-المضاربة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2019",
+   "title": "plea-on-expert-report-in-a-trademark-case",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2019_نموذج-مطالعة-حول-تقرير-خبرة-في-قضية-تقليد-علامات-تجارية.md"
+  },
+  {
+   "id": "doc-2059",
+   "title": "كيفية كتابة عقد الاستثمار العقاري وفق النظام السعودي",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2059_كيفية-كتابة-عقد-الاستثمار-العقاري-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2167",
+   "title": "الإفصاح في عقد الامتياز وفق النظام السعودي",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-2167_الإفصاح-في-عقد-الامتياز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2214",
+   "title": "كيفية كتابة عقد التدريب والتأهيل السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2214_كيفية-كتابة-عقد-التدريب-والتأهيل-السعودية.md"
+  },
+  {
+   "id": "doc-2238",
+   "title": "كيفية كتابة عقد التوريد وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2238_كيفية-كتابة-عقد-التوريد-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2239",
+   "title": "أهمية أن يكون العقد مكتوب وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2239_أهمية-أن-يكون-العقد-مكتوب-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2259",
+   "title": "كيفية كتابة عقد رعاية إعلامية وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2259_كيفية-كتابة-عقد-رعاية-إعلامية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2275",
+   "title": "كيفية كتابة عقد إدارة محتوى وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2275_كيفية-كتابة-عقد-إدارة-محتوى-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2293",
+   "title": "d983d98ad981d98ad8a9-d983d8aad8a7d8a8d8a9-d8b9d982d8af-bot",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2293_كيفية-كتابة-عقد-bot-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2294",
+   "title": "كيفية كتابة عقد اتفاق بين طرفين وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2294_كيفية-كتابة-عقد-اتفاق-بين-طرفين-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2297",
+   "title": "كيفية كتابة عقد إدارة وتشغيل مصنع وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2297_كيفية-كتابة-عقد-إدارة-وتشغيل-مصنع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2319",
+   "title": "كيفية كتابة عقد العمل الحر (فري لانسر) وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2319_كيفية-كتابة-عقد-العمل-الحر-(فري-لانسر)-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2328",
+   "title": "كيفية كتابة عقد توصيل طلبات (بين شركة توصيل وعميل) وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2328_كيفية-كتابة-عقد-توصيل-طلبات-(بين-شركة-توصيل-وعميل)-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2329",
+   "title": "كيفية كتابة عقد سلفة وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2329_كيفية-كتابة-عقد-سلفة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2332",
+   "title": "كيفية كتابة عقد التقبيل وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2332_كيفية-كتابة-عقد-التقبيل-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2333",
+   "title": "كيفية كتابة عقد تمويل وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2333_كيفية-كتابة-عقد-تمويل-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2337",
+   "title": "كيفية كتابة عقد توصيل طلبات (بين شركة توصيل والسائق) وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2337_كيفية-كتابة-عقد-توصيل-طلبات-(بين-شركة-توصيل-والسائق)-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2359",
+   "title": "كيفية كتابة عقد توريد المنتجات وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2359_كيفية-كتابة-عقد-توريد-المنتجات-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2365",
+   "title": "ip-rights-partnership-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-2365_عقد-مشاركة-في-حقوق-تأليف-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2371",
+   "title": "كيفية كتابة اتفاقية مستوى الخدمة وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2371_كيفية-كتابة-اتفاقية-مستوى-الخدمة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2373",
+   "title": "كيفية كتابة خطاب النوايا وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2373_كيفية-كتابة-خطاب-النوايا-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2375",
+   "title": "كيفية كتابة سياسة الخصوصية وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2375_كيفية-كتابة-سياسة-الخصوصية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2377",
+   "title": "كيفية كتابة عقد إدارة وتشغيل مطعم وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2377_كيفية-كتابة-عقد-إدارة-وتشغيل-مطعم-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2387",
+   "title": "كيفية كتابة عقد القرض الحسن وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2387_كيفية-كتابة-عقد-القرض-الحسن-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2398",
+   "title": "كيفية كتابة عقد استشارات أمنية وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2398_كيفية-كتابة-عقد-استشارات-أمنية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2753",
+   "title": "كيفية كتابة عقد العارية (إعارة الشيء) وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2753_كيفية-كتابة-عقد-العارية-(إعارة-الشيء)-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2754",
+   "title": "كيفية كتابة عقد مزارعة وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2754_كيفية-كتابة-عقد-مزارعة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2764",
+   "title": "furniture-manufacturing-contract-according-to-the-saudi-system",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2764_عقد-تصنيع-الأثاث-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2766",
+   "title": "how-to-write-a-building-finishing-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2766_كيفية-كتابة-عقد-تشطيبات-بناء-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2767",
+   "title": "how-to-write-a-car-rental-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2767_كيفية-كتابة-عقد-تأجير-السيارة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2768",
+   "title": "how-to-write-a-community-partnership-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2768_كيفية-كتابة-عقد-شراكة-مجتمعية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2769",
+   "title": "how-to-write-a-graphic-design-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2769_كيفية-كتابة-عقد-تصميم-جرافيك-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2770",
+   "title": "how-to-write-a-lease-contract-for-a-facility-with-equipment",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2770_كيفية-كتابة-عقد-تضمين-منشأة-مع-المعدات-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2771",
+   "title": "how-to-write-a-management-consulting-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2771_كيفية-كتابة-عقد-تقديم-استشارات-إدارية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2772",
+   "title": "how-to-write-a-privacy-policy-contract-on-the-talabat-delivery-site",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2772_كيفية-كتابة-عقد-سياسة-الخصوصية-في-موقع-توصيل-طلبات-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2773",
+   "title": "how-to-write-a-technical-knowledge-transfer-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2773_كيفية-كتابة-عقد-نقل-المعرفة-الفنية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2911",
+   "title": "كيفية كتابة عقد استثمار البناء مقابل الأرض وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2911_كيفية-كتابة-عقد-استثمار-البناء-مقابل-الأرض-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2912",
+   "title": "كيفية كتابة عقد تأجير عمالة وفق نظام أجير وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2912_كيفية-كتابة-عقد-تأجير-عمالة-وفق-نظام-أجير-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2913",
+   "title": "كيفية كتابة عقد تشطيب بناية وفق الأنظمة السعودية",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-2913_كيفية-كتابة-عقد-تشطيب-بناية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2926",
+   "title": "الفرق بين العقد والاتفاقية وفق الأنظمة السعودية",
+   "subcategory": "شرح-قانون",
+   "type": "article",
+   "file": "doc-2926_الفرق-بين-العقد-والاتفاقية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-3113",
+   "title": "sample-of-general-poawer-of-attorny-jordan",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-3113_Sample-of-General-poawer-of-attorny-–-Jordan.md"
+  },
+  {
+   "id": "doc-3134",
+   "title": "cancellation-and-refund-policy",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-3134_Cancellation-and-Refund-Policy.md"
+  }
+ ]
+}

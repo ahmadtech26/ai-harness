@@ -1,0 +1,1584 @@
+{
+  "law": "قانون نقابة المحامين النظاميين",
+  "slug": "قانون-نقابة-المحامين",
+  "total_articles": 110,
+  "classified_by": "llm",
+  "articles": [
+    {
+      "id": "1",
+      "type": [
+        "definition",
+        "legal-profession"
+      ],
+      "keywords": [
+        "التسمية",
+        "نفاذ القانون",
+        "الجريدة الرسمية"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "2",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "تأليف النقابة",
+        "المحامون النظاميون",
+        "مركزا النقابة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "3",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "الشخصية الاعتبارية",
+        "الاستقلال المالي",
+        "مجلس النقابة",
+        "النقيب"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "4",
+      "type": [
+        "legal-profession"
+      ],
+      "keywords": [
+        "اتحاد المحامين العرب",
+        "التعاون",
+        "مهنة المحاماة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "5",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "أهداف النقابة",
+        "صندوق التقاعد",
+        "الصندوق التعاوني",
+        "المعونة القضائية"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "6",
+      "type": [
+        "definition",
+        "legal-profession",
+        "agency"
+      ],
+      "keywords": [
+        "أعوان القضاء",
+        "التوكل عن الغير",
+        "تنظيم العقود",
+        "الاستشارات القانونية"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "7",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "ممارسة المهنة",
+        "سجل المحامين الأساتذة",
+        "التسجيل"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "8",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "شروط التسجيل",
+        "الجنسية الأردنية",
+        "شهادة الحقوق",
+        "التدرب",
+        "الرسوم"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "9",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "المحامي العربي",
+        "التسجيل",
+        "المعاملة بالمثل"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "10",
+      "type": [
+        "legal-profession",
+        "requirement",
+        "procedure"
+      ],
+      "keywords": [
+        "المحامي العربي",
+        "المرافعة المشتركة",
+        "إذن النقابة",
+        "المعاملة بالمثل"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "11",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "الجمع بين المحاماة",
+        "الوظائف العامة",
+        "احتراف التجارة",
+        "استقلال المحامي"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "12",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "المحامون غير المزاولين",
+        "نقل الاسم",
+        "شروط المزاولة",
+        "إعادة التسجيل"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "13",
+      "type": [
+        "legal-profession",
+        "agency",
+        "requirement"
+      ],
+      "keywords": [
+        "تعارض المصالح",
+        "قبول الوكالة",
+        "الوزير السابق",
+        "القاضي السابق"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "14",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "سجلات المحامين",
+        "المزاولون",
+        "غير المزاولين",
+        "المتدربون"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "15",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "appeal"
+      ],
+      "keywords": [
+        "طلب التسجيل",
+        "المستندات",
+        "الرفض الضمني",
+        "الطعن"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "16",
+      "type": [
+        "legal-profession",
+        "appeal"
+      ],
+      "keywords": [
+        "الطعن",
+        "قرار التسجيل",
+        "وزير العدل",
+        "رد الطلب"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "17",
+      "type": [
+        "legal-profession",
+        "requirement",
+        "appeal"
+      ],
+      "keywords": [
+        "إلغاء التسجيل",
+        "إعادة النظر",
+        "شروط التسجيل",
+        "الطعن"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "18",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "appeal"
+      ],
+      "keywords": [
+        "تجديد الطلب",
+        "رفض التسجيل",
+        "زوال السبب",
+        "الطعن"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "19",
+      "type": [
+        "legal-profession",
+        "procedure"
+      ],
+      "keywords": [
+        "السجل السنوي",
+        "نشر السجل",
+        "وزارة العدل",
+        "اتحاد المحامين"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "20",
+      "type": [
+        "legal-profession"
+      ],
+      "keywords": [
+        "إضبارة المحامي",
+        "النظام الداخلي",
+        "السجلات"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "21",
+      "type": [
+        "legal-profession",
+        "fees",
+        "procedure"
+      ],
+      "keywords": [
+        "الرسوم المستحقة",
+        "اليمين القانونية",
+        "السجل السنوي",
+        "البطلان"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "22",
+      "type": [
+        "legal-profession",
+        "fees"
+      ],
+      "keywords": [
+        "الرسوم السنوية",
+        "استبعاد الاسم",
+        "إعادة التسجيل",
+        "الانقطاع عن العمل"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "23",
+      "type": [
+        "legal-profession",
+        "procedure"
+      ],
+      "keywords": [
+        "اليمين القانونية",
+        "القسم",
+        "وزير العدل",
+        "سر المهنة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "24",
+      "type": [
+        "legal-profession",
+        "penalty"
+      ],
+      "keywords": [
+        "العقوبات التأديبية",
+        "السجل السنوي",
+        "المزاولة غير المشروعة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "25",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "appeal"
+      ],
+      "keywords": [
+        "التدريب",
+        "طلب التسجيل",
+        "المحامي المتدرب",
+        "محكمة العدل"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "26",
+      "type": [
+        "legal-profession"
+      ],
+      "keywords": [
+        "معهد تدريب المحامين",
+        "التدريب",
+        "نظام خاص"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "27",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "مدة التدريب",
+        "الشهادة الجامعية",
+        "التقاعد"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "28",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "الإعفاء من التدريب",
+        "منصب قضائي",
+        "النيابة العامة",
+        "الخدمة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "29",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "المتدرب",
+        "مكتب المحامي",
+        "الإشراف",
+        "التدريب"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "30",
+      "type": [
+        "legal-profession",
+        "procedure"
+      ],
+      "keywords": [
+        "نقل المتدرب",
+        "مكتب المحامي",
+        "موافقة المجلس"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "31",
+      "type": [
+        "legal-profession",
+        "procedure"
+      ],
+      "keywords": [
+        "المرافعة",
+        "المحامي المتدرب",
+        "الإشراف",
+        "محاكم الصلح"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "32",
+      "type": [
+        "legal-profession",
+        "procedure"
+      ],
+      "keywords": [
+        "تعقب المعاملات",
+        "المراجع القضائية",
+        "التحقيقات",
+        "النيابة العامة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "33",
+      "type": [
+        "legal-profession",
+        "requirement",
+        "penalty"
+      ],
+      "keywords": [
+        "صفة المحامي المتدرب",
+        "لوحة المكتب",
+        "تمديد التدريب",
+        "العقوبة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "34",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "appeal"
+      ],
+      "keywords": [
+        "شطب الاسم",
+        "المتدرب",
+        "إعادة التسجيل",
+        "الطعن"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "35",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "واجبات التدريب",
+        "نقل الاسم",
+        "الكفاءة",
+        "تمديد التدريب"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "36",
+      "type": [
+        "legal-profession",
+        "mediation"
+      ],
+      "keywords": [
+        "الخلاف",
+        "المتدرب",
+        "الأستاذ",
+        "الفصل في النزاع"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "37",
+      "type": [
+        "legal-profession",
+        "procedure"
+      ],
+      "keywords": [
+        "الموطن",
+        "التبليغ",
+        "المتدرب",
+        "مكتب الأستاذ"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "38",
+      "type": [
+        "legal-profession",
+        "penalty",
+        "crime",
+        "misdemeanor"
+      ],
+      "keywords": [
+        "حصر المهنة",
+        "المزاولة غير المشروعة",
+        "الحبس",
+        "الغرامة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "39",
+      "type": [
+        "legal-profession",
+        "liability",
+        "pleadings"
+      ],
+      "keywords": [
+        "حرية الدفاع",
+        "المرافعات",
+        "عدم المسؤولية",
+        "حسن النية"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "40",
+      "type": [
+        "legal-profession",
+        "liability",
+        "penalty"
+      ],
+      "keywords": [
+        "حصانة المحامي",
+        "الحرية",
+        "الاعتداء على محام",
+        "المسؤولية التأديبية"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "41",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "agency"
+      ],
+      "keywords": [
+        "التمثيل أمام المحاكم",
+        "حصر المرافعة",
+        "البطلان",
+        "الوكالة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "42",
+      "type": [
+        "legal-profession",
+        "partnership",
+        "requirement"
+      ],
+      "keywords": [
+        "عقد الشركة",
+        "توقيع المحامي",
+        "تسجيل الشركة"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "43",
+      "type": [
+        "legal-profession",
+        "partnership",
+        "agency"
+      ],
+      "keywords": [
+        "المستشار القانوني",
+        "الوكيل القانوني",
+        "الشركات المساهمة",
+        "تعيين المحامي"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "44",
+      "type": [
+        "legal-profession",
+        "agency",
+        "fees"
+      ],
+      "keywords": [
+        "تصديق التواقيع",
+        "الوكالة الخصوصية",
+        "الإنابة",
+        "رسم الإبراز"
+      ],
+      "section": "00-المواد-1-44"
+    },
+    {
+      "id": "45",
+      "type": [
+        "legal-profession",
+        "fees"
+      ],
+      "keywords": [
+        "بدل الأتعاب",
+        "النفقات",
+        "حق المحامي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "46",
+      "type": [
+        "legal-profession",
+        "fees",
+        "contract"
+      ],
+      "keywords": [
+        "أتعاب المحاماة",
+        "العقد",
+        "نسبة الأتعاب",
+        "تقدير الأتعاب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "47",
+      "type": [
+        "legal-profession",
+        "fees"
+      ],
+      "keywords": [
+        "الأتعاب المتفق عليها",
+        "الصلح",
+        "التحكيم",
+        "عزل الموكل"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "48",
+      "type": [
+        "legal-profession",
+        "fees",
+        "agency",
+        "mediation"
+      ],
+      "keywords": [
+        "عزل المحامي",
+        "اعتزال الوكالة",
+        "الأتعاب",
+        "الفصل في الخلاف"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "49",
+      "type": [
+        "legal-profession",
+        "fees",
+        "appeal"
+      ],
+      "keywords": [
+        "وفاة الوكيل",
+        "اعتزال المهنة",
+        "تقدير الأتعاب",
+        "الاستئناف"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "50",
+      "type": [
+        "legal-profession",
+        "fees",
+        "obligation"
+      ],
+      "keywords": [
+        "تسليم الأوراق",
+        "حبس النقود",
+        "الأتعاب",
+        "التقادم"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "51",
+      "type": [
+        "legal-profession",
+        "fees",
+        "security",
+        "enforcement"
+      ],
+      "keywords": [
+        "امتياز الأتعاب",
+        "دين ممتاز",
+        "التنفيذ",
+        "حق الامتياز"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "52",
+      "type": [
+        "legal-profession",
+        "fees",
+        "appeal",
+        "procedure"
+      ],
+      "keywords": [
+        "لجنة تقدير الأتعاب",
+        "الاعتراض",
+        "هيئة الاعتراض",
+        "الاستئناف"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "53",
+      "type": [
+        "legal-profession",
+        "partnership",
+        "requirement"
+      ],
+      "keywords": [
+        "مكتب المحامي",
+        "الموطن",
+        "شركة مدنية",
+        "تعاون المحامين"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "54",
+      "type": [
+        "legal-profession",
+        "obligation"
+      ],
+      "keywords": [
+        "الشرف",
+        "النزاهة",
+        "واجبات المحامي",
+        "تقاليد النقابة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "55",
+      "type": [
+        "legal-profession",
+        "liability",
+        "obligation"
+      ],
+      "keywords": [
+        "الدفاع عن الموكل",
+        "الأمانة",
+        "تجاوز الوكالة",
+        "الخطأ الجسيم"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "56",
+      "type": [
+        "legal-profession",
+        "obligation"
+      ],
+      "keywords": [
+        "كرامة المحاماة",
+        "سير العدالة",
+        "سلوك المحامي",
+        "المحكمة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "57",
+      "type": [
+        "legal-profession",
+        "obligation",
+        "mediation"
+      ],
+      "keywords": [
+        "معاملة الزملاء",
+        "اللياقة",
+        "الخلاف المسلكي",
+        "الفصل"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "58",
+      "type": [
+        "legal-profession",
+        "obligation"
+      ],
+      "keywords": [
+        "سب الخصم",
+        "الأمور الشخصية",
+        "حالة الدفاع",
+        "واجبات المحامي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "59",
+      "type": [
+        "legal-profession",
+        "obligation"
+      ],
+      "keywords": [
+        "الرداء الخاص",
+        "المحاكم",
+        "النظام الداخلي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "60",
+      "type": [
+        "legal-profession",
+        "obligation",
+        "liability"
+      ],
+      "keywords": [
+        "حظر جلب القضايا",
+        "سرية المهنة",
+        "الشهادة ضد الموكل",
+        "شراء الحقوق المتنازع عليها"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "61",
+      "type": [
+        "legal-profession",
+        "obligation",
+        "agency"
+      ],
+      "keywords": [
+        "تعارض المصالح",
+        "قبول الوكالة",
+        "طرفان متخاصمان",
+        "ضد الموكل"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "62",
+      "type": [
+        "legal-profession",
+        "obligation"
+      ],
+      "keywords": [
+        "الوكالة ضد زميل",
+        "مجلس النقابة",
+        "إجازة النقيب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "63",
+      "type": [
+        "legal-profession",
+        "penalty"
+      ],
+      "keywords": [
+        "العقوبات التأديبية",
+        "التنبيه",
+        "التوبيخ",
+        "المنع من المزاولة",
+        "الشطب النهائي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "64",
+      "type": [
+        "legal-profession",
+        "penalty"
+      ],
+      "keywords": [
+        "المنع المؤقت",
+        "فتح المكتب",
+        "التدريب",
+        "التقاعد"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "65",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "مجلس التأديب",
+        "الأعضاء الاحتياط",
+        "الاعتراض",
+        "مجلس التأديب الاستئنافي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "66",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "pleadings"
+      ],
+      "keywords": [
+        "رد الأعضاء",
+        "أسباب رد القضاة",
+        "طلب الرد",
+        "الطعن"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "67",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "court-organization"
+      ],
+      "keywords": [
+        "استبدال العضو",
+        "الأعضاء الاحتياط",
+        "النقيب",
+        "مجلس التأديب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "68",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "pleadings"
+      ],
+      "keywords": [
+        "الدعوى المسلكية",
+        "الشكوى",
+        "النقيب",
+        "المجلس التأديبي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "69",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "penalty"
+      ],
+      "keywords": [
+        "انفصال المحامي",
+        "المحاكمة",
+        "أعمال المهنة",
+        "المساءلة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "70",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "evidence"
+      ],
+      "keywords": [
+        "التحقيق",
+        "حقوق الدفاع",
+        "سماع الشهود",
+        "الإيقاف المؤقت"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "71",
+      "type": [
+        "legal-profession",
+        "procedure"
+      ],
+      "keywords": [
+        "سرية الجلسات",
+        "نشر الأحكام",
+        "التبليغ",
+        "الأوراق القضائية"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "72",
+      "type": [
+        "legal-profession",
+        "procedure",
+        "appeal"
+      ],
+      "keywords": [
+        "قرار المجلس التأديبي",
+        "البراءة",
+        "الإدانة",
+        "الطعن"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "73",
+      "type": [
+        "legal-profession",
+        "penalty",
+        "crime"
+      ],
+      "keywords": [
+        "الحكم الجزائي",
+        "معاقبة محام",
+        "الجناية",
+        "الجنحة المخلة بالشرف"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "74",
+      "type": [
+        "legal-profession",
+        "enforcement",
+        "procedure"
+      ],
+      "keywords": [
+        "الأحكام التأديبية",
+        "سجل خاص",
+        "التنفيذ",
+        "النيابة العامة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "75",
+      "type": [
+        "legal-profession",
+        "penalty",
+        "crime"
+      ],
+      "keywords": [
+        "عدم التقيد",
+        "الأحكام التأديبية",
+        "المنع من المزاولة",
+        "العقوبة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "76",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "الهيئة العامة",
+        "المحامون الأساتذة",
+        "الرسوم السنوية",
+        "النقيب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "77",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "jurisdiction"
+      ],
+      "keywords": [
+        "اختصاص الهيئة العامة",
+        "انتخاب النقيب",
+        "الميزانية",
+        "شؤون المحاماة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "78",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "الأنظمة",
+        "النظام الداخلي",
+        "نظام التقاعد",
+        "رسوم التسجيل"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "79",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "الاجتماع العادي",
+        "الهيئة العامة",
+        "السنوي",
+        "الاختصاصات"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "80",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "الاجتماع الاستثنائي",
+        "الهيئة العامة",
+        "الدعوة",
+        "النقيب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "81",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "دعوة الهيئة العامة",
+        "التبليغ",
+        "جدول الأعمال",
+        "النقيب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "82",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "الاجتماع الاستثنائي",
+        "المسائل المحددة",
+        "جدول الأعمال"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "83",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "النصاب",
+        "الأكثرية المطلقة",
+        "قرارات الهيئة العامة",
+        "التصويت"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "84",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "الانتخاب",
+        "الاقتراع السري",
+        "النقيب",
+        "الأكثرية"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "85",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "requirement"
+      ],
+      "keywords": [
+        "شروط العضوية",
+        "مجلس النقابة",
+        "النقيب",
+        "الترشح"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "86",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "مجلس النقابة",
+        "النقيب",
+        "الأعضاء",
+        "مدة الدورة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "87",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "إعادة انتخاب النقيب",
+        "الدورة الثانية",
+        "مدة النقيب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "88",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "نائب النقيب",
+        "أمين السر",
+        "أمين الصندوق",
+        "اللجان"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "89",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "توزيع الأعمال",
+        "أمين السر",
+        "أمين الصندوق",
+        "النظام الداخلي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "90",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "اجتماع المجلس",
+        "مرتين شهريا",
+        "اجتماع استثنائي",
+        "النقيب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "91",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "إعلام وزير العدل",
+        "نتائج الانتخابات",
+        "قرارات التسجيل"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "92",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "شغور المركز",
+        "النقيب",
+        "نائب النقيب",
+        "ملء الشاغر"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "93",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "jurisdiction"
+      ],
+      "keywords": [
+        "اختصاص مجلس النقابة",
+        "تسجيل المحامين",
+        "التأديب",
+        "أموال النقابة"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "94",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "procedure"
+      ],
+      "keywords": [
+        "نصاب المجلس",
+        "الأكثرية المطلقة",
+        "القرارات",
+        "النقيب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "95",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "النقيب",
+        "تمثيل النقابة",
+        "تنفيذ القرارات",
+        "التقاضي"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "96",
+      "type": [
+        "legal-profession",
+        "employment",
+        "court-organization"
+      ],
+      "keywords": [
+        "تعيين الموظفين",
+        "الرواتب",
+        "إدارة الأعمال",
+        "استئجار الأبنية"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "97",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "انتهاء مدة المجلس",
+        "ظروف قاهرة",
+        "استمرار المجلس",
+        "الانتخاب"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "98",
+      "type": [
+        "legal-profession",
+        "appeal",
+        "procedure"
+      ],
+      "keywords": [
+        "الطعن",
+        "قرارات الهيئة العامة",
+        "محكمة العدل",
+        "الانتخابات"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "99",
+      "type": [
+        "legal-profession",
+        "appeal",
+        "procedure"
+      ],
+      "keywords": [
+        "الطعن",
+        "قرارات مجلس النقابة",
+        "تسجيل المحامي",
+        "التقاعد"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "100",
+      "type": [
+        "legal-profession",
+        "obligation"
+      ],
+      "keywords": [
+        "الخدمة المهنية المجانية",
+        "المعونة القانونية",
+        "الدفاع عن الفقير",
+        "العقوبات المسلكية"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "101",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "السنة المالية",
+        "كانون الثاني",
+        "كانون الأول"
+      ],
+      "section": "01-المواد-45-101"
+    },
+    {
+      "id": "102",
+      "type": [
+        "legal-profession",
+        "fees"
+      ],
+      "keywords": [
+        "موارد النقابة",
+        "رسوم التسجيل",
+        "رسوم الإبراز",
+        "الغرامات"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "103",
+      "type": [
+        "legal-profession",
+        "court-organization",
+        "fees"
+      ],
+      "keywords": [
+        "أموال النقابة",
+        "تحصيل الأموال",
+        "الرسوم",
+        "النفقات"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "104",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "الميزانية",
+        "الحساب الختامي",
+        "الهيئة العامة",
+        "التصديق"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "105",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "أموال النقابة",
+        "الإيداع",
+        "المصرف",
+        "أوامر الصرف"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "106",
+      "type": [
+        "legal-profession",
+        "fees"
+      ],
+      "keywords": [
+        "الإعفاء من الضرائب",
+        "ضريبة المسقفات",
+        "رسوم الطوابع"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "107",
+      "type": [
+        "legal-profession",
+        "court-organization"
+      ],
+      "keywords": [
+        "صندوق التعاون",
+        "صندوق التقاعد",
+        "تحويل الأموال"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "108",
+      "type": [
+        "legal-profession",
+        "requirement"
+      ],
+      "keywords": [
+        "الأنظمة السارية",
+        "نفاذ القانون",
+        "الاشتراكات",
+        "رواتب التقاعد"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "109",
+      "type": [
+        "legal-profession",
+        "definition"
+      ],
+      "keywords": [
+        "إلغاء القانون",
+        "قانون المحامين 1966",
+        "الأنظمة",
+        "التعديلات"
+      ],
+      "section": "02-المواد-102-110"
+    },
+    {
+      "id": "110",
+      "type": [
+        "legal-profession",
+        "definition"
+      ],
+      "keywords": [
+        "تنفيذ القانون",
+        "رئيس الوزراء",
+        "وزير العدل"
+      ],
+      "section": "02-المواد-102-110"
+    }
+  ]
+}

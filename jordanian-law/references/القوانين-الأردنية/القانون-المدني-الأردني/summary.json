@@ -1,0 +1,13 @@
+{
+  "law_title": "القانون المدني الأردني",
+  "total_articles": 1451,
+  "articles_with_explanations": 1370,
+  "coverage_percentage": 94.42,
+  "memorandum_version": 2,
+  "fixes_applied": [
+    "Article 68 number corrected",
+    "Article 79 format fixed",
+    "Article 86 number corrected"
+  ],
+  "extraction_notes": "Fixed range patterns like للمواد (67-71)"
+}

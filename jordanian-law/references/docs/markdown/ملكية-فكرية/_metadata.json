@@ -1,0 +1,210 @@
+{
+ "category": "ملكية-فكرية",
+ "document_count": 29,
+ "note": "regenerated from catalog/ملكية-فكرية.json — the slim catalog is authoritative",
+ "documents": [
+  {
+   "id": "doc-0011",
+   "title": "the-legal-effects-of-a-patent-invalidity",
+   "subcategory": "براءات-الاختراع",
+   "type": "article",
+   "file": "doc-0011_Patent-invalidity-legal-effects.md"
+  },
+  {
+   "id": "doc-0060",
+   "title": "agreement-on-trade-related-aspects-of-intellectual-property-rights",
+   "subcategory": "الاتفاقيات-الدولية",
+   "type": "article",
+   "file": "doc-0060_AGREEMENT-ON-TRADE-RELATED-ASPECTS-OF-INTELLECTUAL-PROPERTY-RIGHTS.md"
+  },
+  {
+   "id": "doc-0067",
+   "title": "jordan-trade-secrets-and-unfair-competition-law-of-2000",
+   "subcategory": "أسرار-تجارية",
+   "type": "article",
+   "file": "doc-0067_Jordan-Trade-secrets-and-unfair-competition-law.md"
+  },
+  {
+   "id": "doc-0068",
+   "title": "protection-of-work-title",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-0068_Protection-of-work-title.md"
+  },
+  {
+   "id": "doc-0320",
+   "title": "protection-of-well-known-trade-marks",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-0320_Protection-of-well-known-trademarks-in-Jordan.md"
+  },
+  {
+   "id": "doc-0321",
+   "title": "trade-mark-licensee-rights-and-obligations-in-jordan-laws",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-0321_Licensee-rights-and-obligations-of-Trademark-in-Jordan.md"
+  },
+  {
+   "id": "doc-0341",
+   "title": "جدول الرسوم المتعلقة بالعلامات التجارية",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-0341_جدول-الرسوم-المتعلقة-بالعلامات-التجارية.md"
+  },
+  {
+   "id": "doc-0343",
+   "title": "trade-marks-in-jordan",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-0343_TradeMarks-in-Jordan.md"
+  },
+  {
+   "id": "doc-0514",
+   "title": "trade-mark-licensing-in-jordan",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-0514_Trade-Mark-Licensing-in-Jordan.md"
+  },
+  {
+   "id": "doc-0876",
+   "title": "تقليد ختم الدولة",
+   "subcategory": "التقليد-والتزوير",
+   "type": "article",
+   "file": "doc-0876_تقليد-ختم-الدولة.md"
+  },
+  {
+   "id": "doc-1243",
+   "title": "d985d986d8b8d985d8a9-d8a7d984d988d8a7d98ad8a8d988-ompi-wipo-d985d8a7d987d98ad8aad987d8a7-d988d8b8d987d988d8b1d987d8a7-d988d8afd988d8b1",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "doc-1243_منظمة-الوايبو-(OMPI-WIPO-)-ماهيتها-وظهورها-ودورها.md"
+  },
+  {
+   "id": "doc-1386",
+   "title": "civil-protection-for-an-unregistered-trademark",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-1386_الحماية-المدنية-للعلامة-التجارية-غير-المسجلة.md"
+  },
+  {
+   "id": "doc-1419",
+   "title": "patent-conditions-in-jordan-law",
+   "subcategory": "براءات-الاختراع",
+   "type": "article",
+   "file": "doc-1419_شروط-براءة-الاختراع-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1502",
+   "title": "right-of-priority-in-trademark-registration",
+   "subcategory": "علامات-تجارية",
+   "type": "article",
+   "file": "doc-1502_حق-الأولوية-في-تسجيل-العلامات-التجارية.md"
+  },
+  {
+   "id": "doc-1522",
+   "title": "copyrights-arising-from-authorship",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "doc-1522_حقوق-المؤلف-الناشئة-عن-التأليف.md"
+  },
+  {
+   "id": "doc-1538",
+   "title": "works-protected-by-copyright-law",
+   "subcategory": "حق-المؤلف",
+   "type": "article",
+   "file": "doc-1538_المصنفات-المحمية-في-قانون-حق-المؤلف.md"
+  },
+  {
+   "id": "doc-1580",
+   "title": "reasons-for-acquiring-territory",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1580_أسباب-اكتساب-الإقليم.md"
+  },
+  {
+   "id": "doc-1620",
+   "title": "paris-convention",
+   "subcategory": "ملكية-صناعية",
+   "type": "article",
+   "file": "doc-1620_Paris-Convention.md"
+  },
+  {
+   "id": "doc-1698",
+   "title": "المشورة القانونية",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-1698_المشورة-القانونية.md"
+  },
+  {
+   "id": "doc-1733",
+   "title": "collective-trademark",
+   "subcategory": "علامات-تجارية",
+   "type": "article",
+   "file": "doc-1733_العلامة-التجارية-الجماعية-وأحكامها.md"
+  },
+  {
+   "id": "doc-1806",
+   "title": "copyright-and-online-journalism",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "doc-1806_الصحافة-عبر-الإنترنت-وحقوق-المؤلف.md"
+  },
+  {
+   "id": "doc-2141",
+   "title": "العلامات التجارية غير التقليدية",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "doc-2141_العلامات-التجارية-غير-التقليدية.md"
+  },
+  {
+   "id": "doc-2934",
+   "title": "diplomatic-and-consular-immunity",
+   "subcategory": "قانون-دولي-عام",
+   "type": "template",
+   "file": "doc-2934_Diplomatic-and-Consular-Immunity.md"
+  },
+  {
+   "id": "doc-3036",
+   "title": "المشكلات العلمية الناتجة عن استخدام الذكاء الاصطناعي",
+   "subcategory": "الذكاء-الاصطناعي",
+   "type": "article",
+   "file": "doc-3036_المشكلات-العلمية-الناتجة-عن-استخدام-الذكاء-الاصطناعي.md"
+  },
+  {
+   "id": "doc-3037",
+   "title": "المشكلات العلمية الناتجة عن استخدام الذكاء الاصطناعي",
+   "subcategory": "الذكاء-الاصطناعي",
+   "type": "article",
+   "file": "doc-3037_المشكلات-العلمية-الناتجة-عن-استخدام-الذكاء-الاصطناعي.md"
+  },
+  {
+   "id": "doc-3058",
+   "title": "ضوابط الاستشهاد بالمصنفات في ضوء قانون حق المؤلف",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "doc-3058_ضوابط-الاستشهاد-بالمصنفات-في-ضوء-قانون-حق-المؤلف.md"
+  },
+  {
+   "id": "doc-3090",
+   "title": "الإلزام باستخدام الذكاء الاصطناعي كآلية لمنع الغش الفكري في الأبحاث العلمية",
+   "subcategory": "الذكاء-الاصطناعي",
+   "type": "article",
+   "file": "doc-3090_الإلزام-باستخدام-الذكاء-الاصطناعي-كآلية-لمنع-الغش-الفكري-في-الأبحاث-العلمية.md"
+  },
+  {
+   "id": "doc-3092",
+   "title": "المصنفات السمعية البصرية المتولدة بالذكاء الاصطناعي",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "doc-3092_المصنفات-السمعية-البصرية-المتولدة-بالذكاء-الاصطناعي.md"
+  },
+  {
+   "id": "doc-3136",
+   "title": "المحاماة والذكاء الاصطناعي",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-3136_المحاماة-والذكاء-الاصطناعي.md"
+  }
+ ]
+}

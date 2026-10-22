@@ -1,0 +1,68 @@
+{
+ "law": "قانون-محكمة-الجنايات-الكبرى",
+ "note": "'articles' = docs that substantively discuss the article (primary). 'mentions' = loose hits (mostly full-law reprints of OTHER laws that merely contain the number).",
+ "articles": {
+  "1": [
+   "doc-0399",
+   "doc-0870"
+  ],
+  "2": [
+   "doc-0399",
+   "doc-0927",
+   "doc-2027",
+   "doc-2625"
+  ],
+  "3": [
+   "doc-0399",
+   "doc-0678",
+   "doc-2027",
+   "doc-2625",
+   "doc-2717",
+   "doc-2804"
+  ],
+  "4": [
+   "doc-1568",
+   "doc-2027",
+   "doc-2625",
+   "doc-2717",
+   "doc-3035",
+   "doc-3064"
+  ],
+  "6": [
+   "doc-0478"
+  ],
+  "7": [
+   "doc-0478"
+  ],
+  "8": [
+   "doc-0066"
+  ],
+  "11": [
+   "doc-2463"
+  ],
+  "13": [
+   "doc-0190",
+   "doc-0631",
+   "doc-0710",
+   "doc-1199",
+   "doc-1568",
+   "doc-1831",
+   "doc-2513",
+   "doc-2634",
+   "doc-2717"
+  ],
+  "14": [
+   "doc-0399",
+   "doc-2625"
+  ],
+  "15": [
+   "doc-0643",
+   "doc-1826",
+   "doc-2463"
+  ],
+  "16": [
+   "doc-0399"
+  ]
+ },
+ "mentions": {}
+}

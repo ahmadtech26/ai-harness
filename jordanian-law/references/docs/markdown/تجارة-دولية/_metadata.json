@@ -1,0 +1,273 @@
+{
+ "category": "تجارة-دولية",
+ "document_count": 38,
+ "note": "regenerated from catalog/تجارة-دولية.json — the slim catalog is authoritative",
+ "documents": [
+  {
+   "id": "doc-0172",
+   "title": "الاتفاقات الدولية الأردنية",
+   "subcategory": "اتفاقيات-تجارية",
+   "type": "article",
+   "file": "doc-0172_الاتفاقات-الدولية-الأردنية.md"
+  },
+  {
+   "id": "doc-0301",
+   "title": "اتفاق تعاون في مجال أنشطة التقييس بين الأردن ومصر",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0301_اتفاق-تعاون-في-مجال-أنشطة-التقييس-بين-الأردن-ومصر.md"
+  },
+  {
+   "id": "doc-0303",
+   "title": "اتفاق للتعاون الاقتصادي والتجاري والتقني بين الأردن و الإمارات",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-0303_اتفاق-للتعاون-الاقتصادي-والتجاري-والتقني-بين-الأردن-و-الإمارات.md"
+  },
+  {
+   "id": "doc-0312",
+   "title": "بروتوكول التعاون الصحي بين الأردن و البحرين البحرين",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-0312_بروتوكول-التعاون-الصحي-بين-الأردن-و-البحرين-البحرين.md"
+  },
+  {
+   "id": "doc-0314",
+   "title": "about-world-trade-organization",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-0314_انضمام-الأردن-إلى-منظمة-التجارة-العالمية.md"
+  },
+  {
+   "id": "doc-0326",
+   "title": "the-best-lawyer",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-0326_كيفية-اختيار-محامي؟.md"
+  },
+  {
+   "id": "doc-1062",
+   "title": "الاتحاد الأوروبي",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "doc-1062_الاتحاد-الأوروبي.md"
+  },
+  {
+   "id": "doc-1131",
+   "title": "united-nations-organization",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "doc-1131_منظمة-الأمم-المتحدة.md"
+  },
+  {
+   "id": "doc-1229",
+   "title": "حماية البيئة في القانون الدولي",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1229_حماية-البيئة-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1238",
+   "title": "أساليب شحن البضائع في الاعتمادات المستندية",
+   "subcategory": "الاعتمادات",
+   "type": "article",
+   "file": "doc-1238_أساليب-شحن-البضائع-في-الاعتمادات-المستندية.md"
+  },
+  {
+   "id": "doc-1239",
+   "title": "التكتلات الدولية الاقتصادية",
+   "subcategory": "تكتلات-اقتصادية",
+   "type": "article",
+   "file": "doc-1239_التكتلات-الدولية-الاقتصادية.md"
+  },
+  {
+   "id": "doc-1247",
+   "title": "المياه الدولية وقوانين أعالي البحار",
+   "subcategory": "قانون-البحار",
+   "type": "article",
+   "file": "doc-1247_المياه-الدولية-وقوانين-أعالي-البحار.md"
+  },
+  {
+   "id": "doc-1256",
+   "title": "الحياد الدولي",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1256_الحياد-الدولي.md"
+  },
+  {
+   "id": "doc-1277",
+   "title": "المسؤولية الدولية عن الأضرار البيئية",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1277_المسؤولية-الدولية-عن-الأضرار-البيئية.md"
+  },
+  {
+   "id": "doc-1303",
+   "title": "مسؤولية المنظمات الدولية",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "doc-1303_مسؤولية-المنظمات-الدولية.md"
+  },
+  {
+   "id": "doc-1353",
+   "title": "maritime-assistance-and-rescue",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-1353_أحكام-المساعدة-والإنقاذ-البحري.md"
+  },
+  {
+   "id": "doc-1359",
+   "title": "responsibility-of-the-air-carrier-for-the-passengers",
+   "subcategory": "النقل-الجوي",
+   "type": "article",
+   "file": "doc-1359_مسؤولية-الناقل-الجوي-عن-الركاب.md"
+  },
+  {
+   "id": "doc-1360",
+   "title": "الخسائر البحرية المشتركة",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-1360_الخسائر-البحرية-المشتركة.md"
+  },
+  {
+   "id": "doc-1368",
+   "title": "the-gulf-of-aqaba-in-international-law",
+   "subcategory": "قانون-البحار",
+   "type": "article",
+   "file": "doc-1368_خليج-العقبة-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1422",
+   "title": "international-custom",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1422_العرف-الدولي.md"
+  },
+  {
+   "id": "doc-1424",
+   "title": "the-african-union",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "doc-1424_تعريف-بالاتحاد-الإفريقي.md"
+  },
+  {
+   "id": "doc-1426",
+   "title": "archipelagic-waters",
+   "subcategory": "قانون-البحار",
+   "type": "article",
+   "file": "doc-1426_المياه-الأرخبيلية.md"
+  },
+  {
+   "id": "doc-1427",
+   "title": "european-union",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "doc-1427_الاتحاد-الأوربي.md"
+  },
+  {
+   "id": "doc-1428",
+   "title": "international-law-of-the-sea",
+   "subcategory": "قانون-البحار",
+   "type": "article",
+   "file": "doc-1428_تعريف-بالقانون-الدولي-للبحار.md"
+  },
+  {
+   "id": "doc-1433",
+   "title": "warsaw-pact",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "doc-1433_حلف-وراسو.md"
+  },
+  {
+   "id": "doc-1434",
+   "title": "international-dams-and-rivers-law",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1434_السدود-والمجاري-المائية-الدولية.md"
+  },
+  {
+   "id": "doc-1498",
+   "title": "principle-of-military-necessity",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1498_مبدأ-الضرورة-العسكرية-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1518",
+   "title": "ship-legal-provisions",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-1518_الأحكام-القانونية-للسفينة.md"
+  },
+  {
+   "id": "doc-1551",
+   "title": "introduction-to-the-jordanian-civil-aviation-law",
+   "subcategory": "النقل-الجوي",
+   "type": "article",
+   "file": "doc-1551_تعريف-بقانون-الطيران-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-1608",
+   "title": "jordanian-customs-law",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-1608_قانون-الجمارك-الأردني.md"
+  },
+  {
+   "id": "doc-1643",
+   "title": "the-role-of-international-agreements-in-unifying-international-trade-rules",
+   "subcategory": "اتفاقيات-دولية",
+   "type": "article",
+   "file": "doc-1643_دور-الاتفاقيات-الدولية-في-توحيد-قواعد-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2207",
+   "title": "حرية التجارة الدولية",
+   "subcategory": "تحرير-التجارة",
+   "type": "article",
+   "file": "doc-2207_حرية-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2473",
+   "title": "التكييف القانوني للسفينة",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-2473_التكييف-القانوني-للسفينة.md"
+  },
+  {
+   "id": "doc-2494",
+   "title": "استحقاق السفينة لأجرة نقل البضائع",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-2494_استحقاق-السفينة-لأجرة-نقل-البضائع.md"
+  },
+  {
+   "id": "doc-2501",
+   "title": "تحديد مسؤولية مالك السفينة",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-2501_تحديد-مسؤولية-مالك-السفينة.md"
+  },
+  {
+   "id": "doc-2564",
+   "title": "حماية دائرة الجمارك لحقوق الملكية الفكرية",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-2564_حماية-دائرة-الجمارك-لحقوق-الملكية-الفكرية.md"
+  },
+  {
+   "id": "doc-2577",
+   "title": "مسؤولية مالك السفينة وفق قانون التجارة البحرية الأردني",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-2577_مسؤولية-مالك-السفينة-وفق-قانون-التجارة-البحرية-الأردني.md"
+  },
+  {
+   "id": "doc-2720",
+   "title": "أحكام سند الشحن الإلكتروني في ظل التشريع الأردني",
+   "subcategory": "النقل-البحري",
+   "type": "article",
+   "file": "doc-2720_أحكام-سند-الشحن-الإلكتروني-في-ظل-التشريع-الأردني.md"
+  }
+ ]
+}

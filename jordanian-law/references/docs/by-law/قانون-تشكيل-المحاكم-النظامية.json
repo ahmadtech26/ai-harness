@@ -1,0 +1,65 @@
+{
+ "law": "قانون-تشكيل-المحاكم-النظامية",
+ "note": "'articles' = docs that substantively discuss the article (primary). 'mentions' = loose hits (mostly full-law reprints of OTHER laws that merely contain the number).",
+ "articles": {
+  "1": [
+   "doc-0367"
+  ],
+  "3": [
+   "doc-1819",
+   "doc-1910",
+   "doc-3064"
+  ],
+  "4": [
+   "doc-0061",
+   "doc-1814",
+   "doc-1910",
+   "doc-2535",
+   "doc-3035",
+   "doc-3064"
+  ],
+  "5": [
+   "doc-1568",
+   "doc-2717"
+  ],
+  "8": [
+   "doc-3064"
+  ],
+  "9": [
+   "doc-1313",
+   "doc-2596",
+   "doc-2634"
+  ],
+  "10": [
+   "doc-2034",
+   "doc-2052",
+   "doc-3064"
+  ],
+  "11": [
+   "doc-1313",
+   "doc-1438",
+   "doc-1441"
+  ],
+  "12": [
+   "doc-1313"
+  ],
+  "14": [
+   "doc-2568"
+  ],
+  "20": [
+   "doc-2034",
+   "doc-2984"
+  ],
+  "21": [
+   "doc-1722"
+  ],
+  "22": [
+   "doc-0367"
+  ]
+ },
+ "mentions": {
+  "11": [
+   "doc-0415"
+  ]
+ }
+}

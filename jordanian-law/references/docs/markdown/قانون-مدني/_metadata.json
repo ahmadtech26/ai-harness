@@ -1,0 +1,5537 @@
+{
+ "category": "قانون-مدني",
+ "document_count": 790,
+ "note": "regenerated from catalog/قانون-مدني.json — the slim catalog is authoritative",
+ "documents": [
+  {
+   "id": "doc-0001",
+   "title": "هل يجوز لمجلس النواب ان يحيل الى النائب العام",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0001_هل-يجوز-لمجلس-النواب-ان-يحيل-الى-النائب-العام.md"
+  },
+  {
+   "id": "doc-0005",
+   "title": "employment-contract",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0005_Employment-contract-Form.md"
+  },
+  {
+   "id": "doc-0006",
+   "title": "نموذج عقد ضمان",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0006_نموذج-عقد-ضمان.md"
+  },
+  {
+   "id": "doc-0013",
+   "title": "نموذج عقد بيع أرض فضاء",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-0013_نموذج-عقد-بيع-أرض-فضاء.md"
+  },
+  {
+   "id": "doc-0017",
+   "title": "قرار تفسير حول التجديد التلقائي لعقد الإيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0017_قرار-تفسير-حول-التجديد-التلقائي-لعقد-الإيجار.md"
+  },
+  {
+   "id": "doc-0018",
+   "title": "تعهد خطي بنقل ملكية سيارةتعهد خطي بنقل ملكية سيارة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0018_تعهد-خطي-بنقل-ملكية-سيارةتعهد-خطي-بنقل-ملكية-سيارة.md"
+  },
+  {
+   "id": "doc-0019",
+   "title": "عقد بيع سيارة بالأقساط 2025",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0019_عقد-بيع-سيارة-بالأقساط-2025.md"
+  },
+  {
+   "id": "doc-0021",
+   "title": "محضر استلام شقة بعد انتهاء عقد إيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-0021_محضر-استلام-شقة-بعد-انتهاء-عقد-إيجار.md"
+  },
+  {
+   "id": "doc-0022",
+   "title": "نموذج مخالصة ورثة باستلام مبلغ تعويض من المحامي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0022_نموذج-مخالصة-ورثة-باستلام-مبلغ-تعويض-من-المحامي.md"
+  },
+  {
+   "id": "doc-0023",
+   "title": "نموذج وكالة تصرف و إدارة مصنع",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-0023_نموذج-وكالة-تصرف-و-إدارة-مصنع.md"
+  },
+  {
+   "id": "doc-0032",
+   "title": "نموذج عقد إيجار شقة مفروشة 2025",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0032_نموذج-عقد-إيجار-شقة-مفروشة-2025.md"
+  },
+  {
+   "id": "doc-0037",
+   "title": "نموذج إقرار بابراء الكفيل من كفالة قرض",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0037_نموذج-إقرار-بابراء-الكفيل-من-كفالة-قرض.md"
+  },
+  {
+   "id": "doc-0039",
+   "title": "نموذج عقد بيع شقة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0039_نموذج-عقد-بيع-شقة.md"
+  },
+  {
+   "id": "doc-0058",
+   "title": "tenanacy-contract-d88c-d8b9d982d8af-d8a7d98ad8acd8a7d8b1-d985d8aad8b1d8acd985",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0058_Rental-Agreement-عقد-إيجار-مترجم.md"
+  },
+  {
+   "id": "doc-0080",
+   "title": "نظام التقاعد والضمان الاجتماعي للأطباء",
+   "subcategory": "نصوص-تشريعية",
+   "type": "article",
+   "file": "doc-0080_نظام-التقاعد-والضمان-الاجتماعي-للأطباء.md"
+  },
+  {
+   "id": "doc-0084",
+   "title": "cars-sale-invalidity",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0084_بطلان-عقود-بيع-السيارات-خارج-دائرة-التسجيل.md"
+  },
+  {
+   "id": "doc-0090",
+   "title": "الوكالات في المحاكم الأردنية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0090_الوكالات-في-المحاكم-الأردنية.md"
+  },
+  {
+   "id": "doc-0091",
+   "title": "نموذج موجز لعقد مقاولة فيديك",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-0091_نموذج-موجز-لعقد-مقاولة-فيديك.md"
+  },
+  {
+   "id": "doc-0098",
+   "title": "jordan-civil-law-with-all-amendments",
+   "subcategory": "نصوص-تشريعية",
+   "type": "article",
+   "file": "doc-0098_القانون-المدني-الأردني-حتى-2025.md"
+  },
+  {
+   "id": "doc-0103",
+   "title": "أحكام عقد الإيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0103_أحكام-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-0115",
+   "title": "الوكالة التجارية وشروط الوكيل التجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0115_الوكالة-التجارية-وشروط-الوكيل-التجاري.md"
+  },
+  {
+   "id": "doc-0119",
+   "title": "الإنذار العدلي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0119_الإنذار-العدلي.md"
+  },
+  {
+   "id": "doc-0128",
+   "title": "عقد العارية ( الاستعارة)",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0128_عقد-العارية-(-الاستعارة).md"
+  },
+  {
+   "id": "doc-0137",
+   "title": "precautionary-seizure",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0137_الحجز-التحفظي.md"
+  },
+  {
+   "id": "doc-0141",
+   "title": "التعويض عن الاستملاك",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0141_التعويض-عن-الاستملاك.md"
+  },
+  {
+   "id": "doc-0142",
+   "title": "real-estate-parcelling-out",
+   "subcategory": "ملكية-عقارية",
+   "type": "article",
+   "file": "doc-0142_الإفراز-في-قانون-الملكية-العقارية.md"
+  },
+  {
+   "id": "doc-0143",
+   "title": "الجواز الشرعي ينافي الضمان",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0143_الجواز-الشرعي-ينافي-الضمان.md"
+  },
+  {
+   "id": "doc-0151",
+   "title": "جامعة مؤتة هي جامعة حكومية",
+   "subcategory": "قرارات-تفسيرية",
+   "type": "article",
+   "file": "doc-0151_جامعة-مؤتة-هي-جامعة-حكومية.md"
+  },
+  {
+   "id": "doc-0152",
+   "title": "أحكام فسخ العقد",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0152_أحكام-فسخ-العقد.md"
+  },
+  {
+   "id": "doc-0159",
+   "title": "نقصان قيمة الأرض",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0159_نقصان-قيمة-الأرض.md"
+  },
+  {
+   "id": "doc-0160",
+   "title": "الرهن بموجب وكالة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0160_الرهن-بموجب-وكالة.md"
+  },
+  {
+   "id": "doc-0161",
+   "title": "الملحق رقم “2” متطلبات تصنيف المقاولين",
+   "subcategory": "نصوص-تشريعية",
+   "type": "article",
+   "file": "doc-0161_الملحق-رقم-“2”-متطلبات-تصنيف-المقاولين.md"
+  },
+  {
+   "id": "doc-0163",
+   "title": "نموذج عقد مقاولة فرعية",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-0163_نموذج-عقد-مقاولة-فرعية.md"
+  },
+  {
+   "id": "doc-0168",
+   "title": "نموذج وكالة لشركة أجنبية عاملة",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-0168_نموذج-وكالة-لشركة-أجنبية-عاملة.md"
+  },
+  {
+   "id": "doc-0188",
+   "title": "the-motor-accidents-compensation-fund-in-jordan",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0188_The-Motor-Accidents-Compensation-Fund-IN-JORDAN.md"
+  },
+  {
+   "id": "doc-0189",
+   "title": "اللجنة الطبية اللوائية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0189_اللجنة-الطبية-اللوائية.md"
+  },
+  {
+   "id": "doc-0203",
+   "title": "السبب القهري الذي يتوقف بسببه الطبيب البيطري عن ممارسة المهنة",
+   "subcategory": "قرارات-تفسيرية",
+   "type": "article",
+   "file": "doc-0203_السبب-القهري-الذي-يتوقف-بسببه-الطبيب-البيطري-عن-ممارسة-المهنة.md"
+  },
+  {
+   "id": "doc-0206",
+   "title": "قرار تفسير حول إنكار الرهن",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0206_قرار-تفسير-حول-إنكار-الرهن.md"
+  },
+  {
+   "id": "doc-0210",
+   "title": "تفسير المادة (2) من نظام المكافأة والتعويض جامعة مؤتة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0210_تفسير-المادة-(2)-من-نظام-المكافأة-والتعويض-جامعة-مؤتة.md"
+  },
+  {
+   "id": "doc-0224",
+   "title": "هل يجوز استرداد مشروع قانون",
+   "subcategory": "قرارات-تفسيرية",
+   "type": "article",
+   "file": "doc-0224_هل-يجوز-استرداد-مشروع-قانون.md"
+  },
+  {
+   "id": "doc-0231",
+   "title": "المادة 27 من قانون الاحداث",
+   "subcategory": "قرارات-تفسيرية",
+   "type": "article",
+   "file": "doc-0231_المادة-27-من-قانون-الاحداث.md"
+  },
+  {
+   "id": "doc-0246",
+   "title": "تفسير المواد (1/50 ، 53) من القانون المدني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0246_تفسير-المواد-(150-،-53)-من-القانون-المدني.md"
+  },
+  {
+   "id": "doc-0248",
+   "title": "تفسير المادة (27) من قانون مؤسسة ضمان الودائع رقم 33 لسنة 2000",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0248_تفسير-المادة-(27)-من-قانون-مؤسسة-ضمان-الودائع-رقم-33-لسنة-2000.md"
+  },
+  {
+   "id": "doc-0263",
+   "title": "هل يجوز لمجلس النواب عند إعادة مشروع القانون أن يقدم اقتراحات جديدة",
+   "subcategory": "قرارات-تفسيرية",
+   "type": "article",
+   "file": "doc-0263_هل-يجوز-لمجلس-النواب-عند-إعادة-مشروع-القانون-أن-يقدم-اقتراحات-جديدة.md"
+  },
+  {
+   "id": "doc-0269",
+   "title": "تفسير يجب ان تكون مدة الاجارة معلومة",
+   "subcategory": "قرارات-تفسيرية",
+   "type": "article",
+   "file": "doc-0269_تفسير-يجب-ان-تكون-مدة-الاجارة-معلومة.md"
+  },
+  {
+   "id": "doc-0313",
+   "title": "العبرة في المقاصد والمعاني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0313_العبرة-في-المقاصد-والمعاني.md"
+  },
+  {
+   "id": "doc-0315",
+   "title": "الالتزام بالتبصير",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0315_الالتزام-بالتبصير.md"
+  },
+  {
+   "id": "doc-0316",
+   "title": "مبادئ قضائية في البعثات العلمية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0316_مبادئ-قضائية-في-البعثات-العلمية.md"
+  },
+  {
+   "id": "doc-0322",
+   "title": "criminal-guarantee",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-0322_نموذج-استدعاء-إخلاء-سبيل-بكفالة.md"
+  },
+  {
+   "id": "doc-0333",
+   "title": "عقد الصلح",
+   "subcategory": "عقود-مدنية",
+   "type": "article",
+   "file": "doc-0333_عقد-الصلح.md"
+  },
+  {
+   "id": "doc-0347",
+   "title": "البيع بالمزاد العلني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0347_البيع-بالمزاد-العلني.md"
+  },
+  {
+   "id": "doc-0355",
+   "title": "exclusive commercial agency agreement – negotiation stage",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0355_exclusive-commercial-agency-agreement-–-negotiation-stage.md"
+  },
+  {
+   "id": "doc-0365",
+   "title": "الوكالة العامة والخاصة",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0365_الوكالة-العامة-والخاصة.md"
+  },
+  {
+   "id": "doc-0376",
+   "title": "seeking-comercial-agency-negotiaition-stage-by-jordanian-lawyer-saudi-client",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0376_Commercial-agency-–-negotiation-stage-–-Saudi-client.md"
+  },
+  {
+   "id": "doc-0385",
+   "title": "jordan-social-welfare-law",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0385_قانون-الضمان-الاجتماعي-مع-كامل-التعديلات.md"
+  },
+  {
+   "id": "doc-0392",
+   "title": "تعليمات البيع والتأجير لغير الأردني في العقبة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0392_تعليمات-البيع-والتأجير-لغير-الأردني-في-العقبة.md"
+  },
+  {
+   "id": "doc-0402",
+   "title": "تعويض التأمين",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0402_تعويض-التأمين.md"
+  },
+  {
+   "id": "doc-0407",
+   "title": "cheque-transform-to-another-beneficiary",
+   "subcategory": "أوراق-تجارية",
+   "type": "article",
+   "file": "doc-0407_قاعدة-التظهير-يطهر-الدفوع.md"
+  },
+  {
+   "id": "doc-0411",
+   "title": "قانون إيجار الأموال غير المنقولة وبيعها لغير الأردنيين",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0411_قانون-إيجار-الأموال-غير-المنقولة-وبيعها-لغير-الأردنيين.md"
+  },
+  {
+   "id": "doc-0422",
+   "title": "نموذجي لائحة دعوى عقد بيع عقار باطل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0422_نموذجي-لائحة-دعوى-عقد-بيع-عقار-باطل.md"
+  },
+  {
+   "id": "doc-0437",
+   "title": "التعويض عن نقصان قيمة المركبة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0437_التعويض-عن-نقصان-قيمة-المركبة.md"
+  },
+  {
+   "id": "doc-0448",
+   "title": "قانون ضمان حق الحصول على المعلومات",
+   "subcategory": "نصوص-تشريعية",
+   "type": "template",
+   "file": "doc-0448_قانون-ضمان-حق-الحصول-على-المعلومات.md"
+  },
+  {
+   "id": "doc-0461",
+   "title": "قانون ضمان الحقوق بالأموال المنقولة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0461_قانون-ضمان-الحقوق-بالأموال-المنقولة.md"
+  },
+  {
+   "id": "doc-0487",
+   "title": "قانون الضريبة العامة على المبيعات وتعديلاته",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0487_قانون-الضريبة-العامة-على-المبيعات-وتعديلاته.md"
+  },
+  {
+   "id": "doc-0490",
+   "title": "income-tax-law-2014-jordan",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0490_قانون-ضريبة-الدخل-وتعديلاته-حتى-2025.md"
+  },
+  {
+   "id": "doc-0528",
+   "title": "estimation-of-income-tax-money-base",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0528_تعليمات-احتساب-الضريبة-على-الأساس-النقدي.md"
+  },
+  {
+   "id": "doc-0529",
+   "title": "financial-guarantee-bylaws-jordan",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0529_نظام-الكفالات-المالية-للأراضي-المعدنة.md"
+  },
+  {
+   "id": "doc-0532",
+   "title": "income-tax-deduction-rules-2019",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0532_تعليمات-اقتطاع-ضريبة-الدخل-لسنة-2019.md"
+  },
+  {
+   "id": "doc-0534",
+   "title": "invoicing-system-jordan-bylaws",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0534_نظام-تنظيم-الفوترة-2019.md"
+  },
+  {
+   "id": "doc-0537",
+   "title": "movable-sandwich-cars-rules",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0537_التعليمات-الخاصة-بسيارة-بيع-الوجبات-الخفيفة.md"
+  },
+  {
+   "id": "doc-0538",
+   "title": "national-qualifications-bylaws-jordan-2019",
+   "subcategory": "نصوص-تشريعية",
+   "type": "article",
+   "file": "doc-0538_نظام-الإطار-الوطني-للمؤهلات-لسنة-2019.md"
+  },
+  {
+   "id": "doc-0548",
+   "title": "legal-opinion-in-contacting-dispute",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0548_Legal-opinion-in-contracting-dispute.md"
+  },
+  {
+   "id": "doc-0554",
+   "title": "no-objection-selling-trade-name",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0554_عدم-ممانعة-ببيع-الاسم-التجاري-و-العلامات-التجارية.md"
+  },
+  {
+   "id": "doc-0563",
+   "title": "sample-memorandum-of-understanding",
+   "subcategory": "نماذج-قانونية",
+   "type": "article",
+   "file": "doc-0563_تعريف-بمذكرة-التفاهم-ونماذج-لها.md"
+  },
+  {
+   "id": "doc-0579",
+   "title": "الدليل الإرشادي لتنفيذ التزامات قرارات مجلس الأمن",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0579_الدليل-الإرشادي-لتنفيذ-التزامات-قرارات-مجلس-الأمن.md"
+  },
+  {
+   "id": "doc-0593",
+   "title": "نظام عقود صكوك التمويل الإسلامي",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0593_نظام-عقود-صكوك-التمويل-الإسلامي.md"
+  },
+  {
+   "id": "doc-0597",
+   "title": "virus-corona-legal-effects",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "research",
+   "file": "doc-0597_بحث-قانوني-في-الأثر-القانوني-لوباء-كورونا-على-العقود.md"
+  },
+  {
+   "id": "doc-0602",
+   "title": "قانون موازنات الوحدات الحكومية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0602_قانون-موازنات-الوحدات-الحكومية.md"
+  },
+  {
+   "id": "doc-0603",
+   "title": "penal-clause",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0603_الشرط-الجزائي-في-العقود.md"
+  },
+  {
+   "id": "doc-0626",
+   "title": "debtor-imprisonment-in-jordan",
+   "subcategory": "تنفيذ-قضائي",
+   "type": "article",
+   "file": "doc-0626_مدى-قانونية-المطالبة-بإلغاء-حبس-المدين.md"
+  },
+  {
+   "id": "doc-0629",
+   "title": "عقد العمل ووباء كورونا",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0629_عقد-العمل-ووباء-كورونا.md"
+  },
+  {
+   "id": "doc-0634",
+   "title": "death-disease",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0634_التصرف-في-مرض-الموت.md"
+  },
+  {
+   "id": "doc-0645",
+   "title": "حق الاحتباس",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0645_حق-الاحتباس.md"
+  },
+  {
+   "id": "doc-0652",
+   "title": "العربون في القانون الأردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0652_العربون-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-0656",
+   "title": "أسئلة مهمة عن بيع السيارات",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0656_أسئلة-مهمة-عن-بيع-السيارات.md"
+  },
+  {
+   "id": "doc-0667",
+   "title": "العرف في القانون",
+   "subcategory": "مصادر-القانون",
+   "type": "article",
+   "file": "doc-0667_العرف-في-القانون.md"
+  },
+  {
+   "id": "doc-0670",
+   "title": "وقف عقد العمل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0670_وقف-عقد-العمل.md"
+  },
+  {
+   "id": "doc-0685",
+   "title": "اليقين لا يزول بالشك",
+   "subcategory": "قواعد-فقهية",
+   "type": "article",
+   "file": "doc-0685_اليقين-لا-يزول-بالشك.md"
+  },
+  {
+   "id": "doc-0696",
+   "title": "ما هو الإرث",
+   "subcategory": "أحوال-شخصية",
+   "type": "article",
+   "file": "doc-0696_ما-هو-الإرث.md"
+  },
+  {
+   "id": "doc-0699",
+   "title": "ما هو عقد الفيديك",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0699_ما-هو-عقد-الفيديك.md"
+  },
+  {
+   "id": "doc-0707",
+   "title": "أحكام عقد الهبة في القانون الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0707_أحكام-عقد-الهبة-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-0712",
+   "title": "عقد الوكالة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0712_عقد-الوكالة.md"
+  },
+  {
+   "id": "doc-0718",
+   "title": "الأهلية القانونية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0718_الأهلية-القانونية.md"
+  },
+  {
+   "id": "doc-0720",
+   "title": "ما هو القانون التجاري",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0720_ما-هو-القانون-التجاري.md"
+  },
+  {
+   "id": "doc-0726",
+   "title": "الإيجاب والقبول في العقود",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0726_الإيجاب-والقبول-في-العقود.md"
+  },
+  {
+   "id": "doc-0728",
+   "title": "أحكام البطلان في القانون",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0728_أحكام-البطلان-في-القانون.md"
+  },
+  {
+   "id": "doc-0731",
+   "title": "توكيل محامي في الأردن",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-0731_توكيل-محامي-في-الأردن.md"
+  },
+  {
+   "id": "doc-0735",
+   "title": "مفهوم التشريع",
+   "subcategory": "مصادر-القانون",
+   "type": "article",
+   "file": "doc-0735_مفهوم-التشريع.md"
+  },
+  {
+   "id": "doc-0749",
+   "title": "ما هو الحجر",
+   "subcategory": "أحوال-شخصية",
+   "type": "article",
+   "file": "doc-0749_ما-هو-الحجر.md"
+  },
+  {
+   "id": "doc-0751",
+   "title": "نموذج عقد مقاولة 2025",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-0751_نموذج-عقد-مقاولة-2025.md"
+  },
+  {
+   "id": "doc-0756",
+   "title": "consulting-services-contract-daily-based-payments",
+   "subcategory": "نماذج-قانونية",
+   "type": "template",
+   "file": "doc-0756_Consulting-Services-Contract-Daily-Based-Payments.md"
+  },
+  {
+   "id": "doc-0757",
+   "title": "الفرق بين عقد العمل وعقد المقاولة",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0757_الفرق-بين-عقد-العمل-وعقد-المقاولة.md"
+  },
+  {
+   "id": "doc-0764",
+   "title": "الرهن في القانون",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0764_الرهن-في-القانون.md"
+  },
+  {
+   "id": "doc-0765",
+   "title": "الرهن التأميني والرهن الحيازي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0765_الرهن-التأميني-والرهن-الحيازي.md"
+  },
+  {
+   "id": "doc-0772",
+   "title": "نموذج عقد وكالة تجارية 2025",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-0772_نموذج-عقد-وكالة-تجارية-2025.md"
+  },
+  {
+   "id": "doc-0774",
+   "title": "أحكام عقد السمسرة في التشريع الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0774_أحكام-عقد-السمسرة-في-التشريع-الأردني.md"
+  },
+  {
+   "id": "doc-0776",
+   "title": "فن المرافعة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0776_فن-المرافعة.md"
+  },
+  {
+   "id": "doc-0777",
+   "title": "الشخص الطبيعي في القانون",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0777_الشخص-الطبيعي-في-القانون.md"
+  },
+  {
+   "id": "doc-0778",
+   "title": "d8aed8b7d8a7d8a8-d8a7d984d986d988d8a7d98ad8a7-letter-of-intent",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0778_ما-هو-خطاب-النوايا-letter-of-intent.md"
+  },
+  {
+   "id": "doc-0779",
+   "title": "d985d8a7-d987d988-d8b9d982d8af-d8a7d984-at-well",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0779_ما-هو-عقد-ال-At-Well.md"
+  },
+  {
+   "id": "doc-0780",
+   "title": "الكفالة في القانون المدني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0780_الكفالة-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-0783",
+   "title": "الشفعة في القانون الأردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0783_الشفعة-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-0786",
+   "title": "مبدأ سلطان الإرادة",
+   "subcategory": "نظرية-العقد",
+   "type": "article",
+   "file": "doc-0786_مبدأ-سلطان-الإرادة.md"
+  },
+  {
+   "id": "doc-0788",
+   "title": "نماذج وكالات شراء عقارات 2025",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0788_نماذج-وكالات-شراء-عقارات-2025.md"
+  },
+  {
+   "id": "doc-0790",
+   "title": "أنواع تأمين المركبات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0790_أنواع-تأمين-المركبات.md"
+  },
+  {
+   "id": "doc-0791",
+   "title": "الغبن",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0791_الغبن.md"
+  },
+  {
+   "id": "doc-0794",
+   "title": "عقد الوديعة",
+   "subcategory": "عقود-مدنية",
+   "type": "article",
+   "file": "doc-0794_عقد-الوديعة.md"
+  },
+  {
+   "id": "doc-0800",
+   "title": "تفسير العقد",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0800_تفسير-العقد.md"
+  },
+  {
+   "id": "doc-0801",
+   "title": "العقود المسماة",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0801_العقود-المسماة.md"
+  },
+  {
+   "id": "doc-0803",
+   "title": "المرتب مدى الحياة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0803_المرتب-مدى-الحياة.md"
+  },
+  {
+   "id": "doc-0806",
+   "title": "عقود الإذعان",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0806_عقود-الإذعان.md"
+  },
+  {
+   "id": "doc-0807",
+   "title": "عقد القرض",
+   "subcategory": "عقود-مدنية",
+   "type": "article",
+   "file": "doc-0807_عقد-القرض.md"
+  },
+  {
+   "id": "doc-0814",
+   "title": "عقد الغرر",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0814_عقد-الغرر.md"
+  },
+  {
+   "id": "doc-0815",
+   "title": "انعدام الأهلية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0815_انعدام-الأهلية.md"
+  },
+  {
+   "id": "doc-0816",
+   "title": "العقود غير المسماة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0816_العقود-غير-المسماة.md"
+  },
+  {
+   "id": "doc-0817",
+   "title": "الفرق بين العقد المسمى والعقد غير المسمى",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0817_الفرق-بين-العقد-المسمى-والعقد-غير-المسمى.md"
+  },
+  {
+   "id": "doc-0821",
+   "title": "الإثراء بلا سبب",
+   "subcategory": "نظرية-الالتزام",
+   "type": "article",
+   "file": "doc-0821_الإثراء-بلا-سبب.md"
+  },
+  {
+   "id": "doc-0822",
+   "title": "ما هو الإيجار المنتهي بالتمليك",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0822_ما-هو-الإيجار-المنتهي-بالتمليك.md"
+  },
+  {
+   "id": "doc-0823",
+   "title": "محامي نظامي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0823_محامي-نظامي.md"
+  },
+  {
+   "id": "doc-0824",
+   "title": "عقد البيع أركانه وآثاره",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0824_عقد-البيع-أركانه-وآثاره.md"
+  },
+  {
+   "id": "doc-0826",
+   "title": "الضمانات القانونية",
+   "subcategory": "الضمانات-والكفالة",
+   "type": "article",
+   "file": "doc-0826_الضمانات-القانونية.md"
+  },
+  {
+   "id": "doc-0831",
+   "title": "أحكام وكالة التوزيع التجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0831_أحكام-وكالة-التوزيع-التجاري.md"
+  },
+  {
+   "id": "doc-0837",
+   "title": "القاعدة القانونية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0837_القاعدة-القانونية.md"
+  },
+  {
+   "id": "doc-0843",
+   "title": "عقد البيع الابتدائي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0843_عقد-البيع-الابتدائي.md"
+  },
+  {
+   "id": "doc-0844",
+   "title": "أحكام الامتياز التجاري الفرنشايز",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0844_أحكام-الامتياز-التجاري-الفرنشايز.md"
+  },
+  {
+   "id": "doc-0847",
+   "title": "ما هو عقد الشراكة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0847_ما-هو-عقد-الشراكة.md"
+  },
+  {
+   "id": "doc-0848",
+   "title": "نموذج عقد إيجار ينتهي بملك لهيكل طائرة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0848_نموذج-عقد-إيجار-ينتهي-بملك-لهيكل-طائرة.md"
+  },
+  {
+   "id": "doc-0849",
+   "title": "أهم القوانين الأردنية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0849_أهم-القوانين-الأردنية.md"
+  },
+  {
+   "id": "doc-0851",
+   "title": "القاصر في القانون",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0851_القاصر-في-القانون.md"
+  },
+  {
+   "id": "doc-0855",
+   "title": "العقد الإلكتروني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0855_العقد-الإلكتروني.md"
+  },
+  {
+   "id": "doc-0857",
+   "title": "عقد نقل التكنولوجيا",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0857_عقد-نقل-التكنولوجيا.md"
+  },
+  {
+   "id": "doc-0859",
+   "title": "التجارة الإلكترونية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0859_التجارة-الإلكترونية.md"
+  },
+  {
+   "id": "doc-0862",
+   "title": "الأجل والشرط في الالتزام",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0862_الأجل-والشرط-في-الالتزام.md"
+  },
+  {
+   "id": "doc-0866",
+   "title": "أحكام الغلط كعيب من عيوب الإرادة",
+   "subcategory": "نظرية-العقد",
+   "type": "article",
+   "file": "doc-0866_أحكام-الغلط-كعيب-من-عيوب-الإرادة.md"
+  },
+  {
+   "id": "doc-0867",
+   "title": "تعريف بمؤسسة لضمان الاجتماعي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0867_تعريف-بمؤسسة-لضمان-الاجتماعي.md"
+  },
+  {
+   "id": "doc-0869",
+   "title": "العقار وأحكامه القانونية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0869_العقار-وأحكامه-القانونية.md"
+  },
+  {
+   "id": "doc-0883",
+   "title": "مسؤولية الموثق",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0883_مسؤولية-الموثق.md"
+  },
+  {
+   "id": "doc-0886",
+   "title": "الغش في البيع وأحكامه",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0886_الغش-في-البيع-وأحكامه.md"
+  },
+  {
+   "id": "doc-0888",
+   "title": "نموذج بيع مؤسسة سعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-0888_نموذج-بيع-مؤسسة-سعودية.md"
+  },
+  {
+   "id": "doc-0891",
+   "title": "مبدأ سمو المعاهدة",
+   "subcategory": "قانون-دولي",
+   "type": "article",
+   "file": "doc-0891_مبدأ-سمو-المعاهدة.md"
+  },
+  {
+   "id": "doc-0896",
+   "title": "أركان المسئولية عن نقل الإصابة الفيروس",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0896_أركان-المسئولية-عن-نقل-الإصابة-الفيروس.md"
+  },
+  {
+   "id": "doc-0897",
+   "title": "الشرط كأحد أوصاف الالتزام",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0897_الشرط-كأحد-أوصاف-الالتزام.md"
+  },
+  {
+   "id": "doc-0899",
+   "title": "حوالة الحق",
+   "subcategory": "نظرية-الالتزام",
+   "type": "article",
+   "file": "doc-0899_حوالة-الحق.md"
+  },
+  {
+   "id": "doc-0903",
+   "title": "أحكام تنازع القوانين",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0903_أحكام-تنازع-القوانين.md"
+  },
+  {
+   "id": "doc-0904",
+   "title": "حوالة الدين في القانون الأردني",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0904_حوالة-الدين-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-0905",
+   "title": "الأجل في الالتزام",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0905_الأجل-في-الالتزام.md"
+  },
+  {
+   "id": "doc-0907",
+   "title": "الوعد بالتعاقد",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0907_الوعد-بالتعاقد.md"
+  },
+  {
+   "id": "doc-0908",
+   "title": "التأمينات الشخصية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0908_التأمينات-الشخصية.md"
+  },
+  {
+   "id": "doc-0910",
+   "title": "الدفع بالتجريد في الكفالة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0910_الدفع-بالتجريد-في-الكفالة.md"
+  },
+  {
+   "id": "doc-0912",
+   "title": "الأوراق التجارية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0912_الأوراق-التجارية.md"
+  },
+  {
+   "id": "doc-0915",
+   "title": "مفهوم التعويض",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0915_مفهوم-التعويض.md"
+  },
+  {
+   "id": "doc-0917",
+   "title": "المسؤولية العقدية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0917_المسؤولية-العقدية.md"
+  },
+  {
+   "id": "doc-0918",
+   "title": "الإيجار من الباطن",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0918_الإيجار-من-الباطن.md"
+  },
+  {
+   "id": "doc-0921",
+   "title": "الدائن بالضمان في دعوى ضمان العيب",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0921_الدائن-بالضمان-في-دعوى-ضمان-العيب.md"
+  },
+  {
+   "id": "doc-0924",
+   "title": "عقد الاستصناع",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0924_عقد-الاستصناع.md"
+  },
+  {
+   "id": "doc-0929",
+   "title": "الوعد بالبيع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0929_الوعد-بالبيع.md"
+  },
+  {
+   "id": "doc-0931",
+   "title": "عقد البيع بالمرابحة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0931_عقد-البيع-بالمرابحة.md"
+  },
+  {
+   "id": "doc-0934",
+   "title": "الضرر في المسؤولية العقدية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0934_الضرر-في-المسؤولية-العقدية.md"
+  },
+  {
+   "id": "doc-0936",
+   "title": "الفعل الضار",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0936_الفعل-الضار.md"
+  },
+  {
+   "id": "doc-0937",
+   "title": "المضاربات غير المشروعة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0937_المضاربات-غير-المشروعة.md"
+  },
+  {
+   "id": "doc-0942",
+   "title": "الشك يفسر لمصلحة المدين",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0942_الشك-يفسر-لمصلحة-المدين.md"
+  },
+  {
+   "id": "doc-0943",
+   "title": "العقد شريعة المتعاقدين",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0943_العقد-شريعة-المتعاقدين.md"
+  },
+  {
+   "id": "doc-0947",
+   "title": "ما هو العقد",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-0947_ما-هو-العقد.md"
+  },
+  {
+   "id": "doc-0948",
+   "title": "الاضطرار لا يبطل حق الغير",
+   "subcategory": "قواعد-فقهية",
+   "type": "article",
+   "file": "doc-0948_الاضطرار-لا-يبطل-حق-الغير.md"
+  },
+  {
+   "id": "doc-0950",
+   "title": "عقد التأمين وأحكامه القانونية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0950_عقد-التأمين-وأحكامه-القانونية.md"
+  },
+  {
+   "id": "doc-0953",
+   "title": "أحكام عقد الترخيص باستعمال علامة تجارية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-0953_أحكام-عقد-الترخيص-باستعمال-علامة-تجارية.md"
+  },
+  {
+   "id": "doc-0955",
+   "title": "انقضاء شرط التحكيم",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0955_انقضاء-شرط-التحكيم.md"
+  },
+  {
+   "id": "doc-0964",
+   "title": "الشراكة بين القطاعين العام والخاص",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0964_الشراكة-بين-القطاعين-العام-والخاص.md"
+  },
+  {
+   "id": "doc-0968",
+   "title": "التوريق",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0968_التوريق.md"
+  },
+  {
+   "id": "doc-0991",
+   "title": "مكافحة الاتجار بالبشر في الأردن",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-0991_مكافحة-الاتجار-بالبشر-في-الأردن.md"
+  },
+  {
+   "id": "doc-1021",
+   "title": "أحكام التضامن في القانون المدني",
+   "subcategory": "نظرية-الالتزام",
+   "type": "article",
+   "file": "doc-1021_أحكام-التضامن-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-1023",
+   "title": "إلغاء إيقاف الخدمات في السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1023_إلغاء-إيقاف-الخدمات-في-السعودية.md"
+  },
+  {
+   "id": "doc-1024",
+   "title": "جزاء إخلال الكفلاء المتضامنين بالتزاماتهم",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1024_جزاء-إخلال-الكفلاء-المتضامنين-بالتزاماتهم.md"
+  },
+  {
+   "id": "doc-1028",
+   "title": "مضمون التزام الكُفلاء المتضامنون",
+   "subcategory": "الضمانات-والكفالة",
+   "type": "article",
+   "file": "doc-1028_مضمون-التزام-الكُفلاء-المتضامنون.md"
+  },
+  {
+   "id": "doc-1037",
+   "title": "التضامُن بين المدينين",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1037_التضامُن-بين-المدينين.md"
+  },
+  {
+   "id": "doc-1048",
+   "title": "التوكيل بالخصومة",
+   "subcategory": "عقود-الوكالة",
+   "type": "article",
+   "file": "doc-1048_التوكيل-بالخصومة.md"
+  },
+  {
+   "id": "doc-1063",
+   "title": "التعهد عن الغير",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1063_التعهد-عن-الغير.md"
+  },
+  {
+   "id": "doc-1065",
+   "title": "الخلف العام والخلف الخاص",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1065_الخلف-العام-والخلف-الخاص.md"
+  },
+  {
+   "id": "doc-1071",
+   "title": "عقد المقاولة من الباطن",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1071_عقد-المقاولة-من-الباطن.md"
+  },
+  {
+   "id": "doc-1074",
+   "title": "conflict-of-interest-in-commercial-agency",
+   "subcategory": "عقود-الوكالة",
+   "type": "article",
+   "file": "doc-1074_تعارض-المصالح-في-عقد-الوكالة-التجارية.md"
+  },
+  {
+   "id": "doc-1081",
+   "title": "تعارض المصالح في عقد الوكالة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1081_تعارض-المصالح-في-عقد-الوكالة.md"
+  },
+  {
+   "id": "doc-1138",
+   "title": "الاعتماد المستندي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1138_الاعتماد-المستندي.md"
+  },
+  {
+   "id": "doc-1142",
+   "title": "الشخصية القانونية للمنظمة الدولية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1142_الشخصية-القانونية-للمنظمة-الدولية.md"
+  },
+  {
+   "id": "doc-1149",
+   "title": "الوصف في الحاضر لغو وفي الغائب مُعتبر",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1149_الوصف-في-الحاضر-لغو-وفي-الغائب-مُعتبر.md"
+  },
+  {
+   "id": "doc-1151",
+   "title": "عقود التبرع",
+   "subcategory": "عقود-مدنية",
+   "type": "article",
+   "file": "doc-1151_عقود-التبرع.md"
+  },
+  {
+   "id": "doc-1164",
+   "title": "الأرض المتروكة وأحكامها",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1164_الأرض-المتروكة-وأحكامها.md"
+  },
+  {
+   "id": "doc-1166",
+   "title": "بيع العقار خارج دائرة الأراضي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1166_بيع-العقار-خارج-دائرة-الأراضي.md"
+  },
+  {
+   "id": "doc-1169",
+   "title": "الوكالة غير القابلة للعزل",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1169_الوكالة-غير-القابلة-للعزل.md"
+  },
+  {
+   "id": "doc-1172",
+   "title": "قانون التأجير التمويلي حتى 2025",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1172_قانون-التأجير-التمويلي-حتى-2025.md"
+  },
+  {
+   "id": "doc-1182",
+   "title": "نظام الإقرارات الضريبية حتى 2025",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1182_نظام-الإقرارات-الضريبية-حتى-2025.md"
+  },
+  {
+   "id": "doc-1204",
+   "title": "التزامات الوكيل في عقد الوكالة التجارية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1204_التزامات-الوكيل-في-عقد-الوكالة-التجارية.md"
+  },
+  {
+   "id": "doc-1207",
+   "title": "محامي استملاك",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1207_محامي-استملاك.md"
+  },
+  {
+   "id": "doc-1210",
+   "title": "محامي عقارات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1210_محامي-عقارات.md"
+  },
+  {
+   "id": "doc-1222",
+   "title": "نظام ضريبة الدخل في المناطق التنموية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1222_نظام-ضريبة-الدخل-في-المناطق-التنموية.md"
+  },
+  {
+   "id": "doc-1226",
+   "title": "التعسف في إنهاء عقد الوكالة التجارية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1226_التعسف-في-إنهاء-عقد-الوكالة-التجارية.md"
+  },
+  {
+   "id": "doc-1227",
+   "title": "المياه الإقليمية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1227_المياه-الإقليمية.md"
+  },
+  {
+   "id": "doc-1236",
+   "title": "مصادر القاعدة القانونية للقانون المدني",
+   "subcategory": "مصادر-القانون",
+   "type": "article",
+   "file": "doc-1236_مصادر-القاعدة-القانونية-للقانون-المدني.md"
+  },
+  {
+   "id": "doc-1245",
+   "title": "الجاسوس في القانون الدولي",
+   "subcategory": "قانون-دولي",
+   "type": "article",
+   "file": "doc-1245_الجاسوس-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1251",
+   "title": "المسؤولية الدولية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1251_المسؤولية-الدولية.md"
+  },
+  {
+   "id": "doc-1260",
+   "title": "تنازع الاختصاص القضائي الدولي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1260_تنازع-الاختصاص-القضائي-الدولي.md"
+  },
+  {
+   "id": "doc-1263",
+   "title": "فوائد ومخاطر الاعتماد المستندي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1263_فوائد-ومخاطر-الاعتماد-المستندي.md"
+  },
+  {
+   "id": "doc-1265",
+   "title": "النظام القانوني للمياه العذبة العابرة للحدود",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1265_النظام-القانوني-للمياه-العذبة-العابرة-للحدود.md"
+  },
+  {
+   "id": "doc-1269",
+   "title": "قوات حفظ السلام والأمن الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1269_قوات-حفظ-السلام-والأمن-الدولية.md"
+  },
+  {
+   "id": "doc-1273",
+   "title": "منع التلوث الإشعاعي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1273_منع-التلوث-الإشعاعي.md"
+  },
+  {
+   "id": "doc-1287",
+   "title": "الأنهار الدولية في الوطن العربي",
+   "subcategory": "القانون-الدولي",
+   "type": "article",
+   "file": "doc-1287_الأنهار-الدولية-في-الوطن-العربي.md"
+  },
+  {
+   "id": "doc-1294",
+   "title": "أحكام عقد الوعد ببيع طابق أو شقة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1294_أحكام-عقد-الوعد-ببيع-طابق-أو-شقة.md"
+  },
+  {
+   "id": "doc-1301",
+   "title": "الحيازة في القانون الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1301_الحيازة-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1305",
+   "title": "العلامات التجارية المشهورة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1305_العلامات-التجارية-المشهورة.md"
+  },
+  {
+   "id": "doc-1307",
+   "title": "الدفع بعدم التنفيذ",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1307_الدفع-بعدم-التنفيذ.md"
+  },
+  {
+   "id": "doc-1308",
+   "title": "السرية المصرفية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1308_السرية-المصرفية.md"
+  },
+  {
+   "id": "doc-1310",
+   "title": "دعوى فسخ عقد الإيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1310_دعوى-فسخ-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-1312",
+   "title": "الإرادة المنفردة",
+   "subcategory": "مصادر-الالتزام",
+   "type": "article",
+   "file": "doc-1312_الإرادة-المنفردة.md"
+  },
+  {
+   "id": "doc-1314",
+   "title": "قاعدة من سعى في نقض ما تم من جهته",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1314_قاعدة-من-سعى-في-نقض-ما-تم-من-جهته.md"
+  },
+  {
+   "id": "doc-1315",
+   "title": "invalidation-of-the-lease-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1315_دعوى-بطلان-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-1324",
+   "title": "عقد إعادة التأمين",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1324_عقد-إعادة-التأمين.md"
+  },
+  {
+   "id": "doc-1327",
+   "title": "spatial-resolution",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1327_المهايأة-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-1333",
+   "title": "اتحاد الذمة",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1333_اتحاد-الذمة.md"
+  },
+  {
+   "id": "doc-1339",
+   "title": "عقد الرهن التجاري",
+   "subcategory": "الرهن-والكفالة",
+   "type": "article",
+   "file": "doc-1339_عقد-الرهن-التجاري.md"
+  },
+  {
+   "id": "doc-1341",
+   "title": "lawyers-immunity-in-jordanian-law",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-1341_حصانة-المحامي-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1342",
+   "title": "air-insurance-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1342_عقد-التأمين-الجوي.md"
+  },
+  {
+   "id": "doc-1344",
+   "title": "consortium",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1344_اتحاد-الشركات-(-الكونسورتيوم-).md"
+  },
+  {
+   "id": "doc-1350",
+   "title": "law-of-absent-and-the-missing",
+   "subcategory": "أحوال-شخصية",
+   "type": "article",
+   "file": "doc-1350_أحكام-الغائب-والمفقود.md"
+  },
+  {
+   "id": "doc-1352",
+   "title": "international-alliances",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1352_الأحلاف-الدولية.md"
+  },
+  {
+   "id": "doc-1355",
+   "title": "الالتصاق كسبب للملكية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1355_الالتصاق-كسبب-للملكية.md"
+  },
+  {
+   "id": "doc-1361",
+   "title": "responsibility-of-the-air-carrier-for-the-goods",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1361_مسؤولية-الناقل-الجوي-في-عقد-نقل-البضائع.md"
+  },
+  {
+   "id": "doc-1367",
+   "title": "renewal-of-obligation",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1367_تجديد-الالتزام.md"
+  },
+  {
+   "id": "doc-1370",
+   "title": "acquisition-procedures-in-real-estate-law",
+   "subcategory": "ملكية-عقارية",
+   "type": "article",
+   "file": "doc-1370_إجراءات-الاستملاك-في-قانون-الملكية-العقارية.md"
+  },
+  {
+   "id": "doc-1373",
+   "title": "moral-damage-and-compensation",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1373_الضرر-الأدبي-والتعويض-عنه.md"
+  },
+  {
+   "id": "doc-1383",
+   "title": "testimony-in-obligations-above-100-dinars",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1383_الإثبات-بالشهادة-في-الالتزامات-فوق-مئة-دينار.md"
+  },
+  {
+   "id": "doc-1384",
+   "title": "التكييف القانوني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1384_التكييف-القانوني.md"
+  },
+  {
+   "id": "doc-1389",
+   "title": "insolvency-attorney",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1389_محامي-إعسار.md"
+  },
+  {
+   "id": "doc-1390",
+   "title": "real-estate-mortgage",
+   "subcategory": "الرهن-والكفالة",
+   "type": "article",
+   "file": "doc-1390_أحكام-الرهن-التأميني-للعقار.md"
+  },
+  {
+   "id": "doc-1391",
+   "title": "definition-of-insolvency",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1391_مفهوم-الإعسار-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1394",
+   "title": "obtain-evidence-from-counter-litigant",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1394_إلزام-الخصم-بتقديم-سند.md"
+  },
+  {
+   "id": "doc-1397",
+   "title": "wrong-act-in-civil-law",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1397_الفعل-الخاطئ-في-القانون.md"
+  },
+  {
+   "id": "doc-1403",
+   "title": "trade-secret-protection",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1403_السر-التجاري-وطرق-حمايته.md"
+  },
+  {
+   "id": "doc-1407",
+   "title": "compensatory-damages",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1407_الضرر-المادي-الموجب-للتعويض.md"
+  },
+  {
+   "id": "doc-1409",
+   "title": "compensation-for-lost-income",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1409_التعويض-عن-الكسب-الفائت.md"
+  },
+  {
+   "id": "doc-1420",
+   "title": "urgent-request-to-recover-the-leased-property",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1420_الطلب-المستعجل-لاسترداد-المأجور.md"
+  },
+  {
+   "id": "doc-1421",
+   "title": "قبض غير المستحق",
+   "subcategory": "الإثراء-بلا-سبب",
+   "type": "article",
+   "file": "doc-1421_قبض-غير-المستحق.md"
+  },
+  {
+   "id": "doc-1435",
+   "title": "ordinary-reorganization-plan-under-insolvency-law",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1435_خطة-إعادة-التنظيم-العادية-وفقاً-لقانون-الإعسار.md"
+  },
+  {
+   "id": "doc-1437",
+   "title": "marine-collision",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1437_التصادم-البحري.md"
+  },
+  {
+   "id": "doc-1451",
+   "title": "عقد الكراء",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1451_عقد-الكراء.md"
+  },
+  {
+   "id": "doc-1459",
+   "title": "arrest-of-accused",
+   "subcategory": "الإجراءات-الجزائية",
+   "type": "article",
+   "file": "doc-1459_القبض-على-المشتكى-عليه.md"
+  },
+  {
+   "id": "doc-1460",
+   "title": "distributive-justice",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1460_العدالة-التوزيعية.md"
+  },
+  {
+   "id": "doc-1467",
+   "title": "interest-in-the-insurance-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1467_المصلحة-في-عقد-التأمين.md"
+  },
+  {
+   "id": "doc-1471",
+   "title": "maritime-labor-contract-provisions",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1471_أحكام-عقد-العمل-البحري.md"
+  },
+  {
+   "id": "doc-1476",
+   "title": "power-of-attorney-faq",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1476_أسئلة-شائعة-عن-الوكالات.md"
+  },
+  {
+   "id": "doc-1479",
+   "title": "discretionary-obligation-and-alternative-obligation",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1479_الالتزام-التخييري-والالتزام-البدلي.md"
+  },
+  {
+   "id": "doc-1484",
+   "title": "sale-by-non-owner",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1484_بيع-ملك-الغير.md"
+  },
+  {
+   "id": "doc-1485",
+   "title": "bank-guarantee",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1485_الضمان-المصرفي.md"
+  },
+  {
+   "id": "doc-1487",
+   "title": "عقد الإجارتين",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1487_عقد-الإجارتين.md"
+  },
+  {
+   "id": "doc-1491",
+   "title": "real-estate-power-of-attorney",
+   "subcategory": "عقود-الوكالة",
+   "type": "article",
+   "file": "doc-1491_الوكالات-العقارية-وشروط-اعتمادها.md"
+  },
+  {
+   "id": "doc-1492",
+   "title": "speculative-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1492_عقد-المضاربة-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1496",
+   "title": "immunity-of-national-assembly-members",
+   "subcategory": "ضمانات-دستورية",
+   "type": "article",
+   "file": "doc-1496_حصانة-أعضاء-مجلس-الأمة.md"
+  },
+  {
+   "id": "doc-1497",
+   "title": "obligations-of-the-brokerage-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1497_التزامات-عقد-السمسرة.md"
+  },
+  {
+   "id": "doc-1501",
+   "title": "independence-and-impartiality-of-the-judiciary",
+   "subcategory": "ضمانات-دستورية",
+   "type": "article",
+   "file": "doc-1501_ضمانات-استقلال-وحماية-القضاء-الأردني.md"
+  },
+  {
+   "id": "doc-1506",
+   "title": "what-is-consumer-protection-law",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1506_تعريف-بقانون-حماية-المستهلك.md"
+  },
+  {
+   "id": "doc-1511",
+   "title": "towing-and-marine-guidance-contracts",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1511_القطر-والإرشاد-البحري.md"
+  },
+  {
+   "id": "doc-1512",
+   "title": "apartment-rent-contract-jordan",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-1512_Apartment-Rent-Contract-–-Jordan.md"
+  },
+  {
+   "id": "doc-1513",
+   "title": "real-estate-registry",
+   "subcategory": "الملكية-العقارية",
+   "type": "article",
+   "file": "doc-1513_السجل-العقاري.md"
+  },
+  {
+   "id": "doc-1517",
+   "title": "human-cloning",
+   "subcategory": "قانون-طبي",
+   "type": "article",
+   "file": "doc-1517_الاستنساخ-البشري-بين-الشرع-والقانون.md"
+  },
+  {
+   "id": "doc-1521",
+   "title": "conditional-contract",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-1521_العقد-المعلق-على-شرط.md"
+  },
+  {
+   "id": "doc-1524",
+   "title": "patrimony",
+   "subcategory": "الحقوق-المالية",
+   "type": "article",
+   "file": "doc-1524_الذمة-المالية.md"
+  },
+  {
+   "id": "doc-1527",
+   "title": "sale-on-trail",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1527_البيع-بشرط-الاختبار-والتجربة.md"
+  },
+  {
+   "id": "doc-1530",
+   "title": "testimony-on-contractual-obligations",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1530_الشهادة-في-الالتزامات-التعاقدية.md"
+  },
+  {
+   "id": "doc-1534",
+   "title": "guarantee-for-hidden-defects",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1534_ضمان-العيوب-الخفية.md"
+  },
+  {
+   "id": "doc-1540",
+   "title": "بيع الوفاء في القانون الأردني",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1540_بيع-الوفاء-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1541",
+   "title": "enforcing-obligation-by-compensation",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1541_التنفيذ-بطريق-التعويض.md"
+  },
+  {
+   "id": "doc-1542",
+   "title": "legal-representative-of-the-juridical-person",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1542_الممثل-القانوني-للشخص-الاعتباري.md"
+  },
+  {
+   "id": "doc-1546",
+   "title": "investment-contracts",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1546_عقود-الاستثمار.md"
+  },
+  {
+   "id": "doc-1553",
+   "title": "selling-on-trust",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1553_أحكام-البيع-على-الأمانة.md"
+  },
+  {
+   "id": "doc-1554",
+   "title": "the-impact-of-the-covid-19-on-employment-contracts",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1554_تأثير-جائحة-كورونا-على-عقود-العمل.md"
+  },
+  {
+   "id": "doc-1557",
+   "title": "حق التتبع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1557_حق-التتبع.md"
+  },
+  {
+   "id": "doc-1569",
+   "title": "impossibility-of-enforcement",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1569_استحالة-التنفيذ.md"
+  },
+  {
+   "id": "doc-1570",
+   "title": "international-trade-law-and-customs",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1570_دور-الأعراف-التجارية-الدولية-كمصدر-لقواعد-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-1574",
+   "title": "indivisible-legal-actions",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1574_التصرفات-غير-القابلة-للتجزئة.md"
+  },
+  {
+   "id": "doc-1581",
+   "title": "engineering-consultancy-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1581_أحكام-عقد-الاستشارات-الهندسية.md"
+  },
+  {
+   "id": "doc-1586",
+   "title": "بيع السلم",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1586_بيع-السلم.md"
+  },
+  {
+   "id": "doc-1587",
+   "title": "things-and-money",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1587_الأشياء-والأموال-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-1595",
+   "title": "the-option-to-see-in-sale-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1595_خيار-رؤية-المبيع-في-عقد-البيع.md"
+  },
+  {
+   "id": "doc-1621",
+   "title": "press-and-publication-law",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1621_قانون-المطبوعات-والنشر-الأردني.md"
+  },
+  {
+   "id": "doc-1631",
+   "title": "المساقاة",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1631_المساقاة.md"
+  },
+  {
+   "id": "doc-1633",
+   "title": "farming-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1633_عقد-المزارعة-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-1636",
+   "title": "internal-debt",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1636_الديون-الداخلية.md"
+  },
+  {
+   "id": "doc-1637",
+   "title": "relativity-of-international-treaties",
+   "subcategory": "القانون-الدولي",
+   "type": "article",
+   "file": "doc-1637_مبدأ-نسبية-آثار-المعاهدات-الدولية.md"
+  },
+  {
+   "id": "doc-1642",
+   "title": "ratification-of-international-treaties",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1642_التصديق-على-المعاهدات-الدولية.md"
+  },
+  {
+   "id": "doc-1644",
+   "title": "trademark-faq",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1644_أسئلة-متكررة-حول-العلامات-التجارية.md"
+  },
+  {
+   "id": "doc-1646",
+   "title": "contractors-obligations",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1646_التزامات-المقاول-في-عقد-المقاولة.md"
+  },
+  {
+   "id": "doc-1659",
+   "title": "option-of-itemization",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1659_خيار-التعيين.md"
+  },
+  {
+   "id": "doc-1660",
+   "title": "proof-of-electronic-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1660_إثبات-العقد-الإلكتروني.md"
+  },
+  {
+   "id": "doc-1661",
+   "title": "title-retention-clause",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1661_شرط-الاحتفاظ-بحق-الملكية.md"
+  },
+  {
+   "id": "doc-1668",
+   "title": "choice-of-law",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1668_قانون-الإرادة.md"
+  },
+  {
+   "id": "doc-1670",
+   "title": "employee-obligations",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1670_التزامات-العامل-في-عقد-العمل.md"
+  },
+  {
+   "id": "doc-1672",
+   "title": "betting-contract",
+   "subcategory": "عقود-الغرر",
+   "type": "article",
+   "file": "doc-1672_عقد-الرهان-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-1674",
+   "title": "electronic-publishing-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1674_عقد-النشر-الإلكتروني.md"
+  },
+  {
+   "id": "doc-1680",
+   "title": "international-trade-negotiations",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1680_مفاوضات-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-1682",
+   "title": "theory-of-emergency-circumstances",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1682_نظرية-الظروف-الطارئة-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1684",
+   "title": "principal-obligations-in-agency-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1684_التزامات-الموكل-في-عقد-الوكالة.md"
+  },
+  {
+   "id": "doc-1689",
+   "title": "trademark-infringment-copinsationn-lawsuit",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1689_دعوى-التعويض-عن-التعدي-وفق-أحكام-قانون-العلامات-التجارية.md"
+  },
+  {
+   "id": "doc-1697",
+   "title": "contract-subject",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1697_محل-العقد.md"
+  },
+  {
+   "id": "doc-1701",
+   "title": "the-law-applicable-to-electronic-contracts",
+   "subcategory": "تنازع-القوانين",
+   "type": "article",
+   "file": "doc-1701_القانون-الواجب-التطبيق-على-العقود-الإلكترونية.md"
+  },
+  {
+   "id": "doc-1702",
+   "title": "written-statement-is-evidence-against-its-writer",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1702_الإقرار-حجة-قاصرة-على-المقر.md"
+  },
+  {
+   "id": "doc-1714",
+   "title": "international-protection-of-natural-heritage",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1714_الحماية-الدولية-للتراث-الطبيعي.md"
+  },
+  {
+   "id": "doc-1715",
+   "title": "judicial-jurisdiction-over-electronic-contract-disputes",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1715_القضاء-المختص-بنظر-منازعات-العقود-الإلكترونية.md"
+  },
+  {
+   "id": "doc-1718",
+   "title": "debt-payment-refusal",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1718_أحكام-رفض-الوفاء.md"
+  },
+  {
+   "id": "doc-1719",
+   "title": "proximate-cause",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1719_الإضرار-بالمباشرة.md"
+  },
+  {
+   "id": "doc-1720",
+   "title": "valid-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1720_العقد-الصحيح.md"
+  },
+  {
+   "id": "doc-1723",
+   "title": "void-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1723_العقد-الباطل.md"
+  },
+  {
+   "id": "doc-1725",
+   "title": "عقود الانتفاع",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1725_عقود-الانتفاع.md"
+  },
+  {
+   "id": "doc-1734",
+   "title": "if-the-original-invalid-the-replacement-becomes-valid",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1734_إذا-بطل-الأصل-يصار-إلى-البدل.md"
+  },
+  {
+   "id": "doc-1739",
+   "title": "العقد الموقوف",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1739_العقد-الموقوف.md"
+  },
+  {
+   "id": "doc-1743",
+   "title": "أحكام عقد المغارسة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1743_أحكام-عقد-المغارسة.md"
+  },
+  {
+   "id": "doc-1745",
+   "title": "renting-agricultural-land",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1745_أحكام-إيجار-الأرض-الزراعية.md"
+  },
+  {
+   "id": "doc-1749",
+   "title": "إذا تعارض المانع والمقتضى يقدم المانع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1749_إذا-تعارض-المانع-والمقتضى-يقدم-المانع.md"
+  },
+  {
+   "id": "doc-1759",
+   "title": "the-effect-of-the-contract-on-others",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1759_أثر-العقد-بالنسبة-للغير.md"
+  },
+  {
+   "id": "doc-1760",
+   "title": "العقد الفاسد",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1760_العقد-الفاسد.md"
+  },
+  {
+   "id": "doc-1761",
+   "title": "العقد غير اللازم",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1761_العقد-غير-اللازم.md"
+  },
+  {
+   "id": "doc-1762",
+   "title": "end-of-the-power-of-attorney",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1762_انتهاء-عقد-الوكالة.md"
+  },
+  {
+   "id": "doc-1764",
+   "title": "renting-a-womb",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1764_استئجار-الرحم.md"
+  },
+  {
+   "id": "doc-1765",
+   "title": "the-role-of-custom-in-interpreting-the-contract",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-1765_دور-العرف-في-تفسير-العقد.md"
+  },
+  {
+   "id": "doc-1768",
+   "title": "lawyers-tort-liability",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1768_المسؤولية-التقصيرية-للمحامي.md"
+  },
+  {
+   "id": "doc-1771",
+   "title": "الواقعة الشرطية في القانون المدني الأردني",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-1771_الواقعة-الشرطية-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-1773",
+   "title": "consent-to-treat-and-health-care-agreement",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1773_التراضي-في-عقد-العلاج-الطبي.md"
+  },
+  {
+   "id": "doc-1778",
+   "title": "أحكام الحق المجرد",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1778_أحكام-الحق-المجرد.md"
+  },
+  {
+   "id": "doc-1780",
+   "title": "the-nature-of-medical-obligations",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1780_طبيعة-الالتزام-في-المسئولية-الطبية.md"
+  },
+  {
+   "id": "doc-1782",
+   "title": "medical-malpractice",
+   "subcategory": "المسؤولية-الطبية",
+   "type": "article",
+   "file": "doc-1782_الخطأ-الطبي.md"
+  },
+  {
+   "id": "doc-1783",
+   "title": "the-physicians-obligation-to-ensure-patient-safety",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1783_التزام-الطبيب-بضمان-سلامة-المريض.md"
+  },
+  {
+   "id": "doc-1786",
+   "title": "physician-liability-for-narcotics-drugs",
+   "subcategory": "المسؤولية-الطبية",
+   "type": "article",
+   "file": "doc-1786_المسؤولية-الطبية-عن-المخدرات-والمؤثرات-العقلية.md"
+  },
+  {
+   "id": "doc-1787",
+   "title": "the-hotels-civil-liability-to-guests",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1787_مسؤولية-الفندق-المدنية-تجاه-النزلاء.md"
+  },
+  {
+   "id": "doc-1793",
+   "title": "the-hotels-responsibility-for-the-security-and-safety-of-guests",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1793_مسؤولية-الفندق-عن-أمن-وسلامة-النزلاء.md"
+  },
+  {
+   "id": "doc-1796",
+   "title": "non-jordanian-rental-provisions",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1796_أحكام-إيجار-غير-الأردني.md"
+  },
+  {
+   "id": "doc-1799",
+   "title": "if-thing-becomes-invalid",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1799_إذا-بطل-الشيء-بطل-ما-في-ضمنه.md"
+  },
+  {
+   "id": "doc-1802",
+   "title": "debtor-things-not-subject-to-enforcement",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1802_ما-لا-يجوز-حجزه-من-أموال-المدين.md"
+  },
+  {
+   "id": "doc-1805",
+   "title": "contract-dissolution",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1805_انحلال-العقد-(الإقالة).md"
+  },
+  {
+   "id": "doc-1812",
+   "title": "uncitral-legal-framework",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1812_الإطار-القانوني-للأونسيترال.md"
+  },
+  {
+   "id": "doc-1816",
+   "title": "compensation-for-harmful-press-publication-in-jordanian-law",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1816_التعويض-عن-النشر-الصحفي-الضار-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1818",
+   "title": "acting-unilaterally",
+   "subcategory": "مصادر-الالتزام",
+   "type": "article",
+   "file": "doc-1818_التصرف-بالإرادة-المنفردة.md"
+  },
+  {
+   "id": "doc-1821",
+   "title": "الوفاء الاعتياضي",
+   "subcategory": "أحكام-الالتزام",
+   "type": "article",
+   "file": "doc-1821_الوفاء-الاعتياضي.md"
+  },
+  {
+   "id": "doc-1840",
+   "title": "الحجز على أموال الكفيل في القانون الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1840_الحجز-على-أموال-الكفيل-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1845",
+   "title": "الشكلية في العقود المدنية في القانون المدني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1845_الشكلية-في-العقود-المدنية-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-1846",
+   "title": "مسؤولية المتسبب في القانون المدني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1846_مسؤولية-المتسبب-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-1852",
+   "title": "the-question-is-repeated-in-the-answer",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1852_قاعدة-السؤال-مُعاد-في-الجواب.md"
+  },
+  {
+   "id": "doc-1856",
+   "title": "domain-registrar-civil-liability",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1856_المسؤولية-المدنية-لمسجل-النطاق.md"
+  },
+  {
+   "id": "doc-1858",
+   "title": "d8aad8b3d988d98ad8a9-d8a7d984d985d986d8a7d8b2d8b9d8a7d8aa-d8a7d984d985d8aad8b9d984d982d8a9-d8a8d8a3d8b3d985d8a7d8a1domain-name-dispute-resolutio",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1858_تسوية-المنازعات-المتعلقة-بأسماء-النطاق.md"
+  },
+  {
+   "id": "doc-1860",
+   "title": "the-public-schools-responsibility-for-the-safety-of-its-students",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1860_مسؤولية-المدرسة-الحكومية-عن-سلامة-طلابها.md"
+  },
+  {
+   "id": "doc-1867",
+   "title": "social-contract-theory",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1867_نظرية-العقد-الاجتماعي.md"
+  },
+  {
+   "id": "doc-1868",
+   "title": "private-participation-in-public-infrastructure-and-services",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1868_عقد-مشاركة-القطاع-الخاص-في-البنية-التحتية-والخدمات-العامة-(PPP).md"
+  },
+  {
+   "id": "doc-1870",
+   "title": "building-on-the-property-of-others",
+   "subcategory": "الملكية-العقارية",
+   "type": "article",
+   "file": "doc-1870_أحكام-البناء-على-ملك-الغير.md"
+  },
+  {
+   "id": "doc-1871",
+   "title": "debtors-imprisonment",
+   "subcategory": "أحكام-التنفيذ",
+   "type": "article",
+   "file": "doc-1871_أحكام-حبس-المدين-وفق-أحدث-العديلات-وتعميم-المجلس-القضائي-2023.md"
+  },
+  {
+   "id": "doc-1879",
+   "title": "civil-liability-for-objects-and-machines",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1879_المسؤولية-المدنية-عن-الأشياء-والآلات-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1882",
+   "title": "seizure-in-the-hands-of-a-third-person",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1882_حجز-مال-المدين-لدى-الغير.md"
+  },
+  {
+   "id": "doc-1885",
+   "title": "compensation-for-bodily-harm",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1885_التعويض-عن-الضرر-الجسدي-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1887",
+   "title": "agency-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1887_عقد-الوكالة-بالعمولة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1893",
+   "title": "clearance-contract-between-two-companies",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1893_عقد-مخالصة-بين-شركتين-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1894",
+   "title": "contract-preamble",
+   "subcategory": "صياغة-العقود",
+   "type": "article",
+   "file": "doc-1894_مقدمة-العقد-أهميتها-وكيفيتها-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1895",
+   "title": "exclusive-agency-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1895_عقد-الوكالة-التجارية-الحصرية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1897",
+   "title": "partnership-contract-in-a-commercial-agency",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1897_عقد-شراكة-في-وكالة-تجارية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1898",
+   "title": "tenancy-contract-in-saudi-arabia",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1898_عقد-الإيجار-الإلكتروني-في-السعودية.md"
+  },
+  {
+   "id": "doc-1899",
+   "title": "the-non-profit-company",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1899_الشركة-غير-الربحية-(-التي-لا-تهدف-الى-الربح-).md"
+  },
+  {
+   "id": "doc-1900",
+   "title": "trademark-license-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1900_عقد-استخدام-علامة-تجارية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1909",
+   "title": "seizure-of-debtors-money",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1909_حجز-أموال-المدين.md"
+  },
+  {
+   "id": "doc-1915",
+   "title": "contract-writing-basics",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1915_أساسيات-كتابة-العقد-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1917",
+   "title": "أهمية كتابة خاتمة العقد وفق النظام السعودي",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1917_أهمية-كتابة-خاتمة-العقد-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1918",
+   "title": "defining-the-contract-in-the-saudi-laws",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-1918_التعريف-بالعقد-في-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-1920",
+   "title": "how-to-draft-a-sales-contract",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-1920_كيفية-كتابة-عقد-البيع-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1929",
+   "title": "how-is-the-exclusive-commercial-agency-agreement-drafted-according-to-saudi-law",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-1929_كيفية-كتابة-عقد-الوكالة-التجارية-الحصرية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1930",
+   "title": "how-to-write-a-car-sales-contract-in-installments-according-to-the-saudi-system",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-1930_كيفية-كتابة-عقد-بيع-سيارة-بالتقسيط-وفقًا-للنظام-السعودي.md"
+  },
+  {
+   "id": "doc-1933",
+   "title": "how-to-write-a-contract-termination-letter-in-saudi-law",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-1933_كيفية-كتابة-خطاب-فسخ-العقد-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1934",
+   "title": "how-to-write-a-contract-to-sell-a-house-in-installments-in-saudi-law",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-1934_كيفية-كتابة-عقد-بيع-بيت-بالتقسيط-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1938",
+   "title": "how-to-write-settlement-contract",
+   "subcategory": "الصلح-والتسوية",
+   "type": "template",
+   "file": "doc-1938_كيفية-كتابة-عقد-التسوية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1939",
+   "title": "lease-contract-in-the-saudi-system",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1939_عقد-الإيجار-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1943",
+   "title": "the-provisions-of-the-commercial-agency-contract-in-the-saudi-system",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1943_أحكام-عقد-الوكالة-التجارية-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1947",
+   "title": "how-to-write-a-car-sale-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-1947_كيفية-كتابة-عقد-بيع-سيارة-2025-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1949",
+   "title": "how-to-write-a-house-construction-contract",
+   "subcategory": "عقود-المقاولة",
+   "type": "template",
+   "file": "doc-1949_كيفية-كتابة-عقد-مقاولة-بيت-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1952",
+   "title": "how-to-write-marketing-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-1952_كيفية-كتابة-عقد-التسويق-العادي-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-1960",
+   "title": "renewing-the-lease-contract-in-jordanian-law",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1960_أحكام-تجديد-عقد-الإيجار-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1961",
+   "title": "terminating-contracts-under-saudi-law",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1961_كيفية-فسخ-العقد-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-1962",
+   "title": "contracts-invalidity",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-1962_بطلان-العقد-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-1967",
+   "title": "selling-real-estate-by-public-auction",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1967_بيع-العقارات-بالمزاد-العلني.md"
+  },
+  {
+   "id": "doc-1968",
+   "title": "جنحة حجز الحرية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1968_جنحة-حجز-الحرية.md"
+  },
+  {
+   "id": "doc-1971",
+   "title": "the-doer-of-the-act-is-responsible-not-the-orderer",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1971_قاعدة-(-يضاف-الفعل-إلى-الفاعل-لا-إلى-الآمر-).md"
+  },
+  {
+   "id": "doc-1972",
+   "title": "recovery-of-property-sold-by-public-auction",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1972_استرداد-العقار-الذي-بيع-بالمزاد-العلني.md"
+  },
+  {
+   "id": "doc-1974",
+   "title": "محل الوفاء",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1974_محل-الوفاء.md"
+  },
+  {
+   "id": "doc-1977",
+   "title": "enrichment-without-cause",
+   "subcategory": "أحكام-الالتزام",
+   "type": "article",
+   "file": "doc-1977_الكسب-بلا-سبب.md"
+  },
+  {
+   "id": "doc-1979",
+   "title": "المسؤولية المدنية عن الغصب والتعدي في القانون الأردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1979_المسؤولية-المدنية-عن-الغصب-والتعدي-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1982",
+   "title": "litigation-power-of-attorney",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1982_الوكالة-بالتقاضي.md"
+  },
+  {
+   "id": "doc-1984",
+   "title": "قاعدة العقود نافذة بحق عاقديها",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1984_قاعدة-العقود-نافذة-بحق-عاقديها.md"
+  },
+  {
+   "id": "doc-1985",
+   "title": "selling-real-estate-out-land-department",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1985_حكم-بيع-العقار-دون-التسجيل.md"
+  },
+  {
+   "id": "doc-1986",
+   "title": "bidding-decision",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1986_قرار-الإحالة-على-المزاود-وآثاره-وأحكامه.md"
+  },
+  {
+   "id": "doc-1988",
+   "title": "damage-caused-by-legal-defense",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1988_الضرر-المترتب-على-حالة-الدفاع-الشرعي.md"
+  },
+  {
+   "id": "doc-1989",
+   "title": "bilateral-contract-forms",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1989_أشكال-العقود-الملزمة-للجانبين.md"
+  },
+  {
+   "id": "doc-1992",
+   "title": "bilateral-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1992_العقود-الملزمة-للجانبين.md"
+  },
+  {
+   "id": "doc-1993",
+   "title": "defects-option-in-civil-law",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1993_خيار-العيب-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-1994",
+   "title": "responsibility-of-the-contractor-and-engineer-for-the-construction",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-1994_مسؤولية-المقاول-والمهندس-عن-ضمانة-متانة-البناء.md"
+  },
+  {
+   "id": "doc-1998",
+   "title": "warranty-for-defects-and-failure-to-specifications-in-the-sales-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-1998_ضمان-العيوب-وتخلف-المواصفات-في-عقد-البيع.md"
+  },
+  {
+   "id": "doc-1999",
+   "title": "what-is-the-franchise-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-1999_ما-هو-عقد-الفرنشايز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2000",
+   "title": "ضمان استحقاق المبيع في القانون الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2000_ضمان-استحقاق-المبيع-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-2002",
+   "title": "الإكراه السلبي في القانون المدني الأردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2002_الإكراه-السلبي-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-2003",
+   "title": "عقود المعاوضة في القانون المدني الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2003_عقود-المعاوضة-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-2007",
+   "title": "the-effect-of-the-contract-on-the-contracting-parties",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2007_أثر-العقد-بالنسبة-للمتعاقدين-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-2016",
+   "title": "a-notice-form-for-the-termination-of-the-commercial-agency-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-2016_نموذج-إنذار-بفسخ-عقد-الوكالة-التجارية.md"
+  },
+  {
+   "id": "doc-2024",
+   "title": "damage-provisions-in-the-case-of-legitimate-defense",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2024_أحكام-الضرر-في-حالة-دفاع-شرعي.md"
+  },
+  {
+   "id": "doc-2025",
+   "title": "transfer-of-ownership-as-an-effect-of-the-contract-of-sale",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2025_نقل-الملكية-كأثر-لعقد-البيع-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-2031",
+   "title": "obligation-to-abstain-from-work-in-the-labor-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2031_الإلتزام-بالامتناع-عن-فعل-في-عقد-العمل.md"
+  },
+  {
+   "id": "doc-2038",
+   "title": "damages-for-lost-opportunity",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2038_التعويض-عن-الفرصة-الفائتة.md"
+  },
+  {
+   "id": "doc-2047",
+   "title": "the-provisions-of-the-collective-labor-contract",
+   "subcategory": "عقود-العمل",
+   "type": "article",
+   "file": "doc-2047_أحكام-عقد-العمل-الجماعي-في-قانون-العمل-الأردني.md"
+  },
+  {
+   "id": "doc-2049",
+   "title": "بيع المنقولات بالمزاد العلني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2049_بيع-المنقولات-بالمزاد-العلني.md"
+  },
+  {
+   "id": "doc-2061",
+   "title": "صور العقود في الأنظمة السعودية",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-2061_صور-العقود-في-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2062",
+   "title": "عقد شراكة في مطعم وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2062_عقد-شراكة-في-مطعم-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2063",
+   "title": "لمحة عن نظام التأمين الإلزامي الأردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2063_لمحة-عن-نظام-التأمين-الإلزامي-الأردني.md"
+  },
+  {
+   "id": "doc-2064",
+   "title": "محامي عقود وفق النظام السعودي",
+   "subcategory": "صياغة-العقود",
+   "type": "article",
+   "file": "doc-2064_محامي-عقود-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2065",
+   "title": "الدليل الشامل للاستشارة القانونية من محامي عقود وفق النظام السعودي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2065_الدليل-الشامل-للاستشارة-القانونية-من-محامي-عقود-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2070",
+   "title": "الصياغة القانونية للعقد وفق النظام السعودي",
+   "subcategory": "صياغة-العقود",
+   "type": "article",
+   "file": "doc-2070_الصياغة-القانونية-للعقد-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2075",
+   "title": "بيع السيارات بالمزاد العلني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2075_بيع-السيارات-بالمزاد-العلني.md"
+  },
+  {
+   "id": "doc-2076",
+   "title": "عقد الخدمات في النظام السعودي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2076_عقد-الخدمات-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2077",
+   "title": "الالتزامات والحقوق في عقد الفرنشايز وفق النظام السعودي",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-2077_الالتزامات-والحقوق-في-عقد-الفرنشايز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2078",
+   "title": "أركان العقد وفق النظام السعودي",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2078_أركان-العقد-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2080",
+   "title": "الشرط الجزائي في عقد العمل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2080_الشرط-الجزائي-في-عقد-العمل.md"
+  },
+  {
+   "id": "doc-2082",
+   "title": "عقود الاستثمار في السعودية وفق النظام السعودي",
+   "subcategory": "عقود-الاستثمار",
+   "type": "article",
+   "file": "doc-2082_عقود-الاستثمار-في-السعودية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2084",
+   "title": "الاستشارات القانونية التجارية وفق النظام السعودي",
+   "subcategory": "استشارات-قانونية",
+   "type": "article",
+   "file": "doc-2084_الاستشارات-القانونية-التجارية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2092",
+   "title": "دور مبدأ سلطان الإدارة في عقد العمل",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2092_دور-مبدأ-سلطان-الإدارة-في-عقد-العمل.md"
+  },
+  {
+   "id": "doc-2096",
+   "title": "الخطر وتحمل التبعة في نظام التأمين الإلزامي على المركبات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2096_الخطر-وتحمل-التبعة-في-نظام-التأمين-الإلزامي-على-المركبات.md"
+  },
+  {
+   "id": "doc-2098",
+   "title": "العقود التكنولوجية وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2098_العقود-التكنولوجية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2104",
+   "title": "كيفية كتابة عقد المقاولة وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-2104_كيفية-كتابة-عقد-المقاولة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2105",
+   "title": "الأضرار التي يغطيها التأمين الإلزامي على المركبات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2105_الأضرار-التي-يغطيها-التأمين-الإلزامي-على-المركبات.md"
+  },
+  {
+   "id": "doc-2106",
+   "title": "التعويض عن المساس بالاسم",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2106_التعويض-عن-المساس-بالاسم.md"
+  },
+  {
+   "id": "doc-2107",
+   "title": "المسؤولية العقدية وفق النظام السعودي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2107_المسؤولية-العقدية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2108",
+   "title": "بطلان العقد وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2108_بطلان-العقد-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2115",
+   "title": "عقد الامتياز التجاري وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2115_عقد-الامتياز-التجاري-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2116",
+   "title": "عقد تنظيم المعارض وفق النظام السعودي",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2116_عقد-تنظيم-المعارض-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2129",
+   "title": "الشكلية في العقد وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2129_الشكلية-في-العقد-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2133",
+   "title": "آثار عقد الفرنشايز وانقضائه وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2133_آثار-عقد-الفرنشايز-وانقضائه-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2136",
+   "title": "ذاتية عقد التأمين الإلزامي على المركبات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2136_ذاتية-عقد-التأمين-الإلزامي-على-المركبات.md"
+  },
+  {
+   "id": "doc-2137",
+   "title": "الجوانب القانونية لعقد الفرنشايز وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2137_الجوانب-القانونية-لعقد-الفرنشايز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2158",
+   "title": "الاحتياطي الإجباري والاحتياطي العادي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2158_الاحتياطي-الإجباري-والاحتياطي-العادي.md"
+  },
+  {
+   "id": "doc-2160",
+   "title": "الشخصية المعنوية للشركة وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2160_الشخصية-المعنوية-للشركة-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2161",
+   "title": "الوضع القانوني للغير في نظام التأمين الإلزامي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2161_الوضع-القانوني-للغير-في-نظام-التأمين-الإلزامي.md"
+  },
+  {
+   "id": "doc-2168",
+   "title": "الشرط المقيد للمنافسة",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2168_الشرط-المقيد-للمنافسة.md"
+  },
+  {
+   "id": "doc-2171",
+   "title": "الطبيعة القانونية لعقد الفرنشايز وفق النظام السعودي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2171_الطبيعة-القانونية-لعقد-الفرنشايز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2173",
+   "title": "شروط بيع الأموال غير المنقولة بالمزاد العلني والاعتراض عليها",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2173_شروط-بيع-الأموال-غير-المنقولة-بالمزاد-العلني-والاعتراض-عليها.md"
+  },
+  {
+   "id": "doc-2175",
+   "title": "خصوصية التزامات صاحب الامتياز التجاري وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2175_خصوصية-التزامات-صاحب-الامتياز-التجاري-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2179",
+   "title": "عقد الامتياز التجاري في النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2179_عقد-الامتياز-التجاري-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2189",
+   "title": "صياغة عقود التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2189_صياغة-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2190",
+   "title": "ضوابط التعويض في التأمين الإلزامي للمركبات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2190_ضوابط-التعويض-في-التأمين-الإلزامي-للمركبات.md"
+  },
+  {
+   "id": "doc-2195",
+   "title": "التأمين الإلزامي في المسؤولية المدنية الناشئة عن حوادث السيارات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2195_التأمين-الإلزامي-في-المسؤولية-المدنية-الناشئة-عن-حوادث-السيارات.md"
+  },
+  {
+   "id": "doc-2196",
+   "title": "التزامات أطراف عقد الفرنشايز وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2196_التزامات-أطراف-عقد-الفرنشايز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2199",
+   "title": "القانون الواجب التطبيق في عقود الفرنشايز الدولية وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2199_القانون-الواجب-التطبيق-في-عقود-الفرنشايز-الدولية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2202",
+   "title": "نقل المعرفة الفنية في عقد الفرنشايز وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2202_نقل-المعرفة-الفنية-في-عقد-الفرنشايز-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2204",
+   "title": "مذكرة التفاهم وفق النظام السعودي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2204_مذكرة-التفاهم-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2205",
+   "title": "عقد تسليم المفتاح وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2205_عقد-تسليم-المفتاح-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2206",
+   "title": "مسؤولية المؤمِّن تجاه المضرور في نظام التأمين الإلزامي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2206_مسؤولية-المؤمِّن-تجاه-المضرور-في-نظام-التأمين-الإلزامي.md"
+  },
+  {
+   "id": "doc-2208",
+   "title": "خصوصية التزام صاحب الفرنشايز السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2208_خصوصية-التزام-صاحب-الفرنشايز-السعودية.md"
+  },
+  {
+   "id": "doc-2209",
+   "title": "أحكام عقود التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2209_أحكام-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2211",
+   "title": "عقد البيع الابتدائي السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2211_عقد-البيع-الابتدائي-السعودية.md"
+  },
+  {
+   "id": "doc-2212",
+   "title": "أحكام الثمن",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2212_أحكام-الثمن.md"
+  },
+  {
+   "id": "doc-2213",
+   "title": "أسس التجارة الدولية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2213_أسس-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2216",
+   "title": "التنظيم القانوني لعقود التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2216_التنظيم-القانوني-لعقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2218",
+   "title": "الالتزام بالإبلاغ عن تحقق الخطر المؤمن ضده",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2218_الالتزام-بالإبلاغ-عن-تحقق-الخطر-المؤمن-ضده.md"
+  },
+  {
+   "id": "doc-2220",
+   "title": "التزام المؤمِّن تجاه الغير في التأمين الإلزامي للمركبات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2220_التزام-المؤمِّن-تجاه-الغير-في-التأمين-الإلزامي-للمركبات.md"
+  },
+  {
+   "id": "doc-2223",
+   "title": "الرجوع عن الهبة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2223_الرجوع-عن-الهبة.md"
+  },
+  {
+   "id": "doc-2224",
+   "title": "الثمن الصوري في عقد البيع السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2224_الثمن-الصوري-في-عقد-البيع-السعودية.md"
+  },
+  {
+   "id": "doc-2229",
+   "title": "تسليم المبيع في عقد البيع السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2229_تسليم-المبيع-في-عقد-البيع-السعودية.md"
+  },
+  {
+   "id": "doc-2230",
+   "title": "مدى تغطية التأمين الإلزامي للأضرار الناجمة عن حوادث المركبات",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2230_مدى-تغطية-التأمين-الإلزامي-للأضرار-الناجمة-عن-حوادث-المركبات.md"
+  },
+  {
+   "id": "doc-2233",
+   "title": "عقد الصلح بين طرفين وفق الأنظمة السعودية",
+   "subcategory": "الصلح-والتسوية",
+   "type": "article",
+   "file": "doc-2233_عقد-الصلح-بين-طرفين-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2234",
+   "title": "عقد الفيديك في النظام السعودي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2234_عقد-الفيديك-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2237",
+   "title": "الضمانات والائتمانات في التجارة الدولية",
+   "subcategory": "عقود-التجارة-الدولية",
+   "type": "article",
+   "file": "doc-2237_الضمانات-والائتمانات-في-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2241",
+   "title": "مسؤولية شركة التأمين في حال الكوارث الطبيعية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2241_مسؤولية-شركة-التأمين-في-حال-الكوارث-الطبيعية.md"
+  },
+  {
+   "id": "doc-2242",
+   "title": "أركان العقد الإلكتروني وفق الأنظمة السعودية",
+   "subcategory": "العقود-الإلكترونية",
+   "type": "article",
+   "file": "doc-2242_أركان-العقد-الإلكتروني-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2243",
+   "title": "التزامات المشتري في عقد البيع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2243_التزامات-المشتري-في-عقد-البيع.md"
+  },
+  {
+   "id": "doc-2245",
+   "title": "التزامات المؤجر في عقد الإيجار",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2245_التزامات-المؤجر-في-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-2246",
+   "title": "الرجوع عن البيع وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2246_الرجوع-عن-البيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2248",
+   "title": "السبب في العقد وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2248_السبب-في-العقد-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2250",
+   "title": "المحل في عقد البيع وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2250_المحل-في-عقد-البيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2251",
+   "title": "تنظيم عقود التجارة الدولية الالكترونية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2251_تنظيم-عقود-التجارة-الدولية-الالكترونية.md"
+  },
+  {
+   "id": "doc-2252",
+   "title": "دعوى بطلان عقد البيع وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2252_دعوى-بطلان-عقد-البيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2254",
+   "title": "بطلان عقد البيع للغش وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2254_بطلان-عقد-البيع-للغش-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2255",
+   "title": "معايير تدويل عقود التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2255_معايير-تدويل-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2256",
+   "title": "دعوى تزوير عقد البيع وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2256_دعوى-تزوير-عقد-البيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2257",
+   "title": "التعويض عن عدم تجديد عقد الامتياز التجاري وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2257_التعويض-عن-عدم-تجديد-عقد-الامتياز-التجاري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2258",
+   "title": "عوائد التحسين",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2258_عوائد-التحسين.md"
+  },
+  {
+   "id": "doc-2261",
+   "title": "عقد التأمين الشامل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2261_عقد-التأمين-الشامل.md"
+  },
+  {
+   "id": "doc-2262",
+   "title": "هل يجب الإشهاد على العقد في النظام السعودي؟",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2262_هل-يجب-الإشهاد-على-العقد-في-النظام-السعودي؟.md"
+  },
+  {
+   "id": "doc-2263",
+   "title": "أركان عقد الشركة في القانون المدني",
+   "subcategory": "عقود-الشراكة",
+   "type": "article",
+   "file": "doc-2263_أركان-عقد-الشركة-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-2264",
+   "title": "توقيع الشهود على العقد وفق الأنظمة السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2264_توقيع-الشهود-على-العقد-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2265",
+   "title": "التزامات المستأجر في عقد الإيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2265_التزامات-المستأجر-في-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-2267",
+   "title": "المخارجة في القانون المدني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2267_المخارجة-في-القانون-المدني.md"
+  },
+  {
+   "id": "doc-2268",
+   "title": "عقد الوساطة التجارية وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2268_عقد-الوساطة-التجارية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2269",
+   "title": "المقايضة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2269_المقايضة.md"
+  },
+  {
+   "id": "doc-2270",
+   "title": "عقد الكفالة في النظام السعودي",
+   "subcategory": "الرهن-والكفالة",
+   "type": "article",
+   "file": "doc-2270_عقد-الكفالة-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2271",
+   "title": "النظام القانوني للتأمين الإلزامي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2271_النظام-القانوني-للتأمين-الإلزامي.md"
+  },
+  {
+   "id": "doc-2272",
+   "title": "عقد الوكالة الخاصة وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2272_عقد-الوكالة-الخاصة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2274",
+   "title": "كيفية كتابة سياسة الاسترجاع لمتجر إلكتروني وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-2274_كيفية-كتابة-سياسة-الاسترجاع-لمتجر-إلكتروني-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2276",
+   "title": "how-to-write-a-partnership-contract-in-a-medical-facility",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2276_عقد-شراكة-في-منشأة-طبية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2277",
+   "title": "أحكام عقد التأمين التكميلي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2277_أحكام-عقد-التأمين-التكميلي.md"
+  },
+  {
+   "id": "doc-2278",
+   "title": "العقد شريعة المتعاقدين وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2278_العقد-شريعة-المتعاقدين-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2280",
+   "title": "دور إرادة المتعاقدين في اختيار القانون واجب التطبيق",
+   "subcategory": "تنازع-القوانين",
+   "type": "article",
+   "file": "doc-2280_دور-إرادة-المتعاقدين-في-اختيار-القانون-واجب-التطبيق.md"
+  },
+  {
+   "id": "doc-2281",
+   "title": "شروط الثمن في عقد البيع وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2281_شروط-الثمن-في-عقد-البيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2282",
+   "title": "مسؤولية مالك المركبة عن الحوادث",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2282_مسؤولية-مالك-المركبة-عن-الحوادث.md"
+  },
+  {
+   "id": "doc-2283",
+   "title": "إبرام العقد في التجارة الدولية الإلكترونية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2283_إبرام-العقد-في-التجارة-الدولية-الإلكترونية.md"
+  },
+  {
+   "id": "doc-2284",
+   "title": "التزامات المؤجر في قانون المالكين والمستأجرين",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2284_التزامات-المؤجر-في-قانون-المالكين-والمستأجرين.md"
+  },
+  {
+   "id": "doc-2285",
+   "title": "صورية عقد بيع من مورث وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2285_صورية-عقد-بيع-من-مورث-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2286",
+   "title": "أحكام دعوى فسخ عقد الإيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2286_أحكام-دعوى-فسخ-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-2287",
+   "title": "التزامات الوكيل التجاري تجاه الموكل",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2287_التزامات-الوكيل-التجاري-تجاه-الموكل.md"
+  },
+  {
+   "id": "doc-2288",
+   "title": "أحكام عقد البيع الصوري وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2288_أحكام-عقد-البيع-الصوري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2291",
+   "title": "عقد الترخيص باستعمال العلامة التجارية وفق الأنظمة السعودية",
+   "subcategory": "عقود-الترخيص",
+   "type": "article",
+   "file": "doc-2291_عقد-الترخيص-باستعمال-العلامة-التجارية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2292",
+   "title": "النظام القانوني للممثل التجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2292_النظام-القانوني-للممثل-التجاري.md"
+  },
+  {
+   "id": "doc-2295",
+   "title": "معايير تدويل عقود التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2295_معايير-تدويل-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2296",
+   "title": "الحماية القانونية للوكيل التجاري الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2296_الحماية-القانونية-للوكيل-التجاري-الأردني.md"
+  },
+  {
+   "id": "doc-2298",
+   "title": "حجية الإثبات في عقود التجارة الإلكترونية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2298_حجية-الإثبات-في-عقود-التجارة-الإلكترونية.md"
+  },
+  {
+   "id": "doc-2299",
+   "title": "عقد الإعاشة وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-2299_عقد-الإعاشة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2300",
+   "title": "الأخطار البحرية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2300_الأخطار-البحرية.md"
+  },
+  {
+   "id": "doc-2301",
+   "title": "عقد العمل المرن وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-2301_عقد-العمل-المرن-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2302",
+   "title": "أحكام بيع النائب لنفسه",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2302_أحكام-بيع-النائب-لنفسه.md"
+  },
+  {
+   "id": "doc-2305",
+   "title": "عقد تعاون بين شركتين وتبادل منافع وفق الأنظمة السعودية",
+   "subcategory": "عقود-تجارية",
+   "type": "template",
+   "file": "doc-2305_عقد-تعاون-بين-شركتين-وتبادل-منافع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2307",
+   "title": "عقد نقل بضائع وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-2307_عقد-نقل-بضائع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2309",
+   "title": "عقد بيع مؤسسة فردية وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-2309_عقد-بيع-مؤسسة-فردية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2310",
+   "title": "ضمانات تفتيش الأنثى",
+   "subcategory": "الإجراءات-الجزائية",
+   "type": "article",
+   "file": "doc-2310_ضمانات-تفتيش-الأنثى.md"
+  },
+  {
+   "id": "doc-2311",
+   "title": "عقد المقاولة من الباطن وفق الأنظمة السعودية",
+   "subcategory": "عقود-المقاولة",
+   "type": "template",
+   "file": "doc-2311_عقد-المقاولة-من-الباطن-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2314",
+   "title": "حق الوكيل التجاري في التعويض",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2314_حق-الوكيل-التجاري-في-التعويض.md"
+  },
+  {
+   "id": "doc-2315",
+   "title": "عقد التوريد والتركيب وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-2315_عقد-التوريد-والتركيب-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2316",
+   "title": "شرط عدم المنافسة في العقود التجارية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2316_شرط-عدم-المنافسة-في-العقود-التجارية.md"
+  },
+  {
+   "id": "doc-2317",
+   "title": "كيفية كتابة عقد تشطيب فيلا وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-2317_كيفية-كتابة-عقد-تشطيب-فيلا-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2318",
+   "title": "ضمانات طرفي عقد الوكالة بالعمولة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2318_ضمانات-طرفي-عقد-الوكالة-بالعمولة.md"
+  },
+  {
+   "id": "doc-2321",
+   "title": "كيفية إنهاء العقد وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2321_كيفية-إنهاء-العقد-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2323",
+   "title": "الحماية المدنية للمستهلك من الإعلان التجاري المضلل",
+   "subcategory": "حماية-المستهلك",
+   "type": "article",
+   "file": "doc-2323_الحماية-المدنية-للمستهلك-من-الإعلان-التجاري-المضلل.md"
+  },
+  {
+   "id": "doc-2325",
+   "title": "قيود السجل التجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2325_قيود-السجل-التجاري.md"
+  },
+  {
+   "id": "doc-2326",
+   "title": "إثبات عقد الشركة وفق الأنظمة السعودية",
+   "subcategory": "عقود-الشراكة",
+   "type": "article",
+   "file": "doc-2326_إثبات-عقد-الشركة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2330",
+   "title": "مدى تأثير وفاة التاجر على عقوده وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2330_مدى-تأثير-وفاة-التاجر-على-عقوده-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2335",
+   "title": "القرار المستعجل بإخلاء أو استرداد المأجور",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2335_القرار-المستعجل-بإخلاء-أو-استرداد-المأجور.md"
+  },
+  {
+   "id": "doc-2339",
+   "title": "طرق إثبات صورية عقد البيع وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2339_طرق-إثبات-صورية-عقد-البيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2341",
+   "title": "عقد إدارة محتوي تواصل اجتماعي وفق الأنظمة السعودية",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-2341_عقد-إدارة-محتوي-تواصل-اجتماعي-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2343",
+   "title": "عقد التدريب وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2343_عقد-التدريب-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2344",
+   "title": "المتجر في قانون التجارة الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2344_المتجر-في-قانون-التجارة-الأردني.md"
+  },
+  {
+   "id": "doc-2345",
+   "title": "عقد إيجار بيت مفروش وفق الأنظمة السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2345_عقد-إيجار-بيت-مفروش-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2346",
+   "title": "seven-tips-for-writing-a-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2346_سبعة-نصائح-لكتابة-العقد-دون-أخطاء-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2347",
+   "title": "writing-a-contract-in-eight-steps",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-2347_كتابة-العقد-في-ثماني-خطوات-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2350",
+   "title": "عقد تشغيل أموال وفق الأنظمة السعودية",
+   "subcategory": "عقود-الاستثمار",
+   "type": "article",
+   "file": "doc-2350_عقد-تشغيل-أموال-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2352",
+   "title": "مصادقة المحامي على الوكالة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2352_مصادقة-المحامي-على-الوكالة.md"
+  },
+  {
+   "id": "doc-2353",
+   "title": "عقد بناء عظم وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2353_عقد-بناء-عظم-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2355",
+   "title": "عقد بيع حقوق تأليف وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2355_عقد-بيع-حقوق-تأليف-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2357",
+   "title": "عقد تسويق مقابل عمولة وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2357_عقد-تسويق-مقابل-عمولة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2361",
+   "title": "عقد صيانة بناء وفق الأنظمة السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2361_عقد-صيانة-بناء-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2362",
+   "title": "التسليم كأثر لعقد البيع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2362_التسليم-كأثر-لعقد-البيع.md"
+  },
+  {
+   "id": "doc-2370",
+   "title": "عناصر المتجر",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2370_عناصر-المتجر.md"
+  },
+  {
+   "id": "doc-2376",
+   "title": "العقد ما بين النظام الأنجلوسكسوني والمدني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2376_العقد-ما-بين-النظام-الأنجلوسكسوني-والمدني.md"
+  },
+  {
+   "id": "doc-2378",
+   "title": "التعويض في النظام الأنجلوسكسوني والنظام المدني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2378_التعويض-في-النظام-الأنجلوسكسوني-والنظام-المدني.md"
+  },
+  {
+   "id": "doc-2379",
+   "title": "أحكام بطلان عقد الشركة وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2379_أحكام-بطلان-عقد-الشركة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2381",
+   "title": "التزامات المشتري في عقد البيع وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2381_التزامات-المشتري-في-عقد-البيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2383",
+   "title": "عقد إعارة عمالة وفق الأنظمة السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2383_عقد-إعارة-عمالة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2385",
+   "title": "عقد تقديم خدمات تسويقية وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2385_عقد-تقديم-خدمات-تسويقية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2389",
+   "title": "عقد إدارة وتشغيل مصنع وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2389_عقد-إدارة-وتشغيل-مصنع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2393",
+   "title": "عقد إدارة صفحات السوشيال ميديا وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2393_عقد-إدارة-صفحات-السوشيال-ميديا-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2397",
+   "title": "التعويض عن التوقيف",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2397_التعويض-عن-التوقيف.md"
+  },
+  {
+   "id": "doc-2401",
+   "title": "عقد إيجار شقة مفروشة وفق الأنظمة السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-2401_عقد-إيجار-شقة-مفروشة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2406",
+   "title": "عقد بيع بالأجل وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "template",
+   "file": "doc-2406_عقد-بيع-بالأجل-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2407",
+   "title": "مفهوم التأمين التكميلي وأحكامه",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2407_مفهوم-التأمين-التكميلي-وأحكامه.md"
+  },
+  {
+   "id": "doc-2410",
+   "title": "المسؤولية المدنية لكاتب العدل المرخص",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2410_المسؤولية-المدنية-لكاتب-العدل-المرخص.md"
+  },
+  {
+   "id": "doc-2411",
+   "title": "أثر إلغاء الامتداد القانوني لعقد الإيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2411_أثر-إلغاء-الامتداد-القانوني-لعقد-الإيجار.md"
+  },
+  {
+   "id": "doc-2422",
+   "title": "enforcement-of-lease-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2422_تنفيذ-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-2425",
+   "title": "الاعتمادات المستندية كأداة من أدوات التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2425_الاعتمادات-المستندية-كأداة-من-أدوات-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2429",
+   "title": "force-majeure-and-its-impact-on-international-trade-contracts",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2429_القوة-القاهرة-وأثرها-في-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2430",
+   "title": "conflict-of-laws-in-international-trade-contracts",
+   "subcategory": "تنازع-القوانين",
+   "type": "article",
+   "file": "doc-2430_تنازع-القوانين-في-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2436",
+   "title": "أحكام عقد النقل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2436_أحكام-عقد-النقل.md"
+  },
+  {
+   "id": "doc-2437",
+   "title": "التعويض عن التلف الكلي للمركبة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2437_التعويض-عن-التلف-الكلي-للمركبة.md"
+  },
+  {
+   "id": "doc-2439",
+   "title": "حق الإيجار للمتجر",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2439_حق-الإيجار-للمتجر.md"
+  },
+  {
+   "id": "doc-2440",
+   "title": "طرق إثبات الالتزام",
+   "subcategory": "قواعد-الإثبات",
+   "type": "article",
+   "file": "doc-2440_طرق-إثبات-الالتزام.md"
+  },
+  {
+   "id": "doc-2445",
+   "title": "دليل شامل حول خدمات المحامي سامي العوض في كتابة العقود",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2445_دليل-شامل-حول-خدمات-المحامي-سامي-العوض-في-كتابة-العقود.md"
+  },
+  {
+   "id": "doc-2446",
+   "title": "عدم سريان الدفوع في علاقة المسحوب عليه بحامل سند السحب",
+   "subcategory": "الأوراق-التجارية",
+   "type": "article",
+   "file": "doc-2446_عدم-سريان-الدفوع-في-علاقة-المسحوب-عليه-بحامل-سند-السحب.md"
+  },
+  {
+   "id": "doc-2451",
+   "title": "أفضل محامي عقود في السعودية",
+   "subcategory": "صياغة-العقود",
+   "type": "article",
+   "file": "doc-2451_أفضل-محامي-عقود-في-السعودية.md"
+  },
+  {
+   "id": "doc-2455",
+   "title": "المخاطر المؤمنة والمستثناة في التأمين البحري",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2455_المخاطر-المؤمنة-والمستثناة-في-التأمين-البحري.md"
+  },
+  {
+   "id": "doc-2456",
+   "title": "فسخ العقود التجارية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2456_فسخ-العقود-التجارية.md"
+  },
+  {
+   "id": "doc-2459",
+   "title": "consumer-protection-from-misleading-advertising",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2459_حماية-المستهلك-من-الإشهار-التضليلي.md"
+  },
+  {
+   "id": "doc-2460",
+   "title": "أهم مصطلحات التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2460_أهم-مصطلحات-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2462",
+   "title": "المسؤولية المدنية للكاتب العدل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2462_المسؤولية-المدنية-للكاتب-العدل.md"
+  },
+  {
+   "id": "doc-2467",
+   "title": "the-difference-between-the-anglo-saxon-system-and-the-civil-system-in-terms-of-the-basis-for-determining-compensation",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2467_الفرق-بين-النظام-الأنجلوسكسوني-والنظام-المدني-من-حيث-أسس-تحديد-التعويض.md"
+  },
+  {
+   "id": "doc-2468",
+   "title": "the-physicians-obligation-to-inform-the-patient-of-medical-risks",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2468_التزام-الطبيب-بإعلام-المريض-بالمخاطر-الطبية.md"
+  },
+  {
+   "id": "doc-2469",
+   "title": "الطبيعة القانونية لعقد التأمين البحري",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2469_الطبيعة-القانونية-لعقد-التأمين-البحري.md"
+  },
+  {
+   "id": "doc-2471",
+   "title": "d8afd988d8b1-d8b9d982d8af-d8a7d984d8a8d98ad8b9-d981d988d8a8-f-o-b-d981d98a-d8a7d984d8aad8acd8a7d8b1d8a9-d8a7d984d8afd988d984d98ad8a9",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2471_دور-عقد-البيع-فوب-((F.O.B-في-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2474",
+   "title": "رهن المحل التجاري وآثاره",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2474_رهن-المحل-التجاري-وآثاره.md"
+  },
+  {
+   "id": "doc-2477",
+   "title": "الشروط التقييدية في عقد الترخيص",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2477_الشروط-التقييدية-في-عقد-الترخيص.md"
+  },
+  {
+   "id": "doc-2479",
+   "title": "سند السحب الإلكتروني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2479_سند-السحب-الإلكتروني.md"
+  },
+  {
+   "id": "doc-2481",
+   "title": "شرط إعادة التفاوض في عقود التجارة الدولية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2481_شرط-إعادة-التفاوض-في-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2482",
+   "title": "شرط إعادة المراجعة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2482_شرط-إعادة-المراجعة.md"
+  },
+  {
+   "id": "doc-2483",
+   "title": "شرط التحكيم في عقود التجارة الدولية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2483_شرط-التحكيم-في-عقود-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2485",
+   "title": "عقد الوكالة التجارية في قانون التجارة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2485_عقد-الوكالة-التجارية-في-قانون-التجارة.md"
+  },
+  {
+   "id": "doc-2489",
+   "title": "عقد الترخيص باستغلال براءة الاختراع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2489_عقد-الترخيص-باستغلال-براءة-الاختراع.md"
+  },
+  {
+   "id": "doc-2490",
+   "title": "مسؤولية مباشر الضرر",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2490_مسؤولية-مباشر-الضرر.md"
+  },
+  {
+   "id": "doc-2492",
+   "title": "أسباب إعفاء الناقل البحري من المسؤولية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2492_أسباب-إعفاء-الناقل-البحري-من-المسؤولية.md"
+  },
+  {
+   "id": "doc-2495",
+   "title": "الترك في التأمين البحري",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2495_الترك-في-التأمين-البحري.md"
+  },
+  {
+   "id": "doc-2497",
+   "title": "التزامات المشغل الخاصة نحو البحارة",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2497_التزامات-المشغل-الخاصة-نحو-البحارة.md"
+  },
+  {
+   "id": "doc-2500",
+   "title": "عقد الترخيص باستغلال الأصناف النباتية الجديدة",
+   "subcategory": "عقود-الترخيص",
+   "type": "article",
+   "file": "doc-2500_عقد-الترخيص-باستغلال-الأصناف-النباتية-الجديدة.md"
+  },
+  {
+   "id": "doc-2503",
+   "title": "الإنهاء المشروع لعقد العمل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2503_الإنهاء-المشروع-لعقد-العمل.md"
+  },
+  {
+   "id": "doc-2504",
+   "title": "النطاق الزمني لمسؤولية الناقل البحري",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2504_النطاق-الزمني-لمسؤولية-الناقل-البحري.md"
+  },
+  {
+   "id": "doc-2505",
+   "title": "الغرامة التهديدية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2505_الغرامة-التهديدية.md"
+  },
+  {
+   "id": "doc-2506",
+   "title": "d8a7d984d986d8b8d8a7d985-d8a7d984d982d8a7d986d988d986d98a-d984d984d8a8d98ad8b9-d8b3d98ad981-c-i-f",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2506_النظام-القانوني-للبيع-سيف-(C.I.F).md"
+  },
+  {
+   "id": "doc-2507",
+   "title": "أثر القوة القاهرة على التزامات السفينة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2507_أثر-القوة-القاهرة-على-التزامات-السفينة.md"
+  },
+  {
+   "id": "doc-2509",
+   "title": "الممثل التجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2509_الممثل-التجاري.md"
+  },
+  {
+   "id": "doc-2510",
+   "title": "d8a7d984d986d8b8d8a7d985-d8a7d984d982d8a7d986d988d986d98a-d984d984d8a8d98ad8b9-d981d988d8a8-f-o-b",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2510_النظام-القانوني-للبيع-فوب-(F.O.B).md"
+  },
+  {
+   "id": "doc-2511",
+   "title": "التزامات الناقل البحري",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2511_التزامات-الناقل-البحري.md"
+  },
+  {
+   "id": "doc-2512",
+   "title": "الوكيل بالعمولة للنقل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2512_الوكيل-بالعمولة-للنقل.md"
+  },
+  {
+   "id": "doc-2516",
+   "title": "بدل الإجارة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2516_بدل-الإجارة.md"
+  },
+  {
+   "id": "doc-2517",
+   "title": "التعويض عن الاستملاك",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2517_التعويض-عن-الاستملاك.md"
+  },
+  {
+   "id": "doc-2519",
+   "title": "أحكام خلو الرجل",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2519_أحكام-خلو-الرجل.md"
+  },
+  {
+   "id": "doc-2521",
+   "title": "أفضل محامي تعويض",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2521_أفضل-محامي-تعويض.md"
+  },
+  {
+   "id": "doc-2523",
+   "title": "الحماية القانونية للمستأجر",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2523_الحماية-القانونية-للمستأجر.md"
+  },
+  {
+   "id": "doc-2528",
+   "title": "إتمام التعاقد عبر الإنترنت",
+   "subcategory": "العقود-الإلكترونية",
+   "type": "article",
+   "file": "doc-2528_إتمام-التعاقد-عبر-الإنترنت.md"
+  },
+  {
+   "id": "doc-2530",
+   "title": "الآثار العرضية للعقد الباطل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2530_الآثار-العرضية-للعقد-الباطل.md"
+  },
+  {
+   "id": "doc-2533",
+   "title": "العمولة في عقد الوكالة التجارية",
+   "subcategory": "عقود-الوكالة",
+   "type": "article",
+   "file": "doc-2533_العمولة-في-عقد-الوكالة-التجارية.md"
+  },
+  {
+   "id": "doc-2535",
+   "title": "إزالة الشيوع في قانون الملكية العقارية",
+   "subcategory": "الملكية-العقارية",
+   "type": "article",
+   "file": "doc-2535_إزالة-الشيوع-في-قانون-الملكية-العقارية.md"
+  },
+  {
+   "id": "doc-2537",
+   "title": "انقضاء عقد الإيجار",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2537_انقضاء-عقد-الإيجار.md"
+  },
+  {
+   "id": "doc-2542",
+   "title": "بيع العقار لقاء الإعالة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2542_بيع-العقار-لقاء-الإعالة.md"
+  },
+  {
+   "id": "doc-2549",
+   "title": "تفسير عقود التجارة الدولية وفقا للقواعد الدولية",
+   "subcategory": "عقود-التجارة-الدولية",
+   "type": "article",
+   "file": "doc-2549_تفسير-عقود-التجارة-الدولية-وفقا-للقواعد-الدولية.md"
+  },
+  {
+   "id": "doc-2550",
+   "title": "مسؤولية الوسيط العقاري",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2550_مسؤولية-الوسيط-العقاري.md"
+  },
+  {
+   "id": "doc-2551",
+   "title": "تقديم الكمبيالة للقبول",
+   "subcategory": "الأوراق-التجارية",
+   "type": "article",
+   "file": "doc-2551_تقديم-الكمبيالة-للقبول.md"
+  },
+  {
+   "id": "doc-2552",
+   "title": "محامي توثيق عقود وفق الأنظمة السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2552_محامي-توثيق-عقود-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2557",
+   "title": "حكم نص العقد على تجدده تلقائيا",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2557_حكم-نص-العقد-على-تجدده-تلقائيا.md"
+  },
+  {
+   "id": "doc-2561",
+   "title": "خصائص عقد الوكالة بالعمولة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2561_خصائص-عقد-الوكالة-بالعمولة.md"
+  },
+  {
+   "id": "doc-2562",
+   "title": "انتهاء عقد الحساب الجاري",
+   "subcategory": "العقود-المصرفية",
+   "type": "article",
+   "file": "doc-2562_انتهاء-عقد-الحساب-الجاري.md"
+  },
+  {
+   "id": "doc-2565",
+   "title": "دور القضاء في حماية المستهلك",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2565_دور-القضاء-في-حماية-المستهلك.md"
+  },
+  {
+   "id": "doc-2567",
+   "title": "ضمانات حماية المستهلك في القانون الأردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2567_ضمانات-حماية-المستهلك-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-2570",
+   "title": "عزل الوكيل واعتزاله على عقد الوكالة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2570_عزل-الوكيل-واعتزاله-على-عقد-الوكالة.md"
+  },
+  {
+   "id": "doc-2571",
+   "title": "عقد الحساب الجاري",
+   "subcategory": "العقود-المصرفية",
+   "type": "article",
+   "file": "doc-2571_عقد-الحساب-الجاري.md"
+  },
+  {
+   "id": "doc-2572",
+   "title": "عقد الوعد بالتفضيل",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2572_عقد-الوعد-بالتفضيل.md"
+  },
+  {
+   "id": "doc-2573",
+   "title": "مدفوعات الحساب الجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2573_مدفوعات-الحساب-الجاري.md"
+  },
+  {
+   "id": "doc-2574",
+   "title": "التزام السمسار بحسن اختيار العملاء",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2574_التزام-السمسار-بحسن-اختيار-العملاء.md"
+  },
+  {
+   "id": "doc-2581",
+   "title": "fulfillment-by-check-and-its-effect-on-the-debtors-discharge",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2581_الوفاء-بواسطة-الشيك-وأثره-في-إبراء-ذمة-المدين.md"
+  },
+  {
+   "id": "doc-2582",
+   "title": "disclosure-in-the-jordanian-securities-law",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2582_الإفصاح-في-قانون-الأوراق-المالية-الأردني.md"
+  },
+  {
+   "id": "doc-2583",
+   "title": "partnership-contract-in-a-pharmacy",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2583_عقد-المشاركة-في-صيدلية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2584",
+   "title": "the-difference-between-a-commercial-agency-contract-and-a-distribution-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2584_الفرق-بين-عقد-الوكالة-التجارية-وعقد-التوزيع-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2586",
+   "title": "contract-termination-provisions",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2586_أحكام-فسخ-العقد-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2588",
+   "title": "exclusive-distribution-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2588_عقد-التوزيع-الحصري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2589",
+   "title": "legal-provisions-for-the-sale-of-a-sole-proprietorship",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2589_أحكام-بيع-المؤسسة-الفردية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2590",
+   "title": "non-exclusive-distribution-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2590_عقد-التوزيع-غير-الحصري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2591",
+   "title": "partnership-contract-in-a-clinic",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2591_عقد-شراكة-في-عيادة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2592",
+   "title": "ppp-arrangement",
+   "subcategory": "عقود-الشراكة",
+   "type": "article",
+   "file": "doc-2592_عقد-المشاركة-(ppp)-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2594",
+   "title": "procedural-necessity-in-the-code-of-civil-procedure",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2594_الضرورة-الإجرائية-في-قانون-أصول-المحاكمات-المدنية.md"
+  },
+  {
+   "id": "doc-2599",
+   "title": "off-plan-construction-sale-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2599_عقد-بيع-البناء-على-الخارطة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2600",
+   "title": "professional-player-contract",
+   "subcategory": "عقود-العمل",
+   "type": "article",
+   "file": "doc-2600_عقد-احتراف-لاعب-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2602",
+   "title": "income-sharing-contract-between-the-public-and-private-sectors",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2602_عقد-المشاركة-بالدخل-بين-القطاع-العام-والخاص-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2607",
+   "title": "procedure-for-submitting-a-bill-of-exchange-for-acceptance",
+   "subcategory": "الأوراق-التجارية",
+   "type": "article",
+   "file": "doc-2607_إجراءات-تقديم-سند-السحب-للقبول.md"
+  },
+  {
+   "id": "doc-2609",
+   "title": "protesting-the-bill-of-exchange",
+   "subcategory": "الأوراق-التجارية",
+   "type": "article",
+   "file": "doc-2609_الاحتجاج-بسند-السحب.md"
+  },
+  {
+   "id": "doc-2612",
+   "title": "نظرية تحول العقد في القانون",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-2612_نظرية-تحول-العقد-في-القانون.md"
+  },
+  {
+   "id": "doc-2613",
+   "title": "finance-lease",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2613_الإيجار-التمويلي-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2615",
+   "title": "commitment-to-non-disclosure-and-non-competition",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2615_مدى-ارتباط-التزام-عدم-إفشاء-الأسرار-بالتزام-عدم-المنافسة.md"
+  },
+  {
+   "id": "doc-2616",
+   "title": "responsibility-of-the-contractor-after-the-termination-of-the-contractual-relationship",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2616_مدى-مسؤولية-المتعاقد-بعد-انتهاء-العلاقة-التعاقدية.md"
+  },
+  {
+   "id": "doc-2619",
+   "title": "نظرية السبب والعدالة التعاقدية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2619_نظرية-السبب-والعدالة-التعاقدية.md"
+  },
+  {
+   "id": "doc-2621",
+   "title": "the-effect-of-the-victims-acciptance-with-the-damage-on-his-right-to-compensation",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2621_أثر-رضا-المضرور-بالضرر-علي-حقه-بالتعويض-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-2622",
+   "title": "consumer-revocation-of-the-online-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2622_عدول-المستهلك-عن-العقد-المبرم-عبر-الإنترنت.md"
+  },
+  {
+   "id": "doc-2626",
+   "title": "rent-maintenance-provisions",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2626_أحكام-صيانة-المأجور-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-2632",
+   "title": "the-competent-authority-to-determine-attorney-fees",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2632_الجهة-المختصة-في-تحديد-أتعاب-المحاماة.md"
+  },
+  {
+   "id": "doc-2633",
+   "title": "الضامن الاحتياطي للسند",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2633_الضامن-الاحتياطي-للسند.md"
+  },
+  {
+   "id": "doc-2635",
+   "title": "punitive-compensation-within-the-scope-of-civil-liability",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2635_التعويض-العقابي-في-نطاق-المسؤولية-المدنية.md"
+  },
+  {
+   "id": "doc-2639",
+   "title": "الوفاء في سند السحب",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2639_الوفاء-في-سند-السحب.md"
+  },
+  {
+   "id": "doc-2640",
+   "title": "hidden-defects-and-their-impact-on-the-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2640_العيوب-الخفية-وأثرها-على-العقد.md"
+  },
+  {
+   "id": "doc-2642",
+   "title": "the-civil-liability-of-the-legal-translator-in-jordanian-law",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2642_المسؤولية-المدنية-للمترجم-القانوني-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-2647",
+   "title": "الضمان العشري في عقد المقاولة",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2647_الضمان-العشري-في-عقد-المقاولة.md"
+  },
+  {
+   "id": "doc-2652",
+   "title": "the-international-contract-in-international-trade-and-the-law-applicable-to-it",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2652_عقد-التجارة-الدولي-والقانون-الواجب-التطبيق-عليه.md"
+  },
+  {
+   "id": "doc-2653",
+   "title": "the-written-condition-in-the-electronic-contract",
+   "subcategory": "العقود-الإلكترونية",
+   "type": "article",
+   "file": "doc-2653_الشرط-الكتابي-في-العقد-الإلكتروني.md"
+  },
+  {
+   "id": "doc-2655",
+   "title": "liability-for-the-actions-of-third-parties-within-the-framework-of-the-maritime-carriage-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2655_المسؤولية-عن-فعل-الغير-في-عقد-النقل-البحري.md"
+  },
+  {
+   "id": "doc-2660",
+   "title": "حالات الاعتداد بالغبن في القانون المدني الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2660_حالات-الاعتداد-بالغبن-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-2663",
+   "title": "buyer-protection-in-the-sale-of-a-building-under-construction",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2663_حماية-المشتري-في-بيع-البناء-تحت-الإنشاء.md"
+  },
+  {
+   "id": "doc-2666",
+   "title": "the-consumers-right-to-withdraw-from-the-electronic-contract",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2666_حق-المستهلك-في-العدول-عن-العقد-الإلكتروني.md"
+  },
+  {
+   "id": "doc-2670",
+   "title": "evidence-in-business-letters",
+   "subcategory": "قواعد-الإثبات",
+   "type": "article",
+   "file": "doc-2670_الإثبات-في-العقود-التجارية-2025.md"
+  },
+  {
+   "id": "doc-2676",
+   "title": "أحكام تداول الأوراق المالية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2676_أحكام-تداول-الأوراق-المالية.md"
+  },
+  {
+   "id": "doc-2678",
+   "title": "الإخلال بالالتزام بالسرية في عقد نقل التكنولوجيا",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2678_الإخلال-بالالتزام-بالسرية-في-عقد-نقل-التكنولوجيا.md"
+  },
+  {
+   "id": "doc-2681",
+   "title": "التزام المؤمن له بالإفصاح",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2681_التزام-المؤمن-له-بالإفصاح.md"
+  },
+  {
+   "id": "doc-2682",
+   "title": "التزام المحامي بعدم إفشاء مضمون الاستشارة القانونية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2682_التزام-المحامي-بعدم-إفشاء-مضمون-الاستشارة-القانونية.md"
+  },
+  {
+   "id": "doc-2686",
+   "title": "الحماية العقدية للأسرار التجارية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2686_الحماية-العقدية-للأسرار-التجارية.md"
+  },
+  {
+   "id": "doc-2687",
+   "title": "الحماية العقدية للمعلومات السرية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2687_الحماية-العقدية-للمعلومات-السرية.md"
+  },
+  {
+   "id": "doc-2689",
+   "title": "السفتجة (سند السحب)",
+   "subcategory": "الأوراق-التجارية",
+   "type": "article",
+   "file": "doc-2689_السفتجة-(سند-السحب).md"
+  },
+  {
+   "id": "doc-2692",
+   "title": "المركز القانوني لسمسار الأوراق المالية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2692_المركز-القانوني-لسمسار-الأوراق-المالية.md"
+  },
+  {
+   "id": "doc-2696",
+   "title": "تحول تصرفات المريض مرض الموت إلى وصية",
+   "subcategory": "الوصايا-والمواريث",
+   "type": "article",
+   "file": "doc-2696_تحول-تصرفات-المريض-مرض-الموت-إلى-وصية.md"
+  },
+  {
+   "id": "doc-2697",
+   "title": "تسوية منازعات سوق الأوراق المالية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2697_تسوية-منازعات-سوق-الأوراق-المالية.md"
+  },
+  {
+   "id": "doc-2706",
+   "title": "عقد الحساب الجاري",
+   "subcategory": "العقود-المصرفية",
+   "type": "article",
+   "file": "doc-2706_عقد-الحساب-الجاري.md"
+  },
+  {
+   "id": "doc-2707",
+   "title": "عقد الوديعة التجارية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2707_عقد-الوديعة-التجارية.md"
+  },
+  {
+   "id": "doc-2708",
+   "title": "عقد فتح الاعتماد المالي",
+   "subcategory": "العقود-المصرفية",
+   "type": "article",
+   "file": "doc-2708_عقد-فتح-الاعتماد-المالي.md"
+  },
+  {
+   "id": "doc-2715",
+   "title": "مبدأ عدم تجزئة مدفوعات الحساب الجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2715_مبدأ-عدم-تجزئة-مدفوعات-الحساب-الجاري.md"
+  },
+  {
+   "id": "doc-2716",
+   "title": "مدفوعات الحساب الجاري",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2716_مدفوعات-الحساب-الجاري.md"
+  },
+  {
+   "id": "doc-2721",
+   "title": "الأوراق المالية وخطاب الضمان",
+   "subcategory": "العقود-المصرفية",
+   "type": "article",
+   "file": "doc-2721_الأوراق-المالية-وخطاب-الضمان.md"
+  },
+  {
+   "id": "doc-2729",
+   "title": "حق استرداد العقار المباع بالمزاد العلني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2729_حق-استرداد-العقار-المباع-بالمزاد-العلني.md"
+  },
+  {
+   "id": "doc-2731",
+   "title": "سلطة القاضي في تعديل الأجل في القانون المدني الأردني",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2731_سلطة-القاضي-في-تعديل-الأجل-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-2732",
+   "title": "ضمانات حماية الشهود",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2732_ضمانات-حماية-الشهود.md"
+  },
+  {
+   "id": "doc-2740",
+   "title": "a-contract-for-delivery-of-orders-between-a-delivery-site-and-a-driver",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-2740_عقد-توصيل-طلبات-ما-بين-موقع-توصيل-وسائق-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2741",
+   "title": "a-partnership-between-family-members",
+   "subcategory": "عقود-الشراكة",
+   "type": "article",
+   "file": "doc-2741_عقد-شراكة-بين-أفراد-عائلة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2742",
+   "title": "building-contractor-contract",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2742_عقد-مقاول-البناء-في-التشريع-الأردني.md"
+  },
+  {
+   "id": "doc-2744",
+   "title": "commercial-license-contract-franchise",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2744_عقد-الترخيص-التجاري-”-الفرانشايز”-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2745",
+   "title": "compensation-for-moral-damage-in-contractual-liability",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2745_ضمان-الضرر-الأدبي-في-المسؤولية-العقدية-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-2746",
+   "title": "contract-for-the-management-and-operation-of-a-medical-clinic",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2746_عقد-إدارة-وتشغيل-عيادة-طبية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2747",
+   "title": "contract-negotiation-in-good-faith",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2747_عقد-التفاوض-بحسن-نية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2749",
+   "title": "التمويل بالتورق في المصارف وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2749_التمويل-بالتورق-في-المصارف-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2750",
+   "title": "حق الكد والسعاية وفق الأنظمة السعودية",
+   "subcategory": "الحقوق-المالية",
+   "type": "article",
+   "file": "doc-2750_حق-الكد-والسعاية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2751",
+   "title": "عقد إدارة وتشغيل صيدلية وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2751_عقد-إدارة-وتشغيل-صيدلية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2752",
+   "title": "عقد تشغيل الصيدلية وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2752_عقد-تشغيل-الصيدلية-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2758",
+   "title": "exclusive-agent-obligations",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2758_التزامات-الوكيل-الحصري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2760",
+   "title": "financial-leasing-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2760_عقد-التأجير-التمويلي-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2761",
+   "title": "flexible-work-contract-2",
+   "subcategory": "عقود-العمل",
+   "type": "article",
+   "file": "doc-2761_عقد-العمل-المرن-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2774",
+   "title": "how-to-write-an-interior-design-contract",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-2774_كيفية-كتابة-عقد-تصميم-داخلي-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2776",
+   "title": "legal-advisor-in-the-saudi-system",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2776_المستشار-القانوني-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2779",
+   "title": "participation-ending-in-ownership-in-the-saudi-system",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2779_المشاركة-المنتهية-بالتمليك-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2780",
+   "title": "partnership-contract-in-a-capital-restaurant-in-return-for-experience",
+   "subcategory": "عقود-الشراكة",
+   "type": "article",
+   "file": "doc-2780_عقد-شراكة-في-مطعم-رأس-مال-مقابل-الخبرة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2782",
+   "title": "restaurant-management-and-operation-contract",
+   "subcategory": "عقود-تجارية",
+   "type": "article",
+   "file": "doc-2782_عقد-إدارة-وتشغيل-مطعم-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2783",
+   "title": "restaurant-operation-contract-by-a-restaurant-operating-company",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2783_عقد-تشغيل-مطعم-بواسطة-شركة-تشغيل-مطاعم-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2785",
+   "title": "the-nature-of-the-work-contract-and-distinguishing-it-from-other-contracts",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2785_طبيعة-عقد-العمل-وتمييزه-عن-غيره-من-العقود-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2787",
+   "title": "trade-secret-protection-2",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2787_حماية-الأسرار-التجارية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2797",
+   "title": "التعريف بصندوق ضمان التسوية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2797_التعريف-بصندوق-ضمان-التسوية.md"
+  },
+  {
+   "id": "doc-2801",
+   "title": "الحادث الطارئ في عقد المقاولة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2801_الحادث-الطارئ-في-عقد-المقاولة.md"
+  },
+  {
+   "id": "doc-2805",
+   "title": "الرجوع بالوفاء في الشيك",
+   "subcategory": "الأوراق-التجارية",
+   "type": "article",
+   "file": "doc-2805_الرجوع-بالوفاء-في-الشيك.md"
+  },
+  {
+   "id": "doc-2870",
+   "title": "أحكام رهن الشركة في النظام السعودي",
+   "subcategory": "الرهن-والكفالة",
+   "type": "article",
+   "file": "doc-2870_أحكام-رهن-الشركة-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2872",
+   "title": "أهم بنود عقد الشراكة في النظام السعودي",
+   "subcategory": "عقود-الشراكة",
+   "type": "article",
+   "file": "doc-2872_أهم-بنود-عقد-الشراكة-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2875",
+   "title": "الأنظمة التي تحكم العقد في السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2875_الأنظمة-التي-تحكم-العقد-في-السعودية.md"
+  },
+  {
+   "id": "doc-2880",
+   "title": "التحكيم في عقد التوزيع غير الحصري وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2880_التحكيم-في-عقد-التوزيع-غير-الحصري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2881",
+   "title": "d8a7d984d8aad8add983d98ad985-d981d98a-d8b9d982d988d8af-d8a7d984d8b4d8b1d8a7d983d8a9-ppp-d981d98a-d8a7d984d986d8b8d8a7d985-d8a7d984d8b3",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2881_التحكيم-في-عقود-الشراكة-(PPP)-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2882",
+   "title": "التحكيم في نزاعات الوكالة التجارية في النظام السعودي",
+   "subcategory": "عقود-الوكالة",
+   "type": "article",
+   "file": "doc-2882_التحكيم-في-نزاعات-الوكالة-التجارية-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2883",
+   "title": "التزامات الموزع الحصري في النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2883_التزامات-الموزع-الحصري-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2886",
+   "title": "الجوانب القانونية لمرحلة التفاوض ذو الطابع التعاقدي وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2886_الجوانب-القانونية-لمرحلة-التفاوض-ذو-الطابع-التعاقدي-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2889",
+   "title": "العلامة التجارية غير المسجلة في النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2889_العلامة-التجارية-غير-المسجلة-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2890",
+   "title": "القانون الواجب التطبيق على الوكالة التجارية في النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2890_القانون-الواجب-التطبيق-على-الوكالة-التجارية-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2891",
+   "title": "القانون الواجب التطبيق على الوكالة التجارية غير الحصرية في النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2891_القانون-الواجب-التطبيق-على-الوكالة-التجارية-غير-الحصرية-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2895",
+   "title": "حقوق الوكيل غير الحصري وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2895_حقوق-الوكيل-غير-الحصري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2900",
+   "title": "شرط إخلاء مسئولية الشركة المنتج في عقد الوكالة التجارية وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2900_شرط-إخلاء-مسئولية-الشركة-المنتج-في-عقد-الوكالة-التجارية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2901",
+   "title": "شرط القوة القاهرة في عقد الوكالة التجارية وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2901_شرط-القوة-القاهرة-في-عقد-الوكالة-التجارية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2902",
+   "title": "شرط سرية المعلومات في عقد الوكالة التجارية وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2902_شرط-سرية-المعلومات-في-عقد-الوكالة-التجارية-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2906",
+   "title": "عقد الخدمات الاستشارية العامة وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2906_عقد-الخدمات-الاستشارية-العامة-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2910",
+   "title": "كيفية صياغة عقد إيجار مصنع مع المعدات وفق الأنظمة السعودية",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-2910_كيفية-صياغة-عقد-إيجار-مصنع-مع-المعدات-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2914",
+   "title": "كيفية مراجعة وتدقيق العقود وفق النظام السعودي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2914_كيفية-مراجعة-وتدقيق-العقود-وفق-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2935",
+   "title": "أحكام فترة التدريب على المحاماة",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2935_أحكام-فترة-التدريب-على-المحاماة.md"
+  },
+  {
+   "id": "doc-2938",
+   "title": "أحكام انتخابات نقابة المحامين",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2938_أحكام-انتخابات-نقابة-المحامين.md"
+  },
+  {
+   "id": "doc-2962",
+   "title": "حق المحامي الأردني في المصادقة على الوكالة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2962_حق-المحامي-الأردني-في-المصادقة-على-الوكالة.md"
+  },
+  {
+   "id": "doc-2976",
+   "title": "a-decent-office-for-a-lawyer-and-professional-ethics",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2976_المكتب-اللائق-للمحامي-والتحلي-بأخلاقيات-المهنة.md"
+  },
+  {
+   "id": "doc-2983",
+   "title": "المسؤولية الدولية عن انتهاك حصانة مقار البعثات الدبلوماسية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2983_المسؤولية-الدولية-عن-انتهاك-حصانة-مقار-البعثات-الدبلوماسية.md"
+  },
+  {
+   "id": "doc-2987",
+   "title": "الأسئلة المتكررة حول كتابة العقود",
+   "subcategory": "صياغة-العقود",
+   "type": "template",
+   "file": "doc-2987_الأسئلة-المتكررة-حول-كتابة-العقود.md"
+  },
+  {
+   "id": "doc-2988",
+   "title": "الاستشارات القانونية حول العقود في النظام السعودي",
+   "subcategory": "استشارات-قانونية",
+   "type": "article",
+   "file": "doc-2988_الاستشارات-القانونية-حول-العقود-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2989",
+   "title": "التفاوض على العقد",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2989_التفاوض-على-العقد.md"
+  },
+  {
+   "id": "doc-2990",
+   "title": "صياغة العقد التجاري وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2990_صياغة-العقد-التجاري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2991",
+   "title": "كتابة الاتفاق المالي وفق الأنظمة السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2991_كتابة-الاتفاق-المالي-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2992",
+   "title": "كتابة العقد وفق الأنظمة السعودية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2992_كتابة-العقد-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2993",
+   "title": "مراجعة العقود المكتوبة مسبقا",
+   "subcategory": "صياغة-العقود",
+   "type": "article",
+   "file": "doc-2993_مراجعة-العقود-المكتوبة-مسبقا.md"
+  },
+  {
+   "id": "doc-2994",
+   "title": "خدمة كتابة العقود السعودية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-2994_خدمة-كتابة-العقود-السعودية.md"
+  },
+  {
+   "id": "doc-2995",
+   "title": "نموذج عقد",
+   "subcategory": "عقود-الإيجار",
+   "type": "template",
+   "file": "doc-2995_نموذج-عقد.md"
+  },
+  {
+   "id": "doc-2997",
+   "title": "التعويض عن الضرر المتغير",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-2997_التعويض-عن-الضرر-المتغير.md"
+  },
+  {
+   "id": "doc-3001",
+   "title": "الرقابة المالية على عقد الامتياز التجاري الفرنشايز",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3001_الرقابة-المالية-على-عقد-الامتياز-التجاري-الفرنشايز.md"
+  },
+  {
+   "id": "doc-3002",
+   "title": "الكتابة في العقود الإلكترونية",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3002_الكتابة-في-العقود-الإلكترونية.md"
+  },
+  {
+   "id": "doc-3003",
+   "title": "الكفالة العينية في القانون الأردني",
+   "subcategory": "الرهن-والكفالة",
+   "type": "article",
+   "file": "doc-3003_الكفالة-العينية-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-3004",
+   "title": "انتقال الضرر المعنوي إلي الورثة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3004_انتقال-الضرر-المعنوي-إلي-الورثة.md"
+  },
+  {
+   "id": "doc-3005",
+   "title": "تخلية العقار المرهون في القانون الأردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3005_تخلية-العقار-المرهون-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-3007",
+   "title": "مدة التنفيذ في عقد المقاولة",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3007_مدة-التنفيذ-في-عقد-المقاولة.md"
+  },
+  {
+   "id": "doc-3009",
+   "title": "أثر الشرط في عقد البيع",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-3009_أثر-الشرط-في-عقد-البيع.md"
+  },
+  {
+   "id": "doc-3013",
+   "title": "استقلال شرط التحكيم عن العقد الأصلي",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3013_استقلال-شرط-التحكيم-عن-العقد-الأصلي.md"
+  },
+  {
+   "id": "doc-3016",
+   "title": "أحكام إنهاء عقد العمل لانتهاء مدته",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3016_أحكام-إنهاء-عقد-العمل-لانتهاء-مدته.md"
+  },
+  {
+   "id": "doc-3020",
+   "title": "إسقاط الشرط الفاسد من عقد البيع وأثره في تصحيح العقد",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3020_إسقاط-الشرط-الفاسد-من-عقد-البيع-وأثره-في-تصحيح-العقد.md"
+  },
+  {
+   "id": "doc-3022",
+   "title": "التمييز بين محل العقد ومحل الالتزام الناشئ عن العقد",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-3022_التمييز-بين-محل-العقد-ومحل-الالتزام-الناشئ-عن-العقد.md"
+  },
+  {
+   "id": "doc-3023",
+   "title": "الجهل بصفة المبيع وأثره على عقد البيع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3023_الجهل-بصفة-المبيع-وأثره-على-عقد-البيع.md"
+  },
+  {
+   "id": "doc-3024",
+   "title": "العقد المفضي لإنهاء عقد",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-3024_العقد-المفضي-لإنهاء-عقد.md"
+  },
+  {
+   "id": "doc-3027",
+   "title": "مبدأ نسبية أثر العقد",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3027_مبدأ-نسبية-أثر-العقد.md"
+  },
+  {
+   "id": "doc-3032",
+   "title": "التزامات الوكيل في التشريع الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3032_التزامات-الوكيل-في-التشريع-الأردني.md"
+  },
+  {
+   "id": "doc-3033",
+   "title": "التعرض للمشتري وضمان عدم التعرض في القانون الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3033_التعرض-للمشتري-وضمان-عدم-التعرض-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-3034",
+   "title": "الحماية القانونية لصياغة العقد",
+   "subcategory": "صياغة-العقود",
+   "type": "article",
+   "file": "doc-3034_الحماية-القانونية-لصياغة-العقد.md"
+  },
+  {
+   "id": "doc-3039",
+   "title": "انتقال ملكية المأجور في القانون الأردني",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-3039_انتقال-ملكية-المأجور-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-3040",
+   "title": "تعادل الالتزامات بين المتعاقدين في عقد البيع",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3040_تعادل-الالتزامات-بين-المتعاقدين-في-عقد-البيع.md"
+  },
+  {
+   "id": "doc-3045",
+   "title": "حكم تجاوز الوكيل حدود وكالته في القانون الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3045_حكم-تجاوز-الوكيل-حدود-وكالته-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-3046",
+   "title": "حكم عقد التوريد وأثر الغش فيه",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3046_حكم-عقد-التوريد-وأثر-الغش-فيه.md"
+  },
+  {
+   "id": "doc-3051",
+   "title": "سلطة القاضي في تعديل العقد بسبب الحادث الطارئ",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3051_سلطة-القاضي-في-تعديل-العقد-بسبب-الحادث-الطارئ.md"
+  },
+  {
+   "id": "doc-3052",
+   "title": "شرط التجربة وأثره علي عقد العمل",
+   "subcategory": "عقود-العمل",
+   "type": "article",
+   "file": "doc-3052_شرط-التجربة-وأثره-علي-عقد-العمل.md"
+  },
+  {
+   "id": "doc-3056",
+   "title": "ضمان العيوب الخفية في عقد البيع الإلكتروني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "template",
+   "file": "doc-3056_ضمان-العيوب-الخفية-في-عقد-البيع-الإلكتروني.md"
+  },
+  {
+   "id": "doc-3059",
+   "title": "طبيعة مدة العقد الممتد",
+   "subcategory": "عقود-الإيجار",
+   "type": "article",
+   "file": "doc-3059_طبيعة-مدة-العقد-الممتد.md"
+  },
+  {
+   "id": "doc-3060",
+   "title": "عقد الإجارة الموصوف في الذمة والشرط الجزائي",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3060_عقد-الإجارة-الموصوف-في-الذمة-والشرط-الجزائي.md"
+  },
+  {
+   "id": "doc-3061",
+   "title": "عقد التأمين في القانون الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3061_عقد-التأمين-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-3067",
+   "title": "مدى اعتبار مضمون العقد ركن من أركانه",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-3067_مدى-اعتبار-مضمون-العقد-ركن-من-أركانه.md"
+  },
+  {
+   "id": "doc-3072",
+   "title": "الفرق بين الفسخ والانفساخ والتفاسخ",
+   "subcategory": "النظرية-العامة-للعقد",
+   "type": "article",
+   "file": "doc-3072_الفرق-بين-الفسخ-والانفساخ-والتفاسخ.md"
+  },
+  {
+   "id": "doc-3074",
+   "title": "أحكام إنهاء عقد العمل بسبب عدم قيام العامل بالوفاء بالالتزامات المترتبة  عليه بموجب عقد العمل",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3074_أحكام-إنهاء-عقد-العمل-بسبب-عدم-قيام-العامل-بالوفاء-بالالتزامات-المترتبة-عليه-بمو.md"
+  },
+  {
+   "id": "doc-3075",
+   "title": "الالتزامات الواردة على المسؤول والمعالج للبيانات الشخصية",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3075_الالتزامات-الواردة-على-المسؤول-والمعالج-للبيانات-الشخصية.md"
+  },
+  {
+   "id": "doc-3078",
+   "title": "تفويض الغير في تعديل البيانات الشخصية والاستثناءات الواردة عليه",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3078_تفويض-الغير-في-تعديل-البيانات-الشخصية-والاستثناءات-الواردة-عليه.md"
+  },
+  {
+   "id": "doc-3091",
+   "title": "المسؤولية العقدية عن فعل الغير",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3091_المسؤولية-العقدية-عن-فعل-الغير.md"
+  },
+  {
+   "id": "doc-3093",
+   "title": "عيب الاستغلال في القانون المدني الأردني",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3093_عيب-الاستغلال-في-القانون-المدني-الأردني.md"
+  },
+  {
+   "id": "doc-3095",
+   "title": "مبدأ حجية العقد في القانون الاردني",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3095_مبدأ-حجية-العقد-في-القانون-الاردني.md"
+  },
+  {
+   "id": "doc-3105",
+   "title": "best-contract-drafting-lawyer-in-jordan",
+   "subcategory": "صياغة-العقود",
+   "type": "article",
+   "file": "doc-3105_Best-Contract-Drafting-Lawyer-in-Jordan.md"
+  },
+  {
+   "id": "doc-3107",
+   "title": "compensation-lawyer-in-jordan",
+   "subcategory": "المسؤولية-التقصيرية",
+   "type": "article",
+   "file": "doc-3107_Compensation-Lawyer-in-Jordan.md"
+  },
+  {
+   "id": "doc-3121",
+   "title": "the-best-country-for-shopping-with-bank-cards",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3121_The-Best-Country-for-Shopping-with-Bank-Cards.md"
+  },
+  {
+   "id": "doc-3135",
+   "title": "سياسة الإلغاء واسترداد الأموال",
+   "subcategory": "عقود-البيع",
+   "type": "article",
+   "file": "doc-3135_سياسة-الإلغاء-واسترداد-الأموال.md"
+  }
+ ]
+}

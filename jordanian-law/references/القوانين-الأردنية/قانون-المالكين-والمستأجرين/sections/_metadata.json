@@ -1,0 +1,55 @@
+{
+  "law": "قانون المالكين والمستأجرين لسنة 1994",
+  "slug": "قانون-المالكين-والمستأجرين",
+  "category": "موضوعي مدني",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 22,
+  "extracted_heading_count": 22,
+  "distinct_article_numbers": 22,
+  "max_article": 22,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-المواد-1-22.md",
+      "number": "00",
+      "title": "قانون المالكين والمستأجرين (المواد 1-22)",
+      "article_count": 22,
+      "article_range": "1-22",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22"
+      ]
+    }
+  ],
+  "official_name": "قانون المالكين والمستاجرين رقم 11 لسنة 1994",
+  "year": 1994
+}

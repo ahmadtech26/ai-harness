@@ -1,0 +1,812 @@
+{
+ "category": "قانون-دستوري",
+ "document_count": 115,
+ "note": "regenerated from catalog/قانون-دستوري.json — the slim catalog is authoritative",
+ "documents": [
+  {
+   "id": "doc-0003",
+   "title": "القضاء في الأردن",
+   "subcategory": "السلطة-القضائية",
+   "type": "article",
+   "file": "doc-0003_القضاء-في-الأردن.md"
+  },
+  {
+   "id": "doc-0049",
+   "title": "الإعلان العالمي لحقوق الإنسان",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-0049_الإعلان-العالمي-لحقوق-الإنسان.md"
+  },
+  {
+   "id": "doc-0076",
+   "title": "نظام اصول المحاكمات في القضايا الضريبية الحقوقية",
+   "subcategory": "القضاء-الضريبي",
+   "type": "article",
+   "file": "doc-0076_نظام-اصول-المحاكمات-في-القضايا-الضريبية-الحقوقية.md"
+  },
+  {
+   "id": "doc-0086",
+   "title": "الدستور الأردني حتى 2025",
+   "subcategory": "الدستور-الأردني",
+   "type": "template",
+   "file": "doc-0086_الدستور-الأردني-حتى-2025.md"
+  },
+  {
+   "id": "doc-0087",
+   "title": "قرار تفسير  رقم 2 لسنة 2008",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0087_قرار-تفسير-رقم-2-لسنة-2008.md"
+  },
+  {
+   "id": "doc-0092",
+   "title": "نظام الاعتراف بمؤسسات التعليم العالي غير الأردنية",
+   "subcategory": "قانون-إداري",
+   "type": "article",
+   "file": "doc-0092_نظام-الاعتراف-بمؤسسات-التعليم-العالي-غير-الأردنية.md"
+  },
+  {
+   "id": "doc-0121",
+   "title": "الحقوق و أنواعها",
+   "subcategory": "نظرية-الحق",
+   "type": "article",
+   "file": "doc-0121_الحقوق-و-أنواعها.md"
+  },
+  {
+   "id": "doc-0149",
+   "title": "المقصر أولى بالخسارة",
+   "subcategory": "مبادئ-قانونية",
+   "type": "article",
+   "file": "doc-0149_المقصر-أولى-بالخسارة.md"
+  },
+  {
+   "id": "doc-0157",
+   "title": "اللجنة البين أمريكية لحقوق الإنسان",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-0157_اللجنة-البين-أمريكية-لحقوق-الإنسان.md"
+  },
+  {
+   "id": "doc-0169",
+   "title": "الميثاق الوطني الأردني",
+   "subcategory": "نظام-الحكم",
+   "type": "article",
+   "file": "doc-0169_الميثاق-الوطني-الأردني.md"
+  },
+  {
+   "id": "doc-0193",
+   "title": "أشهر محامين",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-0193_أشهر-محامين.md"
+  },
+  {
+   "id": "doc-0202",
+   "title": "هل يجوز مجلس أمناء الجامعة صلاحية إعفاء أي من الطلبة من الرسوم الجامعية",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0202_هل-يجوز-مجلس-أمناء-الجامعة-صلاحية-إعفاء-أي-من-الطلبة-من-الرسوم-الجامعية.md"
+  },
+  {
+   "id": "doc-0209",
+   "title": "تفسير القوانين، لتفسير الفقرة (ب) من المادة (49) من قانون تنظيم مهنة المحاسبة القانونية",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0209_تفسير-القوانين،-لتفسير-الفقرة-(ب)-من-المادة-(49)-من-قانون-تنظيم-مهنة-المحاسبة-ال.md"
+  },
+  {
+   "id": "doc-0212",
+   "title": "تفسير الفقرة (ج) من المادة (4) من قانون المؤسسة الاقتصادية والاجتماعية للمتقاعدين العسكريين",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0212_تفسير-الفقرة-(ج)-من-المادة-(4)-من-قانون-المؤسسة-الاقتصادية-والاجتماعية-للمتقاعدي.md"
+  },
+  {
+   "id": "doc-0236",
+   "title": "من هو صاحب الحق في تنظيم استخدام وتخصيص الطيف الترددي",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0236_من-هو-صاحب-الحق-في-تنظيم-استخدام-وتخصيص-الطيف-الترددي.md"
+  },
+  {
+   "id": "doc-0241",
+   "title": "تفسير النصوص الواردة في الفقرة ج من المادة 20 من نظام السلك الدبلوماسي",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0241_تفسير-النصوص-الواردة-في-الفقرة-ج-من-المادة-20-من-نظام-السلك-الدبلوماسي.md"
+  },
+  {
+   "id": "doc-0242",
+   "title": "ما هو مدى تطبيق نص البند (3) من الفقرة (أ) من المادة (6) من نظام التأمين الصحي",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0242_ما-هو-مدى-تطبيق-نص-البند-(3)-من-الفقرة-(أ)-من-المادة-(6)-من-نظام-التأمين-الصحي.md"
+  },
+  {
+   "id": "doc-0245",
+   "title": "تفسير نص المادة 8 من قانون الاوقاف رقم 26 لسنة 1966 والمواد 52 و 54 من قانون تنظيم المدن والقرى",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0245_تفسير-نص-المادة-8-من-قانون-الاوقاف-رقم-26-لسنة-1966-والمواد-52-و-54-من-قانون-تنظ.md"
+  },
+  {
+   "id": "doc-0247",
+   "title": "تفسير المادة 2 من قانون مؤسسة التسويق الزراعي",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0247_تفسير-المادة-2-من-قانون-مؤسسة-التسويق-الزراعي.md"
+  },
+  {
+   "id": "doc-0249",
+   "title": "ما المقصود بعبارة ( الدورة الأولى ) في قانون المجلس الطبي الأردني",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0249_ما-المقصود-بعبارة-(-الدورة-الأولى-)-في-قانون-المجلس-الطبي-الأردني.md"
+  },
+  {
+   "id": "doc-0268",
+   "title": "هل تستوفى رسوم طوابع الواردات حسب ما رسمته المادة السادسة",
+   "subcategory": "تفسير-القوانين",
+   "type": "article",
+   "file": "doc-0268_هل-تستوفى-رسوم-طوابع-الواردات-حسب-ما-رسمته-المادة-السادسة.md"
+  },
+  {
+   "id": "doc-0361",
+   "title": "دستور الولايــــات المتحـدة الأمريكـية",
+   "subcategory": "دساتير-مقارنة",
+   "type": "article",
+   "file": "doc-0361_دستور-الولايــــات-المتحـدة-الأمريكـية.md"
+  },
+  {
+   "id": "doc-0545",
+   "title": "unconstitutional-objection-fees-for-the-year-2019",
+   "subcategory": "رقابة-دستورية",
+   "type": "article",
+   "file": "doc-0545_رسوم-الدفع-بعدم-الدستورية-2019.md"
+  },
+  {
+   "id": "doc-0632",
+   "title": "defence-law",
+   "subcategory": "قوانين-الطوارئ",
+   "type": "article",
+   "file": "doc-0632_قانون-الدفاع-الأردني.md"
+  },
+  {
+   "id": "doc-0658",
+   "title": "مفهوم القانون",
+   "subcategory": "مبادئ-قانونية",
+   "type": "article",
+   "file": "doc-0658_مفهوم-القانون.md"
+  },
+  {
+   "id": "doc-0659",
+   "title": "التعدي على العلامة التجارية في القانون الأردني",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-0659_التعدي-على-العلامة-التجارية-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-0687",
+   "title": "تغيير وتصحيح الاسم",
+   "subcategory": "حقوق-وحريات",
+   "type": "article",
+   "file": "doc-0687_تغيير-وتصحيح-الاسم.md"
+  },
+  {
+   "id": "doc-0729",
+   "title": "ما هو البرلمان",
+   "subcategory": "السلطة-التشريعية",
+   "type": "article",
+   "file": "doc-0729_ما-هو-البرلمان.md"
+  },
+  {
+   "id": "doc-0732",
+   "title": "الأصل براءة المتهم",
+   "subcategory": "ضمانات-المتهم",
+   "type": "article",
+   "file": "doc-0732_الأصل-براءة-المتهم.md"
+  },
+  {
+   "id": "doc-0739",
+   "title": "التقادم المكسب",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-0739_التقادم-المكسب.md"
+  },
+  {
+   "id": "doc-0755",
+   "title": "ما هو الدستور",
+   "subcategory": "مبادئ-دستورية",
+   "type": "article",
+   "file": "doc-0755_ما-هو-الدستور.md"
+  },
+  {
+   "id": "doc-0771",
+   "title": "قرينة البراءة",
+   "subcategory": "ضمانات-المتهم",
+   "type": "article",
+   "file": "doc-0771_قرينة-البراءة.md"
+  },
+  {
+   "id": "doc-0795",
+   "title": "قانون الانتخاب لمجلس النواب 2024",
+   "subcategory": "قانون-الانتخاب",
+   "type": "article",
+   "file": "doc-0795_قانون-الانتخاب-لمجلس-النواب-2024.md"
+  },
+  {
+   "id": "doc-0802",
+   "title": "المال السياسي والانتخابات في قانون الانتخاب 2025",
+   "subcategory": "قانون-الانتخاب",
+   "type": "article",
+   "file": "doc-0802_المال-السياسي-والانتخابات-في-قانون-الانتخاب-2025.md"
+  },
+  {
+   "id": "doc-0834",
+   "title": "مكتب المحامي",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-0834_مكتب-المحامي.md"
+  },
+  {
+   "id": "doc-0872",
+   "title": "مبدأ سمو الدستور",
+   "subcategory": "مبادئ-دستورية",
+   "type": "article",
+   "file": "doc-0872_مبدأ-سمو-الدستور.md"
+  },
+  {
+   "id": "doc-0906",
+   "title": "المنظمات غير الحكومية",
+   "subcategory": "الجمعيات-والمنظمات",
+   "type": "article",
+   "file": "doc-0906_المنظمات-غير-الحكومية.md"
+  },
+  {
+   "id": "doc-0925",
+   "title": "الحقوق العينية الأصلية",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-0925_الحقوق-العينية-الأصلية.md"
+  },
+  {
+   "id": "doc-0941",
+   "title": "الحقوق العينية التبعية",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-0941_الحقوق-العينية-التبعية.md"
+  },
+  {
+   "id": "doc-0959",
+   "title": "المحكمة الدستورية الأردنية",
+   "subcategory": "رقابة-دستورية",
+   "type": "article",
+   "file": "doc-0959_المحكمة-الدستورية-الأردنية.md"
+  },
+  {
+   "id": "doc-1046",
+   "title": "تعريف باتفاقيات اللجوء",
+   "subcategory": "حقوق-اللاجئين",
+   "type": "article",
+   "file": "doc-1046_تعريف-باتفاقيات-اللجوء.md"
+  },
+  {
+   "id": "doc-1054",
+   "title": "حقوق اللاجئين في القانون الأردني والقانون الدولي",
+   "subcategory": "حقوق-اللاجئين",
+   "type": "article",
+   "file": "doc-1054_حقوق-اللاجئين-في-القانون-الأردني-والقانون-الدولي.md"
+  },
+  {
+   "id": "doc-1110",
+   "title": "posting-photo-without-permission",
+   "subcategory": "حقوق-وحريات",
+   "type": "article",
+   "file": "doc-1110_نشر-الصورة-دون-أذن.md"
+  },
+  {
+   "id": "doc-1127",
+   "title": "أوجه الرقابة الدستورية",
+   "subcategory": "رقابة-دستورية",
+   "type": "article",
+   "file": "doc-1127_أوجه-الرقابة-الدستورية.md"
+  },
+  {
+   "id": "doc-1240",
+   "title": "حقوق وواجبات الدول في القانون الدولي",
+   "subcategory": "القانون-الدولي",
+   "type": "article",
+   "file": "doc-1240_حقوق-وواجبات-الدول-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1276",
+   "title": "القانون الدولي لحقوق الإنسان",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1276_القانون-الدولي-لحقوق-الإنسان.md"
+  },
+  {
+   "id": "doc-1290",
+   "title": "حق العودة في القانون الدولي",
+   "subcategory": "حقوق-اللاجئين",
+   "type": "article",
+   "file": "doc-1290_حق-العودة-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1321",
+   "title": "flagrante-delicto",
+   "subcategory": "ضمانات-المتهم",
+   "type": "article",
+   "file": "doc-1321_الجرم-المشهود.md"
+  },
+  {
+   "id": "doc-1364",
+   "title": "حقوق مصر المائية",
+   "subcategory": "القانون-الدولي",
+   "type": "article",
+   "file": "doc-1364_حقوق-مصر-المائية.md"
+  },
+  {
+   "id": "doc-1405",
+   "title": "international-human-rights-law-vs-international-humanitarian-law",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1405_مقارنة-القانون-الدولي-الإنساني-والدولي-لحقوق-الإنسان.md"
+  },
+  {
+   "id": "doc-1425",
+   "title": "the-impact-of-the-corona-pandemic-on-human-rights",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1425_تأثير-جائحة-كورونا-على-حقوق-الإنسان.md"
+  },
+  {
+   "id": "doc-1432",
+   "title": "the-blockade-and-its-effects-on-human-rights",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1432_الحصار،-وآثاره-على-حقوق-الإنسان.md"
+  },
+  {
+   "id": "doc-1452",
+   "title": "right-to-equality",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1452_الحق-في-المساواة.md"
+  },
+  {
+   "id": "doc-1453",
+   "title": "copyright-related-rights",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-1453_الحقوق-المجاورة-لحق-المؤلف.md"
+  },
+  {
+   "id": "doc-1458",
+   "title": "transitional-justice",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1458_العدالة-الانتقالية.md"
+  },
+  {
+   "id": "doc-1474",
+   "title": "easement-right",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-1474_حق-الارتفاق.md"
+  },
+  {
+   "id": "doc-1482",
+   "title": "right-to-defend-yourself",
+   "subcategory": "ضمانات-المتهم",
+   "type": "article",
+   "file": "doc-1482_حق-الدفاع-أمام-القضاء.md"
+  },
+  {
+   "id": "doc-1488",
+   "title": "the-right-to-education-in-international-law",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1488_الحق-في-التعليم-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1489",
+   "title": "equity-in-the-distribution-of-income",
+   "subcategory": "حقوق-اقتصادية",
+   "type": "article",
+   "file": "doc-1489_عدالة-توزيع-الدخول.md"
+  },
+  {
+   "id": "doc-1494",
+   "title": "membership-in-the-national-assembly",
+   "subcategory": "نظام-الحكم",
+   "type": "article",
+   "file": "doc-1494_العضوية-في-مجلس-الأمة.md"
+  },
+  {
+   "id": "doc-1514",
+   "title": "unlawful-interference-in-international-affairs",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1514_التدخل-غير-الشرعي-في-الشؤون-الدولية.md"
+  },
+  {
+   "id": "doc-1526",
+   "title": "reservations-to-international-treaties",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1526_التحفظ-على-المعاهدات-الدولية.md"
+  },
+  {
+   "id": "doc-1539",
+   "title": "confrontation",
+   "subcategory": "ضمانات-المتهم",
+   "type": "article",
+   "file": "doc-1539_المواجهة-القضائية.md"
+  },
+  {
+   "id": "doc-1548",
+   "title": "electronic-copyright",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-1548_حقوق-التأليف-الإلكترونية.md"
+  },
+  {
+   "id": "doc-1576",
+   "title": "means-of-protection-for-the-author-from-infringement-of-his-rights",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-1576_وسائل-الحماية-للمؤلف-من-التعدي-على-حقوقه.md"
+  },
+  {
+   "id": "doc-1577",
+   "title": "media-and-press-rights-in-international-law",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-1577_حقوق-الإعلام-والصحافة-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1583",
+   "title": "trademark-owner-rights",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-1583_حقوق-مالك-العلامة-التجارية.md"
+  },
+  {
+   "id": "doc-1650",
+   "title": "jus-in-rem-and-jus-in-personam",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-1650_الحق-العيني-والحق-الشخصي.md"
+  },
+  {
+   "id": "doc-1651",
+   "title": "protection-of-digital-works-in-the-online",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-1651_حماية-المصنفات-الرقمية-على-الإنترنت.md"
+  },
+  {
+   "id": "doc-1675",
+   "title": "works-unprotected-by-copyright-law",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-1675_المؤلفات-المُستثناة-من-حقوق-التأليف.md"
+  },
+  {
+   "id": "doc-1686",
+   "title": "resolving-disputes-through-diplomatic-means",
+   "subcategory": "القانون-الدولي",
+   "type": "article",
+   "file": "doc-1686_فض-المنازعات-بالطرق-الدبلوماسية.md"
+  },
+  {
+   "id": "doc-1691",
+   "title": "non-aligned-movement",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1691_حركة-عدم-الانحياز.md"
+  },
+  {
+   "id": "doc-1709",
+   "title": "reasons-for-acquiring-property",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-1709_أسباب-كسب-الملكية.md"
+  },
+  {
+   "id": "doc-1722",
+   "title": "religious-courts-in-the-jordanian-constitution",
+   "subcategory": "نظام-الحكم",
+   "type": "article",
+   "file": "doc-1722_المحاكم-الدينية-في-الدستور-الأردني.md"
+  },
+  {
+   "id": "doc-1744",
+   "title": "diplomatic-negotiation",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "doc-1744_التفاوض-الدبلوماسي-بين-الدول.md"
+  },
+  {
+   "id": "doc-1747",
+   "title": "constitutional-monarchy",
+   "subcategory": "نظام-الحكم",
+   "type": "article",
+   "file": "doc-1747_نظام-الحكم-الملكي-الدستوري.md"
+  },
+  {
+   "id": "doc-1754",
+   "title": "حق التقدم",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-1754_حق-التقدم.md"
+  },
+  {
+   "id": "doc-1772",
+   "title": "translators-copyright",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-1772_حقوق-المترجم-في-قانون-حق-المؤلف.md"
+  },
+  {
+   "id": "doc-1781",
+   "title": "general-budget-law-definition",
+   "subcategory": "المالية-العامة",
+   "type": "article",
+   "file": "doc-1781_تعريف-بقانون-الموازنة-العامة.md"
+  },
+  {
+   "id": "doc-1804",
+   "title": "international-legitimacy",
+   "subcategory": "القانون-الدولي",
+   "type": "article",
+   "file": "doc-1804_الشرعية-الدولية.md"
+  },
+  {
+   "id": "doc-1807",
+   "title": "freedom-of-the-press-in-jordan",
+   "subcategory": "إعلام-وصحافة",
+   "type": "article",
+   "file": "doc-1807_حرية-الصحافة-في-الأردن.md"
+  },
+  {
+   "id": "doc-1861",
+   "title": "types-of-constitutions",
+   "subcategory": "مبادئ-دستورية",
+   "type": "article",
+   "file": "doc-1861_أنواع-الدساتير.md"
+  },
+  {
+   "id": "doc-1863",
+   "title": "violation-of-food-control-provisions",
+   "subcategory": "جرائم-وعقوبات",
+   "type": "article",
+   "file": "doc-1863_مخالفة-أحكام-الرقابة-على-الغذاء.md"
+  },
+  {
+   "id": "doc-1865",
+   "title": "disrupting-the-constitution",
+   "subcategory": "جرائم-وعقوبات",
+   "type": "article",
+   "file": "doc-1865_جريمة-تعطيل-الدستور.md"
+  },
+  {
+   "id": "doc-1872",
+   "title": "ban-the-debtor-from-traveling",
+   "subcategory": "حقوق-وحريات",
+   "type": "article",
+   "file": "doc-1872_أحكام-منع-المدين-من-السفر.md"
+  },
+  {
+   "id": "doc-2005",
+   "title": "journalists-legal-responsibility",
+   "subcategory": "إعلام-وصحافة",
+   "type": "article",
+   "file": "doc-2005_المسؤولية-القانونية-للصحفي.md"
+  },
+  {
+   "id": "doc-2034",
+   "title": "the-kings-exceptional-powers-in-the-jordanian-constitution",
+   "subcategory": "نظام-الحكم",
+   "type": "article",
+   "file": "doc-2034_صلاحيات-الملك-الاستثنائية-في-الدستور-الأردني.md"
+  },
+  {
+   "id": "doc-2072",
+   "title": "مهنة المحاماة في النظام السعودي",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2072_مهنة-المحاماة-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2182",
+   "title": "ترقين العلامة التجارية",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-2182_ترقين-العلامة-التجارية.md"
+  },
+  {
+   "id": "doc-2408",
+   "title": "الثغرة القانونية",
+   "subcategory": "نظرية-التشريع",
+   "type": "article",
+   "file": "doc-2408_الثغرة-القانونية.md"
+  },
+  {
+   "id": "doc-2470",
+   "title": "حقوق المقبوض عليهم",
+   "subcategory": "ضمانات-المتهم",
+   "type": "article",
+   "file": "doc-2470_حقوق-المقبوض-عليهم.md"
+  },
+  {
+   "id": "doc-2527",
+   "title": "أفضل محامي في الأردن",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2527_أفضل-محامي-في-الأردن.md"
+  },
+  {
+   "id": "doc-2545",
+   "title": "حرية التظاهر",
+   "subcategory": "حقوق-وحريات",
+   "type": "article",
+   "file": "doc-2545_حرية-التظاهر.md"
+  },
+  {
+   "id": "doc-2547",
+   "title": "الدفع بعدم الدستورية",
+   "subcategory": "رقابة-دستورية",
+   "type": "article",
+   "file": "doc-2547_الدفع-بعدم-الدستورية.md"
+  },
+  {
+   "id": "doc-2580",
+   "title": "الإشكاليات الدستورية الخاصة بتطبيق المعاهدات في الأردن",
+   "subcategory": "المعاهدات-الدولية",
+   "type": "article",
+   "file": "doc-2580_الإشكاليات-الدستورية-الخاصة-بتطبيق-المعاهدات-في-الأردن.md"
+  },
+  {
+   "id": "doc-2645",
+   "title": "الضوابط القانونية للدفع بعدم الدستورية",
+   "subcategory": "رقابة-دستورية",
+   "type": "article",
+   "file": "doc-2645_الضوابط-القانونية-للدفع-بعدم-الدستورية.md"
+  },
+  {
+   "id": "doc-2648",
+   "title": "تحريك الدعوى الدستورية",
+   "subcategory": "رقابة-دستورية",
+   "type": "article",
+   "file": "doc-2648_تحريك-الدعوى-الدستورية.md"
+  },
+  {
+   "id": "doc-2691",
+   "title": "المحاماة مهنة ينظمها القانون",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2691_المحاماة-مهنة-ينظمها-القانون.md"
+  },
+  {
+   "id": "doc-2705",
+   "title": "ضياع سند السحب",
+   "subcategory": "أوراق-تجارية",
+   "type": "article",
+   "file": "doc-2705_ضياع-سند-السحب.md"
+  },
+  {
+   "id": "doc-2759",
+   "title": "exclusive-commercial-agent-rights",
+   "subcategory": "قانون-تجاري",
+   "type": "article",
+   "file": "doc-2759_حقوق-الوكيل-التجاري-الحصري-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2781",
+   "title": "possession-rule-in-movable-title-deed",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-2781_قاعدة-الحيازة-في-المنقول-سند-الملكية-وفق-التشريع-الأردني.md"
+  },
+  {
+   "id": "doc-2789",
+   "title": "أثر وفاة المؤلف على حقوقه المالية والأدبية",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-2789_أثر-وفاة-المؤلف-على-حقوقه-المالية-والأدبية.md"
+  },
+  {
+   "id": "doc-2790",
+   "title": "أنواع التظهير في الشيك",
+   "subcategory": "أوراق-تجارية",
+   "type": "article",
+   "file": "doc-2790_أنواع-التظهير-في-الشيك.md"
+  },
+  {
+   "id": "doc-2809",
+   "title": "القواعد الإجرائية للدفع بعدم الدستورية",
+   "subcategory": "رقابة-دستورية",
+   "type": "article",
+   "file": "doc-2809_القواعد-الإجرائية-للدفع-بعدم-الدستورية.md"
+  },
+  {
+   "id": "doc-2862",
+   "title": "حقوق الطفل في القوانين الأردنية",
+   "subcategory": "حقوق-الإنسان",
+   "type": "article",
+   "file": "doc-2862_حقوق-الطفل-في-القوانين-الأردنية.md"
+  },
+  {
+   "id": "doc-2950",
+   "title": "الخدمة المهنية المجانية للمحامي",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "doc-2950_الخدمة-المهنية-المجانية-للمحامي.md"
+  },
+  {
+   "id": "doc-2966",
+   "title": "حقوق الاسترداد المختصة بزوجة المفلس",
+   "subcategory": "قانون-تجاري",
+   "type": "article",
+   "file": "doc-2966_حقوق-الاسترداد-المختصة-بزوجة-المفلس.md"
+  },
+  {
+   "id": "doc-3030",
+   "title": "استعانة المتهم بمحام في القانون الأردني",
+   "subcategory": "ضمانات-المتهم",
+   "type": "article",
+   "file": "doc-3030_استعانة-المتهم-بمحام-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-3042",
+   "title": "حرية الرأي في التشريع الأردني",
+   "subcategory": "حقوق-وحريات",
+   "type": "article",
+   "file": "doc-3042_حرية-الرأي-في-التشريع-الأردني.md"
+  },
+  {
+   "id": "doc-3054",
+   "title": "صاحب الحق في حقوق الملكية الفكرية للمصنفات المتولدة بالذكاء الصناعي",
+   "subcategory": "الملكية-الفكرية",
+   "type": "article",
+   "file": "doc-3054_صاحب-الحق-في-حقوق-الملكية-الفكرية-للمصنفات-المتولدة-بالذكاء-الصناعي.md"
+  },
+  {
+   "id": "doc-3068",
+   "title": "مرتبة المعاهدات الدولية في التشريعات الوطنية والدستور الأردني",
+   "subcategory": "المعاهدات-الدولية",
+   "type": "article",
+   "file": "doc-3068_مرتبة-المعاهدات-الدولية-في-التشريعات-الوطنية-والدستور-الأردني.md"
+  },
+  {
+   "id": "doc-3071",
+   "title": "قانون حماية البيانات الشخصية",
+   "subcategory": "حماية-البيانات",
+   "type": "article",
+   "file": "doc-3071_قانون-حماية-البيانات-الشخصية.md"
+  },
+  {
+   "id": "doc-3079",
+   "title": "حق الأفراد في حماية بياناتهم الشخصية وفقاً لقانون حماية البيانات الشخصية",
+   "subcategory": "حماية-البيانات",
+   "type": "article",
+   "file": "doc-3079_حق-الأفراد-في-حماية-بياناتهم-الشخصية-وفقاً-لقانون-حماية-البيانات-الشخصية.md"
+  },
+  {
+   "id": "doc-3083",
+   "title": "نظرة عامة حول قانون حماية البيانات الشخصية الأردني",
+   "subcategory": "حماية-البيانات",
+   "type": "article",
+   "file": "doc-3083_نظرة-عامة-حول-قانون-حماية-البيانات-الشخصية-الأردني.md"
+  },
+  {
+   "id": "doc-3094",
+   "title": "ماهية ضريبة التحسين في القانون الاردني",
+   "subcategory": "الحقوق-العينية",
+   "type": "article",
+   "file": "doc-3094_ماهية-ضريبة-التحسين-في-القانون-الاردني.md"
+  }
+ ]
+}

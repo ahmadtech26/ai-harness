@@ -1,0 +1,403 @@
+{
+ "category": "ملكية-فكرية",
+ "count": 29,
+ "documents": [
+  {
+   "id": "doc-0011",
+   "title": "the-legal-effects-of-a-patent-invalidity",
+   "date": "2010-06-12",
+   "author": "حماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنSami Alawadحماة الحق - محامي الأردن",
+   "subcategory": "براءات-الاختراع",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0011_Patent-invalidity-legal-effects.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0060",
+   "title": "agreement-on-trade-related-aspects-of-intellectual-property-rights",
+   "date": "2010-07-08",
+   "author": "حماة الحق - محامي الأردن",
+   "subcategory": "الاتفاقيات-الدولية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0060_AGREEMENT-ON-TRADE-RELATED-ASPECTS-OF-INTELLECTUAL-PROPERTY-RIGHTS.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0067",
+   "title": "jordan-trade-secrets-and-unfair-competition-law-of-2000",
+   "date": "2010-07-08",
+   "author": "حماة الحق - محامي الأردنحماة الحق - محامي الأردنSami AlawadLegislator",
+   "subcategory": "أسرار-تجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0067_Jordan-Trade-secrets-and-unfair-competition-law.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0068",
+   "title": "protection-of-work-title",
+   "date": "2010-07-08",
+   "author": "حماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنSami Alawadحماة الحق - محامي الأردن",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0068_Protection-of-work-title.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0320",
+   "title": "protection-of-well-known-trade-marks",
+   "date": "2011-06-02",
+   "author": "Sami Alawadحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنSami Alawad",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0320_Protection-of-well-known-trademarks-in-Jordan.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0321",
+   "title": "trade-mark-licensee-rights-and-obligations-in-jordan-laws",
+   "date": "2011-06-02",
+   "author": "Sami Alawadحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنSami Alawad",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0321_Licensee-rights-and-obligations-of-Trademark-in-Jordan.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0341",
+   "title": "جدول الرسوم المتعلقة بالعلامات التجارية",
+   "date": "2011-07-02",
+   "author": "Sami Alawadحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردن",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0341_جدول-الرسوم-المتعلقة-بالعلامات-التجارية.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     77
+    ]
+   }
+  },
+  {
+   "id": "doc-0343",
+   "title": "trade-marks-in-jordan",
+   "date": "2011-07-02",
+   "author": "Sami Alawadحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنSami Alawad",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0343_TradeMarks-in-Jordan.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0514",
+   "title": "trade-mark-licensing-in-jordan",
+   "date": "2019-03-25",
+   "author": "حماة الحق - محامي الأردن",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0514_Trade-Mark-Licensing-in-Jordan.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-0876",
+   "title": "تقليد ختم الدولة",
+   "date": "2020-11-27",
+   "author": "Laila Khalidحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردن",
+   "subcategory": "التقليد-والتزوير",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-0876_تقليد-ختم-الدولة.md",
+   "cites": {
+    "قانون-العقوبات": [
+     236,
+     237,
+     262
+    ],
+    "قانون-العلامات-التجارية": [
+     236,
+     237
+    ]
+   }
+  },
+  {
+   "id": "doc-1243",
+   "title": "d985d986d8b8d985d8a9-d8a7d984d988d8a7d98ad8a8d988-ompi-wipo-d985d8a7d987d98ad8aad987d8a7-d988d8b8d987d988d8b1d987d8a7-d988d8afd988d8b1",
+   "date": "2021-06-17",
+   "author": "MoatazBellahSami AlawadSami AlawadLegislatorNasma Majdi",
+   "subcategory": "منظمات-دولية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1243_منظمة-الوايبو-(OMPI-WIPO-)-ماهيتها-وظهورها-ودورها.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     63
+    ]
+   }
+  },
+  {
+   "id": "doc-1386",
+   "title": "civil-protection-for-an-unregistered-trademark",
+   "date": "2021-08-12",
+   "author": "Rifaat HamdiMohammed Ismail-HanafiKAREEM ABDULSALAMAhmad AbdulsalamKAREEM ABDULSALAM",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1386_الحماية-المدنية-للعلامة-التجارية-غير-المسجلة.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     2,
+     6,
+     7,
+     8,
+     10,
+     14,
+     15,
+     19,
+     25,
+     33,
+     34,
+     63
+    ],
+    "القانون-المدني-الأردني": [
+     3,
+     256
+    ]
+   }
+  },
+  {
+   "id": "doc-1419",
+   "title": "patent-conditions-in-jordan-law",
+   "date": "2021-08-18",
+   "author": "Moaiiad AlthunaibatMohammed Ismail-HanafiKAREEM ABDULSALAMAhmad AbdulsalamKAREEM ABDULSALAM",
+   "subcategory": "براءات-الاختراع",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1419_شروط-براءة-الاختراع-في-القانون-الأردني.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-1502",
+   "title": "right-of-priority-in-trademark-registration",
+   "date": "2021-09-11",
+   "author": "Jamal MareyMohammed Ismail-HanafiKAREEM ABDULSALAMAhmad AbdulsalamKAREEM ABDULSALAM",
+   "subcategory": "علامات-تجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1502_حق-الأولوية-في-تسجيل-العلامات-التجارية.md",
+   "cites": {
+    "القانون-المدني-الأردني": [
+     40
+    ]
+   }
+  },
+  {
+   "id": "doc-1522",
+   "title": "copyrights-arising-from-authorship",
+   "date": "2021-09-19",
+   "author": "Ahmad MansourMohammed Ismail-HanafiKAREEM ABDULSALAMAhmad AbdulsalamKAREEM ABDULSALAM",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1522_حقوق-المؤلف-الناشئة-عن-التأليف.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     5,
+     8,
+     13,
+     14,
+     17,
+     21,
+     22,
+     30,
+     51,
+     52,
+     143
+    ]
+   }
+  },
+  {
+   "id": "doc-1538",
+   "title": "works-protected-by-copyright-law",
+   "date": "2021-09-21",
+   "author": "Rifaat HamdiAbdullah Alzubaidiحماة الحق - محامي الأردنLegislatorSami Alawad",
+   "subcategory": "حق-المؤلف",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1538_المصنفات-المحمية-في-قانون-حق-المؤلف.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-1580",
+   "title": "reasons-for-acquiring-territory",
+   "date": "2021-09-30",
+   "author": "حماة الحق - محامي الأردنMohammed Mahmoudحماة الحق - محامي الأردنAmeerah SaeedAhmad Alshareef",
+   "subcategory": "قانون-دولي-عام",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1580_أسباب-اكتساب-الإقليم.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "doc-1620",
+   "title": "paris-convention",
+   "date": "2021-10-06",
+   "author": "Legislator",
+   "subcategory": "ملكية-صناعية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1620_Paris-Convention.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-1698",
+   "title": "المشورة القانونية",
+   "date": "2021-10-24",
+   "author": "Adel-Othmanحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردن",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1698_المشورة-القانونية.md",
+   "cites": {
+    "القانون-المدني-الأردني": [
+     375
+    ]
+   }
+  },
+  {
+   "id": "doc-1733",
+   "title": "collective-trademark",
+   "date": "2021-11-02",
+   "author": "Rifaat HamdiMohammed Ismail-HanafiKAREEM ABDULSALAMAhmad AbdulsalamKAREEM ABDULSALAM",
+   "subcategory": "علامات-تجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1733_العلامة-التجارية-الجماعية-وأحكامها.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-1806",
+   "title": "copyright-and-online-journalism",
+   "date": "2021-11-30",
+   "author": "Basma BasimMohammed Ismail-HanafiKAREEM ABDULSALAMAhmad AbdulsalamKAREEM ABDULSALAM",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-1806_الصحافة-عبر-الإنترنت-وحقوق-المؤلف.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     2,
+     3,
+     8,
+     9,
+     17,
+     19,
+     51
+    ]
+   }
+  },
+  {
+   "id": "doc-2141",
+   "title": "العلامات التجارية غير التقليدية",
+   "date": "2022-03-12",
+   "author": "Abdulmonim SharqawiDr. Omar Shihadaحماة الحق - محامي الأردنAkram Mohammed Mahmoudحماة الحق - محامي الأردن",
+   "subcategory": "العلامات-التجارية",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-2141_العلامات-التجارية-غير-التقليدية.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-2934",
+   "title": "diplomatic-and-consular-immunity",
+   "date": "2023-03-08",
+   "author": "حماة الحق - محامي الأردنMohammed Mahmoudحماة الحق - محامي الأردنAmeerah SaeedAhmad Alshareef",
+   "subcategory": "قانون-دولي-عام",
+   "type": "template",
+   "file": "ملكية-فكرية/doc-2934_Diplomatic-and-Consular-Immunity.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-3036",
+   "title": "المشكلات العلمية الناتجة عن استخدام الذكاء الاصطناعي",
+   "date": "2023-09-11",
+   "author": "Mohamed Saeed AbdAlmawlaحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردن",
+   "subcategory": "الذكاء-الاصطناعي",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-3036_المشكلات-العلمية-الناتجة-عن-استخدام-الذكاء-الاصطناعي.md",
+   "cites": {
+    "القانون-المدني-الأردني": [
+     49,
+     188
+    ],
+    "قانون-أصول-المحاكمات-الجزائية": [
+     178
+    ]
+   }
+  },
+  {
+   "id": "doc-3037",
+   "title": "المشكلات العلمية الناتجة عن استخدام الذكاء الاصطناعي",
+   "date": "2023-09-11",
+   "author": "Mohamed Saeed AbdAlmawlaحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردن",
+   "subcategory": "الذكاء-الاصطناعي",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-3037_المشكلات-العلمية-الناتجة-عن-استخدام-الذكاء-الاصطناعي.md",
+   "cites": {
+    "قانون-أصول-المحاكمات-الجزائية": [
+     51,
+     177
+    ]
+   }
+  },
+  {
+   "id": "doc-3058",
+   "title": "ضوابط الاستشهاد بالمصنفات في ضوء قانون حق المؤلف",
+   "date": "2023-09-11",
+   "author": "Mohammed Ismail-Hanafiحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردن",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-3058_ضوابط-الاستشهاد-بالمصنفات-في-ضوء-قانون-حق-المؤلف.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     2,
+     3,
+     8,
+     10,
+     17,
+     33,
+     51
+    ],
+    "القانون-المدني-الأردني": [
+     256
+    ]
+   }
+  },
+  {
+   "id": "doc-3090",
+   "title": "الإلزام باستخدام الذكاء الاصطناعي كآلية لمنع الغش الفكري في الأبحاث العلمية",
+   "date": "2023-12-26",
+   "author": "حماة الحق - محامي الأردنSami Alawadحماة الحق - محامي الأردنحماة الحق - محامي الأردنحماة الحق - محامي الأردن",
+   "subcategory": "الذكاء-الاصطناعي",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-3090_الإلزام-باستخدام-الذكاء-الاصطناعي-كآلية-لمنع-الغش-الفكري-في-الأبحاث-العلمية.md",
+   "cites": {}
+  },
+  {
+   "id": "doc-3092",
+   "title": "المصنفات السمعية البصرية المتولدة بالذكاء الاصطناعي",
+   "date": "2023-12-26",
+   "author": "حماة الحق - محامي الأردن",
+   "subcategory": "حقوق-المؤلف",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-3092_المصنفات-السمعية-البصرية-المتولدة-بالذكاء-الاصطناعي.md",
+   "cites": {
+    "قانون-العلامات-التجارية": [
+     2,
+     3,
+     26,
+     49,
+     51
+    ]
+   }
+  },
+  {
+   "id": "doc-3136",
+   "title": "المحاماة والذكاء الاصطناعي",
+   "date": "2025-09-15",
+   "author": "حماة الحق - محامي الأردن",
+   "subcategory": "مهنة-المحاماة",
+   "type": "article",
+   "file": "ملكية-فكرية/doc-3136_المحاماة-والذكاء-الاصطناعي.md",
+   "cites": {}
+  }
+ ]
+}

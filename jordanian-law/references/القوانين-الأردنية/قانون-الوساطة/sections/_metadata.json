@@ -1,0 +1,47 @@
+{
+  "law": "قانون الوساطة لتسوية النزاعات المدنية",
+  "slug": "قانون-الوساطة",
+  "category": "إجراءات-حقوقية",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 14,
+  "extracted_heading_count": 14,
+  "distinct_article_numbers": 14,
+  "max_article": 14,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-الوساطة-الكامل.md",
+      "number": "00",
+      "title": "قانون الوساطة لتسوية النزاعات المدنية - النص الكامل",
+      "article_count": 14,
+      "article_range": "1-14",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14"
+      ]
+    }
+  ],
+  "official_name": "قانون الوساطة لتسوية النزاعات المدنية لسنة 2006",
+  "year": 2006
+}

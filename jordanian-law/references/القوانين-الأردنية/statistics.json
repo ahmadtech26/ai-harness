@@ -1,0 +1,466 @@
+{
+  "version": "2.0",
+  "description": "Single source of truth for Jordanian Law corpus statistics (rebuilt from actual section files)",
+  "count_policy": "total_articles = actual \"### المادة N\" headings; expected_articles = declared target",
+  "summary": {
+    "total_laws": 22,
+    "total_articles": 6593,
+    "total_expected_articles": 6593,
+    "total_sections": 123,
+    "laws_with_memorandum": 1,
+    "laws_needing_source": [],
+    "case_types": [
+      "حقوقية",
+      "جزائية"
+    ]
+  },
+  "laws": {
+    "القانون-المدني-الأردني": {
+      "title": "القانون المدني الأردني",
+      "category": "القانون-الموضوعي-المدني",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 1449,
+      "expected_articles": 1449,
+      "sections": 15,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": true,
+      "memorandum_coverage": 766
+    },
+    "جدول-رسوم-المحاكم": {
+      "title": "جدول رسوم المحاكم",
+      "category": "رسوم",
+      "applies_to": [
+        "حقوقية",
+        "جزائية"
+      ],
+      "articles": 52,
+      "expected_articles": 52,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-أصول-المحاكمات-الجزائية": {
+      "title": "قانون أصول المحاكمات الجزائية",
+      "category": "إجراءات-جزائية",
+      "applies_to": [
+        "جزائية"
+      ],
+      "articles": 372,
+      "expected_articles": 372,
+      "sections": 9,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-أصول-المحاكمات-المدنية": {
+      "title": "قانون أصول المحاكمات المدنية",
+      "category": "إجراءات-حقوقية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 229,
+      "expected_articles": 229,
+      "sections": 7,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-البينات": {
+      "title": "قانون البينات",
+      "category": "إجراءات-حقوقية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 74,
+      "expected_articles": 74,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-التجارة": {
+      "title": "قانون التجارة لسنة 1966",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 480,
+      "expected_articles": 480,
+      "sections": 10,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-التجارة-البحرية": {
+      "title": "قانون التجارة البحرية لسنة 1972",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 386,
+      "expected_articles": 386,
+      "sections": 6,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-التنفيذ": {
+      "title": "قانون التنفيذ لسنة 2007",
+      "category": "إجراءات حقوقية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 119,
+      "expected_articles": 119,
+      "sections": 2,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-الجمارك": {
+      "title": "قانون الجمارك لسنة 1998",
+      "category": "ضرائب وجمارك",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 254,
+      "expected_articles": 254,
+      "sections": 7,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-الشركات": {
+      "title": "قانون الشركات لسنة 1997",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 314,
+      "expected_articles": 314,
+      "sections": 10,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-الضريبة-العامة-على-المبيعات": {
+      "title": "قانون الضريبة العامة على المبيعات لسنة 1994",
+      "category": "ضرائب وجمارك",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 77,
+      "expected_articles": 77,
+      "sections": 3,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-العقوبات-الأردني": {
+      "title": "قانون العقوبات الأردني",
+      "category": "القانون-الموضوعي-الجزائي",
+      "applies_to": [
+        "جزائية"
+      ],
+      "articles": 489,
+      "expected_articles": 489,
+      "sections": 10,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-العمل": {
+      "title": "قانون العمل لسنة 1996",
+      "category": "عمل",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 142,
+      "expected_articles": 142,
+      "sections": 4,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-المالكين-والمستأجرين": {
+      "title": "قانون المالكين والمستأجرين لسنة 1994",
+      "category": "موضوعي مدني",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 22,
+      "expected_articles": 22,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-الوساطة": {
+      "title": "قانون الوساطة لتسوية النزاعات المدنية",
+      "category": "إجراءات-حقوقية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 14,
+      "expected_articles": 14,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-تشكيل-المحاكم-النظامية": {
+      "title": "قانون تشكيل المحاكم النظامية",
+      "category": "تنظيم-المحاكم",
+      "applies_to": [
+        "حقوقية",
+        "جزائية"
+      ],
+      "articles": 23,
+      "expected_articles": 23,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-صندوق-الاستثمار-الأردني": {
+      "title": "قانون صندوق الاستثمار الأردني لسنة 2016",
+      "category": "استثمار ومالية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 16,
+      "expected_articles": 16,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-ضريبة-الدخل": {
+      "title": "قانون ضريبة الدخل لسنة 2014",
+      "category": "ضرائب وجمارك",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 82,
+      "expected_articles": 82,
+      "sections": 5,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-محاكم-الصلح": {
+      "title": "قانون محاكم الصلح",
+      "category": "تنظيم-المحاكم",
+      "applies_to": [
+        "حقوقية",
+        "جزائية"
+      ],
+      "articles": 22,
+      "expected_articles": 22,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-محكمة-الجنايات-الكبرى": {
+      "title": "قانون محكمة الجنايات الكبرى",
+      "category": "تنظيم-المحاكم",
+      "applies_to": [
+        "جزائية"
+      ],
+      "articles": 16,
+      "expected_articles": 16,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "قانون-نقابة-المحامين": {
+      "title": "قانون نقابة المحامين النظاميين",
+      "category": "مهنة-المحاماة",
+      "applies_to": [
+        "حقوقية",
+        "جزائية"
+      ],
+      "articles": 110,
+      "expected_articles": 110,
+      "sections": 3,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    },
+    "مجلة-الأحكام-العدلية": {
+      "title": "مجلة الأحكام العدلية",
+      "category": "القانون-الموضوعي-المدني",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 1851,
+      "expected_articles": 1851,
+      "sections": 24,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null
+    }
+  },
+  "categories": {
+    "القانون-الموضوعي-المدني": {
+      "title": "القانون الموضوعي المدني",
+      "laws": [
+        "القانون-المدني-الأردني",
+        "مجلة-الأحكام-العدلية"
+      ],
+      "total_articles": 3300,
+      "expected_articles": 3300
+    },
+    "رسوم": {
+      "title": "الرسوم",
+      "laws": [
+        "جدول-رسوم-المحاكم"
+      ],
+      "total_articles": 52,
+      "expected_articles": 52
+    },
+    "إجراءات-جزائية": {
+      "title": "الإجراءات الجزائية",
+      "laws": [
+        "قانون-أصول-المحاكمات-الجزائية"
+      ],
+      "total_articles": 372,
+      "expected_articles": 372
+    },
+    "إجراءات-حقوقية": {
+      "title": "الإجراءات الحقوقية",
+      "laws": [
+        "قانون-أصول-المحاكمات-المدنية",
+        "قانون-البينات",
+        "قانون-الوساطة"
+      ],
+      "total_articles": 317,
+      "expected_articles": 317
+    },
+    "موضوعي تجاري": {
+      "title": "موضوعي تجاري",
+      "laws": [
+        "قانون-التجارة",
+        "قانون-التجارة-البحرية",
+        "قانون-الشركات"
+      ],
+      "total_articles": 1180,
+      "expected_articles": 1180
+    },
+    "إجراءات حقوقية": {
+      "title": "إجراءات حقوقية",
+      "laws": [
+        "قانون-التنفيذ"
+      ],
+      "total_articles": 119,
+      "expected_articles": 119
+    },
+    "ضرائب وجمارك": {
+      "title": "ضرائب وجمارك",
+      "laws": [
+        "قانون-الجمارك",
+        "قانون-الضريبة-العامة-على-المبيعات",
+        "قانون-ضريبة-الدخل"
+      ],
+      "total_articles": 413,
+      "expected_articles": 413
+    },
+    "القانون-الموضوعي-الجزائي": {
+      "title": "القانون الموضوعي الجزائي",
+      "laws": [
+        "قانون-العقوبات-الأردني"
+      ],
+      "total_articles": 489,
+      "expected_articles": 489
+    },
+    "عمل": {
+      "title": "عمل",
+      "laws": [
+        "قانون-العمل"
+      ],
+      "total_articles": 142,
+      "expected_articles": 142
+    },
+    "موضوعي مدني": {
+      "title": "موضوعي مدني",
+      "laws": [
+        "قانون-المالكين-والمستأجرين"
+      ],
+      "total_articles": 22,
+      "expected_articles": 22
+    },
+    "تنظيم-المحاكم": {
+      "title": "تنظيم المحاكم",
+      "laws": [
+        "قانون-تشكيل-المحاكم-النظامية",
+        "قانون-محاكم-الصلح",
+        "قانون-محكمة-الجنايات-الكبرى"
+      ],
+      "total_articles": 61,
+      "expected_articles": 61
+    },
+    "استثمار ومالية": {
+      "title": "استثمار ومالية",
+      "laws": [
+        "قانون-صندوق-الاستثمار-الأردني"
+      ],
+      "total_articles": 16,
+      "expected_articles": 16
+    },
+    "مهنة-المحاماة": {
+      "title": "مهنة المحاماة",
+      "laws": [
+        "قانون-نقابة-المحامين"
+      ],
+      "total_articles": 110,
+      "expected_articles": 110
+    }
+  },
+  "external_documents": {
+    "total_documents": 3138,
+    "source": "jordan-lawyer.com",
+    "catalog_file": "(companion) references/docs/docs-catalog.json",
+    "categories": {
+      "قانون-مدني": 765,
+      "إجراءات-قضائية": 592,
+      "قانون-جنائي": 494,
+      "قانون-عمل": 453,
+      "قانون-شركات": 299,
+      "عقود-ونماذج": 174,
+      "غير-مصنف": 138,
+      "قانون-استثمار": 104,
+      "قانون-دستوري": 86,
+      "ملكية-فكرية": 20,
+      "تجارة-دولية": 13
+    },
+    "note": "commentary corpus split into the companion skill jordanian-law-docs",
+    "companion_skill": "jordanian-law-docs"
+  }
+}

@@ -1,0 +1,735 @@
+{
+ "category": "قانون-استثمار",
+ "document_count": 104,
+ "note": "regenerated from catalog/قانون-استثمار.json — the slim catalog is authoritative",
+ "documents": [
+  {
+   "id": "doc-0059",
+   "title": "الاستثمار في الأردن",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0059_الاستثمار-في-الأردن.md"
+  },
+  {
+   "id": "doc-0144",
+   "title": "قضايا  كهرباء الضغط العالي",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0144_قضايا-كهرباء-الضغط-العالي.md"
+  },
+  {
+   "id": "doc-0171",
+   "title": "تأشيرة دخول مستثمر",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0171_تأشيرة-دخول-مستثمر.md"
+  },
+  {
+   "id": "doc-0177",
+   "title": "المصطلحات التجارية و الاستثمارية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0177_المصطلحات-التجارية-و-الاستثمارية.md"
+  },
+  {
+   "id": "doc-0199",
+   "title": "هل يتمتع صندوق توفير البريد بالشخصية الاعتبارية؟",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0199_هل-يتمتع-صندوق-توفير-البريد-بالشخصية-الاعتبارية؟.md"
+  },
+  {
+   "id": "doc-0211",
+   "title": "تفسير الفقرة (أ) من كل من المادتين (55،52) من قانون البنوك",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0211_تفسير-الفقرة-(أ)-من-كل-من-المادتين-(55،52)-من-قانون-البنوك.md"
+  },
+  {
+   "id": "doc-0259",
+   "title": "أسئلة واستفسارات تتعلق بإقامة الأجانب في الأردن",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0259_أسئلة-واستفسارات-تتعلق-بإقامة-الأجانب-في-الأردن.md"
+  },
+  {
+   "id": "doc-0260",
+   "title": "نظام التأشيرات الأردني",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0260_نظام-التأشيرات-الأردني.md"
+  },
+  {
+   "id": "doc-0276",
+   "title": "اتفاقية التعاون الأردن وسلطنة عمان  الاستثمار وتنمية الصادرات",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0276_اتفاقية-التعاون-الأردن-وسلطنة-عمان-الاستثمار-وتنمية-الصادرات.md"
+  },
+  {
+   "id": "doc-0284",
+   "title": "اتفاقية بين الأردن و الصين  حول التشجيع والحماية المتبادلة للاستثمارات",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0284_اتفاقية-بين-الأردن-و-الصين-حول-التشجيع-والحماية-المتبادلة-للاستثمارات.md"
+  },
+  {
+   "id": "doc-0286",
+   "title": "اتفاقية بين  الأردن ولبنان  حول الحماية والتشجيع المتبادل للاستثمارات",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0286_اتفاقية-بين-الأردن-ولبنان-حول-الحماية-والتشجيع-المتبادل-للاستثمارات.md"
+  },
+  {
+   "id": "doc-0289",
+   "title": "اتفاقية تشجيع وحماية الاستثمارات العربية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0289_اتفاقية-تشجيع-وحماية-الاستثمارات-العربية.md"
+  },
+  {
+   "id": "doc-0296",
+   "title": "اتفاقية لتشجيع وحماية الاستثمارات بين الأردن وسوريا",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0296_اتفاقية-لتشجيع-وحماية-الاستثمارات-بين-الأردن-وسوريا.md"
+  },
+  {
+   "id": "doc-0297",
+   "title": "اتفاقية إقامة منطقة تجارة حرة بين الأردن و سوريا",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0297_اتفاقية-إقامة-منطقة-تجارة-حرة-بين-الأردن-و-سوريا.md"
+  },
+  {
+   "id": "doc-0299",
+   "title": "البرنامج التنفيذي لاتفاقية  لإقامة منطقة تجارة حرة",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0299_البرنامج-التنفيذي-لاتفاقية-لإقامة-منطقة-تجارة-حرة.md"
+  },
+  {
+   "id": "doc-0389",
+   "title": "قانون الاستثمار الأردني الملغي",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0389_قانون-الاستثمار-الأردني-الملغي.md"
+  },
+  {
+   "id": "doc-0420",
+   "title": "شروط ومتطلبات مدينة ترفيهية",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0420_شروط-ومتطلبات-مدينة-ترفيهية.md"
+  },
+  {
+   "id": "doc-0428",
+   "title": "نظام تنظيم استثمارات غير الأردنيين- ملغى",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0428_نظام-تنظيم-استثمارات-غير-الأردنيين-ملغى.md"
+  },
+  {
+   "id": "doc-0475",
+   "title": "نظام صندوق حماية المستثمرين في الأوراق المالية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0475_نظام-صندوق-حماية-المستثمرين-في-الأوراق-المالية.md"
+  },
+  {
+   "id": "doc-0533",
+   "title": "investors-fund-protection-year-2019",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0533_نظام-معدل-لنظام-صندوق-حماية-المستثمرين.md"
+  },
+  {
+   "id": "doc-0546",
+   "title": "visa-to-aqaba-qa-zone",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0546_تعليمات-تأشيرة-منطقة-العقبة-الاقتصادية.md"
+  },
+  {
+   "id": "doc-0592",
+   "title": "نظام صناديق الاستثمار المشترك",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0592_نظام-صناديق-الاستثمار-المشترك.md"
+  },
+  {
+   "id": "doc-0615",
+   "title": "نظام حوافز الأنشطة الصناعية لسنة 2020",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0615_نظام-حوافز-الأنشطة-الصناعية-لسنة-2020.md"
+  },
+  {
+   "id": "doc-0616",
+   "title": "نظام حوافز ضريبة الدخل القطاع الصناعي",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0616_نظام-حوافز-ضريبة-الدخل-القطاع-الصناعي.md"
+  },
+  {
+   "id": "doc-0671",
+   "title": "اتفاقية جنسية أبناء الدول العربية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0671_اتفاقية-جنسية-أبناء-الدول-العربية.md"
+  },
+  {
+   "id": "doc-0677",
+   "title": "law-implementing-the-convention-on-the-nationality-of-arabs",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0677_قانون-تنفيذ-الاتفاقية-بشأن-جنسية-أبناء-الدول-العربية.md"
+  },
+  {
+   "id": "doc-0682",
+   "title": "jordan-investment-law",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-0682_Jordan-Investment-Law.md"
+  },
+  {
+   "id": "doc-0689",
+   "title": "نقل وتداول المواد الخطرة",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-0689_نقل-وتداول-المواد-الخطرة.md"
+  },
+  {
+   "id": "doc-1135",
+   "title": "مزايا الاستثمار الأجنبي في مصر",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-1135_مزايا-الاستثمار-الأجنبي-في-مصر.md"
+  },
+  {
+   "id": "doc-1137",
+   "title": "citizenship-by-investment-in-jordan",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1137_Citizenship-by-Investment-in-Jordan.md"
+  },
+  {
+   "id": "doc-1146",
+   "title": "الاختصاص في الدعوى المرفوعة على الأجنبي",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1146_الاختصاص-في-الدعوى-المرفوعة-على-الأجنبي.md"
+  },
+  {
+   "id": "doc-1153",
+   "title": "الجنسية الأردنية عن طريق الاستثمار",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1153_الجنسية-الأردنية-عن-طريق-الاستثمار.md"
+  },
+  {
+   "id": "doc-1219",
+   "title": "نظام السجل الوطني للمشروعات الحكومية الاستثمارية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1219_نظام-السجل-الوطني-للمشروعات-الحكومية-الاستثمارية.md"
+  },
+  {
+   "id": "doc-1253",
+   "title": "إدارة الأبنية والمجمعات العقارية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1253_إدارة-الأبنية-والمجمعات-العقارية.md"
+  },
+  {
+   "id": "doc-1268",
+   "title": "شروط الحصول على الجنسية الجزائرية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1268_شروط-الحصول-على-الجنسية-الجزائرية.md"
+  },
+  {
+   "id": "doc-1289",
+   "title": "جامعة الدول العربية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1289_جامعة-الدول-العربية.md"
+  },
+  {
+   "id": "doc-1299",
+   "title": "اكتساب الجنسية المصرية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1299_اكتساب-الجنسية-المصرية.md"
+  },
+  {
+   "id": "doc-1306",
+   "title": "تملك الأجانب للعقارات في الأردن",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1306_تملك-الأجانب-للعقارات-في-الأردن.md"
+  },
+  {
+   "id": "doc-1354",
+   "title": "commercial-dumping",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1354_الإغراق-التجاري.md"
+  },
+  {
+   "id": "doc-1423",
+   "title": "jordanian-nationality-problems",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1423_إشكاليات-الجنسية-الأردنية.md"
+  },
+  {
+   "id": "doc-1443",
+   "title": "unctad",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1443_تعريف-بمنظمة-الأونكتاد.md"
+  },
+  {
+   "id": "doc-1475",
+   "title": "interstate-projects",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1475_المشاريع-الدولية-المشتركة.md"
+  },
+  {
+   "id": "doc-1483",
+   "title": "rule-of-connection-basic-elements",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1483_أركان-قواعد-الإسناد.md"
+  },
+  {
+   "id": "doc-1486",
+   "title": "القوة الملزمة لقاعدة الإسناد",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1486_القوة-الملزمة-لقاعدة-الإسناد.md"
+  },
+  {
+   "id": "doc-1552",
+   "title": "self-determination",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1552_حق-تقرير-المصير.md"
+  },
+  {
+   "id": "doc-1614",
+   "title": "jordanian-nationality-law",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1614_قانون-الجنسية-الأردنية.md"
+  },
+  {
+   "id": "doc-1665",
+   "title": "international-banks",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-1665_البنوك-الدولية.md"
+  },
+  {
+   "id": "doc-1757",
+   "title": "anti-dumping",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1757_مكافحة-دعم-المنتج-الأجنبي.md"
+  },
+  {
+   "id": "doc-1774",
+   "title": "introduction-to-competition-law",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1774_التعريف-بقانون-المنافسة.md"
+  },
+  {
+   "id": "doc-1775",
+   "title": "enforcement-of-foreign-judgments-in-kuwait",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1775_تنفيذ-الأحكام-الأجنبية-في-الكويت.md"
+  },
+  {
+   "id": "doc-1809",
+   "title": "state-immunity-in-international-law",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1809_حصانة-الدولة-في-القانون-الدولي.md"
+  },
+  {
+   "id": "doc-1838",
+   "title": "dual-citizenship-in-jordan",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1838_ازدواج-الجنسية-في-القانون-الأردني.md"
+  },
+  {
+   "id": "doc-1908",
+   "title": "المشرع الأردني وظروف الإسناد عند تنازع القوانين",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-1908_المشرع-الأردني-وظروف-الإسناد-عند-تنازع-القوانين.md"
+  },
+  {
+   "id": "doc-2183",
+   "title": "تأمين المركبات الأجنبية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2183_تأمين-المركبات-الأجنبية.md"
+  },
+  {
+   "id": "doc-2235",
+   "title": "نظام المؤسسات الصحية الخاصة- السعودية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2235_نظام-المؤسسات-الصحية-الخاصة-السعودية.md"
+  },
+  {
+   "id": "doc-2498",
+   "title": "المصالحة في تسوية منازعات التجارة الدولية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2498_المصالحة-في-تسوية-منازعات-التجارة-الدولية.md"
+  },
+  {
+   "id": "doc-2515",
+   "title": "أحكام جنسية السفينة",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2515_أحكام-جنسية-السفينة.md"
+  },
+  {
+   "id": "doc-2538",
+   "title": "تعريف بالنافذة الاستثمارية",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2538_تعريف-بالنافذة-الاستثمارية.md"
+  },
+  {
+   "id": "doc-2566",
+   "title": "شرط الثبات التشريعي في عقود الاستثمار الأجنبي",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2566_شرط-الثبات-التشريعي-في-عقود-الاستثمار-الأجنبي.md"
+  },
+  {
+   "id": "doc-2641",
+   "title": "positive-discrimination-in-investment-law",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2641_التمييز-الإيجابي-في-قانون-البيئة-الاستثمارية.md"
+  },
+  {
+   "id": "doc-2643",
+   "title": "the-law-applicable-to-foreign-investment-contracts",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2643_القانون-واجب-التطبيق-على-عقود-الاستثمار-الأجنبي.md"
+  },
+  {
+   "id": "doc-2674",
+   "title": "the-legal-framework-for-investment-in-jordan",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2674_الإطار-القانوني-للاستثمار-في-الأردن-2025.md"
+  },
+  {
+   "id": "doc-2709",
+   "title": "عقود استثمار العلامات التجارية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2709_عقود-استثمار-العلامات-التجارية.md"
+  },
+  {
+   "id": "doc-2718",
+   "title": "مسؤولية المستثمر الأجنبي المدنية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2718_مسؤولية-المستثمر-الأجنبي-المدنية.md"
+  },
+  {
+   "id": "doc-2730",
+   "title": "حقوق الملكية الصناعية للمستثمر",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2730_حقوق-الملكية-الصناعية-للمستثمر.md"
+  },
+  {
+   "id": "doc-2733",
+   "title": "كيف تصبح مستثمرًا في المملكة الأردنية الهاشمية في 2025",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2733_كيف-تصبح-مستثمرًا-في-المملكة-الأردنية-الهاشمية-في-2025.md"
+  },
+  {
+   "id": "doc-2734",
+   "title": "كيفية استخراج بطاقة مستثمر 2025",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2734_كيفية-استخراج-بطاقة-مستثمر-2025.md"
+  },
+  {
+   "id": "doc-2735",
+   "title": "كيفية التسجيل للاستثمار في الأردن 2025",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2735_كيفية-التسجيل-للاستثمار-في-الأردن-2025.md"
+  },
+  {
+   "id": "doc-2736",
+   "title": "محام استثمار 2025",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2736_محام-استثمار-2025.md"
+  },
+  {
+   "id": "doc-2737",
+   "title": "محامي الاستثمار في الأردن 2025",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2737_محامي-الاستثمار-في-الأردن-2025.md"
+  },
+  {
+   "id": "doc-2738",
+   "title": "محامي قضايا الاستثمار",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2738_محامي-قضايا-الاستثمار.md"
+  },
+  {
+   "id": "doc-2784",
+   "title": "the-impact-of-the-jordanian-investment-law-in-attracting-investment",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2784_قانون-تنظيم-البيئة-الاستثمارية-وأثره-في-جذب-الاستثمار.md"
+  },
+  {
+   "id": "doc-2803",
+   "title": "الحماية القانونية للمستثمرين في سوق الأوراق المالية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2803_الحماية-القانونية-للمستثمرين-في-سوق-الأوراق-المالية.md"
+  },
+  {
+   "id": "doc-2806",
+   "title": "الرسوم التي تتقاضاها هيئة الأوراق المالية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2806_الرسوم-التي-تتقاضاها-هيئة-الأوراق-المالية.md"
+  },
+  {
+   "id": "doc-2817",
+   "title": "تعريف بهيئة الأوراق المالية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2817_تعريف-بهيئة-الأوراق-المالية.md"
+  },
+  {
+   "id": "doc-2819",
+   "title": "خدمات المستثمر الأجنبي",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2819_خدمات-المستثمر-الأجنبي.md"
+  },
+  {
+   "id": "doc-2825",
+   "title": "صندوق حماية المستثمر",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2825_صندوق-حماية-المستثمر.md"
+  },
+  {
+   "id": "doc-2827",
+   "title": "ماهية الأوراق المالية وأنواعها",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2827_ماهية-الأوراق-المالية-وأنواعها.md"
+  },
+  {
+   "id": "doc-2831",
+   "title": "محامي استثمار أجنبي في الأردن",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2831_محامي-استثمار-أجنبي-في-الأردن.md"
+  },
+  {
+   "id": "doc-2833",
+   "title": "محامي متخصص هيئة الاستثمار",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2833_محامي-متخصص-هيئة-الاستثمار.md"
+  },
+  {
+   "id": "doc-2865",
+   "title": "صندوق الاستثمار المشترك",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2865_صندوق-الاستثمار-المشترك.md"
+  },
+  {
+   "id": "doc-2878",
+   "title": "الاستثمار الجريء وفق الأنظمة السعودية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2878_الاستثمار-الجريء-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2879",
+   "title": "الاستثمار الملائكي في النظام السعودي",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2879_الاستثمار-الملائكي-في-النظام-السعودي.md"
+  },
+  {
+   "id": "doc-2884",
+   "title": "التعريف بجمعية عقال وفق الأنظمة السعودية",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2884_التعريف-بجمعية-عقال-وفق-الأنظمة-السعودية.md"
+  },
+  {
+   "id": "doc-2933",
+   "title": "jordanian-investment-law",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2933_قانون-البيئة-الاستثمارية.md"
+  },
+  {
+   "id": "doc-2937",
+   "title": "نظام تنظيم البيئة الاستثمارية لسنة 2023",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2937_نظام-تنظيم-البيئة-الاستثمارية-لسنة-2023.md"
+  },
+  {
+   "id": "doc-2955",
+   "title": "القانون واجب التطبيق على عقود الاستثمار الأجنبي",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2955_القانون-واجب-التطبيق-على-عقود-الاستثمار-الأجنبي.md"
+  },
+  {
+   "id": "doc-2978",
+   "title": "acquiring-jordanian-passport-by-investment",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2978_Acquiring-Jordanian-Passport-by-Investment.md"
+  },
+  {
+   "id": "doc-2981",
+   "title": "الحصول على جواز السفر الأردني مقابل الاستثمار",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-2981_الحصول-على-جواز-السفر-الأردني-مقابل-الاستثمار.md"
+  },
+  {
+   "id": "doc-2986",
+   "title": "تعليمـات مـنح بطاقـة المستثمر 2025",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2986_تعليمـات-مـنح-بطاقـة-المستثمر-2025.md"
+  },
+  {
+   "id": "doc-2996",
+   "title": "أحكام تملك غير الأردني للعقارات",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-2996_أحكام-تملك-غير-الأردني-للعقارات.md"
+  },
+  {
+   "id": "doc-3099",
+   "title": "faqs-about-jordanian-citizenship-and-second-passport-program",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3099_FAQs-about-Jordanian-Citizenship-and-Second-Passport-Program.md"
+  },
+  {
+   "id": "doc-3100",
+   "title": "granting-jordanian-citizenship-to-real-estate-investors",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3100_Granting-Jordanian-Citizenship-to-Real-Estate-Investors.md"
+  },
+  {
+   "id": "doc-3101",
+   "title": "jordan-a-shining-investment-destination",
+   "subcategory": "بيئة-الاستثمار",
+   "type": "article",
+   "file": "doc-3101_Jordan-A-Shining-Investment-Destination.md"
+  },
+  {
+   "id": "doc-3102",
+   "title": "jordan-opens-doors-to-investors",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3102_Jordan-Opens-Doors-to-Investors.md"
+  },
+  {
+   "id": "doc-3103",
+   "title": "jordan-the-premier-destination-for-citizenship",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3103_Jordan-The-Premier-Destination-for-Citizenship.md"
+  },
+  {
+   "id": "doc-3106",
+   "title": "best-real-estate-lawyer-in-jordan",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3106_Best-Real-Estate-Lawyer-in-Jordan.md"
+  },
+  {
+   "id": "doc-3108",
+   "title": "how-to-register-for-investment-in-jordan-2024",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3108_How-to-Register-for-Investment-in-Jordan-2025.md"
+  },
+  {
+   "id": "doc-3110",
+   "title": "investment-lawyer-in-jordan",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3110_Investment-Lawyer-in-Jordan.md"
+  },
+  {
+   "id": "doc-3116",
+   "title": "citizenship-by-investment-a-comprehensive-guide-for-2025",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3116_Citizenship-by-Investment-A-Comprehensive-Guide-for-2025.md"
+  },
+  {
+   "id": "doc-3117",
+   "title": "safe-haven-for-your-savings-jordan-citizenship-by-investment",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3117_Safe-Haven-for-Your-Savings-Jordan-Citizenship-by-Investment.md"
+  },
+  {
+   "id": "doc-3124",
+   "title": "jordanian-citizenship-through-investment",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3124_Jordanian-Citizenship-Through-Investment-2025.md"
+  },
+  {
+   "id": "doc-3128",
+   "title": "دليلك الشامل لبرنامج الجنسية الأردنية والإقامة خمس سنوات  عن طريق الاستثمار 2025",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3128_دليلك-الشامل-لبرنامج-الجنسية-الأردنية-والإقامة-خمس-سنوات-عن-طريق-الاستثمار-2025.md"
+  },
+  {
+   "id": "doc-3129",
+   "title": "الجنسية الأردنية أو الإقامة لمدة خمس سنوات في الأردن",
+   "subcategory": "الجنسية-بالاستثمار",
+   "type": "article",
+   "file": "doc-3129_الجنسية-الأردنية-أو-الإقامة-لمدة-خمس-سنوات-في-الأردن.md"
+  }
+ ]
+}

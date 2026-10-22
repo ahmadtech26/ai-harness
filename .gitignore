@@ -1,0 +1,17 @@
+# Archives that duplicate an extracted folder
+*.zip
+
+# Local environment and secrets
+.env
+.env.*
+
+# Python and Node build output
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+
+# OS and editor noise
+Thumbs.db
+desktop.ini
+.DS_Store

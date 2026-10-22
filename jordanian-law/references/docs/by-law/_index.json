@@ -1,0 +1,75 @@
+{
+ "note": "available per-law citation indexes",
+ "laws": [
+  {
+   "law": "القانون-المدني-الأردني",
+   "articles_with_relevant": 1444,
+   "articles_with_mentions": 235
+  },
+  {
+   "law": "قانون-العقوبات-الأردني",
+   "articles_with_relevant": 473,
+   "articles_with_mentions": 354
+  },
+  {
+   "law": "قانون-الشركات",
+   "articles_with_relevant": 287,
+   "articles_with_mentions": 77
+  },
+  {
+   "law": "قانون-أصول-المحاكمات-الجزائية",
+   "articles_with_relevant": 267,
+   "articles_with_mentions": 5
+  },
+  {
+   "law": "قانون-التجارة-البحرية",
+   "articles_with_relevant": 258,
+   "articles_with_mentions": 0
+  },
+  {
+   "law": "قانون-الاستثمار",
+   "articles_with_relevant": 206,
+   "articles_with_mentions": 0
+  },
+  {
+   "law": "الدستور-الأردني",
+   "articles_with_relevant": 177,
+   "articles_with_mentions": 127
+  },
+  {
+   "law": "قانون-العمل",
+   "articles_with_relevant": 142,
+   "articles_with_mentions": 142
+  },
+  {
+   "law": "قانون-التحكيم",
+   "articles_with_relevant": 49,
+   "articles_with_mentions": 3
+  },
+  {
+   "law": "قانون-العلامات-التجارية",
+   "articles_with_relevant": 28,
+   "articles_with_mentions": 0
+  },
+  {
+   "law": "جدول-رسوم-المحاكم",
+   "articles_with_relevant": 24,
+   "articles_with_mentions": 1
+  },
+  {
+   "law": "قانون-محاكم-الصلح",
+   "articles_with_relevant": 18,
+   "articles_with_mentions": 0
+  },
+  {
+   "law": "قانون-تشكيل-المحاكم-النظامية",
+   "articles_with_relevant": 13,
+   "articles_with_mentions": 1
+  },
+  {
+   "law": "قانون-محكمة-الجنايات-الكبرى",
+   "articles_with_relevant": 12,
+   "articles_with_mentions": 0
+  }
+ ]
+}

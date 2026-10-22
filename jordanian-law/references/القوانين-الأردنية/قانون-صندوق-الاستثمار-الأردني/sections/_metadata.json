@@ -1,0 +1,49 @@
+{
+  "law": "قانون صندوق الاستثمار الأردني لسنة 2016",
+  "slug": "قانون-صندوق-الاستثمار-الأردني",
+  "category": "استثمار ومالية",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 16,
+  "extracted_heading_count": 16,
+  "distinct_article_numbers": 16,
+  "max_article": 16,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-المواد-1-16.md",
+      "number": "00",
+      "title": "قانون صندوق الاستثمار الأردني (المواد 1-16)",
+      "article_count": 16,
+      "article_range": "1-16",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ]
+    }
+  ],
+  "official_name": "قانون صندوق الاستثمار الأردني لسنة 2016",
+  "year": 2016
+}
