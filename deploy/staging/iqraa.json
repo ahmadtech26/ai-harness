@@ -1,0 +1,11 @@
+{
+  "staffRoles": ["ADMIN"],
+  "metering": {
+    "defaultMaxOutputTokens": 1024,
+    "reservationTtlMs": 600000,
+    "sweepIntervalMs": 30000
+  },
+  "prices": {
+    "mock-model": { "input": 3, "output": 15, "cachedInput": 0.3 }
+  }
+}

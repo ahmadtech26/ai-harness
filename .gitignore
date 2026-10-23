@@ -8,6 +8,9 @@
 .env
 .env.*
 
+# Staging run output: model request logs carry full prompts and skill bodies
+/deploy/staging/out/
+
 # Python and Node build output
 __pycache__/
 *.pyc

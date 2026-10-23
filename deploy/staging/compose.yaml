@@ -1,0 +1,165 @@
+# Iqraa staging stack: the LibreChat fork image behind a reverse proxy with a strict content-security
+# policy, MongoDB replica set, legal-search with Postgres, and a mock model (no provider keys). Only the
+# proxy is published, on 127.0.0.1:3080. Secrets are generated into the staging-secrets volume on first
+# start and never written to workspace files.
+#   docker compose up -d --build    # start (the fork image is built separately, see README.md)
+#   node scenarios.mjs              # acceptance scenarios 1, 4, 8, 9, 10, 11 and the reconciliation
+name: iqraa-staging
+
+volumes:
+  staging-secrets: {}
+  staging-mongo: {}
+  staging-postgres: {}
+
+x-platform-image: &platform-image iqraa/platform:phase1
+
+services:
+  secrets-init:
+    image: node:24-alpine
+    entrypoint:
+      - node
+      - -e
+      - |
+        const fs = require('fs'); const c = require('crypto');
+        const make = (name, value) => { const f = '/secrets/' + name; if (!fs.existsSync(f)) fs.writeFileSync(f, value(), { mode: 0o444 }); };
+        const hex = (n) => () => c.randomBytes(n).toString('hex');
+        make('jwt', hex(32)); make('jwt_refresh', hex(32)); make('creds_key', hex(32)); make('creds_iv', hex(16));
+        make('legal_search', hex(24)); make('mock_llm', hex(16)); make('pg_password', hex(16));
+        make('database_url', () => 'postgresql://postgres:' + fs.readFileSync('/secrets/pg_password', 'utf8') + '@postgres:5432/legal');
+        console.log('secrets ready');
+    volumes:
+      - staging-secrets:/secrets
+
+  mongo:
+    image: mongo:8.0.20
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
+    volumes:
+      - staging-mongo:/data/db
+      - ./scripts:/scripts:ro
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { if (rs.status().myState !== 1) quit(1) } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongo:27017'}]}); quit(1) }"
+      interval: 3s
+      retries: 40
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_PASSWORD_FILE: /secrets/pg_password
+      POSTGRES_DB: legal
+    volumes:
+      - staging-postgres:/var/lib/postgresql/data
+      - staging-secrets:/secrets:ro
+    healthcheck:
+      # Over TCP: during first-start init the image runs a socket-only temporary server that would pass a socket check.
+      test: ['CMD', 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']
+      interval: 2s
+      retries: 30
+      start_period: 180s
+      start_interval: 2s
+
+  legal-search-ingest:
+    build: ../../services/legal-search
+    image: iqraa/legal-search:phase1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL_FILE: /secrets/database_url
+    command: ['legal-search-ingest', '--law-dir', '/corpus/القانون-المدني-الأردني', '--law-slug', 'civil-code']
+    volumes:
+      - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
+      - staging-secrets:/secrets:ro
+
+  legal-search:
+    build: ../../services/legal-search
+    image: iqraa/legal-search:phase1
+    depends_on:
+      legal-search-ingest:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL_FILE: /secrets/database_url
+      LEGAL_SEARCH_SECRET_FILE: /secrets/legal_search
+      LEGAL_SEARCH_PER_ANSWER_CAP: '8'
+      LEGAL_SEARCH_DAILY_CAP: '300'
+    volumes:
+      - staging-secrets:/secrets:ro
+
+  mock-llm:
+    image: node:24-alpine
+    entrypoint: ['node', '/mock/mock-llm.cjs']
+    volumes:
+      - ./mock-llm.cjs:/mock/mock-llm.cjs:ro
+      - ./out:/out
+
+  librechat:
+    # Built from the fork's committed tree with upstream's Dockerfile.multi (see README); never pulled.
+    image: *platform-image
+    pull_policy: never
+    depends_on:
+      mongo:
+        condition: service_healthy
+      legal-search:
+        condition: service_started
+      mock-llm:
+        condition: service_started
+    environment:
+      HOST: 0.0.0.0
+      PORT: '3080'
+      NODE_ENV: production
+      # The image (upstream Dockerfile.multi) runs from /app/api; skills are mounted under /app/skill.
+      DEPLOYMENT_SKILLS_DIR: /app/skill
+      # LibreChat's nonce policy for scripts, enforcing; the proxy adds the narrow image/connect policy.
+      CSP_ENABLED: 'true'
+      CSP_REPORT_ONLY: 'false'
+      MONGO_URI: mongodb://mongo:27017/LibreChat?replicaSet=rs0
+      CONFIG_PATH: /config/librechat.yaml
+      IQRAA_CONFIG_PATH: /config/iqraa.json
+      DOMAIN_CLIENT: http://localhost:3080
+      DOMAIN_SERVER: http://localhost:3080
+      SEARCH: 'false'
+      NO_INDEX: 'true'
+      ALLOW_REGISTRATION: 'true'
+      ALLOW_EMAIL_LOGIN: 'true'
+      ALLOW_UNVERIFIED_EMAIL_LOGIN: 'true'
+      ALLOW_SHARED_LINKS: 'false'
+      # Each driver run registers ~8 accounts and logs in ~18 times from one address.
+      REGISTER_MAX: '200'
+      LOGIN_MAX: '200'
+      # Scenario 11: per-user message rate limit. The concurrent-message limiter stays off (unset) so
+      # scenario 8's parallel chats are bounded by the credit ledger, not by LibreChat.
+      LIMIT_MESSAGE_USER: 'true'
+      MESSAGE_USER_MAX: '30'
+      MESSAGE_USER_WINDOW: '1'
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        export JWT_SECRET=$$(cat /secrets/jwt) JWT_REFRESH_SECRET=$$(cat /secrets/jwt_refresh)
+        CREDS_KEY=$$(cat /secrets/creds_key) CREDS_IV=$$(cat /secrets/creds_iv)
+        LEGAL_SEARCH_SECRET=$$(cat /secrets/legal_search) MOCK_LLM_API_KEY=$$(cat /secrets/mock_llm)
+        && exec docker-entrypoint.sh node server/index.js
+    volumes:
+      - ./librechat.yaml:/config/librechat.yaml:ro
+      - ./iqraa.json:/config/iqraa.json:ro
+      - ../../content/skills/jordanian-case-analysis:/app/skill/jordanian-case-analysis:ro
+      - ./test-skills/staging-listed:/app/skill/staging-listed:ro
+      - ./test-skills/staging-unlisted:/app/skill/staging-unlisted:ro
+      - staging-secrets:/secrets:ro
+
+  proxy:
+    image: nginx:1.27-alpine
+    depends_on:
+      librechat:
+        condition: service_started
+    ports:
+      - '127.0.0.1:3080:8080'
+    volumes:
+      - ./proxy/default.conf:/etc/nginx/conf.d/default.conf:ro
