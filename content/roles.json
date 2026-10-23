@@ -1,0 +1,19 @@
+{
+  "PLAN_PRO": {
+    "description": "Paid plan: use specialists, nothing else",
+    "permissions": {
+      "AGENTS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+      "SKILLS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+      "MCP_SERVERS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+      "PROMPTS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+      "REMOTE_AGENTS": { "USE": false, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
+      "RUN_CODE": { "USE": false },
+      "WEB_SEARCH": { "USE": false },
+      "MEMORIES": { "USE": false },
+      "MULTI_CONVO": { "USE": false },
+      "PEOPLE_PICKER": { "VIEW_USERS": false, "VIEW_GROUPS": false, "VIEW_ROLES": false },
+      "MARKETPLACE": { "USE": true },
+      "FILE_SEARCH": { "USE": true }
+    }
+  }
+}
