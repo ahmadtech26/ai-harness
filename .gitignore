@@ -1,3 +1,6 @@
+# Platform code (LibreChat fork) is its own repository
+/Platform/
+
 # Archives that duplicate an extracted folder
 *.zip
 
