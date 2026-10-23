@@ -13,6 +13,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from mcp.server.fastmcp import Context, FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from psycopg_pool import AsyncConnectionPool
 
 from legal_search import db
@@ -35,6 +36,14 @@ def read_secret() -> str:
     if len(secret) < 16:
         raise RuntimeError('legal-search secret is too short')
     return secret
+
+
+def allowed_hosts_from_env() -> list[str]:
+    """Host headers the MCP endpoint answers (e.g. `legal-search:*`); the SDK's rebinding check uses them."""
+    hosts = [h.strip() for h in os.environ.get('LEGAL_SEARCH_ALLOWED_HOSTS', '').split(',') if h.strip()]
+    if not hosts:
+        raise RuntimeError('LEGAL_SEARCH_ALLOWED_HOSTS is required (comma-separated, e.g. legal-search:*)')
+    return hosts
 
 
 def caps_from_env() -> Caps:
@@ -81,8 +90,13 @@ class SecretGuard:
         await send({'type': 'http.response.body', 'body': body})
 
 
-def build_server(pool: AsyncConnectionPool, caps: Caps) -> FastMCP:
-    mcp = FastMCP('legal-search', stateless_http=True)
+def build_server(pool: AsyncConnectionPool, caps: Caps, allowed_hosts: list[str]) -> FastMCP:
+    # The SDK only auto-protects localhost binds; name the service's own hosts so rebinding protection
+    # stays on behind a service name. Server-to-server callers send no Origin, so none is allowed.
+    security = TransportSecuritySettings(
+        enable_dns_rebinding_protection=True, allowed_hosts=allowed_hosts, allowed_origins=[]
+    )
+    mcp = FastMCP('legal-search', stateless_http=True, transport_security=security)
 
     def identity(ctx: Context) -> tuple[str, str | None, str | None]:
         request = ctx.request_context.request
@@ -140,9 +154,9 @@ def build_server(pool: AsyncConnectionPool, caps: Caps) -> FastMCP:
     return mcp
 
 
-def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str) -> SecretGuard:
+def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts: list[str]) -> SecretGuard:
     """The ASGI app: MCP over streamable HTTP behind the secret guard; the pool opens with the app."""
-    inner = build_server(pool, caps).streamable_http_app()
+    inner = build_server(pool, caps, allowed_hosts).streamable_http_app()
     inner_lifespan = inner.router.lifespan_context
 
     @asynccontextmanager
@@ -162,7 +176,7 @@ def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str) -> SecretGuard
 
 def main() -> None:
     pool = AsyncConnectionPool(db.database_url(), min_size=1, max_size=10, open=False, kwargs={'autocommit': True})
-    app = build_app(pool, caps_from_env(), read_secret())
+    app = build_app(pool, caps_from_env(), read_secret(), allowed_hosts_from_env())
     uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', '8000')), log_level='info')
 
 

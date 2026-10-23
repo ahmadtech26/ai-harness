@@ -87,6 +87,7 @@ services:
     environment:
       DATABASE_URL_FILE: /secrets/database_url
       LEGAL_SEARCH_SECRET_FILE: /secrets/legal_search
+      LEGAL_SEARCH_ALLOWED_HOSTS: 'legal-search:*'
       LEGAL_SEARCH_PER_ANSWER_CAP: '8'
       LEGAL_SEARCH_DAILY_CAP: '300'
     volumes:
