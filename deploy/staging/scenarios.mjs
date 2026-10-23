@@ -243,14 +243,24 @@ function llmLog() {
     .map((line) => JSON.parse(line));
 }
 
-/** Provider calls for a turn: non-title requests whose last user message carries the turn's tag. */
-function callsFor(tag) {
-  return llmLog().filter((e) => {
-    if (!e.decision || e.title) return false;
-    const lastUser = [...(e.messages ?? [])].reverse().find((m) => m.role === 'user');
-    return textOf(lastUser?.content).includes(tag);
-  });
+const TAG = new RegExp(`[A-Za-z0-9-]+-${RUN}-[0-9a-f]{6}`, 'g');
+
+/**
+ * The turn a request belongs to: the tag in its most recent tagged user message. LibreChat appends
+ * skill bodies and step-budget notices as user messages after the user's own text, so the last user
+ * message is not necessarily the user's.
+ */
+function turnTagOf(entry) {
+  for (const message of [...(entry.messages ?? [])].reverse()) {
+    if (message.role !== 'user') continue;
+    const tags = textOf(message.content).match(TAG);
+    if (tags) return tags[tags.length - 1];
+  }
+  return null;
 }
+
+/** Provider calls for a turn (title requests excluded; they are reported separately). */
+const callsFor = (tag) => llmLog().filter((e) => e.decision && !e.title && turnTagOf(e) === tag);
 const titleCallsFor = (tag) => llmLog().filter((e) => e.title && JSON.stringify(e.messages ?? []).includes(tag));
 const flakyFor = (tag) => llmLog().filter((e) => e.event === 'flaky-500' && tag.includes(e.nonce));
 const carries = (call, marker) => JSON.stringify(call.messages ?? []).includes(marker);
@@ -457,8 +467,9 @@ async function scenario11(ctx) {
 
   // Message rate limit (MESSAGE_USER_MAX=30 per minute): a burst from one more account without credits.
   const burster = await customer(staff, 's11-burst', { credits: 0 });
+  // LibreChat denies a limited message with HTTP 200 and a `message_limit` error event, not 429.
   const burstTags = [];
-  const statuses = [];
+  const outcomes = [];
   for (let i = 0; i < 36; i += 1) {
     const tag = nonce(`s11-burst-${i}`);
     burstTags.push(tag);
@@ -476,17 +487,18 @@ async function scenario11(ctx) {
         agent_id: agentId,
       },
     });
-    statuses.push(start.status);
+    outcomes.push(start.text.includes('message_limit') ? 'limited' : `${start.status}${start.json?.streamId ? ' started' : ''}`);
   }
   await sleep(3000);
   const burstCalls = burstTags.reduce((acc, tag) => acc + callsFor(tag).length, 0);
+  const started = outcomes.filter((o) => o.endsWith('started')).length;
   return {
     ...verdict({
       noCreditRefusedBeforeProvider: check(noCredit.calls.length === 0 && !answered(noCredit), `provider calls ${noCredit.calls.length}; reply: ${noCredit.result.text?.slice(0, 200)}`),
       noPlanRefusedBeforeProvider: check(noPlanTurn.calls.length === 0 && !answered(noPlanTurn), `start ${noPlanTurn.result.startStatus}; provider calls ${noPlanTurn.calls.length}; reply: ${noPlanTurn.result.text?.slice(0, 200)}`),
       remoteAgentsApiDenied: check(remote.every((r) => r.status === 403 && r.code === 'IQRAA_FORBIDDEN'), JSON.stringify(remote)),
       noCustomerCreation: check(Object.values(creation).every((status) => status === 403), JSON.stringify(creation)),
-      messageRateLimited: check(statuses.includes(429) && burstCalls === 0, `statuses ${JSON.stringify(countBy(statuses))}; provider calls ${burstCalls}`),
+      messageRateLimited: check(outcomes.includes('limited') && started <= 30 && burstCalls === 0, `outcomes ${JSON.stringify(countBy(outcomes))} (limit 30/min); provider calls ${burstCalls}`),
     }),
     titleCallsOnRefusedTurns: noCredit.titles.length + noPlanTurn.titles.length,
   };

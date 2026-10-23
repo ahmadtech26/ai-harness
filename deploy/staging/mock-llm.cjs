@@ -30,15 +30,27 @@ function textOf(content) {
   return '';
 }
 
+// The current turn is everything after the last assistant message. LibreChat appends more than the
+// user's text there: primed and loaded skill bodies and step-budget notices arrive as user messages,
+// after tool results when a tool ran.
+function currentTurn(messages) {
+  const list = Array.isArray(messages) ? messages : [];
+  const lastAssistant = list.map((m) => m.role).lastIndexOf('assistant');
+  const turn = list.slice(lastAssistant + 1);
+  return {
+    toolRan: turn.some((m) => m.role === 'tool'),
+    text: turn.filter((m) => m.role !== 'system').map((m) => textOf(m.content)).join('\n'),
+    userText: turn.filter((m) => m.role === 'user').map((m) => textOf(m.content)).join('\n'),
+  };
+}
+
 function decide(body) {
-  const messages = Array.isArray(body.messages) ? body.messages : [];
-  const last = messages[messages.length - 1];
+  const turn = currentTurn(body.messages);
   const tools = (body.tools ?? []).map((t) => t?.function?.name).filter(Boolean);
-  if (last?.role === 'tool') {
-    return { kind: 'text', text: `TOOL_RESULT_SEEN: ${textOf(last.content).slice(0, 300)}` };
+  if (turn.toolRan) {
+    return { kind: 'text', text: `TOOL_RESULT_SEEN: ${turn.text.slice(0, 300)}` };
   }
-  const lastUser = [...messages].reverse().find((m) => m.role === 'user');
-  const userText = textOf(lastUser?.content);
+  const userText = turn.userText;
   const match = userText.match(/CALL_TOOL:([A-Za-z0-9_.-]+):(\{.*\})/s);
   if (match) {
     const wanted = match[1];
@@ -107,7 +119,7 @@ const server = http.createServer((req, res) => {
       return;
     }
     const title = isTitleRequest(body);
-    const lastUserText = textOf([...(body.messages ?? [])].reverse().find((m) => m.role === 'user')?.content);
+    const lastUserText = currentTurn(body.messages).userText;
     // Scenario 10: the first request carrying FLAKY_ONCE:<nonce> fails, so the provider client retries
     // within the same model call; metering must still charge exactly once. Keyed on the nonce so the
     // later title request for the same conversation is not failed as well.
