@@ -1,0 +1,26 @@
+# Test stack for the legal-search service:  docker compose -f compose.test.yaml run --rm --build tests
+name: legal-search-test
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_PASSWORD: test-only
+      POSTGRES_DB: legal
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      interval: 2s
+      retries: 30
+
+  tests:
+    build: .
+    user: root
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:test-only@postgres:5432/legal
+      CIVIL_CODE_DIR: /corpus/القانون-المدني-الأردني
+    volumes:
+      - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
+    command: ['pytest', '-q']
