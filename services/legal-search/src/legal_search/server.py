@@ -9,6 +9,7 @@ written to the retrieval log.
 import hmac
 import os
 from collections.abc import Awaitable, Callable
+from contextlib import asynccontextmanager
 
 import uvicorn
 from mcp.server.fastmcp import Context, FastMCP
@@ -139,24 +140,30 @@ def build_server(pool: AsyncConnectionPool, caps: Caps) -> FastMCP:
     return mcp
 
 
-def main() -> None:
-    conninfo = db.database_url()
-    secret = read_secret()
-    pool = AsyncConnectionPool(conninfo, min_size=1, max_size=10, open=False, kwargs={'autocommit': True})
-    mcp = build_server(pool, caps_from_env())
-    inner = mcp.streamable_http_app()
+def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str) -> SecretGuard:
+    """The ASGI app: MCP over streamable HTTP behind the secret guard; the pool opens with the app."""
+    inner = build_server(pool, caps).streamable_http_app()
     inner_lifespan = inner.router.lifespan_context
 
+    @asynccontextmanager
     async def lifespan(app):
         await pool.open()
-        async with pool.connection() as conn:
-            await db.create_schema(conn)
-        async with inner_lifespan(app):
-            yield
-        await pool.close()
+        try:
+            async with pool.connection() as conn:
+                await db.create_schema(conn)
+            async with inner_lifespan(app):
+                yield
+        finally:
+            await pool.close()
 
     inner.router.lifespan_context = lifespan
-    uvicorn.run(SecretGuard(inner, secret), host='0.0.0.0', port=int(os.environ.get('PORT', '8000')), log_level='info')
+    return SecretGuard(inner, secret)
+
+
+def main() -> None:
+    pool = AsyncConnectionPool(db.database_url(), min_size=1, max_size=10, open=False, kwargs={'autocommit': True})
+    app = build_app(pool, caps_from_env(), read_secret())
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', '8000')), log_level='info')
 
 
 if __name__ == '__main__':

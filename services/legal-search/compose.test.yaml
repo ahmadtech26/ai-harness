@@ -12,6 +12,8 @@ services:
       test: ['CMD', 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']
       interval: 2s
       retries: 30
+      start_period: 180s
+      start_interval: 2s
 
   tests:
     build: .
