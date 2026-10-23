@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: test-only
       POSTGRES_DB: legal
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      # Over TCP: during first-start init the image runs a socket-only temporary server that would pass a socket check.
+      test: ['CMD', 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']
       interval: 2s
       retries: 30
 

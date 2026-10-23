@@ -140,7 +140,7 @@ def build_server(pool: AsyncConnectionPool, caps: Caps) -> FastMCP:
 
 
 def main() -> None:
-    conninfo = os.environ['DATABASE_URL']
+    conninfo = db.database_url()
     secret = read_secret()
     pool = AsyncConnectionPool(conninfo, min_size=1, max_size=10, open=False, kwargs={'autocommit': True})
     mcp = build_server(pool, caps_from_env())

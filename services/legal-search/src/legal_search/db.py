@@ -1,5 +1,6 @@
 """Postgres storage: articles with an Arabic-normalised full-text index, and the retrieval log."""
 
+import os
 from dataclasses import dataclass
 
 from psycopg import AsyncConnection
@@ -44,6 +45,17 @@ STOPWORDS = frozenset(
     normalize(word)
     for word in 'في من على الى إلى عن ان أن إن ما هل او أو ثم قد لا لم لن هو هي هذا هذه ذلك التي الذي كان مع اذا إذا عند'.split()
 )
+
+
+def database_url() -> str:
+    """`DATABASE_URL`, or the contents of `DATABASE_URL_FILE` so credentials stay out of the environment."""
+    if os.environ.get('DATABASE_URL'):
+        return os.environ['DATABASE_URL']
+    path = os.environ.get('DATABASE_URL_FILE')
+    if not path:
+        raise RuntimeError('DATABASE_URL or DATABASE_URL_FILE is required')
+    with open(path, encoding='utf-8') as handle:
+        return handle.read().strip()
 
 
 @dataclass(frozen=True)

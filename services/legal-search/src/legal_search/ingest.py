@@ -5,7 +5,6 @@
 
 import argparse
 import asyncio
-import os
 from pathlib import Path
 
 from psycopg import AsyncConnection
@@ -29,7 +28,7 @@ def main() -> None:
     parser.add_argument('--law-dir', type=Path, required=True)
     parser.add_argument('--law-slug', required=True)
     args = parser.parse_args()
-    count = asyncio.run(ingest(os.environ['DATABASE_URL'], args.law_dir, args.law_slug))
+    count = asyncio.run(ingest(db.database_url(), args.law_dir, args.law_slug))
     print(f'ingested {count} articles into {args.law_slug}')
 
 
