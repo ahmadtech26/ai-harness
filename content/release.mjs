@@ -7,11 +7,12 @@
 // Credentials come only from the environment. Exits non-zero on any failed step.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const BASE = process.env.LIBRECHAT_URL ?? 'http://localhost:3080';
 // LibreChat's agents router rejects non-browser user agents.
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
-const here = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+const here = path.dirname(fileURLToPath(import.meta.url));
 
 function fail(message) {
   console.error(`release failed: ${message}`);

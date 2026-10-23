@@ -9,7 +9,7 @@
   "skills": ["jordanian-case-analysis"],
   "skills_enabled": true,
   "skill_authoring_enabled": false,
-  "recursion_limit": 10,
+  "recursion_limit": 16,
   "category": "general",
   "shareWithRoles": ["PLAN_PRO"]
 }
