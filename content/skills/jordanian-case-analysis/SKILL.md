@@ -7,6 +7,8 @@ metadata:
   owner: iqraa-legal-content
   requires:
     tools: [search_law, get_article]
+  review:
+    status: draft
 ---
 
 # تحليل القضايا وفق القانون الأردني
