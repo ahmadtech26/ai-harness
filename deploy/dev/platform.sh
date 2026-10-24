@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run a command inside the Platform (LibreChat fork) dev container.
+# Run a command inside the AI Platform (LibreChat fork) dev container.
 #   deploy/dev/platform.sh 'npm ci'
 #   deploy/dev/platform.sh 'cd packages/api && npx jest src/iqraa'
 # The repository is bind-mounted at /work; every workspace's node_modules lives in a Docker volume so
@@ -7,7 +7,7 @@
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
-cd "$here/../../Platform"
+cd "${PLATFORM_DIR:-$here/../../../AI Platform}"  # sibling repository
 if platform="$(pwd -W 2>/dev/null)"; then :; else platform="$(pwd)"; fi  # Windows path under Git Bash, POSIX elsewhere
 cd - >/dev/null
 image="node:24-bookworm"

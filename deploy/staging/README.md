@@ -7,7 +7,7 @@ answers every call and logs it, so "did anything reach the provider" is an obser
 | Service | What it is |
 |---|---|
 | `proxy` | nginx, the only published port (`127.0.0.1:3080`); adds the narrow content-security policy |
-| `librechat` | the fork image `iqraa/platform:phase1`, built from the Platform repo's committed tree |
+| `librechat` | the fork image `iqraa/platform:phase1`, built from the `AI Platform` repository's committed tree |
 | `mongo` | MongoDB replica set (the ledger needs transactions) |
 | `postgres`, `legal-search`, `legal-search-ingest` | the legal library: Civil Code articles, MCP tools `search_law` / `get_article` |
 | `mock-llm` | OpenAI-compatible mock; every request goes to `out/llm-requests.jsonl` |
@@ -17,16 +17,16 @@ answers every call and logs it, so "did anything reach the provider" is an obser
 
 ```bash
 # 1. Build the fork image from the committed tree (not the working copy) with upstream's Dockerfile.multi
-cd ../../Platform
+cd "../../../AI Platform"
 SHA=$(git rev-parse --short HEAD)
-DIR="../../.hq/scratch/platform-build/$SHA"; mkdir -p "$DIR"
+DIR="../.hq/scratch/platform-build/$SHA"; mkdir -p "$DIR"
 git -c core.autocrlf=false archive --format=tar HEAD | tar -x -C "$DIR"
 docker build -f "$DIR/Dockerfile.multi" --target api-build \
   -t "iqraa/platform:$SHA" -t iqraa/platform:phase1 \
   --build-arg BUILD_COMMIT="$SHA" --build-arg BUILD_BRANCH=main "$DIR"
 
 # 2. Start the stack and run the scenarios
-cd ../deploy/staging
+cd "../AI Harness/deploy/staging"
 docker compose up -d --build
 node scenarios.mjs            # exit 0 = all scenarios, proxy checks and reconciliation pass
 ```
