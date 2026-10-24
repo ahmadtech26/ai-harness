@@ -7,7 +7,7 @@ answers every call and logs it, so "did anything reach the provider" is an obser
 | Service | What it is |
 |---|---|
 | `proxy` | nginx, the only published port (`127.0.0.1:3080`); adds the narrow content-security policy |
-| `librechat` | the fork image `iqraa/platform:phase1`, built from the `AI Platform` repository's committed tree |
+| `librechat` | a release image `iqraa/release:staging` (fork image + content skills, `deploy/release/build.sh`) |
 | `mongo` | MongoDB replica set (the ledger needs transactions) |
 | `postgres`, `legal-search`, `legal-search-ingest` | the legal library: Civil Code articles, MCP tools `search_law` / `get_article` |
 | `mock-llm` | OpenAI-compatible mock; every request goes to `out/llm-requests.jsonl` |
@@ -24,6 +24,10 @@ git -c core.autocrlf=false archive --format=tar HEAD | tar -x -C "$DIR"
 docker build -f "$DIR/Dockerfile.multi" --target api-build \
   -t "iqraa/platform:$SHA" -t iqraa/platform:phase1 \
   --build-arg BUILD_COMMIT="$SHA" --build-arg BUILD_BRANCH=main "$DIR"
+
+# 1b. Build the staging release (skill CI, then fork image + content skills)
+cd "/d/Iqraa Law/AI Harness"
+deploy/release/build.sh staging "$SHA" --allow-draft
 
 # 2. Start the stack and run the scenarios
 cd "../AI Harness/deploy/staging"

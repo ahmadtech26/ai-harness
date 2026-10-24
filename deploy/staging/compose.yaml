@@ -11,8 +11,6 @@ volumes:
   staging-mongo: {}
   staging-postgres: {}
 
-x-platform-image: &platform-image iqraa/platform:phase1
-
 services:
   secrets-init:
     image: node:24-alpine
@@ -101,8 +99,9 @@ services:
       - ./out:/out
 
   librechat:
-    # Built from the fork's committed tree with upstream's Dockerfile.multi (see README); never pulled.
-    image: *platform-image
+    # A release image (deploy/release/build.sh): the fork image plus the content skills. Never pulled.
+    # Drills switch releases with IQRAA_IMAGE.
+    image: ${IQRAA_IMAGE:-iqraa/release:staging}
     pull_policy: never
     depends_on:
       mongo:
@@ -150,7 +149,6 @@ services:
     volumes:
       - ./librechat.yaml:/config/librechat.yaml:ro
       - ./iqraa.json:/config/iqraa.json:ro
-      - ../../content/skills/jordanian-case-analysis:/app/skill/jordanian-case-analysis:ro
       - ./test-skills/staging-listed:/app/skill/staging-listed:ro
       - ./test-skills/staging-unlisted:/app/skill/staging-unlisted:ro
       - staging-secrets:/secrets:ro
