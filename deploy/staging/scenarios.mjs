@@ -92,8 +92,9 @@ async function chat({ token, agentId, text, conversationId = null, parentMessage
     isContinued: false,
     ...(manualSkills ? { manualSkills } : {}),
   };
+  const startedAt = Date.now();
   const start = await api('/api/agents/chat/agents', { token, method: 'POST', body });
-  const result = { startStatus: start.status, final: null, error: null, text: null, conversationId: null, responseId: null };
+  const result = { startStatus: start.status, startedAt, elapsedMs: null, final: null, error: null, text: null, conversationId: null, responseId: null };
   const streamId = start.json?.streamId ?? start.json?.conversationId;
   if (start.status >= 300 || !streamId) {
     result.error = start.json ?? start.text.slice(0, 300);
@@ -139,6 +140,7 @@ async function chat({ token, agentId, text, conversationId = null, parentMessage
   } finally {
     clearTimeout(timer);
   }
+  result.elapsedMs = Date.now() - startedAt;
   const message = result.final?.responseMessage;
   result.conversationId = result.final?.conversation?.conversationId ?? start.json?.conversationId ?? null;
   result.responseId = message?.messageId ?? null;
@@ -304,6 +306,9 @@ function summarizeTurn(t) {
     tag: t.tag,
     startStatus: t.result.startStatus,
     reply: t.result.text?.slice(0, 200) ?? null,
+    // Diagnostics only (two clocks): turn duration and the wait before the first provider call.
+    elapsedMs: t.result.elapsedMs,
+    firstCallAfterMs: t.calls[0] ? Date.parse(t.calls[0].ts) - t.result.startedAt : null,
     calls: t.calls.map((c) => ({ decision: c.decision?.kind, tool: c.decision?.name, sentUsage: c.sentUsage, usage: c.usage, tools: c.tools })),
     titleCalls: t.titles.length,
   };
@@ -457,7 +462,7 @@ async function scenario8(ctx) {
   const answeredCalls = succeeded.reduce((acc, t) => acc + t.calls.length, 0);
   return {
     ...verdict({
-      everyTurnAnsweredOrRefused: check(unresolved.length === 0, `unresolved turns: ${JSON.stringify(unresolved.map((t) => t.result.text?.slice(0, 80)))}`),
+      everyTurnAnsweredOrRefused: check(unresolved.length === 0, `unresolved turns: ${JSON.stringify(unresolved.map((t) => `${t.result.text?.slice(0, 80)} after ${t.result.elapsedMs} ms`))}`),
       boundExercised: check(succeeded.length >= 1 && denied.length >= 1, `${succeeded.length} answered, ${denied.length} refused for credits of ${turns.length} parallel chats; wallet ${limit} µAIC, one reservation ≈ ${sample} µAIC`),
       peakHoldWithinWallet: check(peak <= limit, `peak held ${peak} µAIC, wallet ${limit} µAIC`),
       noOverspend: check(final.available >= 0 && final.held === 0 && spent <= limit, `final available ${final.available} AIC, held ${final.held} AIC, spent ${spent} µAIC`),
