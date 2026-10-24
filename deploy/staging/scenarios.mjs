@@ -442,6 +442,34 @@ async function scenario1(ctx) {
   };
 }
 
+async function scenario2(ctx) {
+  const { staff, agentId } = ctx;
+  const c = await customer(staff, 's2', { credits: 5 });
+  const file = 'skills/legal-document-review/references/review-checklist.md';
+  const shipped = fs.readFileSync(path.join(ROOT, 'content', 'skills', 'legal-document-review', 'references', 'review-checklist.md'), 'utf8');
+  const firstLine = shipped.replace(/\r\n/g, '\n').split('\n')[0];
+  const lastLine = shipped.replace(/\r\n/g, '\n').trim().split('\n').pop();
+  const t = await turn(c, agentId, 's2-read', `CALL_TOOL:read_file:{"path":"${file}"}`);
+  const toolText = t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '';
+  return {
+    ...verdict({
+      referenceReadFromRelease: check(t.calls.length === 2 && toolText.includes(firstLine) && toolText.includes(lastLine), `calls ${t.calls.length}; first line found ${toolText.includes(firstLine)}; last line found ${toolText.includes(lastLine)}`),
+    }),
+    turns: [summarizeTurn(t)],
+  };
+}
+
+/** The library serves the court-fees schedule with its verification label (REQ-SKL-010). */
+async function libraryChecks(ctx) {
+  const c = await customer(ctx.staff, 'lib', { credits: 5 });
+  const t = await turn(c, ctx.agentId, 'lib-fees', 'CALL_TOOL:get_article:{"number":1,"law":"court-fees"}');
+  const toolText = t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '';
+  return verdict({
+    courtFeesArticle1: check(toolText.includes('جدول رسوم المحاكم') && toolText.includes('عن الدعوى أو الدعوى المتقابلة'), `tool result: ${toolText.slice(0, 160)}`),
+    unverifiedLabel: check(toolText.includes('لم يُتحقق بعد'), 'result carries the unverified label'),
+  });
+}
+
 async function scenario4(ctx) {
   const { c1, staff, skillIds } = ctx;
   const probes = [];
@@ -752,14 +780,15 @@ async function setup() {
   const skills = await api('/api/skills', { token: staff.token });
   const list = Array.isArray(skills.json) ? skills.json : (skills.json?.skills ?? skills.json?.data ?? []);
   const skillIds = Object.fromEntries(list.map((s) => [s.name, String(s._id ?? s.id)]));
-  for (const name of ['jordanian-case-analysis', 'staging-listed', 'staging-unlisted']) {
+  // Staging only: the specialist's own skills plus S2, so scenario 1 can load a test skill on demand.
+  const contentSkills = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'specialists', 'aqel.json'), 'utf8')).skills;
+  for (const name of [...contentSkills, 'staging-listed', 'staging-unlisted']) {
     if (!skillIds[name]) throw new Error(`deployment skill ${name} not found (have: ${Object.keys(skillIds).join(', ')})`);
   }
-  // Staging only: list S2 next to the pinned S1 so scenario 1 can load a skill on demand.
   const patch = await api(`/api/agents/${agentId}`, {
     token: staff.token,
     method: 'PATCH',
-    body: { skills: [skillIds['jordanian-case-analysis'], skillIds['staging-listed']] },
+    body: { skills: [...contentSkills, 'staging-listed'].map((name) => skillIds[name]) },
   });
   if (patch.status >= 300) throw new Error(`listing S2 on the specialist: ${patch.status} ${patch.text.slice(0, 200)}`);
 
@@ -781,6 +810,7 @@ async function main() {
   // 9 runs before 8 (8 sizes its wallet from a scenario 9 reservation); 11 last (its burst trips the rate limit).
   const order = [
     ['1', scenario1],
+    ['2', scenario2],
     ['4', scenario4],
     ['9', scenario9],
     ['10', scenario10],
@@ -800,13 +830,16 @@ async function main() {
     for (const [name, c] of Object.entries(s.checks ?? {})) console.log(`   ${c.ok ? 'ok  ' : 'FAIL'} ${name}: ${c.detail}`);
     if (s.error) console.log(`   error: ${s.error}`);
   }
+  report.library = await libraryChecks(ctx);
+  console.log(`library    ${report.library.pass ? 'PASS' : 'FAIL'}`);
+  for (const [name, c] of Object.entries(report.library.checks)) console.log(`   ${c.ok ? 'ok  ' : 'FAIL'} ${name}: ${c.detail}`);
   report.proxy = await proxyChecks();
   console.log(`proxy      ${report.proxy.pass ? 'PASS' : 'FAIL'}`);
   for (const [name, c] of Object.entries(report.proxy.checks)) console.log(`   ${c.ok ? 'ok  ' : 'FAIL'} ${name}: ${c.detail}`);
   report.reconciliation = reconcile();
   console.log(`reconciliation ${report.reconciliation.ok ? 'ok' : 'FAIL'} ${JSON.stringify(report.reconciliation)}`);
   report.finishedAt = new Date().toISOString();
-  report.pass = Object.values(report.scenarios).every((s) => s.pass) && report.proxy.pass && report.reconciliation.ok;
+  report.pass = Object.values(report.scenarios).every((s) => s.pass) && report.library.pass && report.proxy.pass && report.reconciliation.ok;
   fs.writeFileSync(path.join(OUT, 'scenarios-report.json'), JSON.stringify(report, null, 2));
   console.log(report.pass ? 'ALL PASS' : 'FAILURES — see out/scenarios-report.json');
   process.exit(report.pass ? 0 : 1);

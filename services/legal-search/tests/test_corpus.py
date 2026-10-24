@@ -63,3 +63,12 @@ def test_real_civil_code_parses_every_article_once():
     assert len(keys) == len(set(keys))
     assert len(articles) >= 1440
     assert any(a.number == 107 for a in articles)
+
+
+@pytest.mark.skipif(not os.environ.get('COURT_FEES_DIR'), reason='real corpus not mounted')
+def test_real_court_fees_schedule_parses_every_article_once():
+    articles = parse_law(Path(os.environ['COURT_FEES_DIR']), 'court-fees')
+
+    assert [a.number for a in articles] == list(range(1, 53))
+    assert articles[0].text.startswith('عن الدعوى أو الدعوى المتقابلة')
+    assert {a.law_title for a in articles} == {'جدول رسوم المحاكم'}

@@ -21,18 +21,18 @@ LIBRARY_TOOLS_AR_V11 = (
     '- إذا أعادت الأداة أنه تم بلوغ الحد المسموح من النصوص فاعتمد على ما استرجعته سابقًا في المحادثة ولا تحاول الالتفاف على الحد.'
 )
 
-# These bullets say what the library tools return (Civil Code only, today). Update them, rebuild the
+# These bullets say what the library tools return (Civil Code and court-fees schedule, today). Update them, rebuild the
 # edition and re-release the specialist whenever a law or the judgments are loaded into legal-search.
 LIBRARY_TOOLS_AR = (
     'استخدام المكتبة القانونية\n'
     '- قبل الاستشهاد بأي مادة استدعِ search_law بعبارة بحث عربية دقيقة، أو get_article إذا عرفت رقم المادة؛ وانقل النص حرفيًا كما أعادته الأداة.\n'
     '- انقل حالة التحقق كما وردت في نتيجة الأداة؛ فإذا ذُكر أن النص لم يُتحقق بعد من مطابقته للجريدة الرسمية فاذكر ذلك ولا تصفه بأنه النص النافذ المعتمد.\n'
-    '- ما تعيده أدوات المكتبة حاليًا: القانون المدني الأردني فقط؛ أما بقية التشريعات والاجتهادات المضافة إلى المشروع فلم تُحمَّل في المكتبة بعد. إذا تعلق السؤال بها فصرّح بذلك ولا تستشهد بها من الذاكرة.\n'
+    '- ما تعيده أدوات المكتبة حاليًا: القانون المدني الأردني، وجدول رسوم المحاكم (get_article مع law="court-fees")؛ أما بقية التشريعات والاجتهادات المضافة إلى المشروع فلم تُحمَّل في المكتبة بعد. إذا تعلق السؤال بها فصرّح بذلك ولا تستشهد بها من الذاكرة.\n'
     '- إذا أعادت الأداة أنه تم بلوغ الحد المسموح من النصوص فاعتمد على ما استرجعته سابقًا في المحادثة ولا تحاول الالتفاف على الحد.'
 )
 
 LIBRARY_TOOLS_EN = (
-    '- The legal-library tools (search_law, get_article) currently return the Jordanian Civil Code only; other '
+    '- The legal-library tools (search_law, get_article) currently return the Jordanian Civil Code and the court-fees schedule (get_article with law="court-fees"); other '
     'uploaded legislation and judgments are not loaded yet. Say so rather than citing them from memory, and pass on '
     'the verification status each result carries.'
 )
