@@ -1,4 +1,4 @@
-// Phase 1 acceptance driver: scenarios 1, 4, 8, 9, 10, 11 (.hq/docs/audits/librechat-platform/I I.4)
+// Acceptance driver: scenarios 1, 4, 7, 8, 9, 10, 11, 13 (.hq/docs/audits/librechat-platform/I I.4)
 // against the staging stack in this directory.
 //
 //   docker compose up -d --build && node scenarios.mjs
@@ -223,6 +223,24 @@ function reconcile() {
   }
 }
 
+/** Runs `docker compose <args>` against the staging stack. */
+function compose(args) {
+  return execFileSync('docker', ['compose', '-f', COMPOSE, ...args], { encoding: 'utf8' });
+}
+
+function legalSearchHealthy() {
+  try {
+    execFileSync(
+      'docker',
+      ['compose', '-f', COMPOSE, 'exec', '-T', 'mock-llm', 'node', '-e', "fetch('http://legal-search:8000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"],
+      { stdio: 'ignore' },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // Ledger rows are attributed by user (fresh accounts per scenario) and by order, never by comparing
 // this machine's clock with timestamps written inside the containers.
 const reservationsOf = (userId) =>
@@ -312,6 +330,87 @@ function summarizeTurn(t) {
     calls: t.calls.map((c) => ({ decision: c.decision?.kind, tool: c.decision?.name, sentUsage: c.sentUsage, usage: c.usage, tools: c.tools })),
     titleCalls: t.titles.length,
   };
+}
+
+/** Polls `predicate` (sync or async) every 250 ms until it is truthy or `timeoutMs` passes. */
+async function waitUntil(predicate, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await predicate()) return true;
+    await sleep(250);
+  }
+  return false;
+}
+
+/**
+ * Starts a turn and presses Stop (POST /api/agents/chat/abort) once `stopAfter` SSE blocks carrying
+ * `marker` have arrived, then follows the stream to its end.
+ */
+async function chatAndStop({ token, agentId, text, marker, stopAfter, timeoutMs = 90_000 }) {
+  const body = {
+    text,
+    sender: 'User',
+    clientTimestamp: new Date().toISOString(),
+    isCreatedByUser: true,
+    parentMessageId: '00000000-0000-0000-0000-000000000000',
+    conversationId: null,
+    messageId: crypto.randomUUID(),
+    error: false,
+    endpoint: 'agents',
+    agent_id: agentId,
+    isTemporary: false,
+    isRegenerate: false,
+    isContinued: false,
+  };
+  const start = await api('/api/agents/chat/agents', { token, method: 'POST', body });
+  const streamId = start.json?.streamId ?? start.json?.conversationId;
+  const result = { startStatus: start.status, piecesBeforeStop: 0, abortStatus: null, stopPressedAt: null, ended: false, error: null };
+  if (!streamId) return result;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${BASE}/api/agents/chat/stream/${encodeURIComponent(streamId)}`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'text/event-stream', 'User-Agent': UA },
+      signal: controller.signal,
+    });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let idx;
+      while ((idx = buffer.indexOf('\n\n')) >= 0) {
+        const block = buffer.slice(0, idx);
+        buffer = buffer.slice(idx + 2);
+        if (result.abortStatus === null && block.includes(marker)) {
+          result.piecesBeforeStop += 1;
+          if (result.piecesBeforeStop >= stopAfter) {
+            result.stopPressedAt = Date.now();
+            const abort = await api('/api/agents/chat/abort', { token, method: 'POST', body: { streamId } });
+            result.abortStatus = abort.status;
+          }
+        }
+        const dataLines = block.split('\n').filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim());
+        let data = null;
+        try {
+          data = dataLines.length ? JSON.parse(dataLines.join('\n')) : null;
+        } catch {
+          data = null;
+        }
+        if (data?.final) {
+          result.ended = true;
+          controller.abort();
+        }
+      }
+    }
+  } catch (error) {
+    if (error.name !== 'AbortError') result.error = String(error);
+  } finally {
+    clearTimeout(timer);
+  }
+  return result;
 }
 
 async function scenario1(ctx) {
@@ -473,6 +572,95 @@ async function scenario8(ctx) {
   };
 }
 
+async function scenario13(ctx) {
+  const { staff, agentId } = ctx;
+  const c = await customer(staff, 's13', { credits: 5 });
+  const tag = nonce('s13-stop');
+  const stopped = await chatAndStop({ token: c.token, agentId, text: `SLOW_STREAM:250 stop probe ${tag}`, marker: 'STREAMED_PIECE', stopAfter: 3 });
+  // The 5 s window runs from the moment Stop was pressed, not from when the stream closed.
+  const remainingMs = stopped.stopPressedAt ? Math.max(0, stopped.stopPressedAt + 5_000 - Date.now()) : 0;
+  const settledInTime = await waitUntil(() => {
+    const rows = reservationsOf(c.id);
+    return rows.length > 0 && rows.every((r) => r.status !== 'held');
+  }, remainingMs);
+  const clearedAfterMs = stopped.stopPressedAt ? Date.now() - stopped.stopPressedAt : null;
+  await sleep(1500);
+  const calls = callsFor(tag);
+  const reservations = reservationsOf(c.id);
+  const events = usageEventsOf(c.id);
+  const hold = reservations[0]?.amount ?? 0;
+  // The mock logs the request's max_tokens; without it the prompt-only bound cannot be computed.
+  const maxTokens = calls[0]?.maxTokens ?? null;
+  const promptOnly = maxTokens === null ? null : hold - maxTokens * PRICES[MODEL].output;
+  const charged = reservations[0]?.actualAmount ?? null;
+  return {
+    ...verdict({
+      runStopped: check(stopped.abortStatus === 200 && stopped.piecesBeforeStop >= 3 && stopped.ended === true, `abort ${stopped.abortStatus} after ${stopped.piecesBeforeStop} streamed pieces; stream ended ${stopped.ended}`),
+      oneCallOneSettlement: check(calls.length === 1 && reservations.length === 1 && reservations[0].status === 'settled' && events.length === 1, `calls ${calls.length}, reservations ${JSON.stringify(reservations.map((r) => r.status))}, usage events ${events.length}`),
+      noOpenHoldWithin5s: check(settledInTime, `no held reservation ${clearedAfterMs} ms after Stop was pressed (limit 5000)`),
+      chargedForStreamedOutput: check(promptOnly !== null && charged !== null && charged > promptOnly && charged < hold && events[0]?.estimated === true, `charged ${charged} µAIC; prompt-only ${promptOnly}; hold ${hold}; max_tokens ${maxTokens}; estimated ${events[0]?.estimated}`),
+    }),
+    // Kept in the report for diagnosis when a check fails.
+    reservations: reservations.map(({ key, status, amount, actualAmount, estimated }) => ({ key, status, amount, actualAmount, estimated })),
+    usageEvents: events.map(({ key, amount, estimated, inputTokens, outputTokens }) => ({ key, amount, estimated, inputTokens, outputTokens })),
+  };
+}
+
+async function scenario7(ctx) {
+  const { staff, agentId } = ctx;
+  const settledPerCall = (account, calls) => {
+    const reservations = reservationsOf(account.id);
+    const events = usageEventsOf(account.id);
+    return {
+      ok: calls === 2 && reservations.length === 2 && reservations.every((r) => r.status === 'settled') && events.length === 2,
+      detail: `calls ${calls}, reservations ${JSON.stringify(reservations.map((r) => r.status))}, usage events ${events.length}`,
+    };
+  };
+
+  // (a) The tool call fails on its input (I.4 "tool returns an error"): the error comes back to the
+  //     model as the tool result. Whether LibreChat's schema check or legal-search rejects it, the
+  //     model must see an error and the run must continue.
+  const ca = await customer(staff, 's7-input', { credits: 5 });
+  const invalid = await turn(ca, agentId, 's7-input', 'CALL_TOOL:get_article:{"number":"not-a-number"}');
+  const a = settledPerCall(ca, invalid.calls.length);
+
+  // (b) legal-search goes away between the model's tool call and the tool run.
+  const cb = await customer(staff, 's7-down', { credits: 5 });
+  const tag = nonce('s7-down');
+  let firstCallSeen = false;
+  let result = { text: null, error: 'not run' };
+  let healthyAgain = false;
+  try {
+    const pending = chat({ token: cb.token, agentId, text: `DELAY_MS:8000 CALL_TOOL:search_law:{"query":"العربون"} ${tag}`, timeoutMs: 150_000 }).catch((error) => ({ text: null, error: String(error) }));
+    firstCallSeen = await waitUntil(() => callsFor(tag).length >= 1, 30_000);
+    compose(['stop', 'legal-search']);
+    result = await pending;
+  } finally {
+    // Always bring legal-search back, even when the steps above throw: later runs need it.
+    compose(['up', '-d', '--no-deps', 'legal-search']);
+    healthyAgain = await waitUntil(legalSearchHealthy, 60_000);
+  }
+  await sleep(1500);
+  const down = { tag, result, calls: callsFor(tag), titles: titleCallsFor(tag) };
+  const b = settledPerCall(cb, down.calls.length);
+
+  // (c) LibreChat's MCP connection recovered: a normal search works again.
+  const cc = await customer(staff, 's7-after', { credits: 5 });
+  const after = await turn(cc, agentId, 's7-after', 'CALL_TOOL:search_law:{"query":"العربون"}');
+  const toolResultText = (t) => (t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '');
+
+  return {
+    ...verdict({
+      invalidInputReturnedToModel: check(invalid.calls.length === 2 && /TOOL_RESULT_SEEN/.test(invalid.result.text ?? '') && /error/i.test(toolResultText(invalid)), `reply: ${invalid.result.text?.slice(0, 160)}`),
+      invalidInputSettledPerCall: check(a.ok, a.detail),
+      unreachableToolReturnedToModel: check(firstCallSeen && down.calls.length === 2 && /TOOL_RESULT_SEEN/.test(result.text ?? '') && /error|fail/i.test(toolResultText(down)), `first call seen ${firstCallSeen}; reply: ${result.text?.slice(0, 160)}; error ${result.error ?? 'none'}`),
+      unreachableToolSettledPerCall: check(b.ok, b.detail),
+      legalSearchBackAfterTest: check(healthyAgain && after.calls.length === 2 && /المادة/.test(toolResultText(after)) && !/error|fail/i.test(toolResultText(after)), `healthy ${healthyAgain}; follow-up search reply: ${after.result.text?.slice(0, 120)}`),
+    }),
+    turns: [invalid, down, after].map(summarizeTurn),
+  };
+}
+
 async function scenario11(ctx) {
   const { staff, agentId } = ctx;
   const broke = await customer(staff, 's11-nocredit', { credits: 0 });
@@ -597,6 +785,8 @@ async function main() {
     ['9', scenario9],
     ['10', scenario10],
     ['8', scenario8],
+    ['13', scenario13],
+    ['7', scenario7],
     ['11', scenario11],
   ];
   for (const [id, run] of order) {

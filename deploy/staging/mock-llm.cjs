@@ -10,6 +10,8 @@
 //   - otherwise                            -> "MOCK_OK: <first 60 chars of the user text>"
 //   - FLAKY_ONCE:<nonce>                   -> the first request carrying <nonce> fails with HTTP 500
 //   - NO_USAGE                             -> no usage chunk even when stream_options.include_usage is set
+//   - SLOW_STREAM:<ms>                     -> streams 40 "STREAMED_PIECE " chunks, <ms> apart; stops if the client leaves
+//   - DELAY_MS:<ms>                        -> waits <ms> before answering a turn's first model call
 // Streaming responses end with a usage chunk when stream_options.include_usage is set.
 
 const http = require('http');
@@ -58,6 +60,10 @@ function decide(body) {
     if (name) return { kind: 'tool', name, args: match[2] };
     return { kind: 'text', text: `MOCK_NO_SUCH_TOOL: ${wanted} (advertised: ${tools.join(', ')})` };
   }
+  const slow = userText.match(/SLOW_STREAM:(\d+)/);
+  if (slow) {
+    return { kind: 'text', text: 'STREAMED_PIECE '.repeat(40), slowMs: Number(slow[1]) };
+  }
   if (userText.includes('ARABIC_DEMO')) {
     return {
       kind: 'text',
@@ -96,104 +102,135 @@ function sse(res, obj) {
   res.write(`data: ${JSON.stringify(obj)}\n\n`);
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function handle(req, res, raw) {
+  if (req.method === 'GET' && req.url.startsWith('/v1/models')) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ object: 'list', data: [{ id: 'mock-model', object: 'model' }] }));
+    return;
+  }
+  if (req.method !== 'POST' || !req.url.startsWith('/v1/chat/completions')) {
+    res.writeHead(404);
+    res.end();
+    return;
+  }
+  let body = {};
+  try {
+    body = JSON.parse(raw || '{}');
+  } catch {
+    res.writeHead(400);
+    res.end('bad json');
+    return;
+  }
+  const title = isTitleRequest(body);
+  const turn = currentTurn(body.messages);
+  const lastUserText = turn.userText;
+  // Scenario 10: the first request carrying FLAKY_ONCE:<nonce> fails, so the provider client retries
+  // within the same model call; metering must still charge exactly once. Keyed on the nonce so the
+  // later title request for the same conversation is not failed as well.
+  const flaky = title ? null : lastUserText.match(/FLAKY_ONCE:([A-Za-z0-9-]+)/);
+  if (flaky && !flakySeen.has(flaky[1])) {
+    flakySeen.add(flaky[1]);
+    log({ event: 'flaky-500', nonce: flaky[1] });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: { message: 'transient upstream error', type: 'server_error' } }));
+    return;
+  }
+  const decision = title ? { kind: 'text', text: 'MOCK_TITLE' } : decide(body);
+  const outputText = decision.kind === 'text' ? decision.text : decision.args;
+  const usage = usageFor(body, outputText);
+  const sendUsage = !!body.stream_options?.include_usage && !(!title && lastUserText.includes('NO_USAGE'));
+  log({
+    title,
+    sentUsage: body.stream ? sendUsage : true,
+    stream: !!body.stream,
+    includeUsage: !!body.stream_options?.include_usage,
+    model: body.model,
+    maxTokens: body.max_tokens ?? body.max_completion_tokens ?? null,
+    tools: (body.tools ?? []).map((t) => t?.function?.name),
+    decision,
+    usage,
+    messages: body.messages,
+  });
+  // Scenario 7: hold the turn's first answer so the driver can stop legal-search before the tool runs.
+  const delay = !title && !turn.toolRan ? Number(lastUserText.match(/DELAY_MS:(\d+)/)?.[1] ?? 0) : 0;
+  if (delay > 0) {
+    await sleep(delay);
+  }
+  const id = 'chatcmpl-' + crypto.randomUUID();
+  const created = Math.floor(Date.now() / 1000);
+  const base = { id, object: 'chat.completion.chunk', created, model: body.model };
+
+  if (!body.stream) {
+    const message =
+      decision.kind === 'text'
+        ? { role: 'assistant', content: decision.text }
+        : {
+            role: 'assistant',
+            content: null,
+            tool_calls: [{ id: 'call_' + crypto.randomUUID().slice(0, 8), type: 'function', function: { name: decision.name, arguments: decision.args } }],
+          };
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        id,
+        object: 'chat.completion',
+        created,
+        model: body.model,
+        choices: [{ index: 0, message, finish_reason: decision.kind === 'text' ? 'stop' : 'tool_calls' }],
+        usage,
+      }),
+    );
+    return;
+  }
+
+  let clientGone = false;
+  res.on('close', () => {
+    clientGone = true;
+  });
+  res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
+  sse(res, { ...base, choices: [{ index: 0, delta: { role: 'assistant', content: '' }, finish_reason: null }] });
+  if (decision.kind === 'text') {
+    // Scenario 13: slow pieces, so the driver can press Stop mid-answer.
+    const pieces = decision.slowMs ? decision.text.match(/STREAMED_PIECE /g) : decision.text.match(/.{1,20}/gs) ?? [''];
+    for (const piece of pieces) {
+      if (clientGone) {
+        log({ event: 'client-left', id });
+        return;
+      }
+      sse(res, { ...base, choices: [{ index: 0, delta: { content: piece }, finish_reason: null }] });
+      if (decision.slowMs) {
+        await sleep(decision.slowMs);
+      }
+    }
+    sse(res, { ...base, choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] });
+  } else {
+    const callId = 'call_' + crypto.randomUUID().slice(0, 8);
+    sse(res, {
+      ...base,
+      choices: [{ index: 0, delta: { tool_calls: [{ index: 0, id: callId, type: 'function', function: { name: decision.name, arguments: decision.args } }] }, finish_reason: null }],
+    });
+    sse(res, { ...base, choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }] });
+  }
+  if (sendUsage) {
+    sse(res, { ...base, choices: [], usage });
+  }
+  res.write('data: [DONE]\n\n');
+  res.end();
+}
+
 const server = http.createServer((req, res) => {
   let raw = '';
   req.on('data', (c) => (raw += c));
   req.on('end', () => {
-    if (req.method === 'GET' && req.url.startsWith('/v1/models')) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ object: 'list', data: [{ id: 'mock-model', object: 'model' }] }));
-      return;
-    }
-    if (req.method !== 'POST' || !req.url.startsWith('/v1/chat/completions')) {
-      res.writeHead(404);
-      res.end();
-      return;
-    }
-    let body = {};
-    try {
-      body = JSON.parse(raw || '{}');
-    } catch {
-      res.writeHead(400);
-      res.end('bad json');
-      return;
-    }
-    const title = isTitleRequest(body);
-    const lastUserText = currentTurn(body.messages).userText;
-    // Scenario 10: the first request carrying FLAKY_ONCE:<nonce> fails, so the provider client retries
-    // within the same model call; metering must still charge exactly once. Keyed on the nonce so the
-    // later title request for the same conversation is not failed as well.
-    const flaky = title ? null : lastUserText.match(/FLAKY_ONCE:([A-Za-z0-9-]+)/);
-    if (flaky && !flakySeen.has(flaky[1])) {
-      flakySeen.add(flaky[1]);
-      log({ event: 'flaky-500', nonce: flaky[1] });
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: { message: 'transient upstream error', type: 'server_error' } }));
-      return;
-    }
-    const decision = title ? { kind: 'text', text: 'MOCK_TITLE' } : decide(body);
-    const outputText = decision.kind === 'text' ? decision.text : decision.args;
-    const usage = usageFor(body, outputText);
-    const sendUsage = !!body.stream_options?.include_usage && !(!title && lastUserText.includes('NO_USAGE'));
-    log({
-      title,
-      sentUsage: body.stream ? sendUsage : true,
-      stream: !!body.stream,
-      includeUsage: !!body.stream_options?.include_usage,
-      model: body.model,
-      maxTokens: body.max_tokens ?? body.max_completion_tokens ?? null,
-      tools: (body.tools ?? []).map((t) => t?.function?.name),
-      decision,
-      usage,
-      messages: body.messages,
-    });
-    const id = 'chatcmpl-' + crypto.randomUUID();
-    const created = Math.floor(Date.now() / 1000);
-    const base = { id, object: 'chat.completion.chunk', created, model: body.model };
-
-    if (!body.stream) {
-      const message =
-        decision.kind === 'text'
-          ? { role: 'assistant', content: decision.text }
-          : {
-              role: 'assistant',
-              content: null,
-              tool_calls: [{ id: 'call_' + crypto.randomUUID().slice(0, 8), type: 'function', function: { name: decision.name, arguments: decision.args } }],
-            };
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(
-        JSON.stringify({
-          id,
-          object: 'chat.completion',
-          created,
-          model: body.model,
-          choices: [{ index: 0, message, finish_reason: decision.kind === 'text' ? 'stop' : 'tool_calls' }],
-          usage,
-        }),
-      );
-      return;
-    }
-
-    res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
-    sse(res, { ...base, choices: [{ index: 0, delta: { role: 'assistant', content: '' }, finish_reason: null }] });
-    if (decision.kind === 'text') {
-      for (const piece of decision.text.match(/.{1,20}/gs) ?? ['']) {
-        sse(res, { ...base, choices: [{ index: 0, delta: { content: piece }, finish_reason: null }] });
+    handle(req, res, raw).catch((error) => {
+      log({ event: 'mock-error', message: String(error?.stack ?? error) });
+      if (!res.headersSent) {
+        res.writeHead(500);
       }
-      sse(res, { ...base, choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] });
-    } else {
-      const callId = 'call_' + crypto.randomUUID().slice(0, 8);
-      sse(res, {
-        ...base,
-        choices: [{ index: 0, delta: { tool_calls: [{ index: 0, id: callId, type: 'function', function: { name: decision.name, arguments: decision.args } }] }, finish_reason: null }],
-      });
-      sse(res, { ...base, choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }] });
-    }
-    if (sendUsage) {
-      sse(res, { ...base, choices: [], usage });
-    }
-    res.write('data: [DONE]\n\n');
-    res.end();
+      res.end();
+    });
   });
 });
 
