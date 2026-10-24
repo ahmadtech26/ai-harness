@@ -1,5 +1,6 @@
 {
   "staffRoles": ["ADMIN"],
+  "preloadProviders": ["openai"],
   "metering": {
     "defaultMaxOutputTokens": 1024,
     "reservationTtlMs": 600000,
