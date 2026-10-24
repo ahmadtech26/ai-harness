@@ -275,6 +275,21 @@ const check = (ok, detail) => ({ ok: Boolean(ok), detail });
 const verdict = (checks) => ({ pass: Object.values(checks).every((c) => c.ok), checks });
 const countBy = (values) => values.reduce((acc, v) => ({ ...acc, [v]: (acc[v] ?? 0) + 1 }), {});
 const answered = (t) => /MOCK_OK|TOOL_RESULT_SEEN/.test(t.result.text ?? '');
+// A refused turn must reach the provider not at all: conversation-title requests count too.
+const providerCalls = (t) => t.calls.length + t.titles.length;
+
+/**
+ * Titles run after the turn (`titleTiming: final`), so they can land after the turn's stream ends.
+ * Waits until one appears (`expectOne`) or the window closes, and returns the title calls seen.
+ */
+async function titlesAfter(tag, { expectOne, windowMs }) {
+  const deadline = Date.now() + windowMs;
+  while (Date.now() < deadline) {
+    if (expectOne && titleCallsFor(tag).length > 0) break;
+    await sleep(500);
+  }
+  return titleCallsFor(tag);
+}
 
 async function turn(account, agentId, label, text, extra = {}) {
   const tag = nonce(label);
@@ -297,6 +312,7 @@ function summarizeTurn(t) {
 async function scenario1(ctx) {
   const { c1, agentId } = ctx;
   const a = await turn(c1, agentId, 's1-plain', 'S1 probe');
+  a.titles = await titlesAfter(a.tag, { expectOne: true, windowMs: 15_000 });
   const b = await turn(c1, agentId, 's1-listed', 'CALL_TOOL:skill:{"skillName":"staging-listed"}', {
     conversationId: a.result.conversationId,
     parentMessageId: a.result.responseId,
@@ -316,6 +332,7 @@ async function scenario1(ctx) {
       unlistedRefusedToModel: check(c.calls.length >= 1 && !leaks(c), `S3 reached model: ${leaks(c)}; reply: ${c.result.text?.slice(0, 160)}`),
       unlistedRefusedToManualInvocation: check(d.calls.length >= 1 && !leaks(d), `S3 reached model: ${leaks(d)}`),
       listedManualInvocationControl: check(e.calls.some((call) => carries(call, MARKERS.listed)), 'positive control: manually invoked S2 reaches the model'),
+      answeredTurnStillTitled: check(answered(a) && a.titles.length === 1, `positive control for the title gate: ${a.titles.length} title call(s) for an answered first turn`),
     }),
     turns: turns.map(summarizeTurn),
   };
@@ -415,10 +432,12 @@ async function scenario8(ctx) {
   const c = await customer(staff, 's8', { credits: limit / 1_000_000 });
   const tags = Array.from({ length: 6 }, (_, i) => nonce(`s8-${i}`));
   const results = await Promise.all(tags.map((tag) => chat({ token: c.token, agentId, text: `parallel probe ${tag}` })));
-  await sleep(3000);
+  // Titles follow their turn; give a refused turn's would-be title time to show before counting.
+  await sleep(6000);
   const turns = tags.map((tag, i) => ({ tag, result: results[i], calls: callsFor(tag), titles: titleCallsFor(tag) }));
   const succeeded = turns.filter(answered);
-  const denied = turns.filter((t) => !answered(t));
+  const denied = turns.filter((t) => /IQRAA_INSUFFICIENT_CREDITS/.test(t.result.text ?? ''));
+  const unresolved = turns.filter((t) => !answered(t) && !denied.includes(t));
   const reservations = reservationsOf(c.id);
   const settled = reservations.filter((r) => r.status === 'settled');
   // Peak of simultaneously held credit from reservation lifetimes (a close sorts before an open on ties).
@@ -438,13 +457,13 @@ async function scenario8(ctx) {
   const answeredCalls = succeeded.reduce((acc, t) => acc + t.calls.length, 0);
   return {
     ...verdict({
-      boundExercised: check(succeeded.length >= 1 && denied.length >= 1, `${succeeded.length} answered, ${denied.length} refused of ${turns.length} parallel chats; wallet ${limit} µAIC, one reservation ≈ ${sample} µAIC`),
+      everyTurnAnsweredOrRefused: check(unresolved.length === 0, `unresolved turns: ${JSON.stringify(unresolved.map((t) => t.result.text?.slice(0, 80)))}`),
+      boundExercised: check(succeeded.length >= 1 && denied.length >= 1, `${succeeded.length} answered, ${denied.length} refused for credits of ${turns.length} parallel chats; wallet ${limit} µAIC, one reservation ≈ ${sample} µAIC`),
       peakHoldWithinWallet: check(peak <= limit, `peak held ${peak} µAIC, wallet ${limit} µAIC`),
       noOverspend: check(final.available >= 0 && final.held === 0 && spent <= limit, `final available ${final.available} AIC, held ${final.held} AIC, spent ${spent} µAIC`),
-      refusedTurnsNeverReachedProvider: check(denied.every((t) => t.calls.length === 0), `provider calls on refused turns: [${denied.map((t) => t.calls.length).join(',')}]`),
+      refusedTurnsNeverReachedProvider: check(denied.every((t) => providerCalls(t) === 0), `provider calls (titles included) on refused turns: [${denied.map(providerCalls).join(',')}]`),
       oneSettlementPerCall: check(settled.length === answeredCalls, `settled ${settled.length}, provider calls on answered turns ${answeredCalls}`),
     }),
-    titleCallsOnRefusedTurns: denied.reduce((acc, t) => acc + t.titles.length, 0),
     refusalText: denied[0]?.result.text?.slice(0, 200) ?? null,
   };
 }
@@ -455,6 +474,8 @@ async function scenario11(ctx) {
   const noPlan = await customer(staff, 's11-noplan', { plan: false, credits: 5 });
   const noCredit = await turn(broke, agentId, 's11-nocredit', 'no credit probe');
   const noPlanTurn = await turn(noPlan, agentId, 's11-noplan', 'no plan probe');
+  noCredit.titles = await titlesAfter(noCredit.tag, { expectOne: false, windowMs: 6_000 });
+  noPlanTurn.titles = titleCallsFor(noPlanTurn.tag);
   const remote = [
     await api('/api/agents/v1/models', { token: broke.token }),
     await api('/api/agents/v1/chat/completions', { token: broke.token, method: 'POST', body: { model: agentId, messages: [{ role: 'user', content: 'x' }] } }),
@@ -490,17 +511,16 @@ async function scenario11(ctx) {
     outcomes.push(start.text.includes('message_limit') ? 'limited' : `${start.status}${start.json?.streamId ? ' started' : ''}`);
   }
   await sleep(3000);
-  const burstCalls = burstTags.reduce((acc, tag) => acc + callsFor(tag).length, 0);
+  const burstCalls = burstTags.reduce((acc, tag) => acc + callsFor(tag).length + titleCallsFor(tag).length, 0);
   const started = outcomes.filter((o) => o.endsWith('started')).length;
   return {
     ...verdict({
-      noCreditRefusedBeforeProvider: check(noCredit.calls.length === 0 && !answered(noCredit), `provider calls ${noCredit.calls.length}; reply: ${noCredit.result.text?.slice(0, 200)}`),
-      noPlanRefusedBeforeProvider: check(noPlanTurn.calls.length === 0 && !answered(noPlanTurn), `start ${noPlanTurn.result.startStatus}; provider calls ${noPlanTurn.calls.length}; reply: ${noPlanTurn.result.text?.slice(0, 200)}`),
+      noCreditRefusedBeforeProvider: check(providerCalls(noCredit) === 0 && !answered(noCredit), `provider calls ${noCredit.calls.length}, title calls ${noCredit.titles.length}; reply: ${noCredit.result.text?.slice(0, 200)}`),
+      noPlanRefusedBeforeProvider: check(providerCalls(noPlanTurn) === 0 && !answered(noPlanTurn), `start ${noPlanTurn.result.startStatus}; provider calls ${noPlanTurn.calls.length}, title calls ${noPlanTurn.titles.length}; reply: ${noPlanTurn.result.text?.slice(0, 200)}`),
       remoteAgentsApiDenied: check(remote.every((r) => r.status === 403 && r.code === 'IQRAA_FORBIDDEN'), JSON.stringify(remote)),
       noCustomerCreation: check(Object.values(creation).every((status) => status === 403), JSON.stringify(creation)),
       messageRateLimited: check(outcomes.includes('limited') && started <= 30 && burstCalls === 0, `outcomes ${JSON.stringify(countBy(outcomes))} (limit 30/min); provider calls ${burstCalls}`),
     }),
-    titleCallsOnRefusedTurns: noCredit.titles.length + noPlanTurn.titles.length,
   };
 }
 

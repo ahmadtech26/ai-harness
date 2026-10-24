@@ -64,6 +64,8 @@ mcpServers:
 
 endpoints:
   agents:
+    # Required by the fork (hook L3): titles after the turn, so a turn metering refused gets none.
+    titleTiming: final
     capabilities:
       - skills
       - tools
