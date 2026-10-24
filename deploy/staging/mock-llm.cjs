@@ -3,7 +3,8 @@
 //
 // Behaviour (decided from the request):
 //   - conversation-title request           -> "MOCK_TITLE" (directives below are ignored), logged title:true
-//   - last message is a tool result        -> final text "TOOL_RESULT_SEEN: <first 300 chars>"
+//   - a tool ran in this turn              -> final text "TOOL_RESULT_SEEN: <first 300 chars of the tool results>"
+//     (a turn is everything after the last final assistant message; tool-call messages do not end it)
 //   - last user text has CALL_TOOL:<name>:<json args>
 //                                          -> one tool call to the advertised tool whose name contains <name>
 //   - last user text has ARABIC_DEMO       -> a fixed Arabic legal answer (UI checks)
@@ -12,6 +13,9 @@
 //   - NO_USAGE                             -> no usage chunk even when stream_options.include_usage is set
 //   - SLOW_STREAM:<ms>                     -> streams 40 "STREAMED_PIECE " chunks, <ms> apart; stops if the client leaves
 //   - DELAY_MS:<ms>                        -> waits <ms> before answering a turn's first model call
+//   - TOOL_ROUNDS:<n>                      -> calls search_law until <n> tool results are in the turn
+//   - summarisation request                -> "MOCK_SUMMARY", logged summary:true (marker IQRAA_SUMMARY_PROMPT
+//                                             in the prompts configured by summary-overlay.yaml)
 // Streaming responses end with a usage chunk when stream_options.include_usage is set.
 
 const http = require('http');
@@ -32,16 +36,16 @@ function textOf(content) {
   return '';
 }
 
-// The current turn is everything after the last assistant message. LibreChat appends more than the
-// user's text there: primed and loaded skill bodies and step-budget notices arrive as user messages,
-// after tool results when a tool ran.
+// The current turn is everything after the last *final* assistant message (one without tool calls).
+// LibreChat appends more than the user's text there: primed and loaded skill bodies and step-budget
+// notices arrive as user messages, and each tool round adds an assistant tool-call message plus results.
 function currentTurn(messages) {
   const list = Array.isArray(messages) ? messages : [];
-  const lastAssistant = list.map((m) => m.role).lastIndexOf('assistant');
-  const turn = list.slice(lastAssistant + 1);
+  const lastFinal = list.map((m) => m.role === 'assistant' && !(m.tool_calls?.length)).lastIndexOf(true);
+  const turn = list.slice(lastFinal + 1);
   return {
-    toolRan: turn.some((m) => m.role === 'tool'),
-    text: turn.filter((m) => m.role !== 'system').map((m) => textOf(m.content)).join('\n'),
+    toolRounds: turn.filter((m) => m.role === 'tool').length,
+    toolText: turn.filter((m) => m.role === 'tool').map((m) => textOf(m.content)).join('\n'),
     userText: turn.filter((m) => m.role === 'user').map((m) => textOf(m.content)).join('\n'),
   };
 }
@@ -49,10 +53,16 @@ function currentTurn(messages) {
 function decide(body) {
   const turn = currentTurn(body.messages);
   const tools = (body.tools ?? []).map((t) => t?.function?.name).filter(Boolean);
-  if (turn.toolRan) {
-    return { kind: 'text', text: `TOOL_RESULT_SEEN: ${turn.text.slice(0, 300)}` };
-  }
   const userText = turn.userText;
+  // Scenario 3: keep calling search_law until <n> tool results are in this turn.
+  const rounds = userText.match(/TOOL_ROUNDS:(\d+)/);
+  if (rounds && turn.toolRounds < Number(rounds[1])) {
+    const name = tools.find((t) => t.startsWith('search_law'));
+    if (name) return { kind: 'tool', name, args: JSON.stringify({ query: `العقد ${turn.toolRounds + 1}` }) };
+  }
+  if (turn.toolRounds > 0) {
+    return { kind: 'text', text: `TOOL_RESULT_SEEN: ${turn.toolText.slice(0, 300)}` };
+  }
   const match = userText.match(/CALL_TOOL:([A-Za-z0-9_.-]+):(\{.*\})/s);
   if (match) {
     const wanted = match[1];
@@ -137,12 +147,15 @@ async function handle(req, res, raw) {
     res.end(JSON.stringify({ error: { message: 'transient upstream error', type: 'server_error' } }));
     return;
   }
-  const decision = title ? { kind: 'text', text: 'MOCK_TITLE' } : decide(body);
+  // Scenario 3: summarisation requests carry the marker configured in summary-overlay.yaml.
+  const summary = !title && JSON.stringify(body.messages ?? []).includes('IQRAA_SUMMARY_PROMPT');
+  const decision = title ? { kind: 'text', text: 'MOCK_TITLE' } : summary ? { kind: 'text', text: 'MOCK_SUMMARY' } : decide(body);
   const outputText = decision.kind === 'text' ? decision.text : decision.args;
   const usage = usageFor(body, outputText);
   const sendUsage = !!body.stream_options?.include_usage && !(!title && lastUserText.includes('NO_USAGE'));
   log({
     title,
+    summary,
     sentUsage: body.stream ? sendUsage : true,
     stream: !!body.stream,
     includeUsage: !!body.stream_options?.include_usage,
@@ -154,7 +167,7 @@ async function handle(req, res, raw) {
     messages: body.messages,
   });
   // Scenario 7: hold the turn's first answer so the driver can stop legal-search before the tool runs.
-  const delay = !title && !turn.toolRan ? Number(lastUserText.match(/DELAY_MS:(\d+)/)?.[1] ?? 0) : 0;
+  const delay = !title && !summary && turn.toolRounds === 0 ? Number(lastUserText.match(/DELAY_MS:(\d+)/)?.[1] ?? 0) : 0;
   if (delay > 0) {
     await sleep(delay);
   }

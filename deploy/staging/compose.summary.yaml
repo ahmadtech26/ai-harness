@@ -1,0 +1,5 @@
+# Scenario 3 override: LibreChat reads out/librechat.summary.yaml (librechat.yaml + summary-overlay.yaml).
+services:
+  librechat:
+    volumes:
+      - ./out/librechat.summary.yaml:/config/librechat.yaml:ro

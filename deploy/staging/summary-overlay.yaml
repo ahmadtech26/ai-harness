@@ -1,0 +1,13 @@
+
+# Scenario 3 only (see compose.summary.yaml): summarise early, with prompts the mock recognises.
+summarization:
+  enabled: true
+  provider: MockLLM
+  model: mock-model
+  prompt: 'IQRAA_SUMMARY_PROMPT: summarize the conversation so far in a few sentences.'
+  updatePrompt: 'IQRAA_SUMMARY_PROMPT: update the summary with the new messages.'
+  trigger:
+    type: messages_to_refine
+    value: 4
+  retainRecent:
+    turns: 1

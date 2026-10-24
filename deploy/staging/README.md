@@ -69,3 +69,33 @@ never prunes. Its image runs as root from `/app/api`; production should build as
 - `test-skills/` holds two marker skills used only by scenario 1.
 - Content-security policy: LibreChat's own nonce policy for scripts (`CSP_ENABLED`, enforcing) plus the
   proxy's policy narrowing `img-src`, `connect-src`, `frame-src` and `frame-ancestors` (G-security T7).
+
+## Release drills (scenarios 5 and 14)
+
+Run `node scenarios.mjs` once first (it creates the `PLAN_PRO` role and the «عقل» specialist), then:
+
+```bash
+cd "/d/Iqraa Law/AI Harness"
+PLATFORM=$(docker image inspect iqraa/platform:phase1 --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^BUILD_COMMIT=//p')
+S=deploy/staging/drill-skills
+deploy/release/build.sh drill-r1 "$PLATFORM" --allow-draft --extra $S/r1 --extra $S/listed
+deploy/release/build.sh drill-r2 "$PLATFORM" --allow-draft --extra $S/r2 --extra $S/listed
+deploy/release/build.sh drill-r3 "$PLATFORM" --allow-draft --extra $S/r2
+cd deploy/staging && node drills.mjs
+```
+
+The drill swaps LibreChat between the three releases (each restart takes a minute or two), creates a
+drill specialist, rolls back image and specialist, and removes a skill; it restores
+`iqraa/release:staging` at the end, even on failure.
+
+## Scenario 3 (pinned skill through summarisation)
+
+Summarisation is off in normal staging (summary calls would change other scenarios' call counts). Run it alone:
+
+```bash
+cd "/d/Iqraa Law/AI Harness/deploy/staging"
+cat librechat.yaml summary-overlay.yaml > out/librechat.summary.yaml
+docker compose -f compose.yaml -f compose.summary.yaml up -d --no-deps librechat   # wait for /readyz 200
+SCENARIOS=3 node scenarios.mjs
+docker compose up -d --no-deps librechat                                           # back to normal staging
+```
