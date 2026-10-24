@@ -21,6 +21,8 @@ LIBRARY_TOOLS_AR_V11 = (
     '- إذا أعادت الأداة أنه تم بلوغ الحد المسموح من النصوص فاعتمد على ما استرجعته سابقًا في المحادثة ولا تحاول الالتفاف على الحد.'
 )
 
+# These bullets say what the library tools return (Civil Code only, today). Update them, rebuild the
+# edition and re-release the specialist whenever a law or the judgments are loaded into legal-search.
 LIBRARY_TOOLS_AR = (
     'استخدام المكتبة القانونية\n'
     '- قبل الاستشهاد بأي مادة استدعِ search_law بعبارة بحث عربية دقيقة، أو get_article إذا عرفت رقم المادة؛ وانقل النص حرفيًا كما أعادته الأداة.\n'
