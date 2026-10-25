@@ -411,7 +411,12 @@ export async function proxyChecks() {
   // fetch joins repeated headers with ", ".
   const csp = res.headers.get('content-security-policy') ?? '';
   const nonce = csp.match(/'nonce-([^']+)'/)?.[1];
+  const chosen = await fetch(`${BASE}/`, { headers: { 'User-Agent': UA, Cookie: 'lang=en-US' } });
+  await chosen.arrayBuffer();
+  const defaultCookie = res.headers.getSetCookie().find((c) => c.startsWith('lang=')) ?? '';
+  const chosenCookie = chosen.headers.getSetCookie().find((c) => c.startsWith('lang=')) ?? '';
   return verdict({
+    arabicByDefault: check(defaultCookie.startsWith('lang=ar;') && chosenCookie === '', `no cookie → "${defaultCookie}"; lang=en-US → "${chosenCookie || 'none'}"`),
     shellServed: check(res.status === 200 && html.includes('<script'), `GET / ${res.status}`),
     librechatNoncePolicy: check(Boolean(nonce) && html.includes(`nonce="${nonce}"`), `nonce in header and shell: ${Boolean(nonce) && html.includes(`nonce="${nonce}"`)}`),
     proxyNarrowPolicy: check(csp.includes("img-src 'self' data: blob:;") && csp.includes("connect-src 'self';") && csp.includes("frame-ancestors 'none'"), csp),
