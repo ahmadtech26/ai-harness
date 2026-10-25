@@ -95,7 +95,12 @@ Summarisation is off in normal staging (summary calls would change other scenari
 ```bash
 cd "/d/Iqraa Law/AI Harness/deploy/staging"
 cat librechat.yaml summary-overlay.yaml > out/librechat.summary.yaml
-docker compose -f compose.yaml -f compose.summary.yaml up -d --no-deps librechat   # wait for /readyz 200
-SCENARIOS=3 node scenarios.mjs
-docker compose up -d --no-deps librechat                                           # back to normal staging
+docker compose -f compose.yaml -f compose.summary.yaml up -d --no-deps --force-recreate librechat   # wait for /readyz 200
+SCENARIOS=3 node scenarios.mjs     # narrows the specialist's window to S3_MAX_CONTEXT_TOKENS (default 9000)
+docker compose up -d --no-deps --force-recreate librechat                                           # back to normal staging
+SCENARIOS=2 node scenarios.mjs     # re-releases the specialist with its normal window
 ```
+
+`--force-recreate` matters: compose does not recreate a container when only a mounted file changed.
+The release folds always-apply skills into the specialist's instructions (`content/compose.mjs`), so
+scenario 3 also checks the pinned method rides in the system prompt exactly once.

@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { composeSpecialist } from './compose.mjs';
 
 const BASE = process.env.LIBRECHAT_URL ?? 'http://localhost:3080';
 // LibreChat's agents router rejects non-browser user agents.
@@ -85,17 +86,27 @@ async function releaseSpecialist(token, file) {
   if (!provider || !model) {
     fail(`${file}: no model chosen — set provider/model in the file or IQRAA_PROVIDER/IQRAA_MODEL`);
   }
-  const instructions = fs.readFileSync(path.resolve(path.dirname(file), spec.instructionsFile), 'utf8');
+  // Pinned skills become part of the instructions (they survive summarisation); on-demand skills stay listed.
+  const composed = composeSpecialist({
+    spec,
+    instructions: fs.readFileSync(path.resolve(path.dirname(file), spec.instructionsFile), 'utf8'),
+    skills: Object.fromEntries(
+      spec.skills.map((name) => {
+        const skillFile = path.join(here, 'skills', name, 'SKILL.md');
+        return [name, fs.existsSync(skillFile) ? fs.readFileSync(skillFile, 'utf8') : undefined];
+      }),
+    ),
+  });
   const body = {
     name: spec.name,
     description: spec.description,
-    instructions,
+    instructions: composed.instructions,
     provider,
     model,
     model_parameters: spec.model_parameters,
     tools: spec.tools,
-    skills: await skillIds(token, spec.skills),
-    skills_enabled: spec.skills_enabled,
+    skills: await skillIds(token, composed.skills),
+    skills_enabled: composed.skills_enabled,
     skill_authoring_enabled: spec.skill_authoring_enabled,
     recursion_limit: spec.recursion_limit,
     category: spec.category,
@@ -119,6 +130,7 @@ async function releaseSpecialist(token, file) {
   });
   if (share.status >= 300) fail(`sharing ${spec.name}: ${share.status} ${share.text.slice(0, 200)}`);
   console.log(`specialist ${spec.name}: ${existing ? 'updated' : 'created'} (${saved.json.id}), shared with ${spec.shareWithRoles.join(', ')}`);
+  console.log(`  in instructions: ${composed.pinned.join(', ') || 'none'}; listed skills: ${composed.skills.join(', ') || 'none'}`);
   return saved.json.id;
 }
 

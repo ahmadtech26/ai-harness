@@ -1,4 +1,4 @@
-// Acceptance driver: scenarios 1, 4, 7, 8, 9, 10, 11, 13 (.hq/docs/audits/librechat-platform/I I.4)
+// Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13 and the library checks (P1/P2 results)
 // against the staging stack in this directory.
 //
 //   docker compose up -d --build && node scenarios.mjs
@@ -19,6 +19,7 @@ import {
   providerCalls, titlesAfter, turn, summarizeTurn, waitUntil, chatAndStop, proxyChecks,
   summaryCallsFor,
 } from './lib.mjs';
+import { composeSpecialist } from '../../content/compose.mjs';
 
 const MARKERS = {
   pinned: 'منهج عمل لتحليل الوقائع',
@@ -89,13 +90,10 @@ async function scenario3(ctx) {
   // The agents library summarises only the messages pruned out of the context window, so nothing is
   // summarised until a conversation overflows it. The mock model's window is unknown (large), so give
   // the specialist a small one for this run; the next normal run re-releases it from aqel.json.
-  const contextWindow = Number(process.env.S3_MAX_CONTEXT_TOKENS ?? 12000);
+  const contextWindow = Number(process.env.S3_MAX_CONTEXT_TOKENS ?? 9000);
   const spec = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'specialists', 'aqel.json'), 'utf8'));
-  const narrowed = await api(`/api/agents/${agentId}`, {
-    token: staff.token,
-    method: 'PATCH',
-    body: { model_parameters: { ...spec.model_parameters, maxContextTokens: contextWindow } },
-  });
+  const body = { model_parameters: { ...spec.model_parameters, maxContextTokens: contextWindow } };
+  const narrowed = await api(`/api/agents/${agentId}`, { token: staff.token, method: 'PATCH', body });
   if (narrowed.status >= 300) throw new Error(`setting the context window: ${narrowed.status} ${narrowed.text.slice(0, 200)}`);
   const c = await customer(staff, 's3', { credits: 20 });
   const turns = [];
@@ -117,6 +115,12 @@ async function scenario3(ctx) {
   const summaries = summaryCallsFor(turns.map((t) => t.tag));
   const firstSummaryAt = summaries.length ? Date.parse(summaries[0].ts) : Infinity;
   const afterSummary = calls.filter((call) => Date.parse(call.ts) > firstSummaryAt);
+  // The release folds the pinned method into the instructions: it rides in the system prompt, once.
+  const inSystemOnce = (call) => {
+    const all = JSON.stringify(call.messages ?? []);
+    const system = JSON.stringify((call.messages ?? []).filter((m) => m.role === 'system'));
+    return system.includes(MARKERS.pinned) && all.split(MARKERS.pinned).length === 2;
+  };
   return {
     ...verdict({
       summarySeen: check(summaries.length >= 1, `${summaries.length} summarisation request(s) in this conversation`),
@@ -125,6 +129,7 @@ async function scenario3(ctx) {
       // would misfile it as a summary — this catches that.
       summaryRequestsAreSummaries: check(summaries.every((e) => !JSON.stringify(e.messages ?? []).includes('AQEL LEGAL ENGINE')), `summary requests carrying the AQEL instructions: ${summaries.filter((e) => JSON.stringify(e.messages ?? []).includes('AQEL LEGAL ENGINE')).length}/${summaries.length}`),
       pinnedEveryCall: check(calls.length > 0 && calls.every((call) => carries(call, MARKERS.pinned)), `${calls.filter((call) => carries(call, MARKERS.pinned)).length}/${calls.length} model calls carry S1`),
+      pinnedInSystemPromptOnce: check(calls.length > 0 && calls.every(inSystemOnce), `${calls.filter(inSystemOnce).length}/${calls.length} model calls carry S1 once, in the system prompt`),
       pinnedAfterSummary: check(afterSummary.length > 0 && afterSummary.every((call) => carries(call, MARKERS.pinned)), `${afterSummary.length} model calls after the first summary, all carrying S1: ${afterSummary.every((call) => carries(call, MARKERS.pinned))}`),
       toolRoundTurnCompleted: check(research.calls.length >= 6 && /TOOL_RESULT_SEEN/.test(research.result.text ?? ''), `${research.calls.length} model calls in the tool-round turn; reply ${research.result.text?.slice(0, 60)}`),
       pinnedThroughToolRounds: check(research.calls.length > 0 && research.calls.every((call) => carries(call, MARKERS.pinned)), `${research.calls.filter((call) => carries(call, MARKERS.pinned)).length}/${research.calls.length} tool-round calls carry S1`),
@@ -430,15 +435,21 @@ async function setup() {
   const skills = await api('/api/skills', { token: staff.token });
   const list = Array.isArray(skills.json) ? skills.json : (skills.json?.skills ?? skills.json?.data ?? []);
   const skillIds = Object.fromEntries(list.map((s) => [s.name, String(s._id ?? s.id)]));
-  // Staging only: the specialist's own skills plus S2, so scenario 1 can load a test skill on demand.
-  const contentSkills = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'specialists', 'aqel.json'), 'utf8')).skills;
-  for (const name of [...contentSkills, 'staging-listed', 'staging-unlisted']) {
+  // Staging only: the skills the release listed (pinned ones live in the instructions) plus S2, so
+  // scenario 1 can load a test skill on demand.
+  const spec = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'specialists', 'aqel.json'), 'utf8'));
+  for (const name of [...spec.skills, 'staging-listed', 'staging-unlisted']) {
     if (!skillIds[name]) throw new Error(`deployment skill ${name} not found (have: ${Object.keys(skillIds).join(', ')})`);
   }
+  const { skills: listedSkills } = composeSpecialist({
+    spec,
+    instructions: '',
+    skills: Object.fromEntries(spec.skills.map((name) => [name, fs.readFileSync(path.join(ROOT, 'content', 'skills', name, 'SKILL.md'), 'utf8')])),
+  });
   const patch = await api(`/api/agents/${agentId}`, {
     token: staff.token,
     method: 'PATCH',
-    body: { skills: [...contentSkills, 'staging-listed'].map((name) => skillIds[name]) },
+    body: { skills: [...listedSkills, 'staging-listed'].map((name) => skillIds[name]), skills_enabled: true },
   });
   if (patch.status >= 300) throw new Error(`listing S2 on the specialist: ${patch.status} ${patch.text.slice(0, 200)}`);
 

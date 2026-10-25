@@ -1,8 +1,8 @@
 
-# Spike 2026-10-24 (plan-phase2-skills Task 13): with the mock endpoint none of messages_to_refine 4,
-# token_ratio 0.05 or remaining_tokens 60000 produced a summarisation request in scenario 3 (13 model calls,
-# ~6k-tokens prompts), and LibreChat logged no "summarization disabled" warning. Not yet explained.
 # Scenario 3 only (see compose.summary.yaml): summarise early, with prompts the mock recognises.
+# The agents library summarises only messages pruned out of the context window, so no trigger fires
+# until a conversation overflows it; scenario 3 gives the specialist a small window
+# (S3_MAX_CONTEXT_TOKENS, default 9000) for that reason.
 summarization:
   enabled: true
   provider: MockLLM
