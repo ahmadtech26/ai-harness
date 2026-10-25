@@ -27,6 +27,7 @@ const MARKERS = {
   unlisted: 'STAGING_UNLISTED_MARKER',
 };
 const AUTHORING_TOOLS = ['create_file', 'edit_file', 'execute_code', 'bash_tool'];
+const INSTRUCTIONS_MARKER = 'AQEL LEGAL ENGINE'; // in the specialist's instructions (AQEL prompt)
 
 async function scenario1(ctx) {
   const { c1, agentId } = ctx;
@@ -127,7 +128,7 @@ async function scenario3(ctx) {
       // A regular agent call carries the specialist's instructions (AQEL); a summarisation call does not
       // (both advertise tools). If LibreChat ever fed the summary prompt into a regular call, the mock
       // would misfile it as a summary — this catches that.
-      summaryRequestsAreSummaries: check(summaries.every((e) => !JSON.stringify(e.messages ?? []).includes('AQEL LEGAL ENGINE')), `summary requests carrying the AQEL instructions: ${summaries.filter((e) => JSON.stringify(e.messages ?? []).includes('AQEL LEGAL ENGINE')).length}/${summaries.length}`),
+      summaryRequestsAreSummaries: check(summaries.every((e) => !JSON.stringify(e.messages ?? []).includes(INSTRUCTIONS_MARKER)), `summary requests carrying the AQEL instructions: ${summaries.filter((e) => JSON.stringify(e.messages ?? []).includes(INSTRUCTIONS_MARKER)).length}/${summaries.length}`),
       pinnedEveryCall: check(calls.length > 0 && calls.every((call) => carries(call, MARKERS.pinned)), `${calls.filter((call) => carries(call, MARKERS.pinned)).length}/${calls.length} model calls carry S1`),
       pinnedInSystemPromptOnce: check(calls.length > 0 && calls.every(inSystemOnce), `${calls.filter(inSystemOnce).length}/${calls.length} model calls carry S1 once, in the system prompt`),
       pinnedAfterSummary: check(afterSummary.length > 0 && afterSummary.every((call) => carries(call, MARKERS.pinned)), `${afterSummary.length} model calls after the first summary, all carrying S1: ${afterSummary.every((call) => carries(call, MARKERS.pinned))}`),
@@ -149,13 +150,23 @@ async function scenario4(ctx) {
   }
   const staffRead = await api(`/api/skills/${skillIds['staging-listed']}`, { token: staff.token });
   const create = await api('/api/skills', { token: c1.token, method: 'POST', body: { name: `customer-skill-${RUN}`, description: 'x', body: 'y' } });
-  const agent = await api(`/api/agents/${ctx.agentId}`, { token: staff.token });
+  // The release folds the pinned method into the specialist's instructions: customers must not read them.
+  const instructionReads = [];
+  for (const route of [`/api/agents/${ctx.agentId}`, `/api/agents/${ctx.agentId}/expanded`, `/api/agents/${ctx.agentId}/versions`, '/api/agents?requiredPermission=1']) {
+    const res = await api(route, { token: c1.token });
+    instructionReads.push({ route, status: res.status, leaked: res.text.includes(MARKERS.pinned) || res.text.includes(INSTRUCTIONS_MARKER) });
+  }
+  const editOnly = instructionReads.filter((p) => /\/(expanded|versions)$/.test(p.route));
+  // The full record (EDIT) — the view route never returns instructions or skill_authoring_enabled.
+  const agent = await api(`/api/agents/${ctx.agentId}/expanded`, { token: staff.token });
   const advertised = [...new Set(ctx.customerCalls.flatMap((call) => call.tools ?? []))];
   return verdict({
     skillReadDenied: check(probes.every((p) => p.read === 403 && p.code === 'IQRAA_FORBIDDEN' && p.files === 403 && !p.leaked), JSON.stringify(probes)),
     staffReadControl: check(staffRead.status === 200 && staffRead.text.includes(MARKERS.listed), `staff GET skill: ${staffRead.status}`),
     skillCreateDenied: check(create.status === 403, `customer POST /api/skills: ${create.status}`),
-    authoringDisabledOnSpecialist: check(agent.status === 200 && agent.json?.skill_authoring_enabled !== true, `status ${agent.status}, skill_authoring_enabled=${agent.json?.skill_authoring_enabled}`),
+    instructionsHiddenFromCustomers: check(instructionReads.every((p) => !p.leaked) && editOnly.every((p) => p.status === 403), JSON.stringify(instructionReads)),
+    staffInstructionsControl: check(agent.status === 200 && agent.text.includes(MARKERS.pinned) && agent.text.includes(INSTRUCTIONS_MARKER), `positive control: staff GET expanded ${agent.status}; method and AQEL markers in the instructions`),
+    authoringDisabledOnSpecialist: check(agent.status === 200 && agent.json?.skill_authoring_enabled === false, `status ${agent.status}, skill_authoring_enabled=${agent.json?.skill_authoring_enabled}`),
     noAuthoringToolOffered: check(advertised.length > 0 && !advertised.some((t) => AUTHORING_TOOLS.includes(t)), `tools offered to the model: ${advertised.join(', ')}`),
   });
 }
