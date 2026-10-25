@@ -86,6 +86,17 @@ async function libraryChecks(ctx) {
 
 async function scenario3(ctx) {
   const { staff, agentId } = ctx;
+  // The agents library summarises only the messages pruned out of the context window, so nothing is
+  // summarised until a conversation overflows it. The mock model's window is unknown (large), so give
+  // the specialist a small one for this run; the next normal run re-releases it from aqel.json.
+  const contextWindow = Number(process.env.S3_MAX_CONTEXT_TOKENS ?? 12000);
+  const spec = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'specialists', 'aqel.json'), 'utf8'));
+  const narrowed = await api(`/api/agents/${agentId}`, {
+    token: staff.token,
+    method: 'PATCH',
+    body: { model_parameters: { ...spec.model_parameters, maxContextTokens: contextWindow } },
+  });
+  if (narrowed.status >= 300) throw new Error(`setting the context window: ${narrowed.status} ${narrowed.text.slice(0, 200)}`);
   const c = await customer(staff, 's3', { credits: 20 });
   const turns = [];
   let conversationId = null;
@@ -109,9 +120,10 @@ async function scenario3(ctx) {
   return {
     ...verdict({
       summarySeen: check(summaries.length >= 1, `${summaries.length} summarisation request(s) in this conversation`),
-      // A regular agent call advertises tools; a summarisation call does not. If LibreChat ever fed the
-      // summary prompt into a regular call, the mock would misfile it as a summary — this catches that.
-      summaryRequestsAreSummaries: check(summaries.every((e) => (e.tools ?? []).length === 0), `tools on summary requests: ${JSON.stringify(summaries.map((e) => (e.tools ?? []).length))}`),
+      // A regular agent call carries the specialist's instructions (AQEL); a summarisation call does not
+      // (both advertise tools). If LibreChat ever fed the summary prompt into a regular call, the mock
+      // would misfile it as a summary — this catches that.
+      summaryRequestsAreSummaries: check(summaries.every((e) => !JSON.stringify(e.messages ?? []).includes('AQEL LEGAL ENGINE')), `summary requests carrying the AQEL instructions: ${summaries.filter((e) => JSON.stringify(e.messages ?? []).includes('AQEL LEGAL ENGINE')).length}/${summaries.length}`),
       pinnedEveryCall: check(calls.length > 0 && calls.every((call) => carries(call, MARKERS.pinned)), `${calls.filter((call) => carries(call, MARKERS.pinned)).length}/${calls.length} model calls carry S1`),
       pinnedAfterSummary: check(afterSummary.length > 0 && afterSummary.every((call) => carries(call, MARKERS.pinned)), `${afterSummary.length} model calls after the first summary, all carrying S1: ${afterSummary.every((call) => carries(call, MARKERS.pinned))}`),
       toolRoundTurnCompleted: check(research.calls.length >= 6 && /TOOL_RESULT_SEEN/.test(research.result.text ?? ''), `${research.calls.length} model calls in the tool-round turn; reply ${research.result.text?.slice(0, 60)}`),
