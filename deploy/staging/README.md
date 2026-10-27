@@ -61,6 +61,24 @@ Why `Dockerfile.multi`: on this Docker Desktop (WSL2 kernel 6.18), the main `Doc
 ext4 journal wait). `Dockerfile.multi` installs production dependencies fresh (`npm ci --omit=dev`) and
 never prunes. Its image runs as root from `/app/api`; production should build as the `node` user.
 
+## Library guard (Phase 3)
+
+legal-search decides every library call with the sweep guard (detector, flags, throttle, suspension).
+Staff use the fork's `/api/iqraa/admin/library/*` routes (a proxy of legal-search's `/admin` API behind
+the shared secret: `flags`, `flags/:userId/clear`, `guard-settings`, `guard-settings/history`,
+`guard-settings/simulate`, `telemetry`) and `/api/iqraa/admin/accounts/:userId/suspend` / `unsuspend`.
+`iqraa.json` names the API (`legalSearch.url`); LibreChat already has `LEGAL_SEARCH_SECRET`.
+
+- `SCENARIOS=guard node scenarios.mjs` runs the scripted sweep (articles 1–40 of the Penal Code: suspected
+  at 12, proven at 24) and the staff checks. It calls the MCP endpoint from inside the legal-search
+  container (`scripts/mcp-calls.py` piped to `python3 -I -`; the script reads the secret there), because
+  legal-search is not published to the host.
+- Alerts are JSON lines at error level in `docker compose logs legal-search`: `sweep_flag_opened`,
+  `sweep_flag_escalated`, `sweep_refused`.
+- The reconciliation step prints `open sweep flags: suspected N, proven M` from the staff `flags` route.
+- Guard settings live in legal-search's database and survive restarts. The scenario changes
+  `max_results` and puts it back, so each run adds two rows to the settings history.
+
 ## Staging-only settings
 
 - `LIMIT_MESSAGE_USER=true`, `MESSAGE_USER_MAX=30` per minute: scenario 11 bursts past it.

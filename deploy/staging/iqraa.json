@@ -6,6 +6,7 @@
     "reservationTtlMs": 600000,
     "sweepIntervalMs": 30000
   },
+  "legalSearch": { "url": "http://legal-search:8000" },
   "prices": {
     "mock-model": { "input": 3, "output": 15, "cachedInput": 0.3 }
   }

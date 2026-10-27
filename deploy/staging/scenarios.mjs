@@ -1,4 +1,4 @@
-// Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13 and the library checks (P1/P2 results)
+// Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13, guard (the library sweep guard) and the library checks (P1–P3 results)
 // against the staging stack in this directory.
 //
 //   docker compose up -d --build && node scenarios.mjs
@@ -17,7 +17,7 @@ import {
   wallet, mongoQuery, reconcile, compose, legalSearchHealthy, reservationsOf, usageEventsOf, callsFor,
   titleCallsFor, flakyFor, carries, costOf, check, verdict, countBy, answered,
   providerCalls, titlesAfter, turn, summarizeTurn, waitUntil, chatAndStop, proxyChecks,
-  summaryCallsFor,
+  summaryCallsFor, mcpCalls, legalSearchAlerts, sweepFlagCounts,
 } from './lib.mjs';
 import { composeSpecialist } from '../../content/compose.mjs';
 
@@ -456,6 +456,148 @@ async function scenario11(ctx) {
 }
 
 
+// ---------------------------------------------------------------- library sweep guard (Phase 3, spec C)
+
+const LIBRARY_SUSPENDED = 'تم إيقاف الوصول إلى المكتبة القانونية لهذا الحساب مؤقتًا. يُرجى التواصل مع الدعم.';
+const LIBRARY_CAP_REACHED = 'تم بلوغ الحد المسموح من النصوص لهذه الإجابة أو لهذا اليوم. يُرجى الاعتماد على ما سبق استرجاعه.';
+const GUARD_LAW = 'penal-code';
+const GUARD_STAFF_ROUTES = [
+  ['GET', '/api/iqraa/admin/library/flags'],
+  ['POST', '/api/iqraa/admin/library/flags/:userId/clear'],
+  ['GET', '/api/iqraa/admin/library/guard-settings'],
+  ['PUT', '/api/iqraa/admin/library/guard-settings'],
+  ['GET', '/api/iqraa/admin/library/guard-settings/history'],
+  ['POST', '/api/iqraa/admin/library/guard-settings/simulate'],
+  ['GET', '/api/iqraa/admin/library/telemetry'],
+  ['POST', '/api/iqraa/admin/accounts/:userId/suspend'],
+  ['POST', '/api/iqraa/admin/accounts/:userId/unsuspend'],
+];
+
+/**
+ * The sweep guard end to end (spec C.7, REQ-GRD-001..009). A customer's account walks get_article over
+ * articles 1–40 of one law through legal-search's MCP endpoint, under the customer's own user id (what
+ * LibreChat sends as X-Iqraa-User): suspected at article 12 (refused: 11 served > throttle cap 10), proven
+ * at 24 (the 12th sequential attempt after the flag), suspended after. Then: the alert lines in log order,
+ * the evidence in the staff list, LibreChat's own get_article refused, a staff clear restoring access, a
+ * control user doing topic research left unflagged, a settings change applied within 30 s and recorded
+ * (then put back), simulate changing nothing, customers denied all nine staff routes, and staff account
+ * suspension refusing chat before any provider call until it is lifted.
+ */
+async function scenarioGuard(ctx) {
+  const { staff, agentId } = ctx;
+  const library = (route, options = {}) => api(`/api/iqraa/admin/library${route}`, { token: staff.token, ...options });
+  const refused = (text) => text === LIBRARY_CAP_REACHED || text === LIBRARY_SUSPENDED;
+  const servedArticle = (text, number) => new RegExp(`— المادة ${number}(?!\\d)`).test(text ?? '');
+  const article = (number) => ({ tool: 'get_article', arguments: { number, law: GUARD_LAW } });
+  const toolText = (t) => (t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '');
+
+  // 1. The scripted sweep, and the evidence staff see.
+  const sweeper = await customer(staff, 'guard-sweep', { credits: 5 });
+  const walk = mcpCalls(sweeper.id, Array.from({ length: 40 }, (_, i) => article(i + 1)));
+  const flag = ((await library('/flags')).json?.flags ?? []).find((f) => f.user_id === sweeper.id);
+
+  // 2. LibreChat's own get_article for the proven user; then the alert lines.
+  const viaChat = await turn(sweeper, agentId, 'guard-chat', `CALL_TOOL:get_article:{"number":41,"law":"${GUARD_LAW}"}`);
+  // sweep_refused: articles 25–40 and the chat call (the escalating call 24 raises sweep_flag_escalated only).
+  await waitUntil(() => legalSearchAlerts(sweeper.id).filter((a) => a.event === 'sweep_refused').length >= 17, 15_000);
+  // Emission order (the log's own line order) and attribution order (log id) must agree.
+  const emitted = legalSearchAlerts(sweeper.id);
+  const alerts = [...emitted].sort((a, b) => a.log_id - b.log_id);
+  const changes = alerts.filter((a) => a.event !== 'sweep_refused');
+  const emittedChanges = emitted.filter((a) => a.event !== 'sweep_refused').map((a) => a.event);
+  const refusalAlerts = alerts.length - changes.length;
+
+  // 3. Staff clear: the watermark moves, the next get_article is served and no flag reopens.
+  const cleared = await library(`/flags/${encodeURIComponent(sweeper.id)}/clear`, { method: 'POST', body: { reason: `staging guard ${RUN}` } });
+  const [afterClear] = mcpCalls(sweeper.id, [article(42)]);
+  const reopened = ((await library('/flags')).json?.flags ?? []).some((f) => f.user_id === sweeper.id);
+
+  // 4. The control: topic research across five laws (searches and scattered reads), under the thresholds.
+  const control = `guard-control-${RUN}`;
+  const topics = [['civil-code', 'العقد'], ['commerce', 'الكمبيالة'], ['companies', 'الشركة'], ['labour', 'العامل'], ['civil-procedure', 'الدعوى']];
+  const reads = [['civil-code', 87], ['civil-code', 88], ['civil-code', 246], ['commerce', 40], ['commerce', 90], ['companies', 5], ['companies', 120], ['labour', 22], ['labour', 23], ['labour', 70], ['civil-procedure', 3], ['civil-procedure', 110]];
+  const research = mcpCalls(control, [
+    ...topics.flatMap(([law, query]) => [{ tool: 'search_law', arguments: { query, law } }, { tool: 'search_law', arguments: { query: `${query} التعويض`, law } }]),
+    ...reads.map(([law, number]) => ({ tool: 'get_article', arguments: { number, law } })),
+  ]);
+  const everyFlag = (await library('/flags?status=all')).json?.flags ?? [];
+
+  // 5. A settings change applies within 30 s and is in the history; then it is put back — always, even
+  // when a step in between throws, so a failed run never leaves staging on the changed value.
+  const SEEDED_MAX = 5; // legal-search's first-start default (LEGAL_SEARCH_MAX_RESULTS unset on staging)
+  const previousMax = (await library('/guard-settings')).json?.settings?.max_results;
+  const targetMax = previousMax === 2 ? 3 : 2;
+  const probe = `guard-settings-${RUN}`;
+  let put = null;
+  let applied = false;
+  let appliedMs = null;
+  let shown = null;
+  let latest = null;
+  let restored = null;
+  try {
+    put = await library('/guard-settings', { method: 'PUT', body: { settings: { max_results: targetMax }, reason: `staging guard ${RUN}: settings apply` } });
+    const putAt = Date.now();
+    applied = await waitUntil(() => {
+      const [text] = mcpCalls(probe, [{ tool: 'search_law', arguments: { query: 'العقد', law: 'civil-code' } }]);
+      shown = (text.match(/^\[\d+\]/gm) ?? []).length;
+      return shown === targetMax;
+    }, 30_000);
+    appliedMs = Date.now() - putAt;
+    latest = ((await library('/guard-settings/history')).json?.history ?? [])[0];
+  } finally {
+    restored = await library('/guard-settings', { method: 'PUT', body: { settings: { max_results: previousMax ?? SEEDED_MAX }, reason: `staging guard ${RUN}: restore` } });
+  }
+
+  // 6. Simulate: candidate settings in, the users who would be flagged out, nothing changed.
+  const flagsBefore = (await library('/flags?status=all')).text;
+  const settingsBefore = (await library('/guard-settings')).text;
+  const simulated = await library('/guard-settings/simulate', { method: 'POST', body: { settings: { suspected_run: 10 }, days: 1 } });
+  const flagsAfter = (await library('/flags?status=all')).text;
+  const settingsAfter = (await library('/guard-settings')).text;
+  const wouldFlag = simulated.json?.would_flag ?? [];
+  const telemetry = await library('/telemetry?days=1');
+
+  // 7. A customer gets 403 on every staff route.
+  const outsider = await customer(staff, 'guard-customer', { credits: 0 });
+  const denied = [];
+  for (const [method, route] of GUARD_STAFF_ROUTES) {
+    const res = await api(route.replace(':userId', sweeper.id), { token: outsider.token, method, body: method === 'GET' ? undefined : { reason: 'x' } });
+    denied.push({ route: `${method} ${route}`, status: res.status, code: res.json?.code });
+  }
+  const allDenied = denied.length === 9 && denied.every((d) => d.status === 403 && d.code === 'IQRAA_FORBIDDEN');
+
+  // 8. Staff account suspension: refused before any provider call; unsuspend restores chat.
+  const member = await customer(staff, 'guard-account', { credits: 5 });
+  const suspend = await api(`/api/iqraa/admin/accounts/${member.id}/suspend`, { token: staff.token, method: 'POST', body: { reason: `staging guard ${RUN}` } });
+  const blocked = await turn(member, agentId, 'guard-suspended', 'suspended probe');
+  blocked.titles = await titlesAfter(blocked.tag, { expectOne: false, windowMs: 6_000 });
+  const unsuspend = await api(`/api/iqraa/admin/accounts/${member.id}/unsuspend`, { token: staff.token, method: 'POST', body: {} });
+  const back = await turn(member, agentId, 'guard-unsuspended', 'unsuspended probe');
+
+  const opened = flag?.evidence?.opened?.[0] ?? {};
+  const escalated = flag?.evidence?.escalated?.[0] ?? {};
+  const sweeperWould = wouldFlag.find((u) => u.user_id === sweeper.id);
+  return {
+    ...verdict({
+      suspectedAt12: check(walk.slice(0, 11).every((text, i) => servedArticle(text, i + 1)) && walk[11] === LIBRARY_CAP_REACHED, `articles 1–11 served ${walk.slice(0, 11).filter((text, i) => servedArticle(text, i + 1)).length}/11; article 12: ${walk[11]?.slice(0, 80)}`),
+      provenAt24: check(walk.slice(12, 23).every((text) => text === LIBRARY_CAP_REACHED) && walk.slice(23).every((text) => text === LIBRARY_SUSPENDED), `13–23 throttled ${walk.slice(12, 23).filter((text) => text === LIBRARY_CAP_REACHED).length}/11; 24–40 suspended ${walk.slice(23).filter((text) => text === LIBRARY_SUSPENDED).length}/17`),
+      alertsInOrder: check(alerts.every((a) => a.level === 'error') && JSON.stringify(changes.map((a) => [a.event, a.flag_level])) === JSON.stringify([['sweep_flag_opened', 'suspected'], ['sweep_flag_escalated', 'proven']]) && JSON.stringify(emittedChanges) === JSON.stringify(['sweep_flag_opened', 'sweep_flag_escalated']) && refusalAlerts === 17, `changes ${JSON.stringify(changes.map((a) => `${a.event}@${a.log_id}`))}; emitted ${JSON.stringify(emittedChanges)}; sweep_refused ${refusalAlerts} (exactly 17: articles 25–40 plus the chat call; more means duplicated alert lines)`),
+      staffSeeEvidence: check(flag?.level === 'proven' && opened.kind === 'run' && opened.law === GUARD_LAW && opened.first === 1 && opened.last === 12 && escalated.first === 13 && escalated.last === 24 && escalated.after_flag === true, `flag ${JSON.stringify({ level: flag?.level, opened, escalated }).slice(0, 300)}`),
+      refusedThroughLibreChat: check(viaChat.calls.length === 2 && toolText(viaChat).includes(LIBRARY_SUSPENDED), `calls ${viaChat.calls.length}; tool result: ${toolText(viaChat).slice(0, 200)}`),
+      clearRestoresAccess: check(cleared.status === 200 && cleared.json?.flag?.cleared_by === staff.id && Boolean(cleared.json?.flag?.cleared_at) && servedArticle(afterClear, 42) && !reopened, `clear ${cleared.status} by ${cleared.json?.flag?.cleared_by} at ${cleared.json?.flag?.cleared_at}; next get_article: ${afterClear?.split('\n')[0]}; flag reopened ${reopened}`),
+      controlNotFlagged: check(research.every((text) => !refused(text) && !text.startsWith('ERROR')) && !everyFlag.some((f) => f.user_id === control), `${research.filter((text) => !refused(text)).length}/${research.length} control calls served; flagged ${everyFlag.some((f) => f.user_id === control)}`),
+      settingsApplyWithin30s: check(previousMax === SEEDED_MAX && put.status === 200 && applied && appliedMs <= 30_000, `max_results before the run ${previousMax} (seeded ${SEEDED_MAX}; anything else is drift left by an earlier run); PUT ${put.status}; ${previousMax} → ${targetMax}; the next search shows ${shown} result(s) after ${appliedMs} ms`),
+      settingsHistory: check(latest?.changed_by === staff.id && latest?.reason?.includes(RUN) && latest?.previous?.max_results === previousMax && latest?.settings?.max_results === targetMax && Boolean(latest?.changed_at) && restored.status === 200, `latest ${JSON.stringify(latest ? { by: latest.changed_by, at: latest.changed_at, reason: latest.reason, from: latest.previous?.max_results, to: latest.settings?.max_results } : null)}; put back ${restored.status}`),
+      simulateChangesNothing: check(simulated.status === 200 && sweeperWould?.level === 'proven' && !wouldFlag.some((u) => u.user_id === control) && flagsAfter === flagsBefore && settingsAfter === settingsBefore, `simulate ${simulated.status}: ${wouldFlag.length} user(s) would be flagged, the sweeper ${sweeperWould?.level}; flags unchanged ${flagsAfter === flagsBefore}; settings unchanged ${settingsAfter === settingsBefore}`),
+      telemetryReport: check(telemetry.status === 200 && telemetry.json?.window_days === 1 && telemetry.json?.users >= 3, `telemetry ${telemetry.status}: users ${telemetry.json?.users}, user-days ${telemetry.json?.user_days}, longest run p99 ${telemetry.json?.longest_run?.p99} max ${telemetry.json?.longest_run?.max}`),
+      customerDenied: check(allDenied, allDenied ? 'all 9 staff routes: 403 IQRAA_FORBIDDEN' : JSON.stringify(denied)),
+      accountSuspendedBeforeProvider: check(suspend.status === 200 && providerCalls(blocked) === 0 && !answered(blocked) && (blocked.result.text ?? '').includes('IQRAA_ACCOUNT_SUSPENDED'), `suspend ${suspend.status}; provider calls ${blocked.calls.length}, title calls ${blocked.titles.length}; reply: ${blocked.result.text?.slice(0, 200)}`),
+      unsuspendRestoresChat: check(unsuspend.status === 200 && answered(back) && back.calls.length >= 1, `unsuspend ${unsuspend.status}; provider calls ${back.calls.length}; reply: ${back.result.text?.slice(0, 120)}`),
+    }),
+    turns: [viaChat, blocked, back].map(summarizeTurn),
+  };
+}
+
 // ---------------------------------------------------------------- setup and run
 
 async function setup() {
@@ -520,6 +662,7 @@ async function main() {
     ['8', scenario8],
     ['13', scenario13],
     ['7', scenario7],
+    ['guard', scenarioGuard],
     ['11', scenario11],
   ];
   // SCENARIOS=3 (or "1,2") runs only those; scenario 3 needs the summarisation config (README "Scenario 3").
@@ -546,7 +689,17 @@ async function main() {
   console.log(`proxy      ${report.proxy.pass ? 'PASS' : 'FAIL'}`);
   for (const [name, c] of Object.entries(report.proxy.checks)) console.log(`   ${c.ok ? 'ok  ' : 'FAIL'} ${name}: ${c.detail}`);
   report.reconciliation = reconcile();
+  // reconcile.js reads MongoDB only; the open sweep flags come from the fork's staff route (spec C.5).
+  try {
+    const flags = await sweepFlagCounts(ctx.staff);
+    report.reconciliation.sweepFlags = flags;
+    report.reconciliation.sweepFlagsLine = `open sweep flags: suspected ${flags.suspected}, proven ${flags.proven}`;
+  } catch (error) {
+    report.reconciliation.ok = false;
+    report.reconciliation.problems = [...(report.reconciliation.problems ?? []), `open sweep flags: ${error.message}`];
+  }
   console.log(`reconciliation ${report.reconciliation.ok ? 'ok' : 'FAIL'} ${JSON.stringify(report.reconciliation)}`);
+  if (report.reconciliation.sweepFlagsLine) console.log(report.reconciliation.sweepFlagsLine);
   report.finishedAt = new Date().toISOString();
   report.pass = Object.values(report.scenarios).every((s) => s.pass) && report.library.pass && report.proxy.pass && report.reconciliation.ok;
   fs.writeFileSync(path.join(OUT, 'scenarios-report.json'), JSON.stringify(report, null, 2));

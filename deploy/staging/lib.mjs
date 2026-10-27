@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 export const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -228,6 +228,53 @@ export function legalSearchHealthy() {
   } catch {
     return false;
   }
+}
+
+const MCP_CALLS = path.join(HERE, 'scripts', 'mcp-calls.py');
+
+/**
+ * MCP tool calls as `user` (X-Iqraa-User), made from inside the legal-search container, which is not
+ * published to the host; the script reads the shared secret there. Returns each call's tool text, in order.
+ */
+export function mcpCalls(user, calls) {
+  const plan = Buffer.from(JSON.stringify({ user, calls }), 'utf8').toString('base64');
+  const out = execFileSync('docker', ['compose', '-f', COMPOSE, 'exec', '-T', 'legal-search', 'python3', '-I', '-', plan], {
+    encoding: 'utf8',
+    input: fs.readFileSync(MCP_CALLS, 'utf8'),
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  return JSON.parse(out.trim().split('\n').filter(Boolean).pop()).results;
+}
+
+/**
+ * legal-search's sweep alert lines for `userId` (spec C.5): one JSON object per line on the container's
+ * stderr, so both streams of `compose logs` are read. Callers order them by `log_id`, never by time.
+ */
+export function legalSearchAlerts(userId) {
+  const logs = spawnSync('docker', ['compose', '-f', COMPOSE, 'logs', '--no-log-prefix', '--since', '2h', 'legal-search'], {
+    encoding: 'utf8',
+    maxBuffer: 512 * 1024 * 1024,
+  });
+  return `${logs.stdout ?? ''}\n${logs.stderr ?? ''}`
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('{') && line.includes('"sweep_'))
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter((entry) => entry?.user_id === userId);
+}
+
+/** Open sweep flags by level, from the fork's staff `flags` route (the reconciliation line, spec C.5). */
+export async function sweepFlagCounts(staff) {
+  const res = await api('/api/iqraa/admin/library/flags', { token: staff.token });
+  if (res.status !== 200 || !Array.isArray(res.json?.flags)) throw new Error(`staff flags route: ${res.status} ${res.text.slice(0, 200)}`);
+  const count = (level) => res.json.flags.filter((flag) => flag.level === level).length;
+  return { suspected: count('suspected'), proven: count('proven') };
 }
 
 // Ledger rows are attributed by user (fresh accounts per scenario) and by order, never by comparing
