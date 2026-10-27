@@ -8,7 +8,7 @@ from dataclasses import dataclass, fields, replace
 @dataclass(frozen=True)
 class SearchConfig:
     # ts_rank_cd normalisation bit mask: 0 ignores document length (PostgreSQL 17 text-search docs, "Ranking").
-    rank_normalization: int = 0
+    rank_normalization: int = 4  # adopted 2026-10-27, eval-c2-rank-4 (P3-results tuning log)
 
 
 DEFAULT = SearchConfig()
