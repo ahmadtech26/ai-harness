@@ -4,24 +4,11 @@ candidate becomes the new default (P3-results tuning log)."""
 
 from dataclasses import dataclass, fields, replace
 
-from legal_search.normalize import normalize
-
-# Words a query carries that name the question or the law rather than its subject. In an OR of prefix terms they
-# also match unrelated words (`اي:*` matches «ايجار», `مدي:*` matches «مدين»), so they add noise. «الأردني» is not
-# here: it is the subject of some questions (jurisdiction over Jordanians abroad, Jordanian vs foreign companies).
-QUERY_STOPWORDS = frozenset(
-    normalize(word)
-    # Not «بشأن»: it normalises to «شان», which would also drop the noun in «ذوي الشأن» / «صاحب الشأن».
-    for word in 'كيف متى ماذا لماذا كم أي هناك يوجد حول بخصوص مدى مسألة حالة حالات القانون قانون المادة مادة المواد نص'.split()
-)
-
 
 @dataclass(frozen=True)
 class SearchConfig:
     # ts_rank_cd normalisation bit mask: 0 ignores document length (PostgreSQL 17 text-search docs, "Ranking").
     rank_normalization: int = 4  # adopted 2026-10-27, eval-c2-rank-4 (P3-results tuning log)
-    # Also drop QUERY_STOPWORDS from queries (candidate C3).
-    query_stopwords: bool = False
 
 
 DEFAULT = SearchConfig()
