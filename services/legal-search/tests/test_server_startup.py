@@ -8,6 +8,11 @@ from starlette.testclient import TestClient
 
 from legal_search.caps import Caps
 from legal_search.server import build_app
+import psycopg
+
+from legal_search.tools import SUSPENDED
+from tests.mcp import tool_text
+from tests.pg import TABLES
 
 pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
 
@@ -78,3 +83,34 @@ def test_lists_the_three_library_tools_with_the_law_filter():
     listed = {tool['name']: tool for tool in json.loads(data)['result']['tools']}
     assert sorted(listed) == ['get_article', 'get_memorandum', 'search_law']
     assert 'law' in listed['search_law']['inputSchema']['properties']
+
+
+def _fresh_tables():
+    with psycopg.connect(os.environ['DATABASE_URL'], autocommit=True) as conn:
+        conn.execute(f'DROP TABLE IF EXISTS {TABLES} CASCADE')
+
+
+def test_the_first_start_seeds_the_guard_settings_from_the_environment_caps():
+    _fresh_tables()
+    pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=2, open=False, kwargs={'autocommit': True})
+
+    with TestClient(build_app(pool, Caps(per_answer=6, daily=200, max_results=4), secrets.token_hex(16), ['legal-search:*'])):
+        pass
+
+    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+        stored = conn.execute('SELECT settings FROM guard_settings WHERE id = 1').fetchone()[0]
+    assert (stored['per_answer'], stored['daily'], stored['max_results'], stored['suspected_run']) == (6, 200, 4, 12)
+
+
+def test_mcp_tool_calls_are_decided_by_the_guard():
+    _fresh_tables()
+    secret = secrets.token_hex(16)
+
+    with TestClient(_app(secret)) as client:
+        with psycopg.connect(os.environ['DATABASE_URL'], autocommit=True) as conn:
+            conn.execute(
+                "INSERT INTO sweep_flags (user_id, level, opened_log_id, evidence) VALUES ('u-mcp', 'proven', 0, '{}')"
+            )
+        text = tool_text(client, 'u-mcp', 'get_article', {'number': 1}, {'x-iqraa-secret': secret})
+
+    assert text == SUSPENDED

@@ -1,10 +1,10 @@
 """MCP server (streamable HTTP) exposing the legal library to LibreChat specialists: `search_law`,
 `get_article` and `get_memorandum` (their behaviour lives in tools.py).
 
-Every MCP request must carry the shared secret (`X-Iqraa-Secret`); tool calls must carry the caller's
-identity (`X-Iqraa-User`, `X-Iqraa-Message`, `X-Iqraa-Conversation`), which LibreChat fills from
-`requestHeaders` placeholders. Results are capped per answer and per user per day, and every call is
-written to the retrieval log.
+Every request must carry the shared secret (`X-Iqraa-Secret`); tool calls must carry the caller's identity
+(`X-Iqraa-User`, `X-Iqraa-Message`, `X-Iqraa-Conversation`), which LibreChat fills from `requestHeaders`
+placeholders. Each tool call reads the guard settings (thresholds and caps, cached for at most 30 s), is
+decided by the sweep guard, capped, and written to the retrieval log.
 """
 
 import hmac
@@ -19,6 +19,7 @@ from psycopg_pool import AsyncConnectionPool
 
 from legal_search import db, tools
 from legal_search.caps import Caps
+from legal_search.guard_settings import GuardSettings, SettingsCache, ensure_settings, validate
 
 Scope = dict
 Receive = Callable[[], Awaitable[dict]]
@@ -45,6 +46,7 @@ def allowed_hosts_from_env() -> list[str]:
 
 
 def caps_from_env() -> Caps:
+    """The environment's caps: the guard settings' first-start defaults (runtime values live in guard_settings)."""
     return Caps(
         per_answer=int(os.environ.get('LEGAL_SEARCH_PER_ANSWER_CAP', '8')),
         daily=int(os.environ.get('LEGAL_SEARCH_DAILY_CAP', '300')),
@@ -53,7 +55,7 @@ def caps_from_env() -> Caps:
 
 
 class SecretGuard:
-    """ASGI wrapper: refuse any MCP request without the shared secret (health check excepted)."""
+    """ASGI wrapper: refuse any request without the shared secret (health check excepted)."""
 
     def __init__(self, app, secret: str) -> None:
         self.app = app
@@ -61,6 +63,8 @@ class SecretGuard:
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope['type'] != 'http':
+            # Lifespan (and any other non-HTTP scope) passes unchecked. That is safe only because every route
+            # behind this guard is HTTP-only: a websocket route would need its own secret check.
             await self.app(scope, receive, send)
             return
         if scope.get('path') == '/health':
@@ -78,7 +82,7 @@ class SecretGuard:
         await send({'type': 'http.response.body', 'body': body})
 
 
-def build_server(pool: AsyncConnectionPool, caps: Caps, allowed_hosts: list[str]) -> FastMCP:
+def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts: list[str]) -> FastMCP:
     # The SDK only auto-protects localhost binds; name the service's own hosts so rebinding protection
     # stays on behind a service name. Server-to-server callers send no Origin, so none is allowed.
     security = TransportSecuritySettings(
@@ -100,14 +104,16 @@ def build_server(pool: AsyncConnectionPool, caps: Caps, allowed_hosts: list[str]
         Pass `law` (a law slug such as "penal-code" or "civil-procedure") to search that law only."""
         who = caller(ctx)
         async with pool.connection() as conn:
-            return await tools.search_law(conn, caps, who, query, limit, law)
+            settings = await cache.get(conn)
+            return await tools.search_law(conn, settings.caps, who, query, limit, law, guard=settings)
 
     @mcp.tool()
     async def get_article(number: int, ctx: Context, suffix: str = '', law: str = 'civil-code') -> str:
         """Fetch one article by number (and suffix such as «مكرر») from a law, by its slug; default law is the Civil Code."""
         who = caller(ctx)
         async with pool.connection() as conn:
-            return await tools.get_article(conn, caps, who, number, suffix, law)
+            settings = await cache.get(conn)
+            return await tools.get_article(conn, settings.caps, who, number, suffix, law, guard=settings)
 
     @mcp.tool()
     async def get_memorandum(article: int, ctx: Context, offset: int = 0) -> str:
@@ -115,14 +121,18 @@ def build_server(pool: AsyncConnectionPool, caps: Caps, allowed_hosts: list[str]
         The result says how many notes remain and the next `offset`."""
         who = caller(ctx)
         async with pool.connection() as conn:
-            return await tools.get_memorandum(conn, caps, who, article, offset)
+            settings = await cache.get(conn)
+            return await tools.get_memorandum(conn, settings.caps, who, article, offset, guard=settings)
 
     return mcp
 
 
 def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts: list[str]) -> SecretGuard:
-    """The ASGI app: MCP over streamable HTTP behind the secret guard; the pool opens with the app."""
-    inner = build_server(pool, caps, allowed_hosts).streamable_http_app()
+    """The ASGI app behind the secret guard; the pool opens with the app. `caps` (the environment's) seed the
+    guard settings on first start only; afterwards the database row is authoritative."""
+    defaults = validate(GuardSettings(per_answer=caps.per_answer, daily=caps.daily, max_results=caps.max_results).as_dict())
+    cache = SettingsCache()
+    inner = build_server(pool, cache, allowed_hosts).streamable_http_app()
     inner_lifespan = inner.router.lifespan_context
 
     @asynccontextmanager
@@ -131,6 +141,7 @@ def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts:
         try:
             async with pool.connection() as conn:
                 await db.create_schema(conn)
+                await ensure_settings(conn, defaults)
             async with inner_lifespan(app):
                 yield
         finally:
