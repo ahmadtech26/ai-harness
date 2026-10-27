@@ -81,3 +81,16 @@ def keep_decision(incumbent: dict, candidate: dict) -> tuple[bool, list[str]]:
     if not reasons and after['recall@5'] == before['recall@5'] and after['mrr'] == before['mrr']:
         reasons.append('no change in overall recall@5 or MRR')
     return not reasons, reasons
+
+
+def targets_missed(metrics: dict, *, recall5: float, law_floor: float, mrr: float) -> list[str]:
+    """Each agreed target (REQ-EVL-003) the run misses; empty when every target is met."""
+    overall = metrics['overall']
+    missed = []
+    if overall['recall@5'] < recall5:
+        missed.append(f'overall recall@5 {overall["recall@5"]:.4f} < {recall5:g}')
+    missed += [f'{law} recall@5 {row["recall@5"]:.4f} < {law_floor:g}'
+               for law, row in metrics['per_law'].items() if row['recall@5'] < law_floor]
+    if overall['mrr'] < mrr:
+        missed.append(f'overall MRR {overall["mrr"]:.4f} < {mrr:g}')
+    return missed

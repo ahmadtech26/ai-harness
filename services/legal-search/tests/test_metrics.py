@@ -2,7 +2,7 @@ import argparse
 import pytest
 
 from legal_search.evaluate import EvalError, _label, compare
-from legal_search.metrics import Scored, hit_at, keep_decision, recall_at, reciprocal_rank, summarise
+from legal_search.metrics import Scored, hit_at, keep_decision, recall_at, reciprocal_rank, summarise, targets_missed
 
 A, B = ('civil-code', 1, ''), ('civil-code', 2, '')
 X, Y, Z, W, V = (('civil-code', n, '') for n in (91, 92, 93, 94, 95))
@@ -97,3 +97,22 @@ def test_labels_keep_report_files_inside_the_out_directory():
     for label in ('../baseline', 'a/b', '.hidden', 'Baseline', 'final\n', ''):
         with pytest.raises(argparse.ArgumentTypeError):
             _label(label)
+
+
+FINAL = {
+    'overall': {'recall@5': 0.78, 'mrr': 0.55},
+    'per_law': {'civil-code': {'recall@5': 0.90}, 'labour': {'recall@5': 0.50}},
+}
+
+
+def test_targets_list_every_missed_target():
+    # Thresholds print as given (:g), so an agreed 0.825 is never shown rounded.
+    assert targets_missed(FINAL, recall5=0.80, law_floor=0.60, mrr=0.60) == [
+        'overall recall@5 0.7800 < 0.8',
+        'labour recall@5 0.5000 < 0.6',
+        'overall MRR 0.5500 < 0.6',
+    ]
+
+
+def test_targets_met_returns_nothing():
+    assert targets_missed(FINAL, recall5=0.75, law_floor=0.50, mrr=0.55) == []

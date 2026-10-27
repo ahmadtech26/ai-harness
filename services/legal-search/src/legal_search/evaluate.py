@@ -3,6 +3,7 @@
     legal-search-eval check                                        # the set against the corpus (no database)
     legal-search-eval run --label <label> [--reset] [--use-law-filter] [--config name=value ...]
     legal-search-eval compare <incumbent label> <candidate label>  # deltas and the keep rule (REQ-EVL-004)
+    legal-search-eval targets <label> --recall5 X --law-floor Y --mrr Z   # the agreed targets (REQ-EVL-003)
 
 Paths default to the test stack's mounts (/content, /corpus, /evidence). `run` ingests the registry with
 legal-search's own ingest and calls db.search directly: no caps, no MCP, no retrieval log, DEPTH results per
@@ -26,7 +27,7 @@ from legal_search.corrections import CorrectionError, load_corrections
 from legal_search.evalset import EvalSet, EvalSetError, Item, corpus_problems, coverage, coverage_problems, parse_evalset
 from legal_search.ingest import IngestError, Prepared, ingest, prepare
 from legal_search.memorandum import MemorandumError, load_memorandum, load_memorandum_corrections
-from legal_search.metrics import DEPTH, PRECISION, Key, Scored, item_metrics, keep_decision, summarise
+from legal_search.metrics import DEPTH, PRECISION, Key, Scored, item_metrics, keep_decision, summarise, targets_missed
 from legal_search.registry import RegistryError, load_registry
 from legal_search.search_config import DEFAULT, SearchConfig, with_overrides
 
@@ -270,6 +271,11 @@ def _parser() -> argparse.ArgumentParser:
     compare_command = commands.add_parser('compare', help='compare two runs in --out and apply the keep rule')
     compare_command.add_argument('incumbent', type=_label)
     compare_command.add_argument('candidate', type=_label)
+    targets = commands.add_parser('targets', help='check a run against the agreed targets')
+    targets.add_argument('label', type=_label)
+    targets.add_argument('--recall5', type=float, required=True)
+    targets.add_argument('--law-floor', type=float, required=True)
+    targets.add_argument('--mrr', type=float, required=True)
     return parser
 
 
@@ -295,8 +301,11 @@ def main() -> None:
                   f'{"pass" if report["memorandum"]["pass"] else "FAIL"}')
             if not report['memorandum']['pass']:
                 raise SystemExit(1)  # the report is written as evidence; a linkage bug must still fail the run
-        else:
+        elif args.command == 'compare':
             print('\n'.join(compare(_load(args.out, args.incumbent), _load(args.out, args.candidate))))
+        else:
+            missed = targets_missed(_load(args.out, args.label)['metrics'], recall5=args.recall5, law_floor=args.law_floor, mrr=args.mrr)
+            print('targets: MET' if not missed else 'targets: MISSED\n' + '\n'.join(f'  {line}' for line in missed))
     except (EvalError, ValueError, *ERRORS) as error:
         raise SystemExit(f'legal-search-eval: {error}') from error
 
