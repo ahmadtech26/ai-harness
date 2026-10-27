@@ -70,8 +70,48 @@ CREATE TABLE IF NOT EXISTS retrieval_log (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS note_ids BIGINT[] NOT NULL DEFAULT '{}';
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS requested_law TEXT;
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS requested_number INT;
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS requested_suffix TEXT;
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS outcome TEXT NOT NULL DEFAULT 'served'
+  CHECK (outcome IN ('served', 'capped', 'throttled', 'suspended'));
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS candidate_ids BIGINT[] NOT NULL DEFAULT '{}';
 CREATE INDEX IF NOT EXISTS retrieval_log_user_time ON retrieval_log (user_id, created_at);
 CREATE INDEX IF NOT EXISTS retrieval_log_message ON retrieval_log (message_id);
+CREATE TABLE IF NOT EXISTS guard_settings (
+  id INT PRIMARY KEY CHECK (id = 1),
+  settings JSONB NOT NULL,
+  updated_by TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS guard_settings_history (
+  id BIGSERIAL PRIMARY KEY,
+  changed_by TEXT NOT NULL,
+  changed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  reason TEXT NOT NULL,
+  previous JSONB,
+  settings JSONB NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sweep_flags (
+  id BIGSERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  level TEXT NOT NULL CHECK (level IN ('suspected', 'proven')),
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'cleared')),
+  opened_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  opened_log_id BIGINT NOT NULL,
+  escalated_at TIMESTAMPTZ,
+  escalated_log_id BIGINT,
+  evidence JSONB NOT NULL,
+  cleared_at TIMESTAMPTZ,
+  cleared_by TEXT,
+  clear_reason TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS sweep_flags_one_open ON sweep_flags (user_id) WHERE status = 'open';
+CREATE TABLE IF NOT EXISTS guard_watermarks (
+  user_id TEXT PRIMARY KEY,
+  since TIMESTAMPTZ NOT NULL,
+  since_log_id BIGINT NOT NULL
+);
 """
 
 # Function words that would otherwise match nearly every article.
@@ -323,14 +363,25 @@ async def log_retrieval(
     query: str | None,
     article_ids: list[int],
     note_ids: list[int] | None = None,
-) -> None:
-    await conn.execute(
+    requested_law: str | None = None,
+    requested_number: int | None = None,
+    requested_suffix: str | None = None,
+    outcome: str = 'served',
+    candidate_ids: list[int] | None = None,
+) -> int:
+    """One row per tool call, served or refused (the sweep detector's events); returns the row's id.
+    `candidate_ids`: the articles a search was decided on, when it served fewer of them (refused or trimmed)."""
+    cur = await conn.execute(
         """
-        INSERT INTO retrieval_log (user_id, message_id, conversation_id, tool, query, article_ids, note_ids)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO retrieval_log (user_id, message_id, conversation_id, tool, query, article_ids, note_ids,
+          requested_law, requested_number, requested_suffix, outcome, candidate_ids)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING id
         """,
-        (user_id, message_id, conversation_id, tool, query, article_ids, note_ids or []),
+        (user_id, message_id, conversation_id, tool, query, article_ids, note_ids or [], requested_law,
+         requested_number, requested_suffix, outcome, candidate_ids or []),
     )
+    return (await cur.fetchone())[0]
 
 
 async def documents_for_message(conn: AsyncConnection, message_id: str) -> int:

@@ -4,7 +4,10 @@ from psycopg import AsyncConnection
 
 from legal_search import db
 
-TABLES = 'memorandum_links, memorandum_notes, articles, laws, retrieval_log'
+TABLES = (
+    'sweep_flags, guard_watermarks, guard_settings_history, guard_settings, '
+    'memorandum_links, memorandum_notes, articles, laws, retrieval_log'
+)
 
 
 async def fresh(conn: AsyncConnection) -> None:
