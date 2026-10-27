@@ -42,3 +42,26 @@ async def test_a_synonym_finds_an_article_worded_with_the_other_member(conn):
 
     assert plain == []
     assert [a.number for a in expanded] == [449]
+
+
+async def test_phrase_boost_ranks_adjacent_query_words_above_scattered_ones(conn):
+    # Same words, same length: article 1 has «الضمان» and «الضرر» apart, article 2 side by side.
+    await db.upsert_articles(conn, [
+        Article('civil-code', 'x', 1, '', 'الضرر يقع على المال ويلزم عندئذ الضمان كاملا.', 's', 'a.md'),
+        Article('civil-code', 'x', 2, '', 'يلزم ضمان الضرر الواقع على المال كاملا عندئذ.', 's', 'a.md'),
+    ])
+
+    # rank_normalization pinned to 0: flag 4 (an adopted C2 value) would itself reward adjacency. At 0 both
+    # articles score 0.2 (PostgreSQL 17.11, Facts), so plain order is the number tie-break; boost 1.0 gives 2 0.3.
+    plain = await db.search(conn, 'ضمان الضرر', 2, config=SearchConfig(rank_normalization=0, phrase_boost=0.0))
+    boosted = await db.search(conn, 'ضمان الضرر', 2, config=SearchConfig(rank_normalization=0, phrase_boost=1.0))
+
+    assert [a.number for a in plain] == [1, 2]
+    assert [a.number for a in boosted] == [2, 1]
+
+
+def test_phrase_pairs_keep_the_query_distance_across_a_preposition():
+    # «التعويض عن الضرر», «الدفاع عن النفس»: the stopword between still holds a position in the article's tsvector,
+    # so each pair is a phrase at its distance in the query, not `<->`.
+    assert db.phrase_tsquery('التعويض عن الضرر', SearchConfig()) == '(تعويض:* <2> ضرر:*)'
+    assert db.phrase_tsquery('شروط الدفاع عن النفس', SearchConfig()) == '(شروط:* <1> دفاع:*) | (دفاع:* <2> نفس:*)'
