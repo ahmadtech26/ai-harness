@@ -6,7 +6,12 @@ from pathlib import Path
 
 from legal_search.normalize import fold
 
-_HEADING = re.compile(r'^###\s+المادة\s+(?P<number>[0-9٠-٩]+)\s*(?P<suffix>مكرر(?:\s+\S+)?)?\s*(?:[—–-]\s*(?P<inline>.*))?$')
+# The suffix is «مكرر» plus at most one word; a dash is never that word (`153 مكرر — –` is article 153 مكرر).
+_HEADING = re.compile(
+    r'^###\s+المادة\s+(?P<number>[0-9٠-٩]+)\s*(?P<suffix>مكرر(?:\s+[^\s—–-]\S*)?)?\s*(?:[—–-]\s*(?P<inline>.*))?$'
+)
+# What follows «— » on a heading line when it holds no words (e.g. «):», «–», «ــ»): not article text.
+_PUNCTUATION_ONLY = re.compile(r'^[\s:;.,()\[\]—–\-ـ]*$')
 _FRONTMATTER = re.compile(r'\A---\n.*?\n---\n', re.DOTALL)
 _SEPARATOR = re.compile(r'^\s*---\s*$')
 
@@ -57,10 +62,11 @@ def parse_shard(path: Path, law_slug: str) -> list[Article]:
         heading = _HEADING.match(line.strip())
         if heading:
             flush()
+            inline = (heading.group('inline') or '').strip()
             current = {
                 'number': int(fold(heading.group('number'))),
                 'suffix': (heading.group('suffix') or '').strip(),
-                'inline': (heading.group('inline') or '').strip(),
+                'inline': '' if _PUNCTUATION_ONLY.match(inline) else inline,
             }
             lines = []
         elif current is not None and not _SEPARATOR.match(line):

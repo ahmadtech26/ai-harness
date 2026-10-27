@@ -55,6 +55,36 @@ def test_skips_headings_without_text(tmp_path: Path):
     assert parse_shard(shard, 'civil-code') == []
 
 
+def _penal_shard(tmp_path: Path, body: str) -> Path:
+    shard = tmp_path / 'p.md'
+    shard.write_text('---\nparent_law: قانون العقوبات الأردني\nsource: example.test\n---\n\n' + body, encoding='utf-8')
+    return shard
+
+
+def test_a_dash_after_the_repeat_marker_is_not_part_of_the_suffix(tmp_path: Path):
+    shard = _penal_shard(tmp_path, '### المادة 153 مكرر — –\n\nعلى الرغم مما ورد في أي قانون آخر:\n')
+
+    articles = parse_shard(shard, 'penal-code')
+
+    assert [(a.number, a.suffix) for a in articles] == [(153, 'مكرر')]
+
+
+def test_a_word_after_the_repeat_marker_stays_in_the_suffix(tmp_path: Path):
+    shard = _penal_shard(tmp_path, '### المادة 10 مكرر ثانياً\n\nنص المادة.\n')
+
+    articles = parse_shard(shard, 'penal-code')
+
+    assert [(a.number, a.suffix) for a in articles] == [(10, 'مكرر ثانياً')]
+
+
+def test_a_punctuation_only_heading_remainder_is_not_quoted(tmp_path: Path):
+    shard = _penal_shard(tmp_path, '### المادة 25 مكرر — ):\n\n1. للمحكمة في الجنح كافة.\n')
+
+    articles = parse_shard(shard, 'penal-code')
+
+    assert articles[0].text == '1. للمحكمة في الجنح كافة.'
+
+
 @pytest.mark.skipif(not os.environ.get('CIVIL_CODE_DIR'), reason='real corpus not mounted')
 def test_real_civil_code_parses_every_article_once():
     articles = parse_law(Path(os.environ['CIVIL_CODE_DIR']), 'civil-code')
