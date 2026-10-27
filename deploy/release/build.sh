@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Build a release image: skill CI, then the fork image plus the content skills (and extra skill folders).
+# Build a release image: skill CI and corpus CI, then the fork image plus the content skills (and extra skill folders).
 #   deploy/release/build.sh <tag> <platform-sha> [--allow-draft] [--record] [--extra <dir>]...
-# --allow-draft  staging and drills: skills need not be approved yet
+# --allow-draft  staging and drills: skills, the law registry and the corrections need not be approved yet
 # --record       production: write the released versions to content/skills/RELEASED.json
 set -euo pipefail
 
@@ -29,6 +29,9 @@ docker build -q -t iqraa/skill-tools "$harness/tools/skills" >/dev/null
 ci=(skill-ci --content /w/content)
 [ "$allow_draft" = 1 ] || ci+=(--release)
 MSYS_NO_PATHCONV=1 docker run --rm -v "$(winpath "$harness"):/w:ro" iqraa/skill-tools "${ci[@]}"
+corpus_ci=(corpus-ci --content /w/content --corpus "/w/jordanian-law/references/القوانين-الأردنية")
+[ "$allow_draft" = 1 ] || corpus_ci+=(--release)
+MSYS_NO_PATHCONV=1 docker run --rm -v "$(winpath "$harness"):/w:ro" iqraa/skill-tools "${corpus_ci[@]}"
 
 mounts=(-v "$(winpath "$harness"):/w:ro" -v "$(winpath "$stage"):/out")
 args=(skill-stage --content /w/content --out /out --tag "$tag" --platform "$platform")

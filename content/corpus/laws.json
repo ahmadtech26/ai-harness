@@ -1,0 +1,166 @@
+{
+  "laws": [
+    {
+      "slug": "civil-code",
+      "title": "القانون المدني الأردني",
+      "folder": "القانون-المدني-الأردني",
+      "known_gaps": [
+        {
+          "number": 1287,
+          "suffix": "",
+          "reason": "The heading «المادة 1287» has no text in sections/12-المواد-1223-1320.md, and the folder's full file marks it «نص المادة غير متوفر». The text is to come from the Official Gazette (Phase 4 verification)."
+        }
+      ],
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "majalla",
+      "title": "مجلة الأحكام العدلية",
+      "folder": "مجلة-الأحكام-العدلية",
+      "note": "تطبق فيما لا يتعارض مع أحكام القانون المدني (المادة 1448)",
+      "review": { "status": "draft" },
+      "sources": { "title": "http://www.adaleh.info/Art.aspx?Typ=2&Id=1177", "note": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "landlords-tenants",
+      "title": "قانون المالكين والمستأجرين",
+      "folder": "قانون-المالكين-والمستأجرين",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/22" }
+    },
+    {
+      "slug": "penal-code",
+      "title": "قانون العقوبات الأردني",
+      "folder": "قانون-العقوبات-الأردني",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "commerce",
+      "title": "قانون التجارة",
+      "folder": "قانون-التجارة",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/10" }
+    },
+    {
+      "slug": "maritime-commerce",
+      "title": "قانون التجارة البحرية",
+      "folder": "قانون-التجارة-البحرية",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/11" }
+    },
+    {
+      "slug": "companies",
+      "title": "قانون الشركات",
+      "folder": "قانون-الشركات",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/12" }
+    },
+    {
+      "slug": "customs",
+      "title": "قانون الجمارك",
+      "folder": "قانون-الجمارك",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/14" }
+    },
+    {
+      "slug": "income-tax",
+      "title": "قانون ضريبة الدخل",
+      "folder": "قانون-ضريبة-الدخل",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/15" }
+    },
+    {
+      "slug": "sales-tax",
+      "title": "قانون الضريبة العامة على المبيعات",
+      "folder": "قانون-الضريبة-العامة-على-المبيعات",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/16" }
+    },
+    {
+      "slug": "labour",
+      "title": "قانون العمل",
+      "folder": "قانون-العمل",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/20" }
+    },
+    {
+      "slug": "investment-fund",
+      "title": "قانون صندوق الاستثمار الأردني",
+      "folder": "قانون-صندوق-الاستثمار-الأردني",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/13" }
+    },
+    {
+      "slug": "civil-procedure",
+      "title": "قانون أصول المحاكمات المدنية",
+      "folder": "قانون-أصول-المحاكمات-المدنية",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "evidence",
+      "title": "قانون البينات",
+      "folder": "قانون-البينات",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "execution",
+      "title": "قانون التنفيذ",
+      "folder": "قانون-التنفيذ",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/23" }
+    },
+    {
+      "slug": "mediation",
+      "title": "قانون الوساطة لتسوية النزاعات المدنية",
+      "folder": "قانون-الوساطة",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "criminal-procedure",
+      "title": "قانون أصول المحاكمات الجزائية",
+      "folder": "قانون-أصول-المحاكمات-الجزائية",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "courts-formation",
+      "title": "قانون تشكيل المحاكم النظامية",
+      "folder": "قانون-تشكيل-المحاكم-النظامية",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "magistrates-courts",
+      "title": "قانون محاكم الصلح",
+      "folder": "قانون-محاكم-الصلح",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "major-felonies-court",
+      "title": "قانون محكمة الجنايات الكبرى",
+      "folder": "قانون-محكمة-الجنايات-الكبرى",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "court-fees",
+      "title": "جدول رسوم المحاكم",
+      "folder": "جدول-رسوم-المحاكم",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    },
+    {
+      "slug": "bar-association",
+      "title": "قانون نقابة المحامين النظاميين",
+      "folder": "قانون-نقابة-المحامين",
+      "review": { "status": "draft" },
+      "sources": { "title": "https://jordan-lawyer.com" }
+    }
+  ]
+}

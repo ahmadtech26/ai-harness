@@ -1,11 +1,12 @@
 import json
+import os
 from pathlib import Path
 
 import pytest
 
 from legal_search.corrections import load_corrections
 from legal_search.ingest import IngestError, prepare
-from legal_search.registry import Gap, Law
+from legal_search.registry import Gap, Law, load_registry
 
 LAW = Law(slug='penal-code', title='قانون العقوبات الأردني', folder='penal')
 BODY = '### المادة 1\n\nنص المادة الأولى من القانون.\n\n---\n\n### المادة 2\n\nنص المادة الثانية من القانون.\n'
@@ -68,3 +69,21 @@ def test_corrections_are_applied_before_the_duplicate_check(tmp_path: Path):
     prepared = prepare([LAW], load_corrections(path), _corpus(tmp_path, body, 3))
 
     assert [(a.number, a.suffix) for a in prepared.articles['penal-code']] == [(1, ''), (2, ''), (2, 'مكرر')]
+
+
+@pytest.mark.skipif(not (os.environ.get('CORPUS_DIR') and os.environ.get('CONTENT_DIR')), reason='real corpus not mounted')
+def test_the_real_registry_loads_every_law_at_its_directory_count():
+    corpus_files = Path(os.environ['CONTENT_DIR']) / 'corpus'
+
+    prepared = prepare(
+        load_registry(corpus_files / 'laws.json'),
+        load_corrections(corpus_files / 'corrections.json'),
+        Path(os.environ['CORPUS_DIR']),
+    )
+
+    assert len(prepared.articles) == 22
+    assert sum(len(articles) for articles in prepared.articles.values()) == 6592
+    penal = {(a.number, a.suffix): a.text for a in prepared.articles['penal-code']}
+    assert {(153, 'مكرر'), (25, 'مكرر'), (25, 'مكرر ثانياً')} <= set(penal)
+    # The relabelled article is the second heading's: only its text cites «(25 مكررة)».
+    assert '(25 مكررة)' in penal[(25, 'مكرر ثانياً')] and '(25 مكررة)' not in penal[(25, 'مكرر')]

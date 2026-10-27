@@ -11,6 +11,7 @@ dev = ["pytest>=8"]
 [project.scripts]
 skill-ci = "skill_tools.ci:main"
 skill-stage = "skill_tools.stage:main"
+corpus-ci = "skill_tools.corpus_ci:main"
 
 [build-system]
 requires = ["hatchling"]
