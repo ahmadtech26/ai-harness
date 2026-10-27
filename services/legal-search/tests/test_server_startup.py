@@ -1,3 +1,4 @@
+import json
 import os
 import secrets
 
@@ -59,3 +60,21 @@ def test_refuses_mcp_requests_addressed_to_another_host():
         response = _initialize(client, secret, 'attacker.example:8000')
 
     assert response.status_code == 421
+
+
+def test_lists_the_three_library_tools_with_the_law_filter():
+    secret = secrets.token_hex(16)
+
+    with TestClient(_app(secret)) as client:
+        response = client.post(
+            '/mcp',
+            headers={'host': 'legal-search:8000', 'x-iqraa-secret': secret, 'accept': 'application/json, text/event-stream'},
+            json={'jsonrpc': '2.0', 'id': 2, 'method': 'tools/list', 'params': {}},
+        )
+
+    # Stateless streamable HTTP answers with one server-sent event (or plain JSON).
+    body = response.text.strip()
+    data = body if body.startswith('{') else next(l[len('data: '):] for l in body.splitlines() if l.startswith('data: '))
+    listed = {tool['name']: tool for tool in json.loads(data)['result']['tools']}
+    assert sorted(listed) == ['get_article', 'get_memorandum', 'search_law']
+    assert 'law' in listed['search_law']['inputSchema']['properties']

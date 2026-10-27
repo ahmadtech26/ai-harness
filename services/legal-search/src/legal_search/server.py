@@ -1,4 +1,5 @@
-"""MCP server (streamable HTTP) exposing `search_law` and `get_article` to LibreChat specialists.
+"""MCP server (streamable HTTP) exposing the legal library to LibreChat specialists: `search_law`,
+`get_article` and `get_memorandum` (their behaviour lives in tools.py).
 
 Every MCP request must carry the shared secret (`X-Iqraa-Secret`); tool calls must carry the caller's
 identity (`X-Iqraa-User`, `X-Iqraa-Message`, `X-Iqraa-Conversation`), which LibreChat fills from
@@ -16,15 +17,12 @@ from mcp.server.fastmcp import Context, FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from psycopg_pool import AsyncConnectionPool
 
-from legal_search import db
-from legal_search.caps import Caps, allowed
+from legal_search import db, tools
+from legal_search.caps import Caps
 
 Scope = dict
 Receive = Callable[[], Awaitable[dict]]
 Send = Callable[[dict], Awaitable[None]]
-
-UNVERIFIED = 'لم يُتحقق بعد من مطابقته للنص المنشور في الجريدة الرسمية'
-CAP_REACHED = 'تم بلوغ الحد المسموح من النصوص لهذه الإجابة أو لهذا اليوم. يُرجى الاعتماد على ما سبق استرجاعه.'
 
 
 def read_secret() -> str:
@@ -52,16 +50,6 @@ def caps_from_env() -> Caps:
         daily=int(os.environ.get('LEGAL_SEARCH_DAILY_CAP', '300')),
         max_results=int(os.environ.get('LEGAL_SEARCH_MAX_RESULTS', '5')),
     )
-
-
-def format_articles(found: list[db.Found]) -> str:
-    blocks = []
-    for index, article in enumerate(found, start=1):
-        status = 'متحقق منه' if article.verified else UNVERIFIED
-        blocks.append(
-            f'[{index}] {article.law_title} — {article.label}\n{article.text}\n(المصدر: {article.source} — {status})'
-        )
-    return '\n\n'.join(blocks)
 
 
 class SecretGuard:
@@ -98,58 +86,36 @@ def build_server(pool: AsyncConnectionPool, caps: Caps, allowed_hosts: list[str]
     )
     mcp = FastMCP('legal-search', stateless_http=True, transport_security=security)
 
-    def identity(ctx: Context) -> tuple[str, str | None, str | None]:
+    def caller(ctx: Context) -> tools.Caller:
         request = ctx.request_context.request
         headers = request.headers if request is not None else {}
         user = (headers.get('x-iqraa-user') or '').strip()
         if not user:
             raise ValueError('caller identity is required')
-        return user, headers.get('x-iqraa-message') or None, headers.get('x-iqraa-conversation') or None
-
-    async def budget(conn, user: str, message: str | None, requested: int) -> int:
-        used_for_answer = await db.documents_for_message(conn, message) if message else 0
-        used_today = await db.documents_for_user_today(conn, user)
-        return allowed(requested, used_for_answer, used_today, caps)
+        return tools.Caller(user, headers.get('x-iqraa-message') or None, headers.get('x-iqraa-conversation') or None)
 
     @mcp.tool()
-    async def search_law(query: str, ctx: Context, limit: int = 5) -> str:
-        """Search Jordanian statutes (Arabic). Returns up to `limit` matching articles with their citation."""
-        user, message, conversation = identity(ctx)
+    async def search_law(query: str, ctx: Context, limit: int = 5, law: str | None = None) -> str:
+        """Search Jordanian statutes (Arabic). Returns up to `limit` matching articles with their citation.
+        Pass `law` (a law slug such as "penal-code" or "civil-procedure") to search that law only."""
+        who = caller(ctx)
         async with pool.connection() as conn:
-            remaining = await budget(conn, user, message, limit)
-            found = await db.search(conn, query, remaining) if remaining > 0 else []
-            await db.log_retrieval(
-                conn,
-                user_id=user,
-                message_id=message,
-                conversation_id=conversation,
-                tool='search_law',
-                query=query,
-                article_ids=[article.id for article in found],
-            )
-        if remaining == 0:
-            return CAP_REACHED
-        return format_articles(found) or 'لم يُعثر على مواد مطابقة في المصادر المحمّلة.'
+            return await tools.search_law(conn, caps, who, query, limit, law)
 
     @mcp.tool()
     async def get_article(number: int, ctx: Context, suffix: str = '', law: str = 'civil-code') -> str:
-        """Fetch one article by number (and suffix such as «مكرر») from a law; default law is the Civil Code."""
-        user, message, conversation = identity(ctx)
+        """Fetch one article by number (and suffix such as «مكرر») from a law, by its slug; default law is the Civil Code."""
+        who = caller(ctx)
         async with pool.connection() as conn:
-            remaining = await budget(conn, user, message, 1)
-            article = await db.get_article(conn, law, number, suffix) if remaining > 0 else None
-            await db.log_retrieval(
-                conn,
-                user_id=user,
-                message_id=message,
-                conversation_id=conversation,
-                tool='get_article',
-                query=f'{law}:{number}{suffix}',
-                article_ids=[article.id] if article else [],
-            )
-        if remaining == 0:
-            return CAP_REACHED
-        return format_articles([article]) if article else 'هذه المادة غير موجودة في المصادر المحمّلة.'
+            return await tools.get_article(conn, caps, who, number, suffix, law)
+
+    @mcp.tool()
+    async def get_memorandum(article: int, ctx: Context, offset: int = 0) -> str:
+        """Civil Code explanatory memorandum: the notes linked to a Civil Code article, one page at a time.
+        The result says how many notes remain and the next `offset`."""
+        who = caller(ctx)
+        async with pool.connection() as conn:
+            return await tools.get_memorandum(conn, caps, who, article, offset)
 
     return mcp
 
