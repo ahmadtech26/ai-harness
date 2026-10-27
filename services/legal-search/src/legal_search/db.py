@@ -1,15 +1,37 @@
-"""Postgres storage: articles with an Arabic-normalised full-text index, and the retrieval log."""
+"""Postgres storage: the law registry, articles with an Arabic-normalised full-text index, the Civil Code
+explanatory memorandum, and the retrieval log."""
 
 import os
 from dataclasses import dataclass
+from datetime import date
 
 from psycopg import AsyncConnection
 from psycopg.rows import dict_row
 
 from legal_search.corpus import Article
 from legal_search.normalize import normalize, tokens
+from legal_search.registry import Law
 
+# Run at every service start and every ingest. CREATE … IF NOT EXISTS never changes a table a deployed
+# database already has: a new column on an existing table goes in as ALTER TABLE … ADD COLUMN IF NOT
+# EXISTS after the CREATE statements, as note_ids does.
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS laws (
+  slug TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  number INT,
+  year INT,
+  gazette_issue INT,
+  gazette_date DATE,
+  gazette_url TEXT,
+  amendment_law INT,
+  amendment_year INT,
+  amendment_gazette_issue INT,
+  amendment_gazette_date DATE,
+  amendment_url TEXT,
+  note TEXT,
+  approved BOOLEAN NOT NULL DEFAULT false
+);
 CREATE TABLE IF NOT EXISTS articles (
   id BIGSERIAL PRIMARY KEY,
   law_slug TEXT NOT NULL,
@@ -26,6 +48,16 @@ CREATE TABLE IF NOT EXISTS articles (
   UNIQUE (law_slug, number, suffix)
 );
 CREATE INDEX IF NOT EXISTS articles_tsv ON articles USING GIN (tsv);
+CREATE TABLE IF NOT EXISTS memorandum_notes (
+  note_no INT PRIMARY KEY,
+  text TEXT NOT NULL,
+  source TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE IF NOT EXISTS memorandum_links (
+  article_number INT NOT NULL,
+  note_no INT NOT NULL REFERENCES memorandum_notes (note_no) ON DELETE CASCADE,
+  PRIMARY KEY (article_number, note_no)
+);
 CREATE TABLE IF NOT EXISTS retrieval_log (
   id BIGSERIAL PRIMARY KEY,
   user_id TEXT NOT NULL,
@@ -34,8 +66,10 @@ CREATE TABLE IF NOT EXISTS retrieval_log (
   tool TEXT NOT NULL,
   query TEXT,
   article_ids BIGINT[] NOT NULL DEFAULT '{}',
+  note_ids BIGINT[] NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS note_ids BIGINT[] NOT NULL DEFAULT '{}';
 CREATE INDEX IF NOT EXISTS retrieval_log_user_time ON retrieval_log (user_id, created_at);
 CREATE INDEX IF NOT EXISTS retrieval_log_message ON retrieval_log (message_id);
 """
@@ -59,13 +93,33 @@ def database_url() -> str:
 
 
 @dataclass(frozen=True)
+class LawMeta:
+    """The registry's citation fields for an article's law; None where the registry has no value."""
+
+    number: int | None = None
+    year: int | None = None
+    gazette_issue: int | None = None
+    gazette_date: date | None = None
+    amendment_law: int | None = None
+    amendment_year: int | None = None
+    amendment_gazette_issue: int | None = None
+    amendment_gazette_date: date | None = None
+    note: str | None = None
+    approved: bool = False
+
+
+@dataclass(frozen=True)
 class Found:
     id: int
+    law_slug: str
+    number: int
+    suffix: str
     law_title: str
     label: str
     text: str
     source: str
     verified: bool
+    law: LawMeta = LawMeta()
 
 
 def build_tsquery(query: str) -> str | None:
@@ -76,6 +130,31 @@ def build_tsquery(query: str) -> str | None:
 
 async def create_schema(conn: AsyncConnection) -> None:
     await conn.execute(SCHEMA)
+
+
+async def upsert_laws(conn: AsyncConnection, laws: list[Law]) -> int:
+    async with conn.cursor() as cur:
+        for law in laws:
+            await cur.execute(
+                """
+                INSERT INTO laws (slug, title, number, year, gazette_issue, gazette_date, gazette_url, amendment_law,
+                  amendment_year, amendment_gazette_issue, amendment_gazette_date, amendment_url, note, approved)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (slug) DO UPDATE SET
+                  title = EXCLUDED.title, number = EXCLUDED.number, year = EXCLUDED.year,
+                  gazette_issue = EXCLUDED.gazette_issue, gazette_date = EXCLUDED.gazette_date,
+                  gazette_url = EXCLUDED.gazette_url, amendment_law = EXCLUDED.amendment_law,
+                  amendment_year = EXCLUDED.amendment_year, amendment_gazette_issue = EXCLUDED.amendment_gazette_issue,
+                  amendment_gazette_date = EXCLUDED.amendment_gazette_date, amendment_url = EXCLUDED.amendment_url,
+                  note = EXCLUDED.note, approved = EXCLUDED.approved
+                """,
+                (
+                    law.slug, law.title, law.number, law.year, law.gazette_issue, law.gazette_date, law.gazette_url,
+                    law.amendment_law, law.amendment_year, law.amendment_gazette_issue, law.amendment_gazette_date,
+                    law.amendment_url, law.note, law.approved,
+                ),
+            )
+    return len(laws)
 
 
 async def upsert_articles(conn: AsyncConnection, articles: list[Article]) -> int:
@@ -104,39 +183,134 @@ async def upsert_articles(conn: AsyncConnection, articles: list[Article]) -> int
     return len(articles)
 
 
+async def prune_articles(conn: AsyncConnection, law_slug: str, keep: set[tuple[int, str]]) -> int:
+    """Delete this law's articles whose (number, suffix) is not in `keep`; returns how many went."""
+    ordered = sorted(keep)
+    cur = await conn.execute(
+        """
+        DELETE FROM articles a
+        WHERE a.law_slug = %s
+          AND (a.number, a.suffix) NOT IN (SELECT k.n, k.s FROM unnest(%s::int[], %s::text[]) AS k (n, s))
+        """,
+        (law_slug, [number for number, _ in ordered], [suffix for _, suffix in ordered]),
+    )
+    return cur.rowcount
+
+
+# Every result joins its law's registry row; LEFT JOIN so an article never disappears for want of one.
+_SELECT = """
+SELECT a.id, a.law_slug, a.number, a.suffix, COALESCE(l.title, a.law_title) AS law_title, a.label, a.text,
+       a.source, a.verified_at, l.number AS law_number, l.year AS law_year, l.gazette_issue, l.gazette_date,
+       l.amendment_law, l.amendment_year, l.amendment_gazette_issue, l.amendment_gazette_date, l.note,
+       COALESCE(l.approved, false) AS approved
+FROM articles a LEFT JOIN laws l ON l.slug = a.law_slug
+"""
+
+
 def _found(row: dict) -> Found:
-    return Found(row['id'], row['law_title'], row['label'], row['text'], row['source'], row['verified_at'] is not None)
+    return Found(
+        id=row['id'],
+        law_slug=row['law_slug'],
+        number=row['number'],
+        suffix=row['suffix'],
+        law_title=row['law_title'],
+        label=row['label'],
+        text=row['text'],
+        source=row['source'],
+        verified=row['verified_at'] is not None,
+        law=LawMeta(
+            number=row['law_number'],
+            year=row['law_year'],
+            gazette_issue=row['gazette_issue'],
+            gazette_date=row['gazette_date'],
+            amendment_law=row['amendment_law'],
+            amendment_year=row['amendment_year'],
+            amendment_gazette_issue=row['amendment_gazette_issue'],
+            amendment_gazette_date=row['amendment_gazette_date'],
+            note=row['note'],
+            approved=row['approved'],
+        ),
+    )
 
 
-async def search(conn: AsyncConnection, query: str, limit: int) -> list[Found]:
+async def search(conn: AsyncConnection, query: str, limit: int, law: str | None = None) -> list[Found]:
+    """Ranked keyword search, optionally within one law; ties break on number, law and suffix (deterministic)."""
     tsquery = build_tsquery(query)
     if tsquery is None or limit <= 0:
         return []
     async with conn.cursor(row_factory=dict_row) as cur:
         await cur.execute(
-            """
-            SELECT a.id, a.law_title, a.label, a.text, a.source, a.verified_at
-            FROM articles a, to_tsquery('simple', %s) q
-            WHERE a.tsv @@ q
-            ORDER BY ts_rank_cd(a.tsv, q) DESC, a.number ASC
+            _SELECT
+            + """
+            CROSS JOIN to_tsquery('simple', %s) q
+            WHERE a.tsv @@ q AND (%s::text IS NULL OR a.law_slug = %s)
+            ORDER BY ts_rank_cd(a.tsv, q) DESC, a.number ASC, a.law_slug ASC, a.suffix ASC
             LIMIT %s
             """,
-            (tsquery, limit),
+            (tsquery, law, law, limit),
         )
         return [_found(row) for row in await cur.fetchall()]
 
 
 async def get_article(conn: AsyncConnection, law_slug: str, number: int, suffix: str) -> Found | None:
     async with conn.cursor(row_factory=dict_row) as cur:
-        await cur.execute(
-            """
-            SELECT id, law_title, label, text, source, verified_at FROM articles
-            WHERE law_slug = %s AND number = %s AND suffix = %s
-            """,
-            (law_slug, number, suffix),
-        )
+        await cur.execute(_SELECT + ' WHERE a.law_slug = %s AND a.number = %s AND a.suffix = %s', (law_slug, number, suffix))
         row = await cur.fetchone()
         return _found(row) if row else None
+
+
+async def law_slugs(conn: AsyncConnection) -> list[str]:
+    # Articles count too, so a law stays usable if the service starts before its registry row is loaded.
+    cur = await conn.execute('SELECT slug FROM laws UNION SELECT law_slug FROM articles ORDER BY 1')
+    return [row[0] for row in await cur.fetchall()]
+
+
+@dataclass(frozen=True)
+class Note:
+    note_no: int
+    text: str
+    source: str
+    first_article: int | None = None  # the lowest and highest Civil Code article linked to this note
+    last_article: int | None = None
+
+
+async def replace_memorandum(conn: AsyncConnection, notes: dict[int, str], links: list[tuple[int, int]], source: str) -> None:
+    """Make the memorandum tables equal to the source: upsert notes, replace links, drop vanished notes."""
+    await conn.execute('DELETE FROM memorandum_links')
+    async with conn.cursor() as cur:
+        await cur.executemany(
+            """
+            INSERT INTO memorandum_notes (note_no, text, source) VALUES (%s, %s, %s)
+            ON CONFLICT (note_no) DO UPDATE SET text = EXCLUDED.text, source = EXCLUDED.source
+            """,
+            [(note_no, text, source) for note_no, text in sorted(notes.items())],
+        )
+        await cur.executemany('INSERT INTO memorandum_links (article_number, note_no) VALUES (%s, %s)', links)
+    await conn.execute('DELETE FROM memorandum_notes WHERE NOT (note_no = ANY(%s::int[]))', (sorted(notes),))
+
+
+async def memorandum_count(conn: AsyncConnection, article_number: int) -> int:
+    cur = await conn.execute('SELECT count(*) FROM memorandum_links WHERE article_number = %s', (article_number,))
+    return int((await cur.fetchone())[0])
+
+
+async def memorandum_page(conn: AsyncConnection, article_number: int, offset: int, limit: int) -> list[Note]:
+    """Up to `limit` notes linked to a Civil Code article, in note_no order, starting at `offset`; each carries
+    the lowest and highest article linked to it (the articles the note explains)."""
+    if limit <= 0:
+        return []
+    cur = await conn.execute(
+        """
+        SELECT n.note_no, n.text, n.source, s.first_article, s.last_article
+        FROM memorandum_links k
+        JOIN memorandum_notes n ON n.note_no = k.note_no
+        JOIN (SELECT note_no, min(article_number) AS first_article, max(article_number) AS last_article
+              FROM memorandum_links GROUP BY note_no) s ON s.note_no = k.note_no
+        WHERE k.article_number = %s ORDER BY n.note_no LIMIT %s OFFSET %s
+        """,
+        (article_number, limit, offset),
+    )
+    return [Note(*row) for row in await cur.fetchall()]
 
 
 async def log_retrieval(
@@ -148,27 +322,31 @@ async def log_retrieval(
     tool: str,
     query: str | None,
     article_ids: list[int],
+    note_ids: list[int] | None = None,
 ) -> None:
     await conn.execute(
         """
-        INSERT INTO retrieval_log (user_id, message_id, conversation_id, tool, query, article_ids)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO retrieval_log (user_id, message_id, conversation_id, tool, query, article_ids, note_ids)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
-        (user_id, message_id, conversation_id, tool, query, article_ids),
+        (user_id, message_id, conversation_id, tool, query, article_ids, note_ids or []),
     )
 
 
 async def documents_for_message(conn: AsyncConnection, message_id: str) -> int:
+    """Articles plus memorandum notes already served for this answer."""
     cur = await conn.execute(
-        'SELECT COALESCE(SUM(cardinality(article_ids)), 0) FROM retrieval_log WHERE message_id = %s', (message_id,)
+        'SELECT COALESCE(SUM(cardinality(article_ids) + cardinality(note_ids)), 0) FROM retrieval_log WHERE message_id = %s',
+        (message_id,),
     )
     return int((await cur.fetchone())[0])
 
 
 async def documents_for_user_today(conn: AsyncConnection, user_id: str) -> int:
+    """Articles plus memorandum notes served to this user in the last 24 hours."""
     cur = await conn.execute(
         """
-        SELECT COALESCE(SUM(cardinality(article_ids)), 0) FROM retrieval_log
+        SELECT COALESCE(SUM(cardinality(article_ids) + cardinality(note_ids)), 0) FROM retrieval_log
         WHERE user_id = %s AND created_at > now() - interval '24 hours'
         """,
         (user_id,),

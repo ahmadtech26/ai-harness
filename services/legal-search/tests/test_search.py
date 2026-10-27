@@ -5,6 +5,7 @@ from psycopg import AsyncConnection
 
 from legal_search import db
 from legal_search.corpus import Article
+from tests.pg import fresh
 
 pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
 
@@ -18,8 +19,7 @@ ARTICLES = [
 @pytest.fixture
 async def conn():
     async with await AsyncConnection.connect(os.environ['DATABASE_URL'], autocommit=True) as connection:
-        await connection.execute('DROP TABLE IF EXISTS articles, retrieval_log')
-        await db.create_schema(connection)
+        await fresh(connection)
         await db.upsert_articles(connection, ARTICLES)
         yield connection
 

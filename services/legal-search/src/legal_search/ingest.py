@@ -1,6 +1,12 @@
-"""Load one law's statute shards into Postgres.
+r"""Load every law in the registry, and the Civil Code memorandum, into Postgres. Idempotent.
 
-    legal-search-ingest --law-dir <.../القانون-المدني-الأردني> --law-slug civil-code
+    legal-search-ingest --registry <content/corpus/laws.json> --corrections <content/corpus/corrections.json> \
+        --corpus <jordanian-law/references/القوانين-الأردنية>
+
+Every law is parsed, corrected and checked first (count = law-directory.md minus known gaps; no duplicate
+article), and the memorandum's links are read from its own headings with the corrections file's `memorandum`
+entries applied; any defect stops the run before anything is written. Then one transaction upserts the laws
+and articles, deletes articles no longer in the source, and replaces the memorandum tables.
 """
 
 import argparse
@@ -14,8 +20,9 @@ from psycopg import AsyncConnection
 
 from legal_search import db
 from legal_search.corpus import Article, parse_law
-from legal_search.corrections import Correction, apply_corrections
-from legal_search.registry import Law, directory_counts
+from legal_search.corrections import Correction, CorrectionError, apply_corrections, load_corrections
+from legal_search.memorandum import Memorandum, MemorandumError, load_memorandum, load_memorandum_corrections
+from legal_search.registry import Law, RegistryError, directory_counts, load_registry
 
 SHORT_ARTICLE = 15  # characters; shorter articles are reported (often «ملغاة»), never refused
 
@@ -70,23 +77,41 @@ def prepare(laws: list[Law], corrections: list[Correction], corpus: Path) -> Pre
     return Prepared(laws, articles, short)
 
 
-async def ingest(conninfo: str, law_dir: Path, law_slug: str) -> int:
-    articles = parse_law(law_dir, law_slug)
-    if not articles:
-        raise SystemExit(f'no articles found under {law_dir}')
+async def ingest(conninfo: str, registry: Path, corrections: Path, corpus: Path) -> tuple[Prepared, Memorandum]:
+    prepared = prepare(load_registry(registry), load_corrections(corrections), corpus)
+    memorandum = load_memorandum(corpus, load_memorandum_corrections(corrections))
     async with await AsyncConnection.connect(conninfo) as conn:
         await db.create_schema(conn)
+        # Commit the schema step at once: `ALTER TABLE … ADD COLUMN IF NOT EXISTS` takes an exclusive lock on
+        # retrieval_log even when the column exists, and holding it through the load would stall every tool call
+        # of a running service. The load below is then one real transaction (not a savepoint).
+        await conn.commit()
         async with conn.transaction():
-            return await db.upsert_articles(conn, articles)
+            await db.upsert_laws(conn, prepared.laws)
+            for slug, articles in prepared.articles.items():
+                await db.upsert_articles(conn, articles)
+                await db.prune_articles(conn, slug, {(a.number, a.suffix) for a in articles})
+            await db.replace_memorandum(conn, memorandum.notes, memorandum.links, memorandum.source)
+    return prepared, memorandum
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--law-dir', type=Path, required=True)
-    parser.add_argument('--law-slug', required=True)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--registry', type=Path, required=True)
+    parser.add_argument('--corrections', type=Path, required=True)
+    parser.add_argument('--corpus', type=Path, required=True)
     args = parser.parse_args()
-    count = asyncio.run(ingest(db.database_url(), args.law_dir, args.law_slug))
-    print(f'ingested {count} articles into {args.law_slug}')
+    try:
+        prepared, memorandum = asyncio.run(ingest(db.database_url(), args.registry, args.corrections, args.corpus))
+    except (IngestError, RegistryError, CorrectionError, MemorandumError) as error:
+        raise SystemExit(f'ingest failed: {error}') from error
+    for law in prepared.laws:
+        print(f'ingested {len(prepared.articles[law.slug])} articles into {law.slug}')
+    for article in prepared.short:
+        print(f'short article ({len(article.text)} characters): {article.law_slug} {article.label}')
+    print(f'ingested {len(memorandum.notes)} memorandum notes and {len(memorandum.links)} links')
+    print(f'memorandum articles without a note: {", ".join(map(str, memorandum.uncovered)) or "none"}')
+    print(f'ingested {sum(len(a) for a in prepared.articles.values())} articles from {len(prepared.laws)} laws')
 
 
 if __name__ == '__main__':
