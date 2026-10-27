@@ -11,7 +11,7 @@ from psycopg.rows import dict_row
 from legal_search.corpus import Article
 from legal_search.normalize import normalize, tokens
 from legal_search.registry import Law
-from legal_search.search_config import DEFAULT, SearchConfig
+from legal_search.search_config import DEFAULT, QUERY_STOPWORDS, SearchConfig
 
 # Run at every service start and every ingest. CREATE … IF NOT EXISTS never changes a table a deployed
 # database already has: a new column on an existing table goes in as ALTER TABLE … ADD COLUMN IF NOT
@@ -165,7 +165,8 @@ class Found:
 
 def query_terms(query: str, config: SearchConfig = DEFAULT) -> list[str]:
     """The query's searchable terms in order: normalised, de-duplicated, no stopwords or one-letter tokens."""
-    return [term for term in dict.fromkeys(tokens(query)) if term not in STOPWORDS and len(term) >= 2]
+    stop = STOPWORDS | QUERY_STOPWORDS if config.query_stopwords else STOPWORDS
+    return [term for term in dict.fromkeys(tokens(query)) if term not in stop and len(term) >= 2]
 
 
 def build_tsquery(query: str, config: SearchConfig = DEFAULT) -> str | None:
