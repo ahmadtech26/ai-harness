@@ -178,16 +178,6 @@ def build_tsquery(query: str, config: SearchConfig = DEFAULT) -> str | None:
     return ' | '.join(parts) or None
 
 
-def phrase_tsquery(query: str, config: SearchConfig = DEFAULT) -> str | None:
-    """OR of each pair of consecutive query terms as a phrase at their distance in the raw query (`<N>`), so
-    «التعويض عن الضرر» matches the article's own wording; None under two terms."""
-    keep = set(query_terms(query, config))
-    placed = [(position, word) for position, word in enumerate(tokens(query)) if word in keep]
-    pairs = [f'({first}:* <{second_at - first_at}> {second}:*)'
-             for (first_at, first), (second_at, second) in zip(placed, placed[1:]) if first != second]
-    return ' | '.join(dict.fromkeys(pairs)) or None
-
-
 async def create_schema(conn: AsyncConnection) -> None:
     await conn.execute(SCHEMA)
 
@@ -305,13 +295,10 @@ async def search(conn: AsyncConnection, query: str, limit: int, law: str | None 
             + """
             CROSS JOIN to_tsquery('simple', %s) q
             WHERE a.tsv @@ q AND (%s::text IS NULL OR a.law_slug = %s)
-            ORDER BY ts_rank_cd(a.tsv, q, %s::int)
-                     + %s::float8 * COALESCE(ts_rank_cd(a.tsv, to_tsquery('simple', %s::text), %s::int), 0) DESC,
-                     a.number ASC, a.law_slug ASC, a.suffix ASC
+            ORDER BY ts_rank_cd(a.tsv, q, %s::int) DESC, a.number ASC, a.law_slug ASC, a.suffix ASC
             LIMIT %s
             """,
-            (tsquery, law, law, config.rank_normalization, config.phrase_boost,
-             phrase_tsquery(query, config) if config.phrase_boost > 0 else None, config.rank_normalization, limit),
+            (tsquery, law, law, config.rank_normalization, limit),
         )
         return [_found(row) for row in await cur.fetchall()]
 

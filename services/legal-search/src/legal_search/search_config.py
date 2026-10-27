@@ -11,8 +11,6 @@ class SearchConfig:
     rank_normalization: int = 4  # adopted 2026-10-27, eval-c2-rank-4 (P3-results tuning log)
     # Add legal synonyms (synonyms.GROUPS) to queries (candidate C4).
     synonyms: bool = True  # adopted 2026-10-28, eval-c4-synonyms
-    # Weight of the query-pair phrase rank added to the base rank; 0 turns the boost off (candidate C5).
-    phrase_boost: float = 0.0
 
 
 DEFAULT = SearchConfig()
