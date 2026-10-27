@@ -31,3 +31,23 @@ services:
       - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
       - '../../content:/content:ro'
     command: ['pytest', '-q']
+
+  # Retrieval evaluation (plan-phase3-retrieval-eval):  docker compose -f compose.test.yaml run --rm --build eval check
+  # Never run it while `tests` runs: both use the same database, and the unit tests drop tables.
+  eval:
+    build: .
+    user: root
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:test-only@postgres:5432/legal
+      CORPUS_DIR: /corpus
+      CONTENT_DIR: /content
+      LEGAL_SEARCH_EVAL_RESET: '1'
+    volumes:
+      - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
+      - '../../content:/content:ro'
+      - '../../../.hq/docs/audits/librechat-platform/p3-evidence:/evidence'
+    entrypoint: ['legal-search-eval']
+    command: ['--help']
