@@ -4,6 +4,13 @@
       "slug": "civil-code",
       "title": "القانون المدني الأردني",
       "folder": "القانون-المدني-الأردني",
+      "number": 43,
+      "year": 1976,
+      "gazette": {
+        "issue": 2645,
+        "date": "1976-08-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=536&LegislationType=2&isMod=false"
+      },
       "known_gaps": [
         {
           "number": 1287,
@@ -11,156 +18,626 @@
           "reason": "The heading «المادة 1287» has no text in sections/12-المواد-1223-1320.md, and the folder's full file marks it «نص المادة غير متوفر». The text is to come from the Official Gazette (Phase 4 verification)."
         }
       ],
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://jordan-lawyer.com",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=536&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=536&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=536&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=536&LegislationType=2&isMod=false"
+      }
     },
     {
       "slug": "majalla",
       "title": "مجلة الأحكام العدلية",
       "folder": "مجلة-الأحكام-العدلية",
       "note": "تطبق فيما لا يتعارض مع أحكام القانون المدني (المادة 1448)",
-      "review": { "status": "draft" },
-      "sources": { "title": "http://www.adaleh.info/Art.aspx?Typ=2&Id=1177", "note": "https://jordan-lawyer.com" }
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "http://www.adaleh.info/Art.aspx?Typ=2&Id=1177",
+        "note": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=536&LegislationType=2&isMod=false"
+      }
     },
     {
       "slug": "landlords-tenants",
       "title": "قانون المالكين والمستأجرين",
       "folder": "قانون-المالكين-والمستأجرين",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/22" }
+      "number": 11,
+      "year": 1994,
+      "gazette": {
+        "issue": 3984,
+        "date": "1994-08-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=2803&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 22,
+        "year": 2011,
+        "gazette_issue": 5134,
+        "gazette_date": "2011-12-31",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=791&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=2803&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=2803&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=2803&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=2803&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=2803&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=791&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=791&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=791&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=791&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "penal-code",
       "title": "قانون العقوبات الأردني",
       "folder": "قانون-العقوبات-الأردني",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 16,
+      "year": 1960,
+      "gazette": {
+        "issue": 1487,
+        "date": "1960-05-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3435&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 12,
+        "year": 2025,
+        "gazette_issue": 5996,
+        "gazette_date": "2025-06-16",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4966&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://jordan-lawyer.com",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3435&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3435&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3435&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3435&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4966&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4966&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4966&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4966&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "commerce",
       "title": "قانون التجارة",
       "folder": "قانون-التجارة",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/10" }
+      "number": 12,
+      "year": 1966,
+      "gazette": {
+        "issue": 1910,
+        "date": "1966-03-30",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1028&LegislationType=2&isMod=false"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1028&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1028&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1028&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1028&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1028&LegislationType=2&isMod=false"
+      }
     },
     {
       "slug": "maritime-commerce",
       "title": "قانون التجارة البحرية",
       "folder": "قانون-التجارة-البحرية",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/11" }
+      "number": 12,
+      "year": 1972,
+      "gazette": {
+        "issue": 2357,
+        "date": "1972-05-06",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 35,
+        "year": 1983,
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "companies",
       "title": "قانون الشركات",
       "folder": "قانون-الشركات",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/12" }
+      "number": 22,
+      "year": 1997,
+      "gazette": {
+        "issue": 4204,
+        "date": "1997-05-15",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3410&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 20,
+        "year": 2023,
+        "gazette_issue": 5874,
+        "gazette_date": "2023-08-13",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4819&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3410&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3410&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3410&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3410&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3410&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4819&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4819&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4819&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4819&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "customs",
       "title": "قانون الجمارك",
       "folder": "قانون-الجمارك",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/14" }
+      "number": 20,
+      "year": 1998,
+      "gazette": {
+        "issue": 4305,
+        "date": "1998-10-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3473&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 7,
+        "year": 2025,
+        "gazette_issue": 5991,
+        "gazette_date": "2025-04-30",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=5008&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3473&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3473&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3473&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3473&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3473&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=5008&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=5008&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=5008&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=5008&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "income-tax",
       "title": "قانون ضريبة الدخل",
       "folder": "قانون-ضريبة-الدخل",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/15" }
+      "number": 34,
+      "year": 2014,
+      "gazette": {
+        "issue": 5320,
+        "date": "2014-12-31",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3225&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 38,
+        "year": 2018,
+        "gazette_issue": 5547,
+        "gazette_date": "2018-12-02",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4285&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3225&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3225&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3225&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3225&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3225&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4285&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4285&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4285&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4285&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "sales-tax",
       "title": "قانون الضريبة العامة على المبيعات",
       "folder": "قانون-الضريبة-العامة-على-المبيعات",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/16" }
+      "number": 6,
+      "year": 1994,
+      "gazette": {
+        "issue": 3970,
+        "date": "1994-05-31",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3370&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 15,
+        "year": 2022,
+        "gazette_issue": 5812,
+        "gazette_date": "2022-09-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4746&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://aqel-lawfirm.com/ar/tashree3at/16",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3370&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3370&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3370&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3370&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4746&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4746&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4746&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4746&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "labour",
       "title": "قانون العمل",
       "folder": "قانون-العمل",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/20" }
+      "number": 8,
+      "year": 1996,
+      "gazette": {
+        "issue": 4113,
+        "date": "1996-04-16",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3392&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 10,
+        "year": 2023,
+        "gazette_issue": 5851,
+        "gazette_date": "2023-04-16",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4785&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3392&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3392&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3392&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3392&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3392&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4785&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4785&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4785&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4785&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "investment-fund",
       "title": "قانون صندوق الاستثمار الأردني",
       "folder": "قانون-صندوق-الاستثمار-الأردني",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/13" }
+      "number": 16,
+      "year": 2016,
+      "gazette": {
+        "issue": 5399,
+        "date": "2016-05-26",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3135&LegislationType=2&isMod=false"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://aqel-lawfirm.com/ar/tashree3at/13",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3135&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3135&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3135&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3135&LegislationType=2&isMod=false"
+      }
     },
     {
       "slug": "civil-procedure",
       "title": "قانون أصول المحاكمات المدنية",
       "folder": "قانون-أصول-المحاكمات-المدنية",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 24,
+      "year": 1988,
+      "gazette": {
+        "issue": 3545,
+        "date": "1988-04-02",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3420&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 6,
+        "year": 2024,
+        "gazette_issue": 5922,
+        "gazette_date": "2024-04-16",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4873&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3420&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3420&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3420&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3420&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3420&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4873&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4873&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4873&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4873&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "evidence",
       "title": "قانون البينات",
       "folder": "قانون-البينات",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 30,
+      "year": 1952,
+      "gazette": {
+        "issue": 1108,
+        "date": "1952-05-17",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3243&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 22,
+        "year": 2017,
+        "gazette_issue": 5474,
+        "gazette_date": "2017-08-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4161&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3243&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3243&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3243&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3243&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3243&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4161&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4161&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4161&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4161&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "execution",
       "title": "قانون التنفيذ",
       "folder": "قانون-التنفيذ",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://aqel-lawfirm.com/ar/tashree3at/23" }
+      "number": 25,
+      "year": 2007,
+      "gazette": {
+        "issue": 4821,
+        "date": "2007-04-16",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3365&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 9,
+        "year": 2022,
+        "gazette_issue": 5796,
+        "gazette_date": "2022-05-25",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4731&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3365&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3365&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3365&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3365&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3365&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4731&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4731&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4731&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4731&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "mediation",
       "title": "قانون الوساطة لتسوية النزاعات المدنية",
       "folder": "قانون-الوساطة",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 12,
+      "year": 2006,
+      "gazette": {
+        "issue": 4751,
+        "date": "2006-03-16",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3245&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 25,
+        "year": 2017,
+        "gazette_issue": 5474,
+        "gazette_date": "2017-08-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4163&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3245&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3245&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3245&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3245&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3245&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4163&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4163&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4163&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4163&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "criminal-procedure",
       "title": "قانون أصول المحاكمات الجزائية",
       "folder": "قانون-أصول-المحاكمات-الجزائية",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 9,
+      "year": 1961,
+      "gazette": {
+        "issue": 1539,
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3252&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 32,
+        "year": 2017,
+        "gazette_issue": 5479,
+        "gazette_date": "2017-08-30",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4236&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://jordan-lawyer.com",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3252&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3252&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3252&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4236&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4236&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4236&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4236&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "courts-formation",
       "title": "قانون تشكيل المحاكم النظامية",
       "folder": "قانون-تشكيل-المحاكم-النظامية",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 17,
+      "year": 2001,
+      "gazette": {
+        "issue": 4480,
+        "date": "2001-03-18",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 12,
+        "year": 2019,
+        "gazette_issue": 5572,
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "magistrates-courts",
       "title": "قانون محاكم الصلح",
       "folder": "قانون-محاكم-الصلح",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 23,
+      "year": 2017,
+      "gazette": {
+        "issue": 5474,
+        "date": "2017-08-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3179&LegislationType=2&isMod=false"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3179&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3179&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3179&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3179&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3179&LegislationType=2&isMod=false"
+      }
     },
     {
       "slug": "major-felonies-court",
       "title": "قانون محكمة الجنايات الكبرى",
       "folder": "قانون-محكمة-الجنايات-الكبرى",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 19,
+      "year": 1986,
+      "gazette": {
+        "issue": 3380,
+        "date": "1986-03-16",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3244&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 24,
+        "year": 2017,
+        "gazette_issue": 5474,
+        "gazette_date": "2017-08-01",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4162&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3244&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3244&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3244&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3244&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3244&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4162&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4162&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4162&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4162&LegislationType=2&isMod=true"
+      }
     },
     {
       "slug": "court-fees",
       "title": "جدول رسوم المحاكم",
       "folder": "جدول-رسوم-المحاكم",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://jordan-lawyer.com"
+      }
     },
     {
       "slug": "bar-association",
       "title": "قانون نقابة المحامين النظاميين",
       "folder": "قانون-نقابة-المحامين",
-      "review": { "status": "draft" },
-      "sources": { "title": "https://jordan-lawyer.com" }
+      "number": 11,
+      "year": 1972,
+      "gazette": {
+        "issue": 2357,
+        "date": "1972-05-06",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3258&LegislationType=2&isMod=false"
+      },
+      "amendment": {
+        "law": 6,
+        "year": 2019,
+        "gazette_issue": 5561,
+        "gazette_date": "2019-02-17",
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4406&LegislationType=2&isMod=true"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3258&LegislationType=2&isMod=false",
+        "number": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3258&LegislationType=2&isMod=false",
+        "year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3258&LegislationType=2&isMod=false",
+        "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3258&LegislationType=2&isMod=false",
+        "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4406&LegislationType=2&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4406&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4406&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4406&LegislationType=2&isMod=true"
+      }
     }
   ]
 }

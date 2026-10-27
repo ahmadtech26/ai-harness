@@ -1,5 +1,7 @@
 {
-  "review": { "status": "draft" },
+  "review": {
+    "status": "draft"
+  },
   "corrections": [
     {
       "type": "relabel",
@@ -9,31 +11,51 @@
       "occurrence": 2,
       "new_suffix": "مكرر ثانياً",
       "reason": "Two headings in sections/00-المواد-1-48.md parse as «المادة 25 مكرر»: «25 مكرر — ):» and «25 مكرر — ثانياً):-». The second article's text refers to the first as «(25 مكررة)», so it is article 25 مكرر ثانياً.",
-      "source": "https://jordan-lawyer.com"
+      "source": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3435&LegislationType=2&isMod=false"
     }
   ],
   "memorandum": [
     {
       "note": 1,
-      "articles": [2],
+      "articles": [
+        2
+      ],
       "reason": "No heading precedes the memorandum's first note, so the headings cannot name its article.",
       "evidence": "Note 1 explains the sources of law («اذا لم يوجد نص في القانون، يرجع لاحكام الفقه الاسلامي»), the subject of article 2 (article 1 is the short title); note 766 calls that article «المادة الثانية من هذا المشروع»."
     },
     {
       "note": 458,
-      "articles": [716, 717],
+      "articles": [
+        716,
+        717
+      ],
       "reason": "The heading at the end of note 457 names article 716 only («المذكرة الايضاحية للمادة ( 716)»), and no heading names article 717.",
       "evidence": "Note 458 opens «مصدر حكم هاتين المادتين» and cites Majalla articles 525 and 526, the sources of Civil Code articles 716 and 717."
     },
     {
       "note": 733,
-      "articles": [1292, 1293, 1294, 1295, 1296, 1297],
+      "articles": [
+        1292,
+        1293,
+        1294,
+        1295,
+        1296,
+        1297
+      ],
       "reason": "The heading at the end of note 732 reads «للمادتين ( 1292 ) و (1297)»: two articles where the note covers the range between them.",
       "evidence": "Note 733 opens «تناولت المواد 1292 - 1297 حق الشرب» and discusses articles 1294, 1295 and 1297."
     },
     {
       "note": 740,
-      "articles": [1315, 1316, 1317, 1318, 1319, 1320, 1321],
+      "articles": [
+        1315,
+        1316,
+        1317,
+        1318,
+        1319,
+        1320,
+        1321
+      ],
       "reason": "The heading at the end of note 739 reads «للمادتين ( 1315 ) و (1321)»: two articles where the note covers the range between them.",
       "evidence": "Note 740 opens «تناولت المواد 1315 - 1321 انتهاء الحقوق المجردة»."
     }
