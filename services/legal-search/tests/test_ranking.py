@@ -32,3 +32,13 @@ async def test_length_normalisation_ranks_a_short_match_above_a_longer_one(conn)
 
     assert [a.number for a in plain] == [1, 2]
     assert [a.number for a in normalised] == [2, 1]
+
+
+async def test_a_synonym_finds_an_article_worded_with_the_other_member(conn):
+    await db.upsert_articles(conn, [Article('civil-code', 'x', 449, '', 'لا تسمع الدعوى على المنكر بمرور الزمان بعد خمس عشرة سنة.', 's', 'a.md')])
+
+    plain = await db.search(conn, 'التقادم', 5, config=SearchConfig(synonyms=False))
+    expanded = await db.search(conn, 'التقادم', 5, config=SearchConfig(synonyms=True))
+
+    assert plain == []
+    assert [a.number for a in expanded] == [449]

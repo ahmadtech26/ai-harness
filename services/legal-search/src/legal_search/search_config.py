@@ -9,6 +9,8 @@ from dataclasses import dataclass, fields, replace
 class SearchConfig:
     # ts_rank_cd normalisation bit mask: 0 ignores document length (PostgreSQL 17 text-search docs, "Ranking").
     rank_normalization: int = 4  # adopted 2026-10-27, eval-c2-rank-4 (P3-results tuning log)
+    # Add legal synonyms (synonyms.GROUPS) to queries (candidate C4).
+    synonyms: bool = False
 
 
 DEFAULT = SearchConfig()

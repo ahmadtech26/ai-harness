@@ -12,6 +12,7 @@ from legal_search.corpus import Article
 from legal_search.normalize import normalize, tokens
 from legal_search.registry import Law
 from legal_search.search_config import DEFAULT, SearchConfig
+from legal_search.synonyms import synonym_terms
 
 # Run at every service start and every ingest. CREATE … IF NOT EXISTS never changes a table a deployed
 # database already has: a new column on an existing table goes in as ALTER TABLE … ADD COLUMN IF NOT
@@ -171,7 +172,10 @@ def query_terms(query: str, config: SearchConfig = DEFAULT) -> list[str]:
 def build_tsquery(query: str, config: SearchConfig = DEFAULT) -> str | None:
     """OR of prefix terms, so inflected forms still match; None when nothing searchable remains."""
     terms = query_terms(query, config)
-    return ' | '.join(f'{term}:*' for term in terms) or None
+    parts = [f'{term}:*' for term in terms]
+    if config.synonyms:
+        parts += [term for term in synonym_terms(tokens(query)) if term not in parts]
+    return ' | '.join(parts) or None
 
 
 async def create_schema(conn: AsyncConnection) -> None:
