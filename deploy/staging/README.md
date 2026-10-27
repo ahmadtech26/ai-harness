@@ -9,7 +9,7 @@ answers every call and logs it, so "did anything reach the provider" is an obser
 | `proxy` | nginx, the only published port (`127.0.0.1:3080`); adds the narrow content-security policy |
 | `librechat` | a release image `iqraa/release:staging` (fork image + content skills, `deploy/release/build.sh`) |
 | `mongo` | MongoDB replica set (the ledger needs transactions) |
-| `postgres`, `legal-search`, `legal-search-ingest` | the legal library: Civil Code articles, MCP tools `search_law` / `get_article` |
+| `postgres`, `legal-search`, `legal-search-ingest` | the legal library: the 22 laws of `content/corpus/laws.json` (corrections in `corrections.json`) and the Civil Code memorandum, MCP tools `search_law` / `get_article` / `get_memorandum` |
 | `mock-llm` | OpenAI-compatible mock; every request goes to `out/llm-requests.jsonl` |
 | `secrets-init` | generates JWT, credential, MCP and database secrets into a volume on first start |
 

@@ -72,13 +72,16 @@ services:
     environment:
       DATABASE_URL_FILE: /secrets/database_url
     command:
-      - sh
-      - -c
-      - >-
-        legal-search-ingest --law-dir /corpus/القانون-المدني-الأردني --law-slug civil-code &&
-        legal-search-ingest --law-dir /corpus/جدول-رسوم-المحاكم --law-slug court-fees
+      - legal-search-ingest
+      - --registry
+      - /content/corpus/laws.json
+      - --corrections
+      - /content/corpus/corrections.json
+      - --corpus
+      - /corpus
     volumes:
       - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
+      - '../../content/corpus:/content/corpus:ro'
       - staging-secrets:/secrets:ro
 
   legal-search:

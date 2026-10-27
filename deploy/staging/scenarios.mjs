@@ -75,14 +75,45 @@ async function scenario2(ctx) {
   };
 }
 
-/** The library serves the court-fees schedule with its verification label (REQ-SKL-010). */
+/**
+ * The library: court-fees (REQ-SKL-010) and corpus v1 (REQ-COR-002..005, 007). Expected citation text is
+ * built from content/corpus/laws.json at run time, so the checks never assume a value the registry lacks.
+ */
 async function libraryChecks(ctx) {
-  const c = await customer(ctx.staff, 'lib', { credits: 5 });
-  const t = await turn(c, ctx.agentId, 'lib-fees', 'CALL_TOOL:get_article:{"number":1,"law":"court-fees"}');
-  const toolText = t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '';
+  const c = await customer(ctx.staff, 'lib', { credits: 30 });
+  const laws = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'corpus', 'laws.json'), 'utf8')).laws;
+  const law = (slug) => laws.find((l) => l.slug === slug);
+  const toolText = (t) => (t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '');
+  const heading = (l, label) => `${l.title}${l.number != null ? ` رقم ${l.number}` : ''}${l.year != null ? ` لسنة ${l.year}` : ''} — ${label}`;
+  // When the tool did not run (no second model call), say so with the model's reply, so the failure is readable.
+  const ask = async (label, call) => {
+    const t = await turn(c, ctx.agentId, label, `CALL_TOOL:${call}`);
+    return toolText(t) || `NO_TOOL_RESULT (calls ${t.calls.length}) reply: ${t.result.text ?? ''}`;
+  };
+
+  const fees = await ask('lib-fees', 'get_article:{"number":1,"law":"court-fees"}');
+  const penal = await ask('lib-penal', 'get_article:{"number":153,"suffix":"مكرر","law":"penal-code"}');
+  const majalla = await ask('lib-majalla', 'get_article:{"number":1,"law":"majalla"}');
+  const memoOwn = await ask('lib-memo-own', 'get_memorandum:{"article":107}');
+  const memoRange = await ask('lib-memo-range', 'get_memorandum:{"article":214}');
+  const memoNone = await ask('lib-memo-none', 'get_memorandum:{"article":1}');
+  const filtered = await ask('lib-filter', 'search_law:{"query":"الحبس","law":"penal-code"}');
+  const procedure = await ask('lib-procedure', 'get_article:{"number":1,"law":"civil-procedure"}');
+  const penalHeading = heading(law('penal-code'), 'المادة 153 مكرر');
+  const resultLaws = [...filtered.matchAll(/\[\d+\] (.+?) (?:رقم \d+ )?(?:لسنة \d+ )?— المادة/g)].map((m) => m[1]);
   return verdict({
-    courtFeesArticle1: check(toolText.includes('جدول رسوم المحاكم') && toolText.includes('عن الدعوى أو الدعوى المتقابلة'), `tool result: ${toolText.slice(0, 160)}`),
-    unverifiedLabel: check(toolText.includes('لم يُتحقق بعد'), 'result carries the unverified label'),
+    courtFeesArticle1: check(fees.includes('جدول رسوم المحاكم') && fees.includes('عن الدعوى أو الدعوى المتقابلة'), `tool result: ${fees.slice(0, 160)}`),
+    unverifiedLabel: check(fees.includes('لم يُتحقق بعد'), 'result carries the unverified label'),
+    penalCitationLine: check(penal.includes(penalHeading) && penal.includes('على الرغم مما ورد في أي قانون آخر'), `expected «${penalHeading}»; tool result: ${penal.slice(0, 220)}`),
+    publicationDataLabel: check(law('penal-code').review.status === 'approved' || penal.includes('بيانات النشر لم يُتحقق منها بعد'), 'unapproved registry metadata is labelled'),
+    majallaNote: check(majalla.includes('مجلة الأحكام العدلية') && majalla.includes(law('majalla').note), `tool result: ${majalla.slice(0, 160)}`),
+    // Links come from the memorandum's own headings: 107's own note is 74 (العربون); note 166 explains 214–238;
+    // article 1 (the short title) has no note.
+    memorandumOwnNote: check(memoOwn.includes('العربون') && memoOwn.includes('تشرح المادة 107'), `tool result: ${memoOwn.slice(0, 220)}`),
+    memorandumRange: check(memoRange.includes('تشرح المواد 214–238'), `tool result: ${memoRange.slice(0, 220)}`),
+    memorandumNone: check(memoNone.includes('لا توجد ملاحظات في المذكرة الإيضاحية مرتبطة بالمادة 1 من القانون المدني الأردني.'), `tool result: ${memoNone.slice(0, 220)}`),
+    lawFilter: check(resultLaws.length > 0 && resultLaws.every((t) => t === law('penal-code').title), `result laws: ${JSON.stringify(resultLaws)}`),
+    civilProcedureArticle: check(procedure.includes(heading(law('civil-procedure'), 'المادة 1')) && procedure.includes('يسمى هذا القانون قانون أصول المحاكمات المدنية'), `tool result: ${procedure.slice(0, 200)}`),
   });
 }
 

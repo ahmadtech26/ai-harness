@@ -2,7 +2,7 @@
 name: jordanian-procedure-and-fees
 description: Method for computing Jordanian court fees for filing, appealing or executing a claim from the court-fees schedule in the legal library. Use when the user asks how much a court fee is.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   owner: iqraa-legal-content
   requires:
     tools: [search_law, get_article]
@@ -26,4 +26,4 @@ metadata:
 
 ## قواعد
 - لا تعطِ رقمًا لم تسترجع مادته؛ إن لم تجد المادة فصرّح بذلك.
-- قانون أصول المحاكمات المدنية ليس في المكتبة بعد: لا تذكر منه مواعيد أو إجراءات، وقل إنها خارج المكتبة الحالية.
+- مواعيد الطعن وإجراءات التقاضي المدنية في قانون أصول المحاكمات المدنية المحمّل في المكتبة: استرجعها بـ `search_law` مع `law="civil-procedure"` بعبارة تصف الإجراء، أو بـ `get_article` مع `law="civil-procedure"` إن عرفت رقم المادة، وانقل النص حرفيًا مع حالة التحقق. لا تذكر موعدًا أو إجراءً إلا مما أعادته المكتبة في هذه المحادثة؛ فإن لم تجده فصرّح بذلك.

@@ -5,7 +5,7 @@
   "provider": null,
   "model": null,
   "model_parameters": { "streamUsage": true, "max_tokens": 4096 },
-  "tools": ["search_law_mcp_legal-search", "get_article_mcp_legal-search"],
+  "tools": ["search_law_mcp_legal-search", "get_article_mcp_legal-search", "get_memorandum_mcp_legal-search"],
   "skills": ["jordanian-case-analysis", "legal-document-review", "jordanian-procedure-and-fees"],
   "skills_enabled": true,
   "skill_authoring_enabled": false,
