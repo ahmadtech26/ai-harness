@@ -11,6 +11,7 @@ from legal_search import evaluate
 from legal_search.corpus import Article
 from legal_search.evalset import parse_evalset
 from legal_search.evaluate import RESET_FLAG, EvalError, Sources, corpus_digest, memorandum_check, run_eval
+from legal_search.search_config import DEFAULT, SearchConfig
 from legal_search.memorandum import load_memorandum, load_memorandum_corrections
 from tests.pg import fresh
 
@@ -180,3 +181,20 @@ def test_run_exits_1_and_keeps_the_report_when_the_memorandum_check_fails(tmp_pa
 
     assert exit_info.value.code == 1
     assert json.loads((out / 'eval-broken.json').read_text(encoding='utf-8'))['memorandum']['pass'] is False
+
+
+async def test_run_applies_the_search_config_it_is_given(conn, tmp_path: Path, monkeypatch):
+    seen = []
+    real_search = db.search
+
+    async def spy(connection, query, limit, law=None, config=DEFAULT):
+        seen.append(config)
+        return await real_search(connection, query, limit, law=law, config=config)
+
+    monkeypatch.setattr(db, 'search', spy)
+    config = SearchConfig(rank_normalization=2)
+
+    report = await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 'configured', config=config)
+
+    assert set(seen) == {config}
+    assert report['run']['config']['rank_normalization'] == 2

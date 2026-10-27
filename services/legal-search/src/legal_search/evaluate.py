@@ -1,7 +1,7 @@
 """legal-search-eval: check the retrieval evaluation set, run it against the ingested corpus, compare runs.
 
     legal-search-eval check                                        # the set against the corpus (no database)
-    legal-search-eval run --label <label> [--reset] [--use-law-filter]
+    legal-search-eval run --label <label> [--reset] [--use-law-filter] [--config name=value ...]
     legal-search-eval compare <incumbent label> <candidate label>  # deltas and the keep rule (REQ-EVL-004)
 
 Paths default to the test stack's mounts (/content, /corpus, /evidence). `run` ingests the registry with
@@ -16,7 +16,7 @@ import hashlib
 import json
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from psycopg import AsyncConnection
@@ -28,6 +28,7 @@ from legal_search.ingest import IngestError, Prepared, ingest, prepare
 from legal_search.memorandum import MemorandumError, load_memorandum, load_memorandum_corrections
 from legal_search.metrics import DEPTH, PRECISION, Key, Scored, item_metrics, keep_decision, summarise
 from legal_search.registry import RegistryError, load_registry
+from legal_search.search_config import DEFAULT, SearchConfig, with_overrides
 
 CORPUS_TABLES = 'memorandum_links, memorandum_notes, articles, laws'
 RESET_FLAG = 'LEGAL_SEARCH_EVAL_RESET'
@@ -92,7 +93,7 @@ def _settings(run: dict) -> str:
     return ', '.join(parts) or 'defaults'
 
 
-async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filter: bool = False, reset: bool = False) -> dict:
+async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filter: bool = False, reset: bool = False, config: SearchConfig = DEFAULT) -> dict:
     """Ingest the registry, search every item (DEPTH results, no caps) and return the report."""
     evalset, prepared, problems = check_sources(sources, with_coverage=False)
     if problems:
@@ -105,13 +106,13 @@ async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filte
     await ingest(conninfo, sources.registry, sources.corrections, sources.corpus)
     async with await AsyncConnection.connect(conninfo, autocommit=True) as conn:
         await _require_only_the_registry(conn, keys, complete=True)
-        results = [await _score(conn, item, use_law_filter) for item in evalset.items]
+        results = [await _score(conn, item, use_law_filter, config) for item in evalset.items]
         memorandum = await memorandum_check(conn, evalset.items)
         corpus_sha256 = await corpus_digest(conn)
     return {
         'run': {
             'label': label, 'set': evalset.name, 'set_review': evalset.review_status, 'set_sha256': evalset.sha256,
-            'corpus_sha256': corpus_sha256, 'use_law_filter': use_law_filter, 'depth': DEPTH,
+            'corpus_sha256': corpus_sha256, 'use_law_filter': use_law_filter, 'depth': DEPTH, 'config': asdict(config),
         },
         'metrics': summarise([scored for scored, _ in results]),
         'memorandum': memorandum,
@@ -120,9 +121,9 @@ async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filte
     }
 
 
-async def _score(conn: AsyncConnection, item: Item, use_law_filter: bool) -> tuple[Scored, dict]:
+async def _score(conn: AsyncConnection, item: Item, use_law_filter: bool, config: SearchConfig) -> tuple[Scored, dict]:
     law = item.law if use_law_filter else None
-    found = await db.search(conn, item.query, DEPTH, law=law)
+    found = await db.search(conn, item.query, DEPTH, law=law, config=config)
     ranked = tuple((article.law_slug, article.number, article.suffix) for article in found)
     scored = Scored(item.scored_law, frozenset(expected.key for expected in item.expected), ranked)
     row = {
@@ -265,6 +266,7 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument('--label', required=True, type=_label)
     run.add_argument('--use-law-filter', action='store_true', help="pass each item's law to search")
     run.add_argument('--reset', action='store_true', help=f'drop the corpus tables first (only where {RESET_FLAG}=1)')
+    run.add_argument('--config', action='append', default=[], metavar='NAME=VALUE', help='override a SearchConfig field')
     compare_command = commands.add_parser('compare', help='compare two runs in --out and apply the keep rule')
     compare_command.add_argument('incumbent', type=_label)
     compare_command.add_argument('candidate', type=_label)
@@ -285,7 +287,7 @@ def main() -> None:
             _check(_sources(args))
         elif args.command == 'run':
             report = asyncio.run(run_eval(db.database_url(), _sources(args), args.label,
-                                          use_law_filter=args.use_law_filter, reset=args.reset))
+                                          use_law_filter=args.use_law_filter, reset=args.reset, config=with_overrides(DEFAULT, args.config)))
             json_path, md_path = write_report(report, args.out)
             overall = report['metrics']['overall']
             print(f'wrote {json_path.name} and {md_path.name}: recall@5 {overall["recall@5"]:.4f}, recall@10 '
@@ -295,7 +297,7 @@ def main() -> None:
                 raise SystemExit(1)  # the report is written as evidence; a linkage bug must still fail the run
         else:
             print('\n'.join(compare(_load(args.out, args.incumbent), _load(args.out, args.candidate))))
-    except (EvalError, *ERRORS) as error:
+    except (EvalError, ValueError, *ERRORS) as error:
         raise SystemExit(f'legal-search-eval: {error}') from error
 
 
