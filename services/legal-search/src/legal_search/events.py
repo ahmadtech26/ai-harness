@@ -1,8 +1,10 @@
 """Retrieval-log rows as sweep-detector events (spec C.1). Every tool call is a row, served or refused."""
 
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
+import psycopg
 from psycopg import AsyncConnection
 from psycopg.rows import dict_row
 
@@ -65,3 +67,34 @@ async def load_user_events(conn: AsyncConnection, user_id: str, after_log_id: in
             (user_id, after_log_id, now - span),
         )
         return [_event(row) for row in await cur.fetchall()], now
+
+
+# One telemetry or simulation request reads at most this many events; a larger window is refused, never cut.
+MAX_EVENTS = 200_000
+
+
+class TooManyEvents(Exception):
+    """The window holds more events than one telemetry or simulation request reads."""
+
+
+def load_window_sync(conninfo: str, span: timedelta) -> tuple[dict[str, list[Event]], datetime]:
+    """Every user's events of the last `span`, in log order (watermarks ignored: raw behaviour), and the
+    database's now. Raises TooManyEvents, before reading any, when the window holds more than MAX_EVENTS.
+    Blocking, on a connection of its own: admin.py runs it in a worker thread, because decoding up to
+    MAX_EVENTS rows into events takes seconds that would otherwise hold the event loop."""
+    with psycopg.connect(conninfo, autocommit=True) as conn:
+        now = conn.execute('SELECT now()').fetchone()[0]
+        since = now - span
+        count = conn.execute(
+            'SELECT count(*) FROM (SELECT 1 FROM retrieval_log WHERE created_at > %s LIMIT %s) AS window_rows',
+            (since, MAX_EVENTS + 1),
+        ).fetchone()[0]
+        if count > MAX_EVENTS:
+            raise TooManyEvents(f'the window holds more than {MAX_EVENTS} events; choose fewer days')
+        by_user: dict[str, list[Event]] = defaultdict(list)
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(_EVENTS + ' WHERE r.created_at > %s ORDER BY r.user_id, r.id', (since,))
+            while rows := cur.fetchmany(2_000):  # a batch at a time: the event loop gets the interpreter in between
+                for row in rows:
+                    by_user[row['user_id']].append(_event(row))
+    return dict(by_user), now

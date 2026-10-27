@@ -16,8 +16,9 @@ import uvicorn
 from mcp.server.fastmcp import Context, FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from psycopg_pool import AsyncConnectionPool
+from starlette.routing import Mount
 
-from legal_search import db, tools
+from legal_search import admin, db, tools
 from legal_search.caps import Caps
 from legal_search.guard_settings import GuardSettings, SettingsCache, ensure_settings, validate
 
@@ -133,6 +134,8 @@ def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts:
     defaults = validate(GuardSettings(per_answer=caps.per_answer, daily=caps.daily, max_results=caps.max_results).as_dict())
     cache = SettingsCache()
     inner = build_server(pool, cache, allowed_hosts).streamable_http_app()
+    # The staff admin API shares the app, the pool, the settings cache and SecretGuard.
+    inner.router.routes.append(Mount('/admin', routes=admin.routes(pool, cache)))
     inner_lifespan = inner.router.lifespan_context
 
     @asynccontextmanager
