@@ -1,10 +1,12 @@
-// Shared helpers for the staging drivers (scenarios.mjs, drills.mjs): HTTP, chat, accounts,
-// ledger and model-log evidence, check/verdict helpers, proxy checks.
+// Shared helpers for the staging drivers (scenarios.mjs, drills.mjs, ui/run-rtl-check.mjs): HTTP, chat,
+// passwordless accounts (codes from the sink, app codes, the staff bootstrap runner), ledger and model-log
+// evidence, check/verdict helpers, proxy checks.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { nextAppStep, totp } from './totp.cjs';
 
 export const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(HERE, '..', '..');
@@ -26,13 +28,14 @@ export const nonce = (label) => `${label}-${RUN}-${crypto.randomBytes(3).toStrin
 
 // ---------------------------------------------------------------- HTTP
 
-export async function api(route, { token, method = 'GET', body } = {}) {
+export async function api(route, { token, method = 'GET', body, cookie } = {}) {
   const res = await fetch(BASE + route, {
     method,
     headers: {
       'User-Agent': UA,
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(cookie ? { Cookie: cookie } : {}),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
@@ -43,8 +46,12 @@ export async function api(route, { token, method = 'GET', body } = {}) {
   } catch {
     json = null;
   }
-  return { status: res.status, json, text };
+  return { status: res.status, json, text, cookies: res.headers.getSetCookie() };
 }
+
+/** The value of cookie `name` among a response's Set-Cookie headers (null when absent). */
+export const cookieValue = (setCookies, name) =>
+  (setCookies ?? []).map((c) => c.split(';')[0]).find((c) => c.startsWith(`${name}=`))?.slice(name.length + 1) ?? null;
 
 export async function waitForHealth(timeoutMs = 240_000) {
   const deadline = Date.now() + timeoutMs;
@@ -142,29 +149,150 @@ export async function chat({ token, agentId, text, conversationId = null, parent
   return result;
 }
 
-// ---------------------------------------------------------------- accounts
+// ---------------------------------------------------------------- accounts (passwordless: codes from the sink)
 
-export function newAccount(label) {
-  const suffix = `${RUN}${crypto.randomBytes(2).toString('hex')}`;
-  return {
-    name: `Staging ${label}`,
-    username: `stg_${label.replace(/[^a-z0-9]/gi, '')}_${suffix}`,
-    email: `stg.${label.replace(/[^a-z0-9]/gi, '')}.${suffix}@example.test`,
-    password: crypto.randomBytes(12).toString('base64url') + 'aA1!',
-  };
+export const AUTH = '/api/iqraa/auth';
+export const PLACEHOLDER_DOMAIN = '@phone.iqraa.invalid';
+
+/** A Jordanian mobile number (+96279 and 7 digits) no account holds yet: staging data outlives runs. */
+export function newPhone() {
+  for (let draw = 0; draw < 5; draw += 1) {
+    const phone = `+96279${crypto.randomInt(0, 10_000_000).toString().padStart(7, '0')}`;
+    if (mongoQuery({ op: 'find', collection: 'iqraa_identities', filter: { phone }, limit: 1 }).length === 0) return phone;
+  }
+  throw new Error('no free staging phone number in 5 draws');
 }
 
+export const newAccount = (label) => ({ label, name: `Staging ${label}`, phone: newPhone() });
+
+/** The newest iqraa_auth_sink row (to, channel, purpose, code, createdAt) for `to` and `purpose`, or null. */
+export const newestSinkRow = (to, purpose) =>
+  mongoQuery({ op: 'find', collection: 'iqraa_auth_sink', filter: { to, purpose }, sort: { createdAt: -1, _id: -1 }, limit: 1 })[0] ?? null;
+
+/**
+ * Runs `send` (a code request) and returns its result with the sink row it produced for `to`. The row is told
+ * apart from older ones by its _id, never by clocks: a sign-in answer does not wait for delivery. Assumes mongosh
+ * serialises an ObjectId `_id` as its hex string in `JSON.stringify` (bson's `toJSON`), so `!==` compares strings;
+ * Chunk 8's first `SCENARIOS=auth` run is its first observation.
+ */
+export async function withSinkCode(to, purpose, send, timeoutMs = 20_000) {
+  const before = newestSinkRow(to, purpose)?._id ?? null;
+  const sent = await send();
+  if (sent?.status !== undefined && sent.status !== 200) throw new Error(`${purpose} code request for ${to}: ${sent.status} ${sent.text.slice(0, 200)}`);
+  let row = null;
+  const arrived = await waitUntil(() => {
+    row = newestSinkRow(to, purpose);
+    return row !== null && row._id !== before;
+  }, timeoutMs);
+  if (!arrived) throw new Error(`no ${purpose} code reached the sink for ${to} within ${timeoutMs} ms`);
+  return { sent, row, code: row.code };
+}
+
+/** The session fields of a 200 `{ token, user }` answer (the shape LoginController answers), else throws. */
+export function sessionOf(res, what) {
+  if (res.status !== 200 || !res.json?.token) throw new Error(`${what}: ${res.status} ${res.text.slice(0, 200)}`);
+  const { user } = res.json;
+  return { token: res.json.token, id: String(user.id ?? user._id), role: user.role, email: user.email, refreshToken: cookieValue(res.cookies, 'refreshToken') };
+}
+
+export const requestCode = (identifier, purpose) => api(`${AUTH}/request-code`, { method: 'POST', body: { identifier, purpose } });
+export const verifyCode = (identifier, method, code) => api(`${AUTH}/verify-code`, { method: 'POST', body: { identifier, method, code } });
+
+/** Sign-up by phone (REQ-AUTH-001): a WhatsApp code from the sink, then the account with the account's name. */
+export async function signUp(account) {
+  const { code } = await withSinkCode(account.phone, 'signup', () => requestCode(account.phone, 'signup'));
+  const res = await api(`${AUTH}/signup`, { method: 'POST', body: { phone: account.phone, code, name: account.name } });
+  return { ...account, ...sessionOf(res, `sign-up ${account.label}`) };
+}
+
+/** Sign-in by WhatsApp code (REQ-AUTH-002). Every call is a new code request, counted in iqraa.json auth.limits. */
 export async function login(account) {
-  const res = await api('/api/auth/login', { method: 'POST', body: { email: account.email, password: account.password } });
-  if (!res.json?.token) throw new Error(`login ${account.username}: ${res.status} ${res.text.slice(0, 200)}`);
-  const user = res.json.user;
-  return { ...account, token: res.json.token, id: String(user.id ?? user._id), role: user.role };
+  const { code } = await withSinkCode(account.phone, 'signin', () => requestCode(account.phone, 'signin'));
+  return { ...account, ...sessionOf(await verifyCode(account.phone, 'code', code), `sign-in ${account.label}`) };
 }
 
-export async function registerAndLogin(account) {
-  const reg = await api('/api/auth/register', { method: 'POST', body: { ...account, confirm_password: account.password } });
-  if (reg.status >= 300) throw new Error(`register ${account.username}: ${reg.status} ${reg.text.slice(0, 200)}`);
-  return login(account);
+/** The base32 secret of an otpauth:// URL. */
+export function secretOf(otpauthUrl) {
+  const secret = new URL(otpauthUrl).searchParams.get('secret');
+  if (!secret) throw new Error('no secret in the otpauth URL');
+  return secret;
+}
+
+/** A fresh app code for `account.app` ({ secret, backupCodes, lastStep }); waits for a new 30 s step when needed. */
+export async function appCode(account) {
+  const { step, waitMs } = nextAppStep(account.app.lastStep);
+  if (waitMs > 0) await sleep(waitMs);
+  account.app.lastStep = step;
+  return totp(account.app.secret, { step });
+}
+
+/** Sign-in with phone plus an app code, or plus `backupCode` (REQ-AUTH-004/005). */
+export async function loginWithApp(account, { backupCode } = {}) {
+  const res = backupCode
+    ? await verifyCode(account.phone, 'backup', backupCode)
+    : await verifyCode(account.phone, 'app', await appCode(account));
+  return { ...account, ...sessionOf(res, `app sign-in ${account.label}`) };
+}
+
+/**
+ * Sets up the authenticator app through LibreChat's own routes (spec «Spec review» item 5): enable, then confirm
+ * one app code. LibreChat's confirm records no step (only the fork's own sign-ins and the runner's promote do), so
+ * the wait for a new step before the next app code is harmless, not required.
+ */
+export async function enableApp(account) {
+  const enabled = await api('/api/auth/2fa/enable', { token: account.token, method: 'POST', body: {} });
+  if (enabled.status !== 200 || !enabled.json?.otpauthUrl) throw new Error(`2fa enable ${account.label}: ${enabled.status} ${enabled.text.slice(0, 200)}`);
+  const app = { secret: secretOf(enabled.json.otpauthUrl), backupCodes: enabled.json.backupCodes, lastStep: -1, otpauthUrl: enabled.json.otpauthUrl };
+  const confirmed = await api('/api/auth/2fa/confirm', { token: account.token, method: 'POST', body: { token: await appCode({ app }) } });
+  if (confirmed.status !== 200) throw new Error(`2fa confirm ${account.label}: ${confirmed.status} ${confirmed.text.slice(0, 200)}`);
+  return { ...account, app };
+}
+
+// The runner reads its secrets inside the LibreChat container (the entrypoint's exports do not reach an exec
+// session); only the command and its arguments cross the host command line.
+const RUNNER =
+  'export IQRAA_AUTH_SECRET=$(cat /secrets/iqraa_auth) CREDS_KEY=$(cat /secrets/creds_key) CREDS_IV=$(cat /secrets/creds_iv)' +
+  ' && exec node /app/config/iqraa-bootstrap-staff.js "$@"';
+const lastJsonLine = (text) => {
+  for (const line of String(text ?? '').trim().split('\n').reverse()) {
+    try {
+      const value = JSON.parse(line);
+      if (value && typeof value === 'object') return value;
+    } catch {
+      // config/connect.js prints colored progress lines first
+    }
+  }
+  return null;
+};
+
+/** Runs one staff bootstrap command (plan contract: request | enrol | promote); returns its JSON line. */
+export function bootstrapRunner(args) {
+  const run = spawnSync('docker', ['compose', '-f', COMPOSE, 'exec', '-T', 'librechat', 'sh', '-c', RUNNER, 'iqraa-bootstrap-staff', ...args], { encoding: 'utf8' });
+  if (run.status !== 0) {
+    const failure = lastJsonLine(run.stderr);
+    throw new Error(`bootstrap ${args[0]}: exit ${run.status ?? run.error?.message}: ${failure ? `${failure.error} ${failure.message}` : String(run.stderr ?? '').slice(-300)}`);
+  }
+  const out = lastJsonLine(run.stdout);
+  if (!out) throw new Error(`bootstrap ${args[0]}: no JSON line on stdout`);
+  return out;
+}
+
+/**
+ * A staff account made the way an operator makes one (Decision 13): `request` (a sign-up code to the sink),
+ * `enrol` (the otpauth URL and backup codes), `promote` with an app code (the guarded role assignment), then a
+ * sign-in with phone plus app code. The returned account carries its app for later sign-ins.
+ */
+export async function staffAccount(label) {
+  const account = newAccount(label);
+  const { code } = await withSinkCode(account.phone, 'signup', async () => bootstrapRunner(['request', '--phone', account.phone]));
+  const enrolled = bootstrapRunner(['enrol', '--phone', account.phone, '--name', account.name, '--code', code]);
+  account.app = { secret: secretOf(enrolled.otpauthUrl), backupCodes: enrolled.backupCodes, lastStep: -1 };
+  const promoted = bootstrapRunner(['promote', '--phone', account.phone, '--app-code', await appCode(account)]);
+  const staff = await loginWithApp(account);
+  if (promoted.role !== 'ADMIN' || staff.role !== 'ADMIN' || String(promoted.userId) !== staff.id) {
+    throw new Error(`staff ${label}: promoted ${JSON.stringify(promoted)}, signed in as ${staff.id} (${staff.role})`);
+  }
+  return staff;
 }
 
 export async function grant(staff, userId, amountAic, ref) {
@@ -174,11 +302,11 @@ export async function grant(staff, userId, amountAic, ref) {
 }
 
 export async function customer(staff, label, { plan = true, credits = 0 } = {}) {
-  let account = await registerAndLogin(newAccount(label));
+  let account = await signUp(newAccount(label));
   if (plan) {
     const member = await api(`/api/admin/roles/${PLAN_ROLE}/members`, { token: staff.token, method: 'POST', body: { userId: account.id } });
     if (member.status >= 300) throw new Error(`plan membership ${label}: ${member.status} ${member.text.slice(0, 200)}`);
-    account = await login(account);
+    account = await login(account); // a new code request: counted in iqraa.json auth.limits
   }
   if (credits > 0) await grant(staff, account.id, credits, `staging-${RUN}-${label}`);
   return account;

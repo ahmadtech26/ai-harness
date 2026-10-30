@@ -1,74 +1,77 @@
-// Arabic RTL acceptance check (REQ-RTL-001..004). Started by run-rtl-check.mjs inside
-// mcr.microsoft.com/playwright, in the proxy container's network namespace. Signs in a fresh plan
-// customer, asks the specialist the deterministic Arabic demo question, waits for the full answer and
-// checks computed styles. INJECT_CSS=<file under /work> adds a candidate stylesheet to the live page first.
-// Writes /work/out/rtl-check.json and screenshots; exits 1 on any failed check.
+// Arabic RTL acceptance check (REQ-RTL-001..004) and the account label (REQ-AUTH-011). Started by
+// run-rtl-check.mjs inside mcr.microsoft.com/playwright, in the proxy container's network namespace. Signs a
+// phone-only plan customer in on the fork's code screens (an app code, then a backup code), checks the account
+// menu shows the phone and never the placeholder email, asks the specialist the deterministic Arabic demo
+// question, waits for the full answer and checks computed styles. INJECT_CSS=<file under /work> adds a candidate
+// stylesheet to the live page first. Writes /work/out/rtl-check.json and screenshots; exits 1 on any failed check.
 const fs = require('fs');
-const crypto = require('crypto');
 const { chromium } = require('playwright');
+const { nextAppStep, totp } = require('/work/totp.cjs');
 
 // The proxy, reached as localhost. Customers use HTTPS, where the browser labels each request with
 // Sec-Fetch-Site and LibreChat's sign-in guard accepts same-origin posts. Chromium sends that header
 // only to secure origins: localhost is one, http://proxy:8080 is not (sign-in would be refused).
 const BASE = 'http://localhost:8080';
 const OUT = '/work/out';
-const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 const QUESTION = 'ARABIC_DEMO ما حكم العربون في القانون المدني الأردني؟';
 const ANSWER_ONLY = 'أصبح باتًا'; // in the demo answer, not in the question
 const LAST_LINE = 'مراجعة محامٍ مختص'; // the demo answer's final line
-const { STAFF_EMAIL, STAFF_PASSWORD, AGENT_ID, INJECT_CSS } = process.env;
+const { CUSTOMER_PHONE, CUSTOMER_APP_SECRET, CUSTOMER_APP_LAST_STEP, CUSTOMER_BACKUP_CODE, AGENT_ID, INJECT_CSS } = process.env;
+const LOCAL_PHONE = `0${CUSTOMER_PHONE.slice(4)}`; // +96279… typed the local way, 079…
+let lastStep = Number(CUSTOMER_APP_LAST_STEP);
 
-async function api(path, { token, method = 'GET', body } = {}) {
-  const res = await fetch(BASE + path, {
-    method,
-    headers: { 'User-Agent': UA, ...(body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  return { status: res.status, json: await res.json().catch(() => null) };
+/** A fresh app code. LibreChat's confirm records no step, so waiting after it is harmless, not required. */
+async function appCode() {
+  const { step, waitMs } = nextAppStep(lastStep);
+  if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+  lastStep = step;
+  return totp(CUSTOMER_APP_SECRET, { step });
 }
 
-function ensure(response, what) {
-  if (response.status >= 300) throw new Error(`${what} failed: HTTP ${response.status}`);
-  return response;
-}
+/** Western digits for a label that may print Arabic-Indic ones. */
+const digitsOf = (text) => String(text).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0)).replace(/\D/g, '');
 
-async function makeCustomer() {
-  const staff = ensure(await api('/api/auth/login', { method: 'POST', body: { email: STAFF_EMAIL, password: STAFF_PASSWORD } }), 'staff login');
-  const suffix = crypto.randomBytes(4).toString('hex');
-  const account = { name: 'عميل تجريبي', username: `rtl_${suffix}`, email: `rtl.${suffix}@example.test`, password: crypto.randomBytes(12).toString('base64url') + 'aA1!' };
-  ensure(await api('/api/auth/register', { method: 'POST', body: { ...account, confirm_password: account.password } }), 'register');
-  const login = ensure(await api('/api/auth/login', { method: 'POST', body: { email: account.email, password: account.password } }), 'customer login');
-  const userId = login.json?.user?.id ?? login.json?.user?._id;
-  ensure(await api('/api/admin/roles/PLAN_PRO/members', { token: staff.json.token, method: 'POST', body: { userId } }), 'plan membership');
-  ensure(await api(`/api/iqraa/admin/wallets/${userId}/grant`, { token: staff.json.token, method: 'POST', body: { amount: 5, ref: `rtl-${suffix}` } }), 'credit grant');
-  return account;
-}
-
-/** Signs in and asks the demo question; `cookieLang` null means a first visit without a cookie. */
-async function askDemo(browser, account, { cookieLang, file }) {
+/**
+ * Signs in on the code screens (plan contract test ids: phone, "use your authenticator app", then an app code or,
+ * with `backup`, a backup code) and asks the demo question; `cookieLang` null means a first visit without a cookie.
+ */
+async function askDemo(browser, { cookieLang, file, backup }) {
   const context = await browser.newContext({ locale: 'en-US', viewport: { width: 1366, height: 900 } });
   if (cookieLang) await context.addCookies([{ name: 'lang', value: cookieLang, url: BASE }]);
   const page = await context.newPage();
   const loginResponses = [];
   page.on('response', async (r) => {
-    if (!r.url().includes('/api/auth/login')) return;
+    if (!r.url().includes('/api/iqraa/auth/')) return;
     const h = await r.request().allHeaders();
     loginResponses.push(`${r.request().method()} ${r.url()} ${r.status()} (origin ${h.origin ?? 'absent'}, sec-fetch-site ${h['sec-fetch-site'] ?? 'absent'})`);
   });
   await page.goto(`${BASE}/login`);
-  await page.locator('input[name="email"]').fill(account.email);
-  await page.locator('input[name="password"]').fill(account.password);
-  await page.locator('button[type="submit"]').first().click();
+  await page.getByTestId('iqraa-identifier').fill(LOCAL_PHONE);
+  await page.getByTestId('iqraa-use-app').click();
+  if (backup) await page.getByTestId('iqraa-use-backup').click();
+  await page.getByTestId('iqraa-code').fill(backup ? CUSTOMER_BACKUP_CODE : await appCode());
+  await page.getByTestId('iqraa-submit-code').click();
   try {
     await page.waitForURL(/\/c\//, { timeout: 30000 });
   } catch (error) {
     await page.screenshot({ path: `${OUT}/rtl-login-fail-${file}` });
-    const alert = await page.locator('[role="alert"]').allTextContents().catch(() => []);
+    const alert = await page.locator('[data-testid="iqraa-auth-error"], [role="alert"]').allTextContents().catch(() => []);
     throw new Error(`sign-in did not reach /c/ (at ${page.url()}; auth responses: ${loginResponses.join(', ') || 'none'}; alert: ${alert.join(' | ') || 'none'})`);
   }
   await page.goto(`${BASE}/c/new?agent_id=${encodeURIComponent(AGENT_ID)}`);
   const input = page.locator('#prompt-textarea, textarea').first();
   await input.waitFor({ timeout: 30000 });
+  // The account menu label (fork AccountLabel): the phone, never the placeholder email.
+  await page.getByTestId('nav-user').click();
+  // The label shows the fallback until GET /me answers: wait for the phone's digits, then read it.
+  await page.waitForFunction(
+    () => /[0-9٠-٩۰-۹]{7}/.test(document.querySelector('[data-testid="iqraa-account-label"]')?.textContent ?? ''),
+    null,
+    { timeout: 15000 },
+  );
+  const label = (await page.getByTestId('iqraa-account-label').textContent()) ?? '';
+  const placeholderOnPage = (await page.locator('body').innerText()).includes('phone.iqraa.invalid');
+  await page.keyboard.press('Escape');
   // After the app has settled (injecting during its client-side navigation fails).
   if (INJECT_CSS) await page.addStyleTag({ content: fs.readFileSync(INJECT_CSS, 'utf8') });
   await input.fill(QUESTION);
@@ -97,7 +100,7 @@ async function askDemo(browser, account, { cookieLang, file }) {
     };
   }, { answerOnly: ANSWER_ONLY });
   await context.close();
-  return measured;
+  return { ...measured, account: { label, placeholderOnPage } };
 }
 
 const px = (value) => Number.parseFloat(value ?? '0');
@@ -107,9 +110,8 @@ const noQuote = (content) => content === 'none' || content === 'normal' || conte
   const report = { injected: INJECT_CSS ?? null, checks: {} };
   const browser = await chromium.launch();
   try {
-    const account = await makeCustomer();
-    const ar = await askDemo(browser, account, { cookieLang: null, file: 'rtl-ar.png' });
-    const en = await askDemo(browser, account, { cookieLang: 'en-US', file: 'rtl-en.png' });
+    const ar = await askDemo(browser, { cookieLang: null, file: 'rtl-ar.png', backup: false });
+    const en = await askDemo(browser, { cookieLang: 'en-US', file: 'rtl-en.png', backup: true });
     report.measured = { ar, en };
     const check = (name, ok, detail) => (report.checks[name] = { ok: Boolean(ok), detail });
     check('htmlRtlByDefault', ar.html.dir === 'rtl' && ar.html.lang === 'ar', JSON.stringify(ar.html));
@@ -119,12 +121,13 @@ const noQuote = (content) => content === 'none' || content === 'normal' || conte
     check('blocksPlaintext', ar.para?.unicodeBidi === 'plaintext' && ar.user?.unicodeBidi === 'plaintext', JSON.stringify({ para: ar.para, user: ar.user }));
     check('inlineCodeIsolated', ar.code?.unicodeBidi === 'isolate' && ar.code?.direction === 'ltr', JSON.stringify(ar.code));
     check('englishUiLtr', en.html.dir === 'ltr' && en.para?.unicodeBidi === 'plaintext', JSON.stringify({ html: en.html, para: en.para }));
+    check('accountLabelIsThePhone', [ar, en].every((m) => digitsOf(m.account.label).endsWith(CUSTOMER_PHONE.slice(-9)) && !m.account.label.includes('phone.iqraa.invalid') && !m.account.placeholderOnPage), JSON.stringify([ar.account, en.account]));
   } catch (error) {
     report.error = String(error.stack ?? error);
   } finally {
     await browser.close();
   }
-  report.pass = !report.error && Object.values(report.checks).length === 7 && Object.values(report.checks).every((c) => c.ok);
+  report.pass = !report.error && Object.values(report.checks).length === 8 && Object.values(report.checks).every((c) => c.ok);
   fs.writeFileSync(`${OUT}/rtl-check.json`, JSON.stringify(report, null, 2));
   for (const [name, c] of Object.entries(report.checks)) console.log(`${c.ok ? 'ok  ' : 'FAIL'} ${name}: ${c.detail}`);
   if (report.error) console.log(`error: ${report.error}`);

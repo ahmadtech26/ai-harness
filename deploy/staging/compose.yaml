@@ -3,7 +3,7 @@
 # proxy is published, on 127.0.0.1:3080. Secrets are generated into the staging-secrets volume on first
 # start and never written to workspace files.
 #   docker compose up -d --build    # start (the fork image is built separately, see README.md)
-#   node scenarios.mjs              # acceptance scenarios 1, 4, 8, 9, 10, 11 and the reconciliation
+#   node scenarios.mjs              # acceptance scenarios (auth among them) and the reconciliation
 name: iqraa-staging
 
 volumes:
@@ -23,6 +23,9 @@ services:
         const hex = (n) => () => c.randomBytes(n).toString('hex');
         make('jwt', hex(32)); make('jwt_refresh', hex(32)); make('creds_key', hex(32)); make('creds_iv', hex(16));
         make('legal_search', hex(24)); make('mock_llm', hex(16)); make('pg_password', hex(16));
+        make('iqraa_auth', hex(32));
+        // The staging marker: the fork's sink delivery (iqraa.json auth.delivery) starts only where it exists.
+        make('iqraa_staging', () => 'staging-only: codes go to the iqraa_auth_sink collection');
         make('database_url', () => 'postgresql://postgres:' + fs.readFileSync('/secrets/pg_password', 'utf8') + '@postgres:5432/legal');
         console.log('secrets ready');
     volumes:
@@ -112,6 +115,8 @@ services:
     image: ${IQRAA_IMAGE:-iqraa/release:staging}
     pull_policy: never
     depends_on:
+      secrets-init:
+        condition: service_completed_successfully
       mongo:
         condition: service_healthy
       legal-search:
@@ -134,13 +139,15 @@ services:
       DOMAIN_SERVER: http://localhost:3080
       SEARCH: 'false'
       NO_INDEX: 'true'
-      ALLOW_REGISTRATION: 'true'
-      ALLOW_EMAIL_LOGIN: 'true'
-      ALLOW_UNVERIFIED_EMAIL_LOGIN: 'true'
+      # No passwords (plan Decision 3): the fork refuses to start unless these are false. Sign-in is the fork's
+      # code flow (/api/iqraa/auth); its limits are iqraa.json auth.limits.
+      ALLOW_EMAIL_LOGIN: 'false'
+      ALLOW_REGISTRATION: 'false'
+      ALLOW_PASSWORD_RESET: 'false'
+      ALLOW_ACCOUNT_DELETION: 'false'
+      ALLOW_EMAIL_LOGIN_OVERRIDE: 'false'
+      ALLOW_SOCIAL_LOGIN: 'false'
       ALLOW_SHARED_LINKS: 'false'
-      # Each driver run registers ~8 accounts and logs in ~18 times from one address.
-      REGISTER_MAX: '200'
-      LOGIN_MAX: '200'
       # Scenario 11: per-user message rate limit. The concurrent-message limiter stays off (unset) so
       # scenario 8's parallel chats are bounded by the credit ledger, not by LibreChat.
       LIMIT_MESSAGE_USER: 'true'
@@ -153,6 +160,7 @@ services:
         export JWT_SECRET=$$(cat /secrets/jwt) JWT_REFRESH_SECRET=$$(cat /secrets/jwt_refresh)
         CREDS_KEY=$$(cat /secrets/creds_key) CREDS_IV=$$(cat /secrets/creds_iv)
         LEGAL_SEARCH_SECRET=$$(cat /secrets/legal_search) MOCK_LLM_API_KEY=$$(cat /secrets/mock_llm)
+        IQRAA_AUTH_SECRET=$$(cat /secrets/iqraa_auth)
         && exec docker-entrypoint.sh node server/index.js
     volumes:
       - ./librechat.yaml:/config/librechat.yaml:ro

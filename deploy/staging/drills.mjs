@@ -9,8 +9,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
-  BASE, COMPOSE, OUT, RUN, MODEL, PLAN_ROLE, api, chat, customer, login, mongoQuery, newAccount,
-  registerAndLogin, sleep, nonce, llmLog, check, verdict,
+  BASE, COMPOSE, OUT, RUN, MODEL, PLAN_ROLE, api, chat, customer, login, loginWithApp, staffAccount,
+  sleep, nonce, llmLog, check, verdict,
 } from './lib.mjs';
 
 const RELEASES = { r1: 'iqraa/release:drill-r1', r2: 'iqraa/release:drill-r2', r3: 'iqraa/release:drill-r3', staging: 'iqraa/release:staging' };
@@ -76,10 +76,8 @@ async function main() {
   const report = { run: RUN, startedAt: new Date().toISOString(), steps: {} };
   try {
     await useRelease(RELEASES.r1);
-    const staffAccount = newAccount('drillstaff');
-    await registerAndLogin(staffAccount);
-    mongoQuery({ op: 'promote', email: staffAccount.email });
-    let staff = await login(staffAccount);
+    // The staff bootstrap runner on release r1 (the runner ships in every release of the fork image).
+    let staff = await staffAccount('drillstaff');
     const skills = await api('/api/skills', { token: staff.token });
     const list = Array.isArray(skills.json) ? skills.json : (skills.json?.skills ?? skills.json?.data ?? []);
     const ids = Object.fromEntries(list.map((s) => [s.name, String(s._id ?? s.id)]));
@@ -109,9 +107,10 @@ async function main() {
     });
     if (share.status >= 300) throw new Error(`sharing the drill specialist: ${share.status}`);
     const customerAccount = await customer(staff, 'drill', { credits: 5 });
-    // Sessions last 15 minutes and each release swap takes minutes: log in again after every swap.
+    // Sessions last 15 minutes and each release swap takes minutes: sign in again after every swap
+    // (staff with a new app code, the customer with a new WhatsApp code from the sink).
     const relogin = async () => {
-      staff = await login(staffAccount);
+      staff = await loginWithApp(staff);
       return login(customerAccount);
     };
 

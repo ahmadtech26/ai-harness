@@ -1,10 +1,10 @@
-// Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13, guard (the library sweep guard) and the library checks (P1–P3 results)
-// against the staging stack in this directory.
+// Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13, auth (passwordless sign-in), guard (the library sweep guard)
+// and the library checks (P1–P3 results) against the staging stack in this directory.
 //
 //   docker compose up -d --build && node scenarios.mjs
 //
-// Every run creates fresh accounts with throwaway passwords that exist only in memory and in the
-// staging database; the staff account is promoted through mongosh. Evidence is judged from three
+// Every run creates fresh accounts by phone, with codes read from the staging sink (no passwords exist); the
+// staff account is made with the staff bootstrap runner and signs in with an app code. Evidence is judged from three
 // sources: HTTP responses, the mock model's request log (out/llm-requests.jsonl — every provider call)
 // and the ledger collections in MongoDB. Writes out/scenarios-report.json; exits 1 on any failure.
 import fs from 'node:fs';
@@ -13,7 +13,8 @@ import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
   ROOT, OUT, BASE, RUN, PRICES, MODEL, sleep, nonce,
-  api, waitForHealth, chat, newAccount, login, registerAndLogin, grant, customer,
+  api, waitForHealth, chat, newAccount, newPhone, signUp, staffAccount, enableApp, appCode, requestCode, verifyCode,
+  withSinkCode, newestSinkRow, sessionOf, AUTH, PLACEHOLDER_DOMAIN, grant, customer,
   wallet, mongoQuery, reconcile, compose, legalSearchHealthy, reservationsOf, usageEventsOf, callsFor,
   titleCallsFor, flakyFor, carries, costOf, check, verdict, countBy, answered,
   providerCalls, titlesAfter, turn, summarizeTurn, waitUntil, chatAndStop, proxyChecks,
@@ -598,19 +599,138 @@ async function scenarioGuard(ctx) {
   };
 }
 
+// ---------------------------------------------------------------- passwordless sign-in (spec-passwordless-login)
+
+const PASSWORD_ROUTES = [
+  ['/api/auth/login', { email: 'nobody@example.test', password: 'not-a-password' }],
+  ['/api/auth/register', { name: 'x', username: 'nobody', email: 'nobody@example.test', password: 'not-a-password', confirm_password: 'not-a-password' }],
+  ['/api/auth/requestPasswordReset', { email: 'nobody@example.test' }],
+  ['/api/auth/resetPassword', { userId: '000000000000000000000000', token: 'x', password: 'not-a-password', confirm_password: 'not-a-password' }],
+  ['/api/auth/2fa/verify-temp', { tempToken: 'x', token: '000000' }],
+  ['/api/admin/login/local', { email: 'nobody@example.test', password: 'not-a-password' }],
+];
+const sameUser = (res, id) => res.status === 200 && String(res.json?.user?.id ?? res.json?.user?._id) === id;
+const said = (res) => `${res.status} ${res.json?.code ?? ''}`.trim();
+
+/**
+ * Every staging acceptance line of the spec on the code flow (sink): sign-up by phone (the same phone again is
+ * the same account), WhatsApp-code sign-in typed in the local form, refresh with the code sign-in's cookie, the
+ * ADMIN role refused to an account without the app and given to one with it (hook L5, both sides), app set-up through LibreChat with the phone as
+ * the authenticator label, app sign-in, the same app code refused again, a backup code, email added and bound
+ * after its code, email-code sign-in; staff refused with a delivered code and accepted with the app code, staff
+ * unable to turn the app off; every password route closed; byte-identical sign-in answers for known, staff and
+ * unknown identifiers with nothing sent to the unknown ones; audit rows without a code.
+ */
+async function scenarioAuth(ctx) {
+  const { staff } = ctx;
+
+  // 1. Sign-up by phone; the same phone again signs into the same account (spec item 14).
+  const first = await signUp(newAccount('auth'));
+  const meAfterSignUp = await api(`${AUTH}/me`, { token: first.token });
+  const again = await withSinkCode(first.phone, 'signup', () => requestCode(first.phone, 'signup'));
+  const repeat = await api(`${AUTH}/signup`, { method: 'POST', body: { phone: first.phone, code: again.code, name: first.name } });
+
+  // 2. WhatsApp-code sign-in, typed in the local form (079…); the sink row is under the E.164 number.
+  const local = `0${first.phone.slice(4)}`;
+  const signin = await withSinkCode(first.phone, 'signin', () => requestCode(local, 'signin'));
+  const byCode = await verifyCode(local, 'code', signin.code);
+  let a = { ...first, ...sessionOf(byCode, 'auth: code sign-in') };
+
+  // 3. Sessions stay LibreChat's: the refresh cookie of a code sign-in gives a new token.
+  const refreshed = await api('/api/auth/refresh', { method: 'POST', cookie: `refreshToken=${a.refreshToken}` });
+
+  // 4. Hook L5: staff cannot give ADMIN to an account without the app (before it has one).
+  const toAdmin = await api('/api/admin/roles/ADMIN/members', { token: staff.token, method: 'POST', body: { userId: a.id } });
+
+  // 5. App set-up through LibreChat (enable + confirm) while the account is on its placeholder email: the
+  // authenticator label is the phone (Decision 12). Then app sign-in, the same code again, a backup code.
+  a = await enableApp(a);
+  const label = decodeURIComponent(new URL(a.app.otpauthUrl).pathname);
+  const used = await appCode(a); // the step after the confirm's: the wait is harmless (confirm records no step)
+  const byApp = await verifyCode(a.phone, 'app', used);
+  const replay = await verifyCode(a.phone, 'app', used);
+  const backup = a.app.backupCodes[0];
+  const byBackup = await verifyCode(a.phone, 'backup', backup);
+
+  // 5b. Hook L5, the other side: staff can give ADMIN to an account that has the app. A throwaway account takes it
+  // (`a` must stay a customer for the code sign-ins below) and goes back to USER at once, so no stray admin stays.
+  const b = await enableApp(await signUp(newAccount('auth-admin')));
+  const toAdminWithApp = await api('/api/admin/roles/ADMIN/members', { token: staff.token, method: 'POST', body: { userId: b.id } });
+  const fromAdmin = await api(`/api/admin/roles/ADMIN/members/${b.id}`, { token: staff.token, method: 'DELETE' });
+
+  // 6. Add an email: bound only after its code; then sign in by email code (the app does not stop it, item 2).
+  const email = `stg.auth.${RUN}${crypto.randomBytes(2).toString('hex')}@example.test`;
+  const added = await withSinkCode(email, 'email_add', () => api(`${AUTH}/email/add`, { token: a.token, method: 'POST', body: { email } }));
+  const meBefore = await api(`${AUTH}/me`, { token: a.token });
+  const bound = await api(`${AUTH}/email/verify`, { token: a.token, method: 'POST', body: { email, code: added.code } });
+  const meAfter = await api(`${AUTH}/me`, { token: a.token });
+  const emailSignin = await withSinkCode(email, 'signin', () => requestCode(email, 'signin'));
+  const byEmail = await verifyCode(email, 'code', emailSignin.code);
+
+  // 7. Staff: a delivered code is issued, then refused (Decision 7); the app code is accepted; the app stays on.
+  // The disable body is empty, so a missing guard answers 400 instead of turning staff 2FA off mid-run.
+  const staffSignin = await withSinkCode(staff.phone, 'signin', () => requestCode(staff.phone, 'signin'));
+  const staffByCode = await verifyCode(staff.phone, 'code', staffSignin.code);
+  const staffByApp = await verifyCode(staff.phone, 'app', await appCode(staff));
+  const disable = await api('/api/auth/2fa/disable', { token: staff.token, method: 'POST', body: {} });
+
+  // 8. No enumeration (REQ-AUTH-008): unknown identifiers get the same bytes, and nothing reaches the sink.
+  const unknownPhone = newPhone();
+  const unknownEmail = `stg.nobody.${RUN}${crypto.randomBytes(2).toString('hex')}@example.test`;
+  const unknowns = [await requestCode(unknownPhone, 'signin'), await requestCode(unknownEmail, 'signin')];
+  await sleep(3_000); // a sign-in answer does not wait for delivery: give a stray row time to land
+  const stray = [unknownPhone, unknownEmail].filter((to) => newestSinkRow(to, 'signin') !== null);
+  const answers = [signin.sent, staffSignin.sent, emailSignin.sent, ...unknowns];
+  const distinct = new Set(answers.map((res) => `${res.status} ${res.text}`));
+
+  // 9. Every password route answers 403 IQRAA_PASSWORDS_OFF (REQ-AUTH-006, Decision 2).
+  const closed = [];
+  for (const [route, body] of PASSWORD_ROUTES) closed.push({ route, said: said(await api(route, { method: 'POST', body })) });
+
+  // 10. Audit rows (REQ-AUTH-010): this account's rows exist and no row carries a code it used.
+  const codes = [
+    ...mongoQuery({ op: 'find', collection: 'iqraa_auth_sink', filter: { to: { $in: [a.phone, email, staff.phone] } } }).map((row) => row.code),
+    used,
+    backup,
+  ];
+  const events = mongoQuery({ op: 'find', collection: 'iqraa_auth_events', filter: {}, sort: { at: -1 }, limit: 300 });
+  const own = events.filter((row) => String(row.userId) === a.id);
+  const leaking = events.filter((row) => codes.some((code) => new RegExp(`(?<![0-9A-Za-z])${code}(?![0-9A-Za-z])`).test(JSON.stringify(row))));
+
+  const national = first.phone.slice(-9);
+  return verdict({
+    signUpByPhone: check(first.role === 'USER' && first.email === `${first.id}${PLACEHOLDER_DOMAIN}` && meAfterSignUp.json?.phone === first.phone && meAfterSignUp.json?.email === null && meAfterSignUp.json?.twoFactorEnabled === false, `role ${first.role}; email ${first.email}; me ${meAfterSignUp.text.slice(0, 120)}`),
+    samePhoneSameAccount: check(again.sent.status === 200 && sameUser(repeat, first.id), `second sign-up ${said(repeat)}, user ${repeat.json?.user?.id ?? repeat.json?.user?._id} (first ${first.id})`),
+    signInByWhatsAppCode: check(sameUser(byCode, first.id) && signin.row.channel === 'whatsapp' && signin.row.to === first.phone, `typed ${local}; sink row to ${signin.row.to} by ${signin.row.channel}; verify ${said(byCode)}`),
+    refreshFromCodeSignIn: check(Boolean(a.refreshToken) && refreshed.status === 200 && Boolean(refreshed.json?.token) && sameUser(refreshed, first.id), `refresh cookie ${a.refreshToken ? 'set' : 'missing'}; refresh ${refreshed.status}`),
+    staffRoleNeedsApp: check(toAdmin.status === 403 && toAdmin.json?.code === 'IQRAA_STAFF_NEEDS_APP', `POST /api/admin/roles/ADMIN/members: ${said(toAdmin)}`),
+    staffRoleWithApp: check(toAdminWithApp.status === 200 && toAdminWithApp.json?.success === true && fromAdmin.status === 200, `POST /api/admin/roles/ADMIN/members for an account with the app: ${said(toAdminWithApp)}; role taken back (DELETE …/members/<id>): ${said(fromAdmin)}`),
+    appLabelIsThePhone: check(!label.includes('phone.iqraa.invalid') && label.replace(/\D/g, '').endsWith(national), `authenticator label ${label}`),
+    appSignIn: check(sameUser(byApp, first.id), `app code: ${said(byApp)}`),
+    appCodeAcceptedOnce: check(replay.status === 401 && replay.json?.code === 'IQRAA_AUTH_INVALID_CODE', `same app code again: ${said(replay)}`),
+    backupCodeSignIn: check(sameUser(byBackup, first.id), `backup code: ${said(byBackup)}`),
+    emailBoundAfterCode: check(added.row.channel === 'email' && meBefore.json?.email === null && bound.status === 200 && bound.json?.email === email && meAfter.json?.email === email, `sink by ${added.row.channel}; before verify ${meBefore.json?.email}; verify ${said(bound)}; after ${meAfter.json?.email}`),
+    emailCodeSignIn: check(sameUser(byEmail, first.id) && byEmail.json?.user?.email === email, `email code: ${said(byEmail)}, user email ${byEmail.json?.user?.email}`),
+    staffDeliveredCodeRefused: check(staffByCode.status === 403 && staffByCode.json?.code === 'IQRAA_AUTH_APP_REQUIRED', `staff WhatsApp code: ${said(staffByCode)}`),
+    staffAppCodeAccepted: check(sameUser(staffByApp, staff.id) && staffByApp.json?.user?.role === 'ADMIN', `staff app code: ${said(staffByApp)}, role ${staffByApp.json?.user?.role}`),
+    staffCannotTurnAppOff: check(disable.status === 403 && disable.json?.code === 'IQRAA_STAFF_APP_REQUIRED', `POST /api/auth/2fa/disable as staff: ${said(disable)}`),
+    passwordRoutesClosed: check(closed.every((c) => c.said === '403 IQRAA_PASSWORDS_OFF'), JSON.stringify(closed)),
+    signInAnswerIdentical: check(distinct.size === 1 && answers[0].status === 200, `${distinct.size} distinct answer(s) for known phone, staff phone, known email, unknown phone, unknown email: ${[...distinct][0]?.slice(0, 160)}`),
+    unknownGetsNothing: check(stray.length === 0, `sink rows for unknown identifiers: ${stray.length}`),
+    auditWithoutCodes: check(own.length >= 4 && leaking.length === 0, `${own.length} audit rows for the account; rows carrying a used code: ${leaking.length} (of ${events.length} read, ${codes.length} codes)`),
+  });
+}
+
 // ---------------------------------------------------------------- setup and run
 
 async function setup() {
   await waitForHealth();
-  const staffAccount = newAccount('staff');
-  await registerAndLogin(staffAccount);
-  mongoQuery({ op: 'promote', email: staffAccount.email });
-  const staff = await login(staffAccount);
-  if (staff.role !== 'ADMIN') throw new Error(`staff account is ${staff.role}, expected ADMIN`);
+  // The staff bootstrap runner (request, sink code, enrol, app code, promote), then phone plus app code.
+  const staff = await staffAccount('staff');
 
   const release = spawnSync(process.execPath, [path.join(ROOT, 'content', 'release.mjs'), path.join(ROOT, 'content', 'specialists', 'aqel.json')], {
     encoding: 'utf8',
-    env: { ...process.env, LIBRECHAT_URL: BASE, IQRAA_STAFF_EMAIL: staff.email, IQRAA_STAFF_PASSWORD: staff.password, IQRAA_PROVIDER: 'MockLLM', IQRAA_MODEL: MODEL },
+    env: { ...process.env, LIBRECHAT_URL: BASE, IQRAA_STAFF_TOKEN: staff.token, IQRAA_PROVIDER: 'MockLLM', IQRAA_MODEL: MODEL },
   });
   if (release.status !== 0) throw new Error(`release failed: ${release.stderr || release.stdout}`);
   const agentId = release.stdout.match(/\((agent_[^)]+)\)/)?.[1];
@@ -652,7 +772,8 @@ async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const ctx = await setup();
   const report = { run: RUN, base: BASE, startedAt: new Date().toISOString(), agentId: ctx.agentId, release: ctx.release, scenarios: {} };
-  // 9 runs before 8 (8 sizes its wallet from a scenario 9 reservation); 11 last (its burst trips the rate limit).
+  // 9 runs before 8 (8 sizes its wallet from a scenario 9 reservation); 11 last (its burst trips the rate limit);
+  // auth after 7, by when the staff app step setup used has passed (no wait for a fresh one).
   const order = [
     ['1', scenario1],
     ['2', scenario2],
@@ -662,6 +783,7 @@ async function main() {
     ['8', scenario8],
     ['13', scenario13],
     ['7', scenario7],
+    ['auth', scenarioAuth],
     ['guard', scenarioGuard],
     ['11', scenario11],
   ];

@@ -11,7 +11,7 @@ answers every call and logs it, so "did anything reach the provider" is an obser
 | `mongo` | MongoDB replica set (the ledger needs transactions) |
 | `postgres`, `legal-search`, `legal-search-ingest` | the legal library: the 22 laws of `content/corpus/laws.json` (corrections in `corrections.json`) and the Civil Code memorandum, MCP tools `search_law` / `get_article` / `get_memorandum` |
 | `mock-llm` | OpenAI-compatible mock; every request goes to `out/llm-requests.jsonl` |
-| `secrets-init` | generates JWT, credential, MCP and database secrets into a volume on first start |
+| `secrets-init` | generates JWT, credential, MCP, database and sign-in (`iqraa_auth`, `iqraa_staging`) secrets into a volume |
 
 ## Run
 
@@ -35,12 +35,69 @@ docker compose up -d --build
 node scenarios.mjs            # exit 0 = all scenarios, proxy checks and reconciliation pass
 ```
 
-The driver creates fresh accounts on every run (throwaway passwords, held in memory only; the staff
-account is promoted through `mongosh`), releases the «عقل» specialist with `content/release.mjs` onto
+The driver creates fresh accounts on every run (by phone, codes read from the sink; the staff account is made with the staff bootstrap runner, see «Sign-in on staging»), releases the «عقل» specialist with `content/release.mjs` onto
 the mock model, and on staging only lists one extra skill (`staging-listed`) on it so scenario 1 can
 load a skill on demand. It writes `out/scenarios-report.json`.
 
 `out/` is git-ignored: the model log holds full prompts, including the AQEL instructions and skill bodies.
+
+## Sign-in on staging (passwordless)
+
+No passwords exist: `/api/auth/login`, `/register`, `/requestPasswordReset`, `/resetPassword`,
+`/2fa/verify-temp` and `/api/admin/login/local` answer 403 `IQRAA_PASSWORDS_OFF`, and the fork refuses to start
+unless `compose.yaml` sets the six `ALLOW_*` switches to `false`. Accounts sign up with a phone and a WhatsApp
+code, add an email later (bound only after its code), and sign in with a phone or email plus a delivered code,
+an authenticator-app code or a backup code. Staff (ADMIN) sign in with an app or backup code only.
+
+- **The sink.** `iqraa.json` `auth.delivery: "sink"`: codes are not sent; each one is a row in the MongoDB
+  collection `iqraa_auth_sink` (`to`, `channel`, `purpose`, `code`, 10-minute expiry). The fork starts with the
+  sink only where `/secrets/iqraa_staging` exists (made by `secrets-init`; production has none). The driver
+  reads the newest row for an identifier with `mongoQuery` (`lib.mjs` `withSinkCode`, `newestSinkRow`).
+- **Secrets.** `secrets-init` adds `iqraa_auth` (64 hex characters, the code and audit keys, exported by the
+  LibreChat entrypoint as `IQRAA_AUTH_SECRET`) and `iqraa_staging`. An existing volume gets them the next time
+  `secrets-init` runs: `docker compose run --rm -T --no-deps secrets-init` (a `--no-deps` recreate of librechat skips it).
+- **Limits.** `iqraa.json` `auth.limits` are raised for one driver address: a full run makes about 40 code
+  requests and 43 verifications, and a busy hour (an `auth` run, the full run, a rerun, the RTL check and the
+  drills) about 102 and 118, so 300 requests and 400 verifications per IP per hour, 10 requests per identifier
+  per 15 minutes and 30 per day (the drills customer takes 5). Production keeps the fork defaults (3, 10, 20, 60).
+- **The driver.** `lib.mjs` `customer()` signs up by phone (`+96279` and 7 digits, checked free in
+  `iqraa_identities`) and signs in again by WhatsApp code after the plan membership. App codes are RFC 6238
+  (`totp.cjs`, `node --test totp.test.mjs`); a code's 30 s step is accepted once, so a second app sign-in waits
+  for the next step. `SCENARIOS=auth node scenarios.mjs` runs the sign-in acceptance alone.
+- **RTL check.** `ui/run-rtl-check.mjs` signs a phone-only customer in on the code screens with an app code and
+  then a backup code (the browser container cannot read the sink), and checks the account menu shows the phone,
+  never the `@phone.iqraa.invalid` placeholder.
+- **Real WhatsApp.** Not exercised here. One real code to a real phone waits for Meta's approval of the Arabic
+  authentication template (spec «Acceptance → Manual»).
+
+### Staff bootstrap (operators)
+
+The first staff account, and every staff account the driver makes, comes from the runner
+`config/iqraa-bootstrap-staff.js` in the LibreChat image. It runs inside the container and reads its secrets
+there. From this folder (Git Bash; `MSYS_NO_PATHCONV` keeps the container paths as typed):
+
+```bash
+export MSYS_NO_PATHCONV=1
+RUNNER='export IQRAA_AUTH_SECRET=$(cat /secrets/iqraa_auth) CREDS_KEY=$(cat /secrets/creds_key) CREDS_IV=$(cat /secrets/creds_iv) && exec node /app/config/iqraa-bootstrap-staff.js "$@"'
+PHONE=+9627XXXXXXXX   # the staff member's WhatsApp number, E.164
+docker compose exec -T librechat sh -c "$RUNNER" runner request --phone "$PHONE"           # {"sent":true}
+node --input-type=module -e "import { newestSinkRow } from './lib.mjs'; console.log(newestSinkRow('$PHONE', 'signup')?.code)"   # staging: the code from the sink
+docker compose exec -T librechat sh -c "$RUNNER" runner enrol --phone "$PHONE" --name 'الاسم' --code <code>
+# prints {"userId","otpauthUrl","backupCodes"} once: add the otpauth URL to the authenticator app, keep the backup codes offline
+docker compose exec -T librechat sh -c "$RUNNER" runner promote --phone "$PHONE" --app-code <current app code>   # {"userId","role":"ADMIN"}
+docker compose exec -T librechat sh -c "$RUNNER" runner unlock --phone "$PHONE"   # {"unlocked":true,"account":true}: support clears a lock (--email <email> works too)
+```
+
+Ten wrong codes lock an identifier for 15 minutes, a later lock for 1 hour, every further one for 24 hours;
+a staff account's third and later locks have no end, and every staff lock writes an `ALERT auth_staff_locked`
+line in the LibreChat log. `unlock --phone <phone>` (or `--email <email>`) clears the lock and the failed
+attempts of that identifier and of its account, a manual staff lock included, and works for a phone nobody
+has signed up with too (strangers can lock one). The driver never uses it.
+
+On production the code arrives by WhatsApp instead of the sink. `promote` assigns the role through the same
+check as `POST /api/admin/roles/:name/members` (hook L5), which refuses a staff role to an account without the
+app. `content/release.mjs` then signs in with `IQRAA_STAFF_IDENTIFIER` and a current `IQRAA_STAFF_APP_CODE`
+(or takes a session token in `IQRAA_STAFF_TOKEN`, as the driver passes it).
 
 ## Reconciliation
 

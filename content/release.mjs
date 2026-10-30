@@ -1,7 +1,7 @@
 // Release Iqraa specialists and plan roles into a LibreChat instance (idempotent).
 //
-//   LIBRECHAT_URL=http://localhost:3080 IQRAA_STAFF_EMAIL=... IQRAA_STAFF_PASSWORD=... \
-//     node content/release.mjs content/specialists/aqel.json
+//   LIBRECHAT_URL=http://localhost:3080 IQRAA_STAFF_IDENTIFIER=+9627... IQRAA_STAFF_APP_CODE=<app code> \
+//     node content/release.mjs content/specialists/aqel.json        (or IQRAA_STAFF_TOKEN=<staff session token>)
 //
 // Optional IQRAA_PROVIDER / IQRAA_MODEL override the model per environment (e.g. a mock on staging).
 // Credentials come only from the environment. Exits non-zero on any failed step.
@@ -40,13 +40,21 @@ async function api(route, { token, method = 'GET', body } = {}) {
   return { status: res.status, json, text };
 }
 
+// No passwords (spec-passwordless-login REQ-AUTH-006): a staff session token from the caller (the staging driver
+// holds one), or a staff phone or email plus a current authenticator-app code, accepted once.
 async function login() {
-  const { IQRAA_STAFF_EMAIL: email, IQRAA_STAFF_PASSWORD: password } = process.env;
-  if (!email || !password) fail('IQRAA_STAFF_EMAIL and IQRAA_STAFF_PASSWORD are required');
-  const res = await api('/api/auth/login', { method: 'POST', body: { email, password } });
-  if (!res.json?.token) fail(`login returned ${res.status}`);
-  if (res.json.user?.role !== 'ADMIN') fail('the release account must be staff (ADMIN)');
-  return res.json.token;
+  const { IQRAA_STAFF_TOKEN: given, IQRAA_STAFF_IDENTIFIER: identifier, IQRAA_STAFF_APP_CODE: code } = process.env;
+  let token = given;
+  if (!token) {
+    if (!identifier || !code) fail('set IQRAA_STAFF_TOKEN, or IQRAA_STAFF_IDENTIFIER and IQRAA_STAFF_APP_CODE');
+    const res = await api('/api/iqraa/auth/verify-code', { method: 'POST', body: { identifier, method: 'app', code } });
+    if (!res.json?.token) fail(`sign-in returned ${res.status} ${res.json?.code ?? ''}`);
+    token = res.json.token;
+  }
+  const me = await api('/api/user', { token });
+  if (me.status !== 200) fail(`the staff session was refused (${me.status})`);
+  if (me.json?.role !== 'ADMIN') fail('the release account must be staff (ADMIN)');
+  return token;
 }
 
 async function ensureRoles(token) {
