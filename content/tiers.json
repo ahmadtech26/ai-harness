@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "specialist": "specialists/aqel.json",
+  "tiers": [
+    {
+      "key": "fast",
+      "spec": "iqraa-fast",
+      "label": "عقل سريع",
+      "description": "إجابات سريعة عن الأسئلة القانونية المباشرة، من نصوص المكتبة القانونية الأردنية.",
+      "order": 1,
+      "plans": ["PLAN_BASIC", "PLAN_PRO", "PLAN_FIRM"],
+      "provider": "MockLLM",
+      "model": "mock-model"
+    },
+    {
+      "key": "advanced",
+      "spec": "iqraa-advanced",
+      "label": "عقل متقدم",
+      "description": "تحليل أعمق للوقائع والنصوص، مع الربط بين المواد ذات الصلة.",
+      "order": 2,
+      "plans": ["PLAN_PRO", "PLAN_FIRM"],
+      "provider": "MockLLM",
+      "model": "mock-model"
+    },
+    {
+      "key": "expert",
+      "spec": "iqraa-expert",
+      "label": "عقل خبير",
+      "description": "أعلى مستوى من التحليل: القضايا المركّبة ومراجعة العقود بالتفصيل.",
+      "order": 3,
+      "plans": ["PLAN_FIRM"],
+      "provider": "MockLLM",
+      "model": "mock-model"
+    }
+  ]
+}

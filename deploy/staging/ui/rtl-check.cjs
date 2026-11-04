@@ -16,7 +16,7 @@ const OUT = '/work/out';
 const QUESTION = 'ARABIC_DEMO ما حكم العربون في القانون المدني الأردني؟';
 const ANSWER_ONLY = 'أصبح باتًا'; // in the demo answer, not in the question
 const LAST_LINE = 'مراجعة محامٍ مختص'; // the demo answer's final line
-const { CUSTOMER_PHONE, CUSTOMER_APP_SECRET, CUSTOMER_APP_LAST_STEP, CUSTOMER_BACKUP_CODE, AGENT_ID, INJECT_CSS } = process.env;
+const { CUSTOMER_PHONE, CUSTOMER_APP_SECRET, CUSTOMER_APP_LAST_STEP, CUSTOMER_BACKUP_CODE, INJECT_CSS } = process.env;
 const LOCAL_PHONE = `0${CUSTOMER_PHONE.slice(4)}`; // +96279… typed the local way, 079…
 let lastStep = Number(CUSTOMER_APP_LAST_STEP);
 
@@ -58,7 +58,8 @@ async function askDemo(browser, { cookieLang, file, backup }) {
     const alert = await page.locator('[data-testid="iqraa-auth-error"], [role="alert"]').allTextContents().catch(() => []);
     throw new Error(`sign-in did not reach /c/ (at ${page.url()}; auth responses: ${loginResponses.join(', ') || 'none'}; alert: ${alert.join(' | ') || 'none'})`);
   }
-  await page.goto(`${BASE}/c/new?agent_id=${encodeURIComponent(AGENT_ID)}`);
+  // The default tier (model spec): a landing link naming an agent would send no tier, and the fork's gate refuses that.
+  await page.goto(`${BASE}/c/new`);
   const input = page.locator('#prompt-textarea, textarea').first();
   await input.waitFor({ timeout: 30000 });
   // The account menu label (fork AccountLabel): the phone, never the placeholder email.

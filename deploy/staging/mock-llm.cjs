@@ -8,10 +8,17 @@
 //   - last user text has CALL_TOOL:<name>:<json args>
 //                                          -> one tool call to the advertised tool whose name contains <name>
 //   - last user text has ARABIC_DEMO       -> a fixed Arabic legal answer (UI checks)
+//   - FINAL_TEXT:<text to end of line>     -> that text as the final answer, once any CALL_TOOL of the same
+//                                             turn has run (the citation guard checks use it to cite an article
+//                                             the library did or did not return); with SLOW_STREAM:<ms> it
+//                                             streams that text word by word, so a Stop can land mid-answer
 //   - otherwise                            -> "MOCK_OK: <first 60 chars of the user text>"
 //   - FLAKY_ONCE:<nonce>                   -> the first request carrying <nonce> fails with HTTP 500
+//   - PROVIDER_ERROR                       -> every request carrying it fails with HTTP 400 and an error text that
+//                                             names the model (the fork must not show it to a tier customer)
 //   - NO_USAGE                             -> no usage chunk even when stream_options.include_usage is set
 //   - SLOW_STREAM:<ms>                     -> streams 40 "STREAMED_PIECE " chunks, <ms> apart; stops if the client leaves
+//                                             (a word at a time when the answer is a FINAL_TEXT)
 //   - DELAY_MS:<ms>                        -> waits <ms> before answering a turn's first model call
 //   - TOOL_ROUNDS:<n>                      -> calls search_law until <n> tool results are in the turn
 //   - summarisation request                -> "MOCK_SUMMARY", logged summary:true (marker IQRAA_SUMMARY_PROMPT
@@ -23,7 +30,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 const PORT = 8080;
-const LOG = '/out/llm-requests.jsonl';
+const LOG = process.env.MOCK_LLM_LOG ?? '/out/llm-requests.jsonl';
 const flakySeen = new Set();
 
 function log(entry) {
@@ -60,6 +67,11 @@ function decide(body) {
     const name = tools.find((t) => t.startsWith('search_law'));
     if (name) return { kind: 'tool', name, args: JSON.stringify({ query: `العقد ${turn.toolRounds + 1}` }) };
   }
+  const finalText = userText.match(/FINAL_TEXT:([^\n]*)/);
+  if (finalText && (turn.toolRounds > 0 || !/CALL_TOOL:/.test(userText))) {
+    const slowFinal = userText.match(/SLOW_STREAM:(\d+)/);
+    return { kind: 'text', text: finalText[1].trim(), ...(slowFinal ? { slowMs: Number(slowFinal[1]) } : {}) };
+  }
   if (turn.toolRounds > 0) {
     return { kind: 'text', text: `TOOL_RESULT_SEEN: ${turn.toolText.slice(0, 300)}` };
   }
@@ -93,6 +105,15 @@ function decide(body) {
     };
   }
   return { kind: 'text', text: `MOCK_OK: ${userText.slice(0, 60)}` };
+}
+
+/** The answer to a turn carrying PROVIDER_ERROR: a 400 whose text names the model, or null. */
+function providerErrorFor(userText, model) {
+  if (!userText.includes('PROVIDER_ERROR')) return null;
+  return {
+    status: 400,
+    body: { error: { message: `quota exceeded for model ${model} (MockLLM)`, type: 'invalid_request_error', code: 'quota_exceeded' } },
+  };
 }
 
 // LibreChat's title prompt asks for "a concise, 5-word-or-less title for the conversation".
@@ -145,6 +166,14 @@ async function handle(req, res, raw) {
     log({ event: 'flaky-500', nonce: flaky[1] });
     res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: { message: 'transient upstream error', type: 'server_error' } }));
+    return;
+  }
+  // A persistent provider refusal whose text names the model, as a quota or model-not-found answer does.
+  const refusal = title ? null : providerErrorFor(lastUserText, body.model);
+  if (refusal) {
+    log({ event: 'provider-error', model: body.model, messages: body.messages });
+    res.writeHead(refusal.status, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(refusal.body));
     return;
   }
   // Scenario 3: summarisation requests carry the marker configured in summary-overlay.yaml.
@@ -205,8 +234,8 @@ async function handle(req, res, raw) {
   res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
   sse(res, { ...base, choices: [{ index: 0, delta: { role: 'assistant', content: '' }, finish_reason: null }] });
   if (decision.kind === 'text') {
-    // Scenario 13: slow pieces, so the driver can press Stop mid-answer.
-    const pieces = decision.slowMs ? decision.text.match(/STREAMED_PIECE /g) : decision.text.match(/.{1,20}/gs) ?? [''];
+    // Scenario 13: slow pieces (a word each), so the driver can press Stop mid-answer.
+    const pieces = (decision.slowMs ? decision.text.match(/\S+\s*/g) : decision.text.match(/.{1,20}/gs)) ?? [''];
     for (const piece of pieces) {
       if (clientGone) {
         log({ event: 'client-left', id });
@@ -233,18 +262,27 @@ async function handle(req, res, raw) {
   res.end();
 }
 
+/** A request's body as text: a chunk can end inside an Arabic letter, so the bytes are joined before they are decoded. */
+async function readBody(stream) {
+  const chunks = [];
+  for await (const chunk of stream) chunks.push(chunk);
+  return Buffer.concat(chunks).toString('utf8');
+}
+
 const server = http.createServer((req, res) => {
-  let raw = '';
-  req.on('data', (c) => (raw += c));
-  req.on('end', () => {
-    handle(req, res, raw).catch((error) => {
+  readBody(req)
+    .then((raw) => handle(req, res, raw))
+    .catch((error) => {
       log({ event: 'mock-error', message: String(error?.stack ?? error) });
       if (!res.headersSent) {
         res.writeHead(500);
       }
       res.end();
     });
-  });
 });
 
-server.listen(PORT, '0.0.0.0', () => log({ event: 'mock-llm listening', port: PORT }));
+if (require.main === module) {
+  server.listen(PORT, '0.0.0.0', () => log({ event: 'mock-llm listening', port: PORT }));
+}
+
+module.exports = { decide, providerErrorFor, readBody };

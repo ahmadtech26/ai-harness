@@ -4,12 +4,22 @@
   "instructionsFile": "../prompts/aqel-v1.2-librechat.md",
   "provider": null,
   "model": null,
-  "model_parameters": { "streamUsage": true, "max_tokens": 4096 },
-  "tools": ["search_law_mcp_legal-search", "get_article_mcp_legal-search", "get_memorandum_mcp_legal-search"],
-  "skills": ["jordanian-case-analysis", "legal-document-review", "jordanian-procedure-and-fees"],
+  "model_parameters": {
+    "streamUsage": true,
+    "max_tokens": 4096
+  },
+  "tools": [
+    "search_law_mcp_legal-search",
+    "get_article_mcp_legal-search",
+    "get_memorandum_mcp_legal-search"
+  ],
+  "skills": [
+    "jordanian-case-analysis",
+    "legal-document-review",
+    "jordanian-procedure-and-fees"
+  ],
   "skills_enabled": true,
   "skill_authoring_enabled": false,
   "recursion_limit": 16,
-  "category": "general",
-  "shareWithRoles": ["PLAN_PRO"]
+  "category": "general"
 }

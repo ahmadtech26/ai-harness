@@ -24,8 +24,10 @@ const accounts = db.iqraa_postings
 const posted = {};
 let book = 0;
 for (const row of accounts) {
-  posted[row._id] = row.total;
-  book += row.total;
+  // $sum answers a Long once an account passes 32 bits (the grants do), and adding that to a number joins them as text.
+  const total = Number(row.total);
+  posted[row._id] = total;
+  book += total;
 }
 if (book !== 0) problems.push(`postings sum to ${book}, not 0`);
 

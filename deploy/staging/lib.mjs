@@ -69,9 +69,25 @@ export async function waitForHealth(timeoutMs = 240_000) {
   throw new Error(`LibreChat did not become healthy at ${BASE}`);
 }
 
+const specNames = new Map();
+
+/**
+ * The model spec (tier) whose private agent is `agentId`, from the startup config the client reads. A customer's
+ * chat turn must name one (the fork's tier gate); staff chats may too, harmlessly. Null for an agent that is no tier.
+ */
+export async function specFor(token, agentId) {
+  if (!specNames.has(agentId)) {
+    const config = await api('/api/config', { token });
+    const spec = (config.json?.modelSpecs?.list ?? []).find((entry) => entry.preset?.agent_id === agentId);
+    specNames.set(agentId, spec?.name ?? null);
+  }
+  return specNames.get(agentId);
+}
+
 /** Starts a turn and follows its event stream to the final event. */
-export async function chat({ token, agentId, text, conversationId = null, parentMessageId, manualSkills, timeoutMs = 90_000 }) {
+export async function chat({ token, agentId, text, conversationId = null, parentMessageId, manualSkills, timeoutMs = 90_000, spec }) {
   const messageId = crypto.randomUUID();
+  const specName = spec ?? (await specFor(token, agentId));
   const body = {
     text,
     sender: 'User',
@@ -83,6 +99,7 @@ export async function chat({ token, agentId, text, conversationId = null, parent
     error: false,
     endpoint: 'agents',
     agent_id: agentId,
+    ...(specName ? { spec: specName } : {}),
     isTemporary: false,
     isRegenerate: false,
     isContinued: false,
@@ -90,7 +107,8 @@ export async function chat({ token, agentId, text, conversationId = null, parent
   };
   const startedAt = Date.now();
   const start = await api('/api/agents/chat/agents', { token, method: 'POST', body });
-  const result = { startStatus: start.status, startedAt, elapsedMs: null, final: null, error: null, text: null, conversationId: null, responseId: null };
+  // `stream` keeps every SSE block, so a check can read all the customer's stream, not only the final event.
+  const result = { startStatus: start.status, startedAt, elapsedMs: null, final: null, error: null, text: null, conversationId: null, responseId: null, stream: [] };
   const streamId = start.json?.streamId ?? start.json?.conversationId;
   if (start.status >= 300 || !streamId) {
     result.error = start.json ?? start.text.slice(0, 300);
@@ -115,6 +133,7 @@ export async function chat({ token, agentId, text, conversationId = null, parent
       while ((idx = buffer.indexOf('\n\n')) >= 0) {
         const block = buffer.slice(0, idx);
         buffer = buffer.slice(idx + 2);
+        result.stream.push(block);
         const dataLines = block.split('\n').filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim());
         if (!dataLines.length) continue;
         let data;
@@ -301,10 +320,10 @@ export async function grant(staff, userId, amountAic, ref) {
   return res.json;
 }
 
-export async function customer(staff, label, { plan = true, credits = 0 } = {}) {
+export async function customer(staff, label, { plan = true, credits = 0, role = PLAN_ROLE } = {}) {
   let account = await signUp(newAccount(label));
   if (plan) {
-    const member = await api(`/api/admin/roles/${PLAN_ROLE}/members`, { token: staff.token, method: 'POST', body: { userId: account.id } });
+    const member = await api(`/api/admin/roles/${role}/members`, { token: staff.token, method: 'POST', body: { userId: account.id } });
     if (member.status >= 300) throw new Error(`plan membership ${label}: ${member.status} ${member.text.slice(0, 200)}`);
     account = await login(account); // a new code request: counted in iqraa.json auth.limits
   }
@@ -513,6 +532,7 @@ export async function waitUntil(predicate, timeoutMs) {
  * `marker` have arrived, then follows the stream to its end.
  */
 export async function chatAndStop({ token, agentId, text, marker, stopAfter, timeoutMs = 90_000 }) {
+  const specName = await specFor(token, agentId);
   const body = {
     text,
     sender: 'User',
@@ -524,6 +544,7 @@ export async function chatAndStop({ token, agentId, text, marker, stopAfter, tim
     error: false,
     endpoint: 'agents',
     agent_id: agentId,
+    ...(specName ? { spec: specName } : {}),
     isTemporary: false,
     isRegenerate: false,
     isContinued: false,
@@ -567,6 +588,7 @@ export async function chatAndStop({ token, agentId, text, marker, stopAfter, tim
         }
         if (data?.final) {
           result.ended = true;
+          result.final = data;
           controller.abort();
         }
       }

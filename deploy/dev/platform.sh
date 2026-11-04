@@ -2,6 +2,8 @@
 # Run a command inside the AI Platform (LibreChat fork) dev container.
 #   deploy/dev/platform.sh 'npm ci'
 #   deploy/dev/platform.sh 'cd packages/api && npx jest src/iqraa'
+# /tmp is a RAM disk: the fork suite starts a test MongoDB per suite, whose synced journal writes stall on a spinning
+# disk (measured 2026-11-03: 4.5 MB/s, setup timeouts in random suites; on the RAM disk 1.4 GB/s, 600 tests in 17 s).
 # The repository is bind-mounted at /work; every workspace's node_modules lives in a Docker volume so
 # installs stay inside the Docker VM (fast, and out of reach of host file scanners).
 set -euo pipefail
@@ -24,6 +26,7 @@ MSYS_NO_PATHCONV=1 docker run --rm -i \
   "${volumes[@]}" \
   -v iqraa-npm-cache:/root/.npm \
   -v iqraa-mongo-binaries:/root/.cache/mongodb-binaries \
+  --tmpfs /tmp:rw,size=16g,mode=1777 \
   -w /work \
   -e CI=true \
   "$image" bash -lc "$*"

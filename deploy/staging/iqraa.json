@@ -1,12 +1,18 @@
 {
-  "staffRoles": ["ADMIN"],
-  "preloadProviders": ["openai"],
+  "staffRoles": [
+    "ADMIN"
+  ],
+  "preloadProviders": [
+    "openai"
+  ],
   "metering": {
     "defaultMaxOutputTokens": 1024,
     "reservationTtlMs": 600000,
     "sweepIntervalMs": 30000
   },
-  "legalSearch": { "url": "http://legal-search:8000" },
+  "legalSearch": {
+    "url": "http://legal-search:8000"
+  },
   "auth": {
     "delivery": "sink",
     "limits": {
@@ -17,6 +23,19 @@
     }
   },
   "prices": {
-    "mock-model": { "input": 3, "output": 15, "cachedInput": 0.3 }
+    "mock-model": {
+      "input": 3,
+      "output": 15,
+      "cachedInput": 0.3
+    }
+  },
+  "tiers": [],
+  "grounding": {
+    "mode": "shadow",
+    "lawsPath": "/config/grounding-laws.json"
+  },
+  "starters": {
+    "path": "/config/starters.ar.json",
+    "requireApproved": false
   }
 }

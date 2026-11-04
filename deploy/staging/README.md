@@ -35,8 +35,9 @@ docker compose up -d --build
 node scenarios.mjs            # exit 0 = all scenarios, proxy checks and reconciliation pass
 ```
 
-The driver creates fresh accounts on every run (by phone, codes read from the sink; the staff account is made with the staff bootstrap runner, see «Sign-in on staging»), releases the «عقل» specialist with `content/release.mjs` onto
-the mock model, and on staging only lists one extra skill (`staging-listed`) on it so scenario 1 can
+The driver creates fresh accounts on every run (by phone, codes read from the sink; the staff account is made with the staff bootstrap runner, see «Sign-in on staging»), releases the three tier agents (`content/release.mjs`, from `content/tiers.json`) onto
+the mock model, writes their ids into `librechat.yaml` and `iqraa.json` (`content/tiers.mjs apply`; the first run on a stack
+recreates LibreChat once), and on staging only lists one extra skill (`staging-listed`) on the «عقل سريع» agent so scenario 1 can
 load a skill on demand. It writes `out/scenarios-report.json`.
 
 `out/` is git-ignored: the model log holds full prompts, including the AQEL instructions and skill bodies.
@@ -147,7 +148,7 @@ the shared secret: `flags`, `flags/:userId/clear`, `guard-settings`, `guard-sett
 
 ## Release drills (scenarios 5 and 14)
 
-Run `node scenarios.mjs` once first (it creates the `PLAN_PRO` role and the «عقل» specialist), then:
+Run `node scenarios.mjs` once first (it creates the plan roles and the tiers), then:
 
 ```bash
 cd "/d/Iqraa Law/AI Harness"
@@ -159,9 +160,9 @@ deploy/release/build.sh drill-r3 "$PLATFORM" --allow-draft --extra $S/r2
 cd deploy/staging && node drills.mjs
 ```
 
-The drill swaps LibreChat between the three releases (each restart takes a minute or two), creates a
-drill specialist, rolls back image and specialist, and removes a skill; it restores
-`iqraa/release:staging` at the end, even on failure.
+The drill swaps LibreChat between the three releases (each restart takes a minute or two), edits the
+«عقل سريع» tier agent (a customer can chat only with a tier), rolls back image and agent, and removes a skill; it restores
+`iqraa/release:staging` at the end, even on failure, and releases the tiers again to put the agent back.
 
 ## Scenario 3 (pinned skill through summarisation)
 
@@ -179,3 +180,41 @@ SCENARIOS=2 node scenarios.mjs     # re-releases the specialist with its normal 
 `--force-recreate` matters: compose does not recreate a container when only a mounted file changed.
 The release folds always-apply skills into the specialist's instructions (`content/compose.mjs`), so
 scenario 3 also checks the pinned method rides in the system prompt exactly once.
+
+## Chat-only tiers (scenario `chatonly`)
+
+The customer product is chat only, with three named tiers and a closed corpus (`.hq/docs/specs/spec-chat-only-tiers-closed-corpus.md`).
+
+- **Tiers.** `content/tiers.json` is the source of record. The driver's setup releases one private agent per tier and runs
+  `node content/tiers.mjs apply --resolved out/tiers-resolved.json --yaml librechat.yaml --iqraa iqraa.json`, which rewrites the
+  `modelSpecs` block (between the `BEGIN`/`END iqraa:modelSpecs` markers) and `iqraa.json` `tiers`; it prints `changed` the first time
+  and the driver then **recreates** LibreChat (never a restart). To move a tier to another model:
+  `node content/tiers.mjs set-model <key> <provider> <model> --note "<why>" --prices deploy/staging/iqraa.json`, then release.
+- **The guard.** `iqraa.json` `grounding.mode` is `shadow` (log only) or `block` (replace an ungrounded answer with the fixed
+  message); `off` skips it. Change it, recreate LibreChat, and run `SCENARIOS=chatonly node scenarios.mjs`: the scenario reads the
+  mode from the file and checks the matching behaviour, also for an answer the customer stops halfway (the mock streams a
+  `FINAL_TEXT` a word at a time when the prompt also carries `SLOW_STREAM:<ms>`; the stop route saves that partial answer, and in
+  `block` mode neither the stored row nor the final event of the stop may hold the replaced text). The full driver and the RTL check
+  run in `shadow` mode: the mock's demo answer cites an article without retrieving it, which `block` would replace.
+- **A refused turn.** A tier turn the provider refuses (quota, model not found) shows the fork's fixed Arabic notice, never the
+  provider's words, which can name the private model; the fork's own refusals (credits, suspension) keep their text. `PROVIDER_ERROR`
+  in the prompt makes the mock answer a 400 whose text names the model, and check `providerErrorHidden` reads what the customer can read.
+- **What a customer reads of a chat.** `customer-filter.ts` removes the model and provider keys and every provider error text from the
+  stream, the chat status, the messages and a fork; check `modelHiddenInConversation` reads those routes while a turn runs, by name and by key.
+- **The census.** `node ui/run-rtl-check.mjs --census` signs a customer in through a real browser and walks every flow a customer has:
+  the starter gallery by keyboard (Enter, Space, Tab, focus rings), the RTL and 390 px captures (saved to `.hq/scratch/tiers-ui`), a
+  starter, title generation, feedback, regenerate, message edit, resume after a reload, search, a file attach, conversation rename and
+  archive, the settings tabs, the archived list, a language change, logout last. It lists every `/api` call the client made
+  (`out/census.json`); a 403 `IQRAA_FORBIDDEN` outside `EXPECTED_DENIED` (favorites, speech) means `customer-api.ts` lacks a route the
+  client needs, and any other non-2xx fails the run. A flow whose control is not found fails, it is never skipped. **Not yet run:**
+  until it passes, the allowlist is unproven against the real client.
+- **Stored events.** `iqraa_guard_events` holds each guarded turn; the answer text only on an ungrounded or unsearched one
+  (`grounding.answerRetentionDays`, 14 days; the rest `retentionDays`). Replay them through the current extractor with
+  `config/iqraa-guard-eval.js` (see its header; prefix `MSYS_NO_PATHCONV=1` under Git Bash) before switching to `block`.
+- **Uploads.** `fileConfig` in `librechat.yaml`: PDF, Word and plain text, 5 MB each, 10 MB together, three files (the count is
+  enforced by the client only). The limits are set under `agents` and again under `default`, because the upload route looks them up
+  by the `endpoint` field of the form, which the client chooses, and spelled out for `anthropic`, `assistants` and `azureAssistants`,
+  whose built-in entries (ten files for `anthropic`) LibreChat keeps and `default` does not override. The scenario probes
+  `endpoint: openAI` and `endpoint: anthropic`.
+- **Footer.** `CUSTOM_FOOTER` in `compose.yaml` («Iqraa LAW AI»). The client prints it from `GET /api/config` (`customFooter`); the
+  shell page `index.html` holds only a flag, so check the footer through `/api/config`, not by grepping the page.

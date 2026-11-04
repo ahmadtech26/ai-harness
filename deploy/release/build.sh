@@ -33,6 +33,11 @@ corpus_ci=(corpus-ci --content /w/content --corpus "/w/jordanian-law/references/
 [ "$allow_draft" = 1 ] || corpus_ci+=(--release)
 MSYS_NO_PATHCONV=1 docker run --rm -v "$(winpath "$harness"):/w:ro" iqraa/skill-tools "${corpus_ci[@]}"
 
+# The tiers, the reviewed starter prompts and the guard's law names (host node; the fork re-checks the same files at start).
+node "$harness/content/tiers.mjs" check
+node "$harness/content/starters.mjs" check "$harness/content/starters/starters.ar.json" $([ "$allow_draft" = 1 ] || echo --release)
+node "$harness/content/grounding-laws.mjs" check
+
 mounts=(-v "$(winpath "$harness"):/w:ro" -v "$(winpath "$stage"):/out")
 args=(skill-stage --content /w/content --out /out --tag "$tag" --platform "$platform")
 for i in "${!extras[@]}"; do

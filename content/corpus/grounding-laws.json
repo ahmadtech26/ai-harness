@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "laws": [
+    {
+      "slug": "civil-code",
+      "title": "القانون المدني الأردني",
+      "aliases": [
+        "القانون المدني"
+      ],
+      "number": 43,
+      "year": 1976
+    },
+    {
+      "slug": "majalla",
+      "title": "مجلة الأحكام العدلية"
+    },
+    {
+      "slug": "landlords-tenants",
+      "title": "قانون المالكين والمستأجرين",
+      "number": 11,
+      "year": 1994
+    },
+    {
+      "slug": "penal-code",
+      "title": "قانون العقوبات الأردني",
+      "aliases": [
+        "قانون العقوبات"
+      ],
+      "number": 16,
+      "year": 1960
+    },
+    {
+      "slug": "commerce",
+      "title": "قانون التجارة",
+      "number": 12,
+      "year": 1966
+    },
+    {
+      "slug": "maritime-commerce",
+      "title": "قانون التجارة البحرية",
+      "number": 12,
+      "year": 1972
+    },
+    {
+      "slug": "companies",
+      "title": "قانون الشركات",
+      "number": 22,
+      "year": 1997
+    },
+    {
+      "slug": "customs",
+      "title": "قانون الجمارك",
+      "number": 20,
+      "year": 1998
+    },
+    {
+      "slug": "income-tax",
+      "title": "قانون ضريبة الدخل",
+      "number": 34,
+      "year": 2014
+    },
+    {
+      "slug": "sales-tax",
+      "title": "قانون الضريبة العامة على المبيعات",
+      "aliases": [
+        "قانون ضريبة المبيعات"
+      ],
+      "number": 6,
+      "year": 1994
+    },
+    {
+      "slug": "labour",
+      "title": "قانون العمل",
+      "number": 8,
+      "year": 1996
+    },
+    {
+      "slug": "investment-fund",
+      "title": "قانون صندوق الاستثمار الأردني",
+      "number": 16,
+      "year": 2016
+    },
+    {
+      "slug": "civil-procedure",
+      "title": "قانون أصول المحاكمات المدنية",
+      "aliases": [
+        "قانون المحاكمات المدنية"
+      ],
+      "number": 24,
+      "year": 1988
+    },
+    {
+      "slug": "evidence",
+      "title": "قانون البينات",
+      "number": 30,
+      "year": 1952
+    },
+    {
+      "slug": "execution",
+      "title": "قانون التنفيذ",
+      "number": 25,
+      "year": 2007
+    },
+    {
+      "slug": "mediation",
+      "title": "قانون الوساطة لتسوية النزاعات المدنية",
+      "number": 12,
+      "year": 2006
+    },
+    {
+      "slug": "criminal-procedure",
+      "title": "قانون أصول المحاكمات الجزائية",
+      "aliases": [
+        "قانون المحاكمات الجزائية"
+      ],
+      "number": 9,
+      "year": 1961
+    },
+    {
+      "slug": "courts-formation",
+      "title": "قانون تشكيل المحاكم النظامية",
+      "number": 17,
+      "year": 2001
+    },
+    {
+      "slug": "magistrates-courts",
+      "title": "قانون محاكم الصلح",
+      "number": 23,
+      "year": 2017
+    },
+    {
+      "slug": "major-felonies-court",
+      "title": "قانون محكمة الجنايات الكبرى",
+      "number": 19,
+      "year": 1986
+    },
+    {
+      "slug": "court-fees",
+      "title": "جدول رسوم المحاكم"
+    },
+    {
+      "slug": "bar-association",
+      "title": "قانون نقابة المحامين النظاميين",
+      "number": 11,
+      "year": 1972
+    }
+  ]
+}

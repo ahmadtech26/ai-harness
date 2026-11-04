@@ -148,6 +148,8 @@ services:
       ALLOW_EMAIL_LOGIN_OVERRIDE: 'false'
       ALLOW_SOCIAL_LOGIN: 'false'
       ALLOW_SHARED_LINKS: 'false'
+      # The footer is ours only (REQ-UI-002): LibreChat shows its name and version unless this is set.
+      CUSTOM_FOOTER: 'Iqraa LAW AI'
       # Scenario 11: per-user message rate limit. The concurrent-message limiter stays off (unset) so
       # scenario 8's parallel chats are bounded by the credit ledger, not by LibreChat.
       LIMIT_MESSAGE_USER: 'true'
@@ -165,6 +167,9 @@ services:
     volumes:
       - ./librechat.yaml:/config/librechat.yaml:ro
       - ./iqraa.json:/config/iqraa.json:ro
+      # The reviewed starter prompts and the law names of the citation guard (iqraa.json starters, grounding).
+      - ../../content/starters/starters.ar.json:/config/starters.ar.json:ro
+      - ../../content/corpus/grounding-laws.json:/config/grounding-laws.json:ro
       - ./test-skills/staging-listed:/app/skill/staging-listed:ro
       - ./test-skills/staging-unlisted:/app/skill/staging-unlisted:ro
       - staging-secrets:/secrets:ro

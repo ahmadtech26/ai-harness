@@ -1,5 +1,5 @@
-// Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13, auth (passwordless sign-in), guard (the library sweep guard)
-// and the library checks (P1–P3 results) against the staging stack in this directory.
+// Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13, auth (passwordless sign-in), guard (the library sweep guard),
+// chatonly (the tiers, the closed API, the citation guard) and the library checks (P1–P3 results) against the staging stack in this directory.
 //
 //   docker compose up -d --build && node scenarios.mjs
 //
@@ -12,15 +12,16 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
-  ROOT, OUT, BASE, RUN, PRICES, MODEL, sleep, nonce,
+  HERE, ROOT, OUT, BASE, RUN, PRICES, MODEL, sleep, nonce,
   api, waitForHealth, chat, newAccount, newPhone, signUp, staffAccount, enableApp, appCode, requestCode, verifyCode,
   withSinkCode, newestSinkRow, sessionOf, AUTH, PLACEHOLDER_DOMAIN, grant, customer,
   wallet, mongoQuery, reconcile, compose, legalSearchHealthy, reservationsOf, usageEventsOf, callsFor,
   titleCallsFor, flakyFor, carries, costOf, check, verdict, countBy, answered,
   providerCalls, titlesAfter, turn, summarizeTurn, waitUntil, chatAndStop, proxyChecks,
-  summaryCallsFor, mcpCalls, legalSearchAlerts, sweepFlagCounts,
+  summaryCallsFor, mcpCalls, legalSearchAlerts, sweepFlagCounts, specFor,
 } from './lib.mjs';
 import { composeSpecialist } from '../../content/compose.mjs';
+import { scenarioChatOnly } from './chatonly.mjs';
 
 const MARKERS = {
   pinned: 'منهج عمل لتحليل الوقائع',
@@ -52,7 +53,8 @@ async function scenario1(ctx) {
       listedLoadsByModel: check(b.calls.length === 2 && carries(b.calls[1], MARKERS.listed), `calls=${b.calls.length}; reply: ${b.result.text?.slice(0, 120)}`),
       unlistedRefusedToModel: check(c.calls.length >= 1 && !leaks(c), `S3 reached model: ${leaks(c)}; reply: ${c.result.text?.slice(0, 160)}`),
       unlistedRefusedToManualInvocation: check(d.calls.length >= 1 && !leaks(d), `S3 reached model: ${leaks(d)}`),
-      listedManualInvocationControl: check(e.calls.some((call) => carries(call, MARKERS.listed)), 'positive control: manually invoked S2 reaches the model'),
+      // The tier gate keeps a whitelist of body fields, and a customer has no skill to invoke by hand (Decision 16).
+      manualSkillsIgnoredForCustomer: check(!e.calls.some((call) => carries(call, MARKERS.listed)), 'a customer naming a listed skill by hand does not load it'),
       answeredTurnStillTitled: check(answered(a) && a.titles.length === 1, `positive control for the title gate: ${a.titles.length} title call(s) for an answered first turn`),
     }),
     turns: turns.map(summarizeTurn),
@@ -283,16 +285,13 @@ async function scenario8(ctx) {
   const unresolved = turns.filter((t) => !answered(t) && !denied.includes(t));
   const reservations = reservationsOf(c.id);
   const settled = reservations.filter((r) => r.status === 'settled');
-  // Peak of simultaneously held credit from reservation lifetimes (a close sorts before an open on ties).
-  const edges = reservations.flatMap((r) => [
-    { t: new Date(r.createdAt).getTime(), d: r.amount, o: 1 },
-    ...(r.status === 'held' ? [] : [{ t: new Date(r.updatedAt).getTime(), d: -r.amount, o: 0 }]),
-  ]);
-  edges.sort((x, y) => x.t - y.t || x.o - y.o);
+  // Peak of simultaneously held credit, from the ledger's own postings: the rows' timestamps are stamped before a
+  // transaction commits, so two holds that never coexisted can appear to overlap by milliseconds.
+  const heldPostings = mongoQuery({ op: 'find', collection: 'iqraa_postings', filter: { account: `user:${c.id}:held` }, sort: { _id: 1 } });
   let running = 0;
   let peak = 0;
-  for (const edge of edges) {
-    running += edge.d;
+  for (const posting of heldPostings) {
+    running += posting.amount;
     peak = Math.max(peak, running);
   }
   const final = await wallet(c);
@@ -423,6 +422,7 @@ async function scenario11(ctx) {
   // LibreChat denies a limited message with HTTP 200 and a `message_limit` error event, not 429.
   const burstTags = [];
   const outcomes = [];
+  const burstSpec = await specFor(burster.token, agentId);
   for (let i = 0; i < 36; i += 1) {
     const tag = nonce(`s11-burst-${i}`);
     burstTags.push(tag);
@@ -438,6 +438,7 @@ async function scenario11(ctx) {
         messageId: crypto.randomUUID(),
         endpoint: 'agents',
         agent_id: agentId,
+        spec: burstSpec,
       },
     });
     outcomes.push(start.text.includes('message_limit') ? 'limited' : `${start.status}${start.json?.streamId ? ' started' : ''}`);
@@ -728,13 +729,30 @@ async function setup() {
   // The staff bootstrap runner (request, sink code, enrol, app code, promote), then phone plus app code.
   const staff = await staffAccount('staff');
 
-  const release = spawnSync(process.execPath, [path.join(ROOT, 'content', 'release.mjs'), path.join(ROOT, 'content', 'specialists', 'aqel.json')], {
-    encoding: 'utf8',
-    env: { ...process.env, LIBRECHAT_URL: BASE, IQRAA_STAFF_TOKEN: staff.token, IQRAA_PROVIDER: 'MockLLM', IQRAA_MODEL: MODEL },
-  });
+  // The tiers: release the three tier agents onto the mock model, then make sure librechat.yaml and iqraa.json
+  // carry their ids. Agent ids are generated, so the first run on a stack (or after its volumes are reset) rewrites
+  // both files and recreates LibreChat once; later runs find them unchanged.
+  const resolvedFile = path.join(OUT, 'tiers-resolved.json');
+  const release = spawnSync(
+    process.execPath,
+    [path.join(ROOT, 'content', 'release.mjs'), '--resolved', resolvedFile, '--prices', path.join(HERE, 'iqraa.json')],
+    { encoding: 'utf8', env: { ...process.env, LIBRECHAT_URL: BASE, IQRAA_STAFF_TOKEN: staff.token, IQRAA_PROVIDER: 'MockLLM', IQRAA_MODEL: MODEL } },
+  );
   if (release.status !== 0) throw new Error(`release failed: ${release.stderr || release.stdout}`);
-  const agentId = release.stdout.match(/\((agent_[^)]+)\)/)?.[1];
-  if (!agentId) throw new Error(`no agent id in release output: ${release.stdout}`);
+  const agentId = release.stdout.match(/^tier fast .*\((agent_[^)]+)\)/m)?.[1];
+  if (!agentId) throw new Error(`no fast tier agent id in release output: ${release.stdout}`);
+  const applied = spawnSync(
+    process.execPath,
+    [path.join(ROOT, 'content', 'tiers.mjs'), 'apply', '--resolved', resolvedFile, '--yaml', path.join(HERE, 'librechat.yaml'), '--iqraa', path.join(HERE, 'iqraa.json')],
+    { encoding: 'utf8' },
+  );
+  if (applied.status !== 0) throw new Error(`tiers apply failed: ${applied.stderr || applied.stdout}`);
+  if (applied.stdout.startsWith('changed')) {
+    // A container recreate, never a restart: a bind-mounted file is read at start, and a restart can reuse old state.
+    compose(['up', '-d', '--no-deps', '--force-recreate', 'librechat']);
+    compose(['restart', 'proxy']); // nginx resolves `librechat` once, at its start
+    await waitForHealth();
+  }
 
   const skills = await api('/api/skills', { token: staff.token });
   const list = Array.isArray(skills.json) ? skills.json : (skills.json?.skills ?? skills.json?.data ?? []);
@@ -785,6 +803,7 @@ async function main() {
     ['7', scenario7],
     ['auth', scenarioAuth],
     ['guard', scenarioGuard],
+    ['chatonly', scenarioChatOnly],
     ['11', scenario11],
   ];
   // SCENARIOS=3 (or "1,2") runs only those; scenario 3 needs the summarisation config (README "Scenario 3").

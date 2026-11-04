@@ -1,19 +1,245 @@
 {
-  "PLAN_PRO": {
-    "description": "Paid plan: use specialists, nothing else",
+  "PLAN_BASIC": {
+    "description": "Basic plan: chat with the tiers it includes, nothing else",
     "permissions": {
-      "AGENTS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
-      "SKILLS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
-      "MCP_SERVERS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
-      "PROMPTS": { "USE": true, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
-      "REMOTE_AGENTS": { "USE": false, "CREATE": false, "SHARE": false, "SHARE_PUBLIC": false },
-      "RUN_CODE": { "USE": false },
-      "WEB_SEARCH": { "USE": false },
-      "MEMORIES": { "USE": false },
-      "MULTI_CONVO": { "USE": false },
-      "PEOPLE_PICKER": { "VIEW_USERS": false, "VIEW_GROUPS": false, "VIEW_ROLES": false },
-      "MARKETPLACE": { "USE": true },
-      "FILE_SEARCH": { "USE": true }
+      "PROMPTS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "BOOKMARKS": {
+        "USE": false
+      },
+      "MEMORIES": {
+        "USE": false,
+        "CREATE": false,
+        "UPDATE": false,
+        "READ": false,
+        "OPT_OUT": false
+      },
+      "AGENTS": {
+        "USE": true,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "MULTI_CONVO": {
+        "USE": false
+      },
+      "TEMPORARY_CHAT": {
+        "USE": false
+      },
+      "RUN_CODE": {
+        "USE": false
+      },
+      "WEB_SEARCH": {
+        "USE": false
+      },
+      "PEOPLE_PICKER": {
+        "VIEW_USERS": false,
+        "VIEW_GROUPS": false,
+        "VIEW_ROLES": false
+      },
+      "MARKETPLACE": {
+        "USE": false
+      },
+      "FILE_SEARCH": {
+        "USE": false
+      },
+      "FILE_CITATIONS": {
+        "USE": false
+      },
+      "MCP_SERVERS": {
+        "USE": true,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false,
+        "CONFIGURE_OBO": false
+      },
+      "REMOTE_AGENTS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SKILLS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SHARED_LINKS": {
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SCHEDULES": {
+        "USE": false,
+        "CREATE": false
+      }
+    }
+  },
+  "PLAN_PRO": {
+    "description": "Pro plan: chat with the tiers it includes, nothing else",
+    "permissions": {
+      "PROMPTS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "BOOKMARKS": {
+        "USE": false
+      },
+      "MEMORIES": {
+        "USE": false,
+        "CREATE": false,
+        "UPDATE": false,
+        "READ": false,
+        "OPT_OUT": false
+      },
+      "AGENTS": {
+        "USE": true,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "MULTI_CONVO": {
+        "USE": false
+      },
+      "TEMPORARY_CHAT": {
+        "USE": false
+      },
+      "RUN_CODE": {
+        "USE": false
+      },
+      "WEB_SEARCH": {
+        "USE": false
+      },
+      "PEOPLE_PICKER": {
+        "VIEW_USERS": false,
+        "VIEW_GROUPS": false,
+        "VIEW_ROLES": false
+      },
+      "MARKETPLACE": {
+        "USE": false
+      },
+      "FILE_SEARCH": {
+        "USE": false
+      },
+      "FILE_CITATIONS": {
+        "USE": false
+      },
+      "MCP_SERVERS": {
+        "USE": true,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false,
+        "CONFIGURE_OBO": false
+      },
+      "REMOTE_AGENTS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SKILLS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SHARED_LINKS": {
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SCHEDULES": {
+        "USE": false,
+        "CREATE": false
+      }
+    }
+  },
+  "PLAN_FIRM": {
+    "description": "Firm plan: chat with the tiers it includes, nothing else",
+    "permissions": {
+      "PROMPTS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "BOOKMARKS": {
+        "USE": false
+      },
+      "MEMORIES": {
+        "USE": false,
+        "CREATE": false,
+        "UPDATE": false,
+        "READ": false,
+        "OPT_OUT": false
+      },
+      "AGENTS": {
+        "USE": true,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "MULTI_CONVO": {
+        "USE": false
+      },
+      "TEMPORARY_CHAT": {
+        "USE": false
+      },
+      "RUN_CODE": {
+        "USE": false
+      },
+      "WEB_SEARCH": {
+        "USE": false
+      },
+      "PEOPLE_PICKER": {
+        "VIEW_USERS": false,
+        "VIEW_GROUPS": false,
+        "VIEW_ROLES": false
+      },
+      "MARKETPLACE": {
+        "USE": false
+      },
+      "FILE_SEARCH": {
+        "USE": false
+      },
+      "FILE_CITATIONS": {
+        "USE": false
+      },
+      "MCP_SERVERS": {
+        "USE": true,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false,
+        "CONFIGURE_OBO": false
+      },
+      "REMOTE_AGENTS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SKILLS": {
+        "USE": false,
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SHARED_LINKS": {
+        "CREATE": false,
+        "SHARE": false,
+        "SHARE_PUBLIC": false
+      },
+      "SCHEDULES": {
+        "USE": false,
+        "CREATE": false
+      }
     }
   }
 }
