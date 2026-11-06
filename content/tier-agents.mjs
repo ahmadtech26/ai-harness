@@ -33,7 +33,7 @@ export function retiredAgents(existingAgents, keptIds) {
   );
 }
 
-/** A phrase of the AQEL instructions (`prompts/aqel-v1.2-librechat.md`) the release requires. */
+/** A phrase of the AQEL instructions (`prompts/aqel-v1.3-librechat.md`) the release requires. */
 export const CORPUS_MARKER = 'AQEL LEGAL ENGINE';
 
 /** Problems with a planned tier agent body, as readable lines; empty when it is closed to the library only. */
