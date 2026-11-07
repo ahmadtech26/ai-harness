@@ -61,3 +61,25 @@ async def test_answers_health_without_the_secret():
     sent = await _call(SecretGuard(_inner, 's' * 32), '/health', [])
 
     assert (sent[0]['status'], sent[1]['body']) == (200, b'ok')
+
+
+async def test_closes_a_websocket_without_reaching_the_inner_app():
+    # R1 n=19: only lifespan and http scopes reach the app; a websocket route an SDK release adds would skip the secret.
+    reached = []
+
+    async def inner(scope, receive, send):
+        reached.append(scope['type'])
+
+    sent = []
+
+    async def receive():
+        return {'type': 'websocket.connect'}
+
+    async def send(message):
+        sent.append(message)
+
+    await SecretGuard(inner, 's' * 32)({'type': 'websocket', 'path': '/mcp', 'headers': []}, receive, send)
+    await SecretGuard(inner, 's' * 32)({'type': 'lifespan'}, receive, send)
+
+    assert reached == ['lifespan']
+    assert sent == [{'type': 'websocket.close', 'code': 1008}]

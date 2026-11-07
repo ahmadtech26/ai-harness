@@ -4,7 +4,7 @@ over detector events; admin.py loads the events."""
 
 import math
 from collections import Counter, defaultdict, deque
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from dataclasses import replace
 from datetime import datetime, timedelta
 
@@ -187,13 +187,15 @@ def replay(events: Sequence[Event], settings: GuardSettings) -> tuple[Verdict, d
     return Verdict(level, signals), changed_at
 
 
-def simulate(events_by_user: dict[str, list[Event]], settings: GuardSettings, since: datetime | None = None) -> list[dict]:
+def simulate(events_by_user: dict[str, list[Event]], settings: GuardSettings, since: datetime | None = None,
+             laws: Collection[str] | None = None) -> list[dict]:
     """The users whose flag would have opened or escalated under `settings` after `since` (None: at any time),
-    with their signals; earlier events are history only. Reads only; writes nothing."""
+    with their signals; earlier events are history only. `laws`: the loaded slugs, as for a flag's evidence.
+    Reads only; writes nothing."""
     flagged = []
     for user_id in sorted(events_by_user):
         verdict, changed_at = replay(events_by_user[user_id], settings)
         if verdict.level != 'none' and (since is None or changed_at > since):
             flagged.append({'user_id': user_id, 'level': verdict.level,
-                            'signals': [signal.evidence() for signal in verdict.signals]})
+                            'signals': [signal.evidence(laws) for signal in verdict.signals]})
     return flagged

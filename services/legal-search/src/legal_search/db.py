@@ -80,6 +80,8 @@ ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS outcome TEXT NOT NULL DEFAULT
 ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS candidate_ids BIGINT[] NOT NULL DEFAULT '{}';
 CREATE INDEX IF NOT EXISTS retrieval_log_user_time ON retrieval_log (user_id, created_at);
 CREATE INDEX IF NOT EXISTS retrieval_log_message ON retrieval_log (message_id);
+-- Telemetry and simulation read a window by time alone (R3 n=14); without it each request scans the whole log.
+CREATE INDEX IF NOT EXISTS retrieval_log_created ON retrieval_log (created_at);
 CREATE TABLE IF NOT EXISTS guard_settings (
   id INT PRIMARY KEY CHECK (id = 1),
   settings JSONB NOT NULL,
@@ -393,6 +395,15 @@ async def log_retrieval(
          requested_number, requested_suffix, outcome, candidate_ids or []),
     )
     return (await cur.fetchone())[0]
+
+
+async def purge_user(conn: AsyncConnection, user_id: str) -> None:
+    """Deletes everything legal-search holds on a user: their retrieval log rows, their sweep flags (cleared ones
+    included) and their watermark, in one transaction (R2 n=33). Nothing calls it yet: the account erasure that
+    will, and the retention of cleared flags, are the owner's."""
+    async with conn.transaction():
+        for table in ('sweep_flags', 'guard_watermarks', 'retrieval_log'):
+            await conn.execute(f'DELETE FROM {table} WHERE user_id = %s', (user_id,))
 
 
 async def documents_for_message(conn: AsyncConnection, message_id: str) -> int:

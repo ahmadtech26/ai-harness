@@ -5,6 +5,7 @@ as any user over MCP, so this adds no new trust boundary.
 
     GET  /admin/flags?status=open|cleared|all     flags with evidence (default open)
     POST /admin/flags/{user_id}/clear             {reason?}; 404 without an open flag
+    POST /admin/flags/{user_id}/suspend           {reason?}; opens a proven flag, or raises an open one to proven
     GET  /admin/guard-settings                    current settings, updated_by, updated_at
     PUT  /admin/guard-settings                    {settings: {...changes}, reason}
     GET  /admin/guard-settings/history            who, when, why, previous values (newest first)
@@ -13,9 +14,11 @@ as any user over MCP, so this adds no new trust boundary.
 
 Every 400 is {"error": <category>, "rule": <the rule>, "message": ...}: category `invalid_settings` for a
 settings value (the rule is the validation rule it breaks), `bad_request` for the rest (staff_required,
-reason_required, bad_json, bad_days, bad_status, bad_request, too_many_events). Simulation and telemetry read
-at most events.MAX_EVENTS events; loading them (on a connection of their own) and computing both run in
-worker threads, so retrievals keep being served meanwhile.
+reason_required, bad_json, bad_days, bad_status, bad_request). Simulation and telemetry read at most
+events.MAX_EVENTS events of one user and events.MAX_TOTAL_EVENTS in all; a user above the first, and past the
+second the largest users, are left out and named in `left_out` (R1 n=15). Loading
+the events (on a connection of their own) and computing both run in worker threads, so retrievals keep being
+served meanwhile, and one such request runs at a time.
 """
 
 import json
@@ -28,7 +31,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from legal_search import events, flags, guard_settings
+from legal_search import db, events, flags, guard_settings
 from legal_search.guard_settings import SettingsCache, SettingsError
 from legal_search.telemetry import MAX_DAYS, simulate, telemetry
 
@@ -89,6 +92,8 @@ def _query_days(request: Request) -> int:
 
 
 def routes(pool: AsyncConnectionPool, cache: SettingsCache) -> list[Route]:
+    heavy = anyio.CapacityLimiter(1)  # one simulation or telemetry request at a time: each holds a window's events
+
     def handler(endpoint):
         async def wrapped(request: Request) -> JSONResponse:
             try:
@@ -97,8 +102,6 @@ def routes(pool: AsyncConnectionPool, cache: SettingsCache) -> list[Route]:
                 return _refusal('bad_request', error.rule, error.message)
             except SettingsError as error:
                 return _refusal(error.category, error.rule, error.message)
-            except events.TooManyEvents as error:
-                return _refusal('bad_request', 'too_many_events', str(error))
 
         return wrapped
 
@@ -117,6 +120,14 @@ def routes(pool: AsyncConnectionPool, cache: SettingsCache) -> list[Route]:
             flag = await flags.clear(conn, request.path_params['user_id'], staff, reason)
         if flag is None:
             return JSONResponse({'error': 'no_open_flag', 'message': 'this user has no open flag'}, status_code=404)
+        return JSONResponse({'flag': flag.as_dict()})
+
+    async def suspend_flag(request: Request) -> JSONResponse:
+        # The fork calls this when it suspends an account, so the tool calls already requested are refused too (R1 n=16).
+        staff = _staff(request)
+        reason = _text((await _body(request)).get('reason'))
+        async with pool.connection() as conn:
+            flag = await flags.suspend(conn, request.path_params['user_id'], staff, reason)
         return JSONResponse({'flag': flag.as_dict()})
 
     async def get_settings(request: Request) -> JSONResponse:
@@ -146,24 +157,29 @@ def routes(pool: AsyncConnectionPool, cache: SettingsCache) -> list[Route]:
         days = _days(body.get('days', DEFAULT_DAYS))
         async with pool.connection() as conn:
             candidate = guard_settings.merged(await guard_settings.load_settings(conn), changes)
-        # The window plus the detector's look-back before it, so the 7-day signals see their history.
-        by_user, now = await anyio.to_thread.run_sync(
-            events.load_window_sync, pool.conninfo, timedelta(days=days) + events.lookback(candidate))
-        would_flag = await anyio.to_thread.run_sync(simulate, by_user, candidate, now - timedelta(days=days))
-        return JSONResponse({'window_days': days, 'settings': candidate.as_dict(), 'would_flag': would_flag})
+            laws = set(await db.law_slugs(conn))
+        async with heavy:
+            # The window plus the detector's look-back before it, so the 7-day signals see their history.
+            by_user, now, left_out = await anyio.to_thread.run_sync(
+                events.load_window_sync, pool.conninfo, timedelta(days=days) + events.lookback(candidate))
+            would_flag = await anyio.to_thread.run_sync(simulate, by_user, candidate, now - timedelta(days=days), laws)
+        return JSONResponse({'window_days': days, 'settings': candidate.as_dict(), 'would_flag': would_flag,
+                             'left_out': left_out})
 
     async def report(request: Request) -> JSONResponse:
         days = _query_days(request)
         async with pool.connection() as conn:
             settings = await guard_settings.load_settings(conn)
             open_flags = await flags.open_counts(conn)
-        by_user, _ = await anyio.to_thread.run_sync(events.load_window_sync, pool.conninfo, timedelta(days=days))
-        result = await anyio.to_thread.run_sync(telemetry, by_user, settings, open_flags)
-        return JSONResponse({'window_days': days, **result})
+        async with heavy:
+            by_user, _, left_out = await anyio.to_thread.run_sync(events.load_window_sync, pool.conninfo, timedelta(days=days))
+            result = await anyio.to_thread.run_sync(telemetry, by_user, settings, open_flags)
+        return JSONResponse({'window_days': days, **result, 'left_out': left_out})
 
     return [
         Route('/flags', handler(list_flags), methods=['GET']),
         Route('/flags/{user_id}/clear', handler(clear_flag), methods=['POST']),
+        Route('/flags/{user_id}/suspend', handler(suspend_flag), methods=['POST']),
         Route('/guard-settings', handler(get_settings), methods=['GET']),
         Route('/guard-settings', handler(put_settings), methods=['PUT']),
         Route('/guard-settings/history', handler(settings_history), methods=['GET']),

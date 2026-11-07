@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import timedelta
 
 from legal_search.detector import detect
@@ -108,3 +109,14 @@ def test_thirty_sequential_articles_are_a_proven_run():
     verdict = detect(events, SETTINGS, events[-1].at)
 
     assert (verdict.level, _run(verdict).value, _run(verdict).threshold) == ('proven', 30, 30)
+
+
+def test_a_run_signal_shows_how_many_of_its_calls_served_an_article():
+    # R3 n=10: staff confirming a flag must tell a run of articles that do not exist from an extraction.
+    missing = [replace(event, documents=0) for event in walk(range(7, 13), first_id=7, start=T0 + 6 * MINUTE)]
+    events = [*walk(range(1, 7)), *missing]
+
+    verdict = detect(events, SETTINGS, events[-1].at)
+
+    evidence = _run(verdict).evidence()
+    assert (evidence['attempted'], evidence['served'], evidence['outcomes']) == (12, 6, {'served': 6, 'empty': 6})

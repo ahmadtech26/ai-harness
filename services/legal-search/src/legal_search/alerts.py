@@ -17,5 +17,6 @@ LOGGER.propagate = False
 
 
 def alert(event: str, **fields) -> None:
-    """Emits {"level": "error", "event": <event>, ...fields} as one line."""
-    LOGGER.error(json.dumps({'level': 'error', 'event': event, **fields}, ensure_ascii=False, sort_keys=True, default=str))
+    """Emits {"level": "error", "event": <event>, ...fields} as one line, every character outside ASCII escaped:
+    fields can carry the model's own strings, bidirectional controls included (R3 n=10)."""
+    LOGGER.error(json.dumps({'level': 'error', 'event': event, **fields}, ensure_ascii=True, sort_keys=True, default=str))

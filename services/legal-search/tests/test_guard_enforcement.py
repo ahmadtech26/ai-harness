@@ -124,7 +124,7 @@ async def test_a_suspended_user_is_refused_every_retrieval_logged_and_alerted(co
         await tools.search_law(conn, CAPS, SWEEPER, 'نص', 5, law='no-such-law', guard=SETTINGS),
     ]
 
-    # The suspension comes first on every path, including get_memorandum's early answers.
+    # The suspension comes first on every path: before search_law's search (R3 n=11) and get_memorandum's early answers.
     assert texts == [tools.SUSPENDED] * 6
     assert [row[4] for row in (await _rows(conn))[24:]] == ['suspended'] * 6
     assert [a['event'] for a in _alerts(alert_caplog)] == ['sweep_refused'] * 6
@@ -138,3 +138,74 @@ async def test_clearing_restores_normal_caps_and_access_without_refiring_on_old_
 
     assert ['المادة 25' in texts[0], 'المادة 26' in texts[1]] == [True, True]
     assert await flags.open_flag(conn, 'sweeper') is None
+
+
+async def test_the_detector_runs_off_the_event_loop(conn, monkeypatch):
+    # R1 n=14: rebuilding a long history on the shared event loop stalls every other user's call.
+    import threading
+
+    from legal_search import guard as sweep
+
+    loop_thread = threading.get_ident()
+    threads = []
+    real = sweep.assess
+
+    def spy(*args, **kwargs):
+        threads.append(threading.get_ident())
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(sweep, 'assess', spy)
+
+    await _walk(conn, [1])
+
+    assert threads and loop_thread not in threads
+
+
+async def test_history_decode_runs_off_the_event_loop(conn, monkeypatch):
+    # R1 n=14: decoding a long history on the shared loop stalls every other user's call.
+    import threading
+
+    from legal_search import events
+
+    loop_thread = threading.get_ident()
+    threads = []
+    real = events._event
+
+    def spy(row):
+        threads.append(threading.get_ident())
+        return real(row)
+
+    monkeypatch.setattr(events, '_event', spy)
+
+    await _walk(conn, [1, 2])  # the second call loads and decodes the first call's row
+
+    assert threads and loop_thread not in threads
+
+
+async def test_a_flag_on_unknown_law_attempts_names_no_law_and_shows_nothing_was_served(conn):
+    # R3 n=10: staff confirming a flag must see that nothing was served, and never the model's own law string.
+    from legal_search import detector
+
+    await _walk(conn, range(1, 13), law='civil\u2010code')  # U+2010: not a loaded slug, so nothing is served
+
+    flag = await flags.open_flag(conn, 'sweeper')
+
+    run = flag.evidence['opened'][0]
+    assert (run['law'], run['attempted'], run['served']) == (detector.UNKNOWN_LAW_TOKEN, 12, 0)
+
+
+async def test_a_suspended_user_is_refused_before_any_search_runs(conn, monkeypatch):
+    # R3 n=11: search_law ran the full-text search, and its budget sums, before refusing a suspended user.
+    await flags.open_new(conn, 'sweeper', 'proven', 0, [])
+    searched = []
+    real = db.search
+
+    async def spy(*args, **kwargs):
+        searched.append(args[1])
+        return await real(*args, **kwargs)
+
+    monkeypatch.setattr(db, 'search', spy)
+
+    text = await tools.search_law(conn, CAPS, SWEEPER, 'نص', 5, guard=SETTINGS)
+
+    assert (text, searched) == (tools.SUSPENDED, [])

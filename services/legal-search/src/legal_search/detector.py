@@ -10,8 +10,8 @@ Signals:
                24 h total of served documents up to the daily cap (refusals never count; the cap stays rolling)
 """
 
-from collections import defaultdict, deque
-from collections.abc import Iterable, Sequence
+from collections import Counter, defaultdict, deque
+from collections.abc import Collection, Iterable, Sequence
 from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
@@ -20,6 +20,9 @@ from legal_search.guard_settings import GuardSettings
 
 RUN_TOOLS = frozenset({'get_article', 'get_memorandum'})
 LEVELS = ('none', 'suspected', 'proven')
+# The evidence's law for a slug the library does not have: never the model's own string (R3 n=10). Outside the
+# slug alphabet, so it cannot be a loaded law's slug.
+UNKNOWN_LAW_TOKEN = '<unknown>'
 AMMAN = ZoneInfo('Asia/Amman')
 DISTINCT_WINDOW = timedelta(days=7)
 DAY = timedelta(hours=24)
@@ -63,17 +66,41 @@ class Signal:
     first: int | None = None    # a run's article range
     last: int | None = None
     after_flag: bool = False    # computed only from events after the flag opened (escalation)
+    attempted: int = 0          # the calls behind the signal
+    served: int = 0             # of those, the calls that served documents
+    outcomes: tuple[tuple[str, int], ...] = ()  # those calls by outcome (see call_outcome)
 
-    def evidence(self) -> dict:
+    def evidence(self, laws: Collection[str] | None = None) -> dict:
+        """The signal as stored with its flag and alerted. `laws`: the loaded law slugs; a `law` outside them is
+        recorded as UNKNOWN_LAW_TOKEN (None keeps it as requested). The call counts and outcomes let staff tell
+        attempts that served nothing from an extraction (R3 n=10)."""
         data = {
             'kind': self.kind, 'level': self.level, 'value': self.value, 'threshold': self.threshold,
             'since': self.since.isoformat(), 'until': self.until.isoformat(), 'after_flag': self.after_flag,
+            'attempted': self.attempted, 'served': self.served, 'outcomes': dict(self.outcomes),
         }
         if self.law is not None:
-            data['law'] = self.law
+            data['law'] = self.law if laws is None or self.law in laws else UNKNOWN_LAW_TOKEN
         if self.first is not None:
             data['first'], data['last'] = self.first, self.last
         return data
+
+
+def call_outcome(event: Event) -> str:
+    """How a call ended, for the evidence: served (it returned documents), empty (logged as served with nothing to
+    serve: no such article or law, or no match), capped, throttled, suspended, or pending (the call being decided)."""
+    if event.outcome is None:
+        return 'pending'
+    if event.outcome == 'served' and event.documents <= 0:
+        return 'empty'
+    return event.outcome
+
+
+def _calls(events: Iterable[Event]) -> dict:
+    """A signal's call counts: attempted, served and the outcome breakdown (R3 n=10). Evidence only: what the
+    signals count is unchanged."""
+    outcomes = Counter(call_outcome(event) for event in events)
+    return {'attempted': sum(outcomes.values()), 'served': outcomes['served'], 'outcomes': tuple(sorted(outcomes.items()))}
 
 
 @dataclass(frozen=True)
@@ -121,7 +148,8 @@ def _run_signal(events: Sequence[Event], settings: GuardSettings, now: datetime)
         return None
     numbers = [event.number for event in chain]
     threshold = settings.proven_run if level == 'proven' else settings.suspected_run
-    return Signal('run', level, size, threshold, chain[0].at, chain[-1].at, chain[0].law, min(numbers), max(numbers))
+    return Signal('run', level, size, threshold, chain[0].at, chain[-1].at, chain[0].law, min(numbers), max(numbers),
+                  **_calls(chain))
 
 
 def amman_day(moment: datetime) -> date:
@@ -172,17 +200,20 @@ def _distinct_signal(events: Sequence[Event], settings: GuardSettings, now: date
     if level is None:
         return None
     threshold = settings.proven_distinct_7d if level == 'proven' else settings.suspected_distinct_7d
-    return Signal('distinct_7d', level, len(keys), threshold, recent[0].at, recent[-1].at)
+    return Signal('distinct_7d', level, len(keys), threshold, recent[0].at, recent[-1].at,
+                  **_calls(event for event in recent if event.keys))
 
 
 def _cap_days_signal(events: Sequence[Event], settings: GuardSettings, now: datetime) -> Signal | None:
-    days = [amman_day(event.at) for event in cap_reaches(events, settings.daily) if event.at > now - DISTINCT_WINDOW]
-    best, best_end = longest_streak(days)
+    reaches = [event for event in cap_reaches(events, settings.daily) if event.at > now - DISTINCT_WINDOW]
+    best, best_end = longest_streak(amman_day(event.at) for event in reaches)
     if best < settings.suspected_cap_days:
         return None
     start = best_end - timedelta(days=best - 1)
+    # (R3 n=10) the counts are the calls of the streak's days, refusals included, not only those that reached the cap
     return Signal('cap_days', 'suspected', best, settings.suspected_cap_days,
-                  datetime.combine(start, time.min, AMMAN), datetime.combine(best_end, time.max, AMMAN))
+                  datetime.combine(start, time.min, AMMAN), datetime.combine(best_end, time.max, AMMAN),
+                  **_calls(event for event in events if start <= amman_day(event.at) <= best_end))
 
 
 def detect(events: Sequence[Event], settings: GuardSettings, now: datetime) -> Verdict:

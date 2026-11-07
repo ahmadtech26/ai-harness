@@ -138,3 +138,20 @@ async def test_a_read_that_an_invalidate_overtakes_is_not_kept():
     after = (await cache.get(None)).suspected_run
 
     assert (during, after) == (13, 14)
+
+
+async def test_a_loosening_change_raises_one_alert_and_a_tightening_one_none(conn, alert_caplog):
+    # R1 n=18: raising a cap or a threshold was recorded only in the history table.
+    import json
+
+    await ensure_settings(conn, GuardSettings())
+
+    await update_settings(conn, {'daily': 400, 'suspected_run': 11}, 'staff-1', 'busy week')
+    await update_settings(conn, {'daily': 350}, 'staff-1', 'back down')
+    await update_settings(conn, {'proven_if_signal_while_throttled': False}, 'staff-2', 'test')
+
+    alerts = [json.loads(r.getMessage()) for r in alert_caplog.records if r.name == 'legal_search.alerts']
+    assert [(a['event'], a['changed_by'], a['loosened']) for a in alerts] == [
+        ('guard_settings_loosened', 'staff-1', ['daily']),
+        ('guard_settings_loosened', 'staff-2', ['proven_if_signal_while_throttled']),
+    ]

@@ -81,6 +81,17 @@ def test_the_daily_cap_reached_on_two_consecutive_amman_days_is_suspected():
     assert _kinds(verdict) == {'cap_days': 'suspected'}
 
 
+def test_a_cap_days_signal_counts_every_call_of_its_days():
+    # R3 n=10: staff see the calls of the streak's days, the refusals after the cap included.
+    events = _cap_day(1, T0) + _cap_day(3, T0 + timedelta(days=1))
+
+    verdict = detect(events, SETTINGS, events[-1].at)
+
+    (cap,) = verdict.signals
+    evidence = cap.evidence()
+    assert (evidence['attempted'], evidence['served'], evidence['outcomes']) == (4, 2, {'served': 2, 'capped': 2})
+
+
 def test_one_cap_episode_across_amman_midnight_is_one_cap_day():
     # The cap reached at 22:00 in Amman (19:00 UTC), then refusals at 23:30 and at 00:30: the second refusal
     # is on the next Amman day, but the cap was reached once.
