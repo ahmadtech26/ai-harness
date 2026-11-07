@@ -311,6 +311,9 @@ services:
       # LibreChat's nonce policy for scripts, enforcing; the proxy adds the narrow image/connect policy.
       CSP_ENABLED: 'true'
       CSP_REPORT_ONLY: 'false'
+      # Langfuse off: with tracing on, a staff write could send every run to Langfuse, so the fork refuses to start
+      # unless this is exactly 'false' (R2 n=31).
+      LANGFUSE_TRACING_ENABLED: 'false'
       # MONGO_URI is iqraa_app's and holds its password (O-34), so the entrypoint reads it from the secrets volume: in
       # the environment, `docker inspect` would show it.
       CONFIG_PATH: /config/librechat.yaml
