@@ -1,0 +1,3 @@
+# Build output of build.sh (release stage folders) and build-platform.sh (exported trees and logs): IQRAA_BUILD_DIR's default.
+# Ignored, so a build leaves the tree clean for the next production build's `git status --porcelain` check.
+.build/

@@ -9,8 +9,8 @@
 // and logout last. A flow whose control cannot be found FAILS (it is never skipped: a skipped flow is a route
 // nobody measured). Every /api response after sign-in is recorded; the run fails on a 403 IQRAA_FORBIDDEN outside
 // EXPECTED_DENIED, on any other non-2xx status (401, 5xx, TIER_*; only EXPECTED_NOT_SAVED_YET is accepted), and on
-// any flow that did not run. Output: /work/out/census.json, and screenshots in /shots (the workspace
-// `.hq/scratch/tiers-ui`). The selectors are read from the client source (client/src), and its interface here is
+// any flow that did not run. Output: /work/out/census.json, and screenshots in /shots (IQRAA_SHOTS_DIR, by default
+// deploy/staging/out/shots). The selectors are read from the client source (client/src), and its interface here is
 // Arabic with English where a locale key has no Arabic text, so they use a test id or a structure where one exists.
 //
 // Chat search is measured only as far as the stack allows: with SEARCH off (staging's compose.yaml) the flow proves

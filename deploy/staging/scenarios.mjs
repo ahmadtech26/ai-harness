@@ -1,5 +1,6 @@
 // Acceptance driver: scenarios 1, 2, 3, 4, 7, 8, 9, 10, 11, 13, auth (passwordless sign-in), guard (the library sweep guard),
-// chatonly (the tiers, the closed API, the citation guard) and the library checks (P1–P3 results) against the staging stack in this directory.
+// chatonly (the tiers, the closed API, the citation guard), concurrent (the concurrent-message limiter) and the library
+// checks (P1–P3 results) against the staging stack in this directory.
 //
 //   docker compose up -d --build && node scenarios.mjs
 //
@@ -307,6 +308,97 @@ async function scenario8(ctx) {
       oneSettlementPerCall: check(settled.length === answeredCalls, `settled ${settled.length}, provider calls on answered turns ${answeredCalls}`),
     }),
     refusalText: denied[0]?.result.text?.slice(0, 200) ?? null,
+  };
+}
+
+/**
+ * The concurrent-message limiter (O-34), on at CONCURRENT_MESSAGE_MAX=8, above scenario 8's six parallel chats. Without
+ * Redis the fork counts in memory with a get then a set (packages/api/src/middleware/concurrency.ts), so starts sent
+ * together can race past the limit: every start here is awaited before the next, as in scenario 11's burst. Slow turns
+ * (SLOW_STREAM:250, about 10 s) hold their slots while the next ones start; a refused start answers HTTP 429 with the
+ * `concurrent` violation. (a) Ten starts: eight run, the last two are refused and never reach the model. (b) Once those
+ * turns end, eight more start: no slot leaked. (c) A turn stopped mid-stream gives its slot back: eight more start.
+ * 27 messages in all, under MESSAGE_USER_MAX=30 a minute.
+ */
+async function scenarioConcurrent(ctx) {
+  const { staff, agentId } = ctx;
+  const LIMIT = 8;
+  const c = await customer(staff, 'concurrent', { credits: 20 });
+  const spec = await specFor(c.token, agentId);
+  const start = async (label) => {
+    const tag = nonce(label);
+    const res = await api('/api/agents/chat/agents', {
+      token: c.token,
+      method: 'POST',
+      body: {
+        text: `SLOW_STREAM:250 ${tag}`,
+        sender: 'User',
+        isCreatedByUser: true,
+        parentMessageId: '00000000-0000-0000-0000-000000000000',
+        conversationId: null,
+        messageId: crypto.randomUUID(),
+        endpoint: 'agents',
+        agent_id: agentId,
+        spec,
+      },
+    });
+    return { tag, status: res.status, started: Boolean(res.json?.streamId), type: res.json?.type ?? null, pending: res.json?.pendingRequests ?? null };
+  };
+  const startEach = async (label, count) => {
+    const starts = [];
+    for (let i = 0; i < count; i += 1) starts.push(await start(`${label}-${i}`));
+    return starts;
+  };
+  const admitted = (s) => s.status === 200 && s.started;
+  const statusesOf = (starts) => JSON.stringify(starts.map((s) => (s.started ? `${s.status} started` : `${s.status} ${s.type ?? ''} pending ${s.pending}`.trim())));
+  // A reservation is written at the provider call, so wait for `atLeast` rows (every turn started so far) with none
+  // held. The slot is freed just after the reservation settles (request.js finishResumableRequest): then 1 s more.
+  const drain = async (atLeast) => {
+    const done = await waitUntil(() => {
+      const rows = reservationsOf(c.id);
+      return rows.length >= atLeast && rows.every((r) => r.status !== 'held');
+    }, 30_000);
+    const at = Date.now();
+    await sleep(1000);
+    return { done, at };
+  };
+
+  // (a) Ten starts, one after another, while the earlier turns are still streaming.
+  const burstFrom = Date.now();
+  const burst = await startEach('conc-a', LIMIT + 2);
+  const burstMs = Date.now() - burstFrom;
+  const afterBurst = await drain(LIMIT);
+  const running = burst.slice(0, LIMIT);
+  const refused = burst.slice(LIMIT);
+  const reachedModel = running.filter((s) => callsFor(s.tag).length === 1).length;
+  const refusedCalls = refused.map((s) => callsFor(s.tag).length + titleCallsFor(s.tag).length);
+
+  // (b) Every slot came back when those turns ended.
+  const again = await startEach('conc-b', LIMIT);
+  const afterAgain = await drain(2 * LIMIT);
+
+  // (c) Stop frees its slot. The stream must end well before the turn's natural end (about 9 s after Stop), or the
+  // slot came back by the turn finishing, not by Stop. Timed from the stream's own end, not from the ledger poll,
+  // whose docker exec can overshoot by a second or more on this disk; the poll's time is kept for diagnosis.
+  const stopTag = nonce('conc-stop');
+  const stopped = await chatAndStop({ token: c.token, agentId, text: `SLOW_STREAM:250 stop probe ${stopTag}`, marker: 'STREAMED_PIECE', stopAfter: 3 });
+  const endedAt = Date.now();
+  const endedAfterMs = stopped.stopPressedAt ? endedAt - stopped.stopPressedAt : null;
+  const afterStop = await drain(2 * LIMIT + 1);
+  const clearedAfterMs = afterStop.done && stopped.stopPressedAt ? afterStop.at - stopped.stopPressedAt : null;
+  const last = await startEach('conc-c', LIMIT);
+  const afterLast = await drain(3 * LIMIT + 1);
+
+  const reservations = reservationsOf(c.id);
+  const final = await wallet(c);
+  return {
+    ...verdict({
+      startsAboveLimitRefused: check(running.every(admitted) && refused.every((s) => s.status === 429 && s.type === 'concurrent') && reachedModel === LIMIT && refusedCalls.every((n) => n === 0), `${burst.length} starts in ${burstMs} ms: ${statusesOf(burst)}; running turns that reached the model ${reachedModel}/${LIMIT}; provider calls (titles included) on the refused starts [${refusedCalls.join(',')}]`),
+      noSlotLeaked: check(afterBurst.done && again.every(admitted), `the first ${LIMIT} turns ended ${afterBurst.done} (30 s at most); then ${statusesOf(again)}`),
+      stopReleasesSlot: check(afterAgain.done && stopped.startStatus === 200 && stopped.abortStatus === 200 && stopped.piecesBeforeStop >= 3 && stopped.ended === true && endedAfterMs !== null && endedAfterMs <= 6_000 && afterStop.done && last.every(admitted), `earlier turns ended ${afterAgain.done}; stopped turn: start ${stopped.startStatus}, abort ${stopped.abortStatus} after ${stopped.piecesBeforeStop} pieces, stream ended ${stopped.ended} ${endedAfterMs} ms after Stop (limit 6000, natural end about 9000), reservation settled ${afterStop.done} (seen ${clearedAfterMs} ms after Stop); then ${statusesOf(last)}`),
+      oneSettlementPerAdmittedTurn: check(afterLast.done && reservations.length === 3 * LIMIT + 1 && reservations.every((r) => r.status === 'settled') && final?.held === 0, `reservations ${JSON.stringify(countBy(reservations.map((r) => r.status)))} for ${3 * LIMIT + 1} admitted turns (none for the ${refused.length} refused); wallet held ${final?.held} AIC`),
+    }),
+    starts: [...burst, ...again, ...last].map(({ tag, status, type, pending }) => ({ tag, status, type, pending })),
   };
 }
 
@@ -791,7 +883,8 @@ async function main() {
   const ctx = await setup();
   const report = { run: RUN, base: BASE, startedAt: new Date().toISOString(), agentId: ctx.agentId, release: ctx.release, scenarios: {} };
   // 9 runs before 8 (8 sizes its wallet from a scenario 9 reservation); 11 last (its burst trips the rate limit);
-  // auth after 7, by when the staff app step setup used has passed (no wait for a fresh one).
+  // auth after 7, by when the staff app step setup used has passed (no wait for a fresh one). concurrent needs
+  // LIMIT_CONCURRENT_MESSAGES on with CONCURRENT_MESSAGE_MAX=8 (compose.yaml); its 27 messages are its own account's.
   const order = [
     ['1', scenario1],
     ['2', scenario2],
@@ -799,6 +892,7 @@ async function main() {
     ['9', scenario9],
     ['10', scenario10],
     ['8', scenario8],
+    ['concurrent', scenarioConcurrent],
     ['13', scenario13],
     ['7', scenario7],
     ['auth', scenarioAuth],

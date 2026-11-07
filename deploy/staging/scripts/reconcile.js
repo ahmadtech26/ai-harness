@@ -2,6 +2,9 @@
 //   docker compose exec -T mongo mongosh LibreChat --quiet --file /scripts/reconcile.js
 // Optional env: RECONCILE_HOURS (window for the spend summary, default 24),
 //               RECONCILE_STALE_MS (a held reservation this far past expiry is a problem, default 5 min).
+// It signs in first as iqraa_reader (read on LibreChat, O-34), so the database itself keeps it read-only; the password
+// is read from the secrets volume inside the container, never from a command line.
+db.auth('iqraa_reader', require('fs').readFileSync('/secrets/mongo_reader_password', 'utf8').trim());
 const hours = Number(process.env.RECONCILE_HOURS || 24);
 const staleMs = Number(process.env.RECONCILE_STALE_MS || 5 * 60 * 1000);
 const since = new Date(Date.now() - hours * 3600 * 1000);

@@ -268,10 +268,11 @@ export async function enableApp(account) {
 }
 
 // The runner reads its secrets inside the LibreChat container (the entrypoint's exports do not reach an exec
-// session); only the command and its arguments cross the host command line.
-const RUNNER =
+// session), MONGO_URI among them since O-34 took it out of the environment; only the command and its arguments cross
+// the host command line.
+export const RUNNER =
   'export IQRAA_AUTH_SECRET=$(cat /secrets/iqraa_auth) CREDS_KEY=$(cat /secrets/creds_key) CREDS_IV=$(cat /secrets/creds_iv)' +
-  ' && exec node /app/config/iqraa-bootstrap-staff.js "$@"';
+  ' MONGO_URI=$(cat /secrets/mongo_uri) && exec node /app/config/iqraa-bootstrap-staff.js "$@"';
 const lastJsonLine = (text) => {
   for (const line of String(text ?? '').trim().split('\n').reverse()) {
     try {

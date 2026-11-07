@@ -12,7 +12,7 @@ here="$(cd "$(dirname "$0")" && pwd)"
 cd "${PLATFORM_DIR:-$here/../../../AI Platform}"  # sibling repository
 if platform="$(pwd -W 2>/dev/null)"; then :; else platform="$(pwd)"; fi  # Windows path under Git Bash, POSIX elsewhere
 cd - >/dev/null
-image="node:24-bookworm"
+image="node:24-bookworm@sha256:6449e19d8184d84062525b6a7524def03146c2cb04a7f08b076680d0e8e4240a"  # pinned (O-57)
 
 volumes=()
 for ws in . api client packages/api packages/client packages/data-provider packages/data-schemas; do

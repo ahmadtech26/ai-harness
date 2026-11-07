@@ -1,0 +1,6 @@
+# Overlay of services/legal-search/compose.test.yaml for a release run: the evidence goes to the folder the caller names.
+# Compose merges volumes by target, so this replaces that file's .hq evidence mount and the plain file keeps working.
+services:
+  eval:
+    volumes:
+      - '${IQRAA_EVAL_OUT:?set by tools/gates.sh}:/evidence'

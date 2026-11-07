@@ -14,8 +14,9 @@ import { fileURLToPath } from 'node:url';
 import { COMPOSE, customer, enableApp, staffAccount } from '../lib.mjs';
 
 const STAGING = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-// Screenshots of the census (the gallery in RTL, desktop and mobile) go to the workspace `.hq/scratch`, not the stack folder.
-const SHOTS = process.env.IQRAA_SHOTS_DIR ?? path.resolve(STAGING, '..', '..', '..', '.hq', 'scratch', 'tiers-ui');
+// Screenshots of the census (the gallery in RTL, desktop and mobile) go to out/shots in the stack folder by default
+// (out/ is git-ignored run output); IQRAA_SHOTS_DIR puts them anywhere else.
+const SHOTS = process.env.IQRAA_SHOTS_DIR ?? path.join(STAGING, 'out', 'shots');
 fs.mkdirSync(SHOTS, { recursive: true });
 const injectAt = process.argv.indexOf('--inject');
 const inject = injectAt > 0 ? process.argv[injectAt + 1] : null;
@@ -40,7 +41,7 @@ const args = [
   'run', '--rm', '--network', `container:${proxyId}`, '-v', `${STAGING}:/work`, '-v', `${SHOTS}:/shots`, '-v', 'iqraa-playwright-npm:/root/.npm', '-w', '/tmp',
   ...passed.flatMap((name) => ['-e', name]),
   ...(inject ? ['-e', `INJECT_CSS=/work/${inject.replace(/\\/g, '/')}`] : []),
-  'mcr.microsoft.com/playwright:v1.64.0-noble',
+  'mcr.microsoft.com/playwright:v1.64.0-noble@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f',
   'sh', '-c', 'npm init -y >/dev/null && npm i --no-audit --no-fund playwright@1.64.0 && NODE_PATH=/tmp/node_modules node /work/ui/' + script,
 ];
 const run = spawnSync('docker', args, { env, stdio: 'inherit' });

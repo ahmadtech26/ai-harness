@@ -1,0 +1,141 @@
+# Fixture: the database half of compose.yaml as it stood just before O-34's database auth (legal-search
+# reached Postgres as the postgres superuser, mongod ran without --auth). A test brings these services up under its
+# own project to make volumes the way a release before O-34 wrote them, then runs the real compose.yaml on them:
+#   docker compose -p hardening-<name> --project-directory . -f docker-tests/fixtures/compose.before-db-auth.yaml up -d ...
+# run with cwd deploy/staging, so the relative paths below resolve as they do in compose.yaml. The volume keys are
+# compose.yaml's, so both files name the same volumes in one project. Copied, not edited, except: no top-level name
+# (the caller's -p names the project) and legal-search and its ingest under the throwaway
+# hardening-test/legal-search:isolated tag, as compose.isolated.yaml runs them. legal-search is here as well because an
+# upgrade meets it running: compose leaves a running service alone unless its own definition changed, even when a
+# one-shot it depends on changed or ran again (measured on Docker Compose v5.6.0, `depends_on.restart: true` included).
+# Used by pg-role.test.mjs (O-34 Postgres) and the Mongo auth test. Never run it under iqraa-staging.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 20m
+    max-file: '5'
+
+volumes:
+  staging-secrets: {}
+  staging-mongo: {}
+  staging-postgres: {}
+  # What LibreChat writes (O-69), kept across the container recreate that applies a configuration change.
+  staging-uploads: {}
+  staging-images: {}
+  staging-logs: {}
+
+services:
+  secrets-init:
+    image: node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53
+    restart: 'no'
+    logging: *logging
+    entrypoint:
+      - node
+      - -e
+      - |
+        const fs = require('fs'); const c = require('crypto');
+        const make = (name, value) => { const f = '/secrets/' + name; if (!fs.existsSync(f)) fs.writeFileSync(f, value(), { mode: 0o444 }); };
+        const hex = (n) => () => c.randomBytes(n).toString('hex');
+        make('jwt', hex(32)); make('jwt_refresh', hex(32)); make('creds_key', hex(32)); make('creds_iv', hex(16));
+        make('legal_search', hex(24)); make('mock_llm', hex(16)); make('pg_password', hex(16));
+        make('iqraa_auth', hex(32));
+        // The staging marker: the fork's sink delivery (iqraa.json auth.delivery) starts only where it exists.
+        make('iqraa_staging', () => 'staging-only: codes go to the iqraa_auth_sink collection');
+        make('database_url', () => 'postgresql://postgres:' + fs.readFileSync('/secrets/pg_password', 'utf8') + '@postgres:5432/legal');
+        // Hands LibreChat's data volumes to the release's node user (uid 1000, O-40), including volumes a release
+        // that ran as root created or wrote to first.
+        require('child_process').execSync('chown -R 1000:1000 /volumes');
+        console.log('secrets ready');
+    volumes:
+      - staging-secrets:/secrets
+      - staging-uploads:/volumes/uploads
+      - staging-images:/volumes/images
+      - staging-logs:/volumes/logs
+
+  mongo:
+    image: mongo:8.0.20@sha256:098862b1339f031900ca66cf8fef799e616d6324fa41b9a263f2ec899552c1ef
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_MONGO:-4g}
+    cpus: ${IQRAA_CPUS_MONGO:-2}
+    logging: *logging
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
+    volumes:
+      - staging-mongo:/data/db
+      - ./scripts:/scripts:ro
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { if (rs.status().myState !== 1) quit(1) } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongo:27017'}]}); quit(1) }"
+      interval: 3s
+      retries: 40
+
+  postgres:
+    image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_POSTGRES:-2g}
+    cpus: ${IQRAA_CPUS_POSTGRES:-2}
+    logging: *logging
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_PASSWORD_FILE: /secrets/pg_password
+      POSTGRES_DB: legal
+    volumes:
+      - staging-postgres:/var/lib/postgresql/data
+      - staging-secrets:/secrets:ro
+    healthcheck:
+      # Over TCP: during first-start init the image runs a socket-only temporary server that would pass a socket check.
+      test: ['CMD', 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']
+      interval: 2s
+      retries: 30
+      start_period: 180s
+      start_interval: 2s
+
+  legal-search-ingest:
+    build: ../../services/legal-search
+    image: hardening-test/legal-search:isolated
+    restart: 'no'
+    mem_limit: ${IQRAA_MEM_LEGAL_SEARCH:-2g}
+    cpus: ${IQRAA_CPUS_LEGAL_SEARCH:-2}
+    logging: *logging
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL_FILE: /secrets/database_url
+    command:
+      - legal-search-ingest
+      - --registry
+      - /content/corpus/laws.json
+      - --corrections
+      - /content/corpus/corrections.json
+      - --corpus
+      - /corpus
+    volumes:
+      - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
+      - '../../content/corpus:/content/corpus:ro'
+      - staging-secrets:/secrets:ro
+
+  legal-search:
+    build: ../../services/legal-search
+    image: hardening-test/legal-search:isolated
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_LEGAL_SEARCH:-2g}
+    cpus: ${IQRAA_CPUS_LEGAL_SEARCH:-2}
+    logging: *logging
+    depends_on:
+      legal-search-ingest:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL_FILE: /secrets/database_url
+      LEGAL_SEARCH_SECRET_FILE: /secrets/legal_search
+      LEGAL_SEARCH_ALLOWED_HOSTS: 'legal-search:*'
+      LEGAL_SEARCH_PER_ANSWER_CAP: '8'
+      LEGAL_SEARCH_DAILY_CAP: '300'
+    volumes:
+      - staging-secrets:/secrets:ro

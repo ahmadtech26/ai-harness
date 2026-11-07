@@ -1,63 +1,179 @@
 # Iqraa staging stack: the LibreChat fork image behind a reverse proxy with a strict content-security
 # policy, MongoDB replica set, legal-search with Postgres, and a mock model (no provider keys). Only the
-# proxy is published, on 127.0.0.1:3080. Secrets are generated into the staging-secrets volume on first
-# start and never written to workspace files.
+# proxy is published, on 127.0.0.1:3080 (IQRAA_PORT moves it and LibreChat's origin together). Secrets are
+# generated into the staging-secrets volume on first start and never written to workspace files. Every image
+# is pinned by digest (O-57, deploy/pins.test.mjs); compose.contract.test.mjs checks the operating keys below.
 #   docker compose up -d --build    # start (the fork image is built separately, see README.md)
 #   node scenarios.mjs              # acceptance scenarios (auth among them) and the reconciliation
+#   docker compose stop             # stop; otherwise unless-stopped brings the stack back when Docker starts
+#
+# Restart (O-68): the long-running services come back after a crash or a Docker restart, and one an operator
+# stopped stays stopped (scenario 7 stops legal-search); the one-shots never restart, or they would loop.
+# Limits: memory measured idle at mongo 541 MiB, postgres 48, legal-search 61, librechat 287, mock-llm 25 and
+# proxy 18; reconcile-daily's cgroup peaked at 187 MiB, page cache included, over its mongosh runs on a near-empty ledger.
+# reconcile.js holds every reservation and usage event in memory, so a ledger that outgrows the limit shows as
+# `ALERT reconcile_failed status=137`. IQRAA_MEM_<NAME> and IQRAA_CPUS_<NAME> raise a default; a cpus value above
+# the host's CPU count makes Docker refuse the container, so the defaults stay low for a small server.
 name: iqraa-staging
+
+# Every container log rotates at 5 files of 20 MB (O-68). Unrotated, mongo's reached 93 MB with nothing reading it;
+# the longest read is the legal-search alert check (lib.mjs, `logs --since 2h`), about 406 KB of log.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 20m
+    max-file: '5'
 
 volumes:
   staging-secrets: {}
   staging-mongo: {}
   staging-postgres: {}
+  # What LibreChat writes (O-69), kept across the container recreate that applies a configuration change.
+  staging-uploads: {}
+  staging-images: {}
+  staging-logs: {}
+  # reconcile-daily's report of each day (O-102), reconcile-<UTC date>.json.
+  staging-reports: {}
 
 services:
   secrets-init:
-    image: node:24-alpine
+    image: node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53
+    restart: 'no'
+    logging: *logging
     entrypoint:
       - node
       - -e
       - |
         const fs = require('fs'); const c = require('crypto');
-        const make = (name, value) => { const f = '/secrets/' + name; if (!fs.existsSync(f)) fs.writeFileSync(f, value(), { mode: 0o444 }); };
+        const make = (name, value, mode = 0o444) => { const f = '/secrets/' + name; if (!fs.existsSync(f)) fs.writeFileSync(f, value(), { mode }); };
         const hex = (n) => () => c.randomBytes(n).toString('hex');
         make('jwt', hex(32)); make('jwt_refresh', hex(32)); make('creds_key', hex(32)); make('creds_iv', hex(16));
-        make('legal_search', hex(24)); make('mock_llm', hex(16)); make('pg_password', hex(16));
+        make('legal_search', hex(24)); make('mock_llm', hex(16)); make('pg_password', hex(16)); make('pg_app_password', hex(16));
         make('iqraa_auth', hex(32));
         // The staging marker: the fork's sink delivery (iqraa.json auth.delivery) starts only where it exists.
         make('iqraa_staging', () => 'staging-only: codes go to the iqraa_auth_sink collection');
-        make('database_url', () => 'postgresql://postgres:' + fs.readFileSync('/secrets/pg_password', 'utf8') + '@postgres:5432/legal');
+        const own = (name, mode, uid) => { fs.chmodSync('/secrets/' + name, mode); fs.chownSync('/secrets/' + name, uid, uid); };
+        // O-34: legal-search connects as legal_app (scripts/pg-roles.sql), never as the superuser. Written on every run,
+        // so a volume from before the role gets the new URL. Each Postgres secret is then readable by one uid: the
+        // superuser's password and legal_app's by root (the Postgres entrypoint and postgres-roles read them as root),
+        // legal_app's URL by legal-search and its ingest (uid 10001). LibreChat (uid 1000) reads none: legal_app owns
+        // the law library.
+        fs.writeFileSync('/secrets/database_url', 'postgresql://legal_app:' + fs.readFileSync('/secrets/pg_app_password', 'utf8') + '@postgres:5432/legal');
+        own('database_url', 0o400, 10001); own('pg_password', 0o400, 0); own('pg_app_password', 0o400, 0);
+        // O-34 MongoDB: the replica set's key, which mongod (uid 999) refuses unless only it can read it, and the
+        // passwords of the users mongo's health check creates (scripts/mongo-bootstrap.js), root only: the mongo
+        // container reads them as root, LibreChat runs as 1000. LibreChat gets iqraa_app's URI, its own file, written on
+        // every run like database_url; hex passwords need no URL encoding. Modes and owners are set on every run, so an
+        // older volume gets them too.
+        make('mongo_keyfile', () => c.randomBytes(756).toString('base64'), 0o400);
+        make('mongo_admin_password', hex(16), 0o400); make('mongo_app_password', hex(16), 0o400); make('mongo_reader_password', hex(16), 0o400);
+        fs.writeFileSync('/secrets/mongo_uri', 'mongodb://iqraa_app:' + fs.readFileSync('/secrets/mongo_app_password', 'utf8') + '@mongo:27017/LibreChat?replicaSet=rs0', { mode: 0o400 });
+        own('mongo_keyfile', 0o400, 999); own('mongo_uri', 0o400, 1000);
+        own('mongo_admin_password', 0o400, 0); own('mongo_app_password', 0o400, 0); own('mongo_reader_password', 0o400, 0);
+        // Hands LibreChat's data volumes to the release's node user (uid 1000, O-40), including volumes a release
+        // that ran as root created or wrote to first.
+        require('child_process').execSync('chown -R 1000:1000 /volumes');
         console.log('secrets ready');
     volumes:
       - staging-secrets:/secrets
+      - staging-uploads:/volumes/uploads
+      - staging-images:/volumes/images
+      - staging-logs:/volumes/logs
 
   mongo:
-    image: mongo:8.0.20
-    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
+    image: mongo:8.0.20@sha256:098862b1339f031900ca66cf8fef799e616d6324fa41b9a263f2ec899552c1ef
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_MONGO:-4g}
+    cpus: ${IQRAA_CPUS_MONGO:-2}
+    logging: *logging
+    # O-34: --keyFile turns authorization on. The health check, scripts/mongo-bootstrap.js, initiates the replica set
+    # and creates iqraa_admin, iqraa_app and iqraa_reader from the secrets volume, so mongo is healthy only once LibreChat
+    # can sign in. A volume a release before O-34 wrote without authentication takes it in place, through MongoDB's
+    # localhost exception; MONGO_INITDB_* is not used, as the image applies it to an empty volume only.
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all', '--keyFile', '/secrets/mongo_keyfile']
     volumes:
       - staging-mongo:/data/db
       - ./scripts:/scripts:ro
+      - staging-secrets:/secrets:ro
     healthcheck:
-      test:
-        - CMD
-        - mongosh
-        - --quiet
-        - --eval
-        - "try { if (rs.status().myState !== 1) quit(1) } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongo:27017'}]}); quit(1) }"
+      test: ['CMD', 'mongosh', '--quiet', '--file', '/scripts/mongo-bootstrap.js']
       interval: 3s
       retries: 40
+      start_period: 180s
+      start_interval: 3s
+
+  # O-102: the daily reconciliation, on a schedule rather than only by hand or from the driver. The first run is at start,
+  # then one every RECONCILE_INTERVAL_SECONDS (a day; tests shorten it). reconcile.js signs in as iqraa_reader from the
+  # secrets volume, whose passwords only root reads, so the loop runs as the image's root, as mongo's health check
+  # does, and its command holds no secret. Each run's output replaces /reports/reconcile-<UTC date>.json in
+  # staging-reports; a clean run logs `reconcile ok <its JSON>` and a failed one `ALERT reconcile_failed status=<n>
+  # <output>`, the ALERT word of the fork's auth_staff_locked, and the loop goes on. Nothing pages anyone: no alert
+  # channel is configured. The open sweep flags (spec C.5) need a staff session this container does not have, so they
+  # stay in the driver's report and legal-search's own alert lines. A block scalar, not a mounted script: the working
+  # copy may be CRLF, and this text reaches the container with LF; every $$ is the shell's $.
+  reconcile-daily:
+    image: mongo:8.0.20@sha256:098862b1339f031900ca66cf8fef799e616d6324fa41b9a263f2ec899552c1ef
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_RECONCILE:-384m}
+    cpus: ${IQRAA_CPUS_RECONCILE:-0.5}
+    logging: *logging
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+      mongo:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - |
+        trap 'exit 0' TERM INT
+        while :; do
+          out=$$(mongosh 'mongodb://mongo:27017/LibreChat?replicaSet=rs0' --quiet --file /scripts/reconcile.js 2>/tmp/reconcile.err)
+          status=$$?
+          report=/reports/reconcile-$$(date -u +%F).json
+          printf '%s\n' "$$out" > "$$report.tmp" && mv -f "$$report.tmp" "$$report"
+          if [ "$$status" -eq 0 ]; then
+            echo "reconcile ok $$(printf '%s' "$$out" | tr '\r\n' '  ')"
+            cat /tmp/reconcile.err >&2
+          else
+            echo "ALERT reconcile_failed status=$$status $$(printf '%s %s' "$$out" "$$(cat /tmp/reconcile.err)" | tr '\r\n' '  ')" >&2
+          fi
+          # In the background, so a stop's TERM ends the wait at once rather than after a day.
+          sleep ${RECONCILE_INTERVAL_SECONDS:-86400} & wait $$!
+        done
+    volumes:
+      - ./scripts:/scripts:ro
+      - staging-secrets:/secrets:ro
+      - staging-reports:/reports
 
   postgres:
-    image: pgvector/pgvector:pg17
+    image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_POSTGRES:-2g}
+    cpus: ${IQRAA_CPUS_POSTGRES:-2}
+    logging: *logging
     depends_on:
       secrets-init:
         condition: service_completed_successfully
     environment:
       POSTGRES_PASSWORD_FILE: /secrets/pg_password
       POSTGRES_DB: legal
+    # O-34: the one secret file it reads (as root, in the entrypoint), not the whole volume. The volume also holds
+    # mongod's key file, owned by uid 999 for mongod, and this image runs its server as uid 999 too: with the whole
+    # volume mounted, the Postgres server could read the key and sign in to MongoDB as __system. A volume subpath needs
+    # Docker Engine 26 or later; it is resolved when the container starts, after secrets-init.
     volumes:
       - staging-postgres:/var/lib/postgresql/data
-      - staging-secrets:/secrets:ro
+      - &pg-password
+        type: volume
+        source: staging-secrets
+        target: /secrets/pg_password
+        read_only: true
+        volume:
+          subpath: pg_password
     healthcheck:
       # Over TCP: during first-start init the image runs a socket-only temporary server that would pass a socket check.
       test: ['CMD', 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']
@@ -66,14 +182,50 @@ services:
       start_period: 180s
       start_interval: 2s
 
-  legal-search-ingest:
-    build: ../../services/legal-search
-    image: iqraa/legal-search:phase1
+  # O-34: legal-search's own role, legal_app, which owns the legal database and schema and is no superuser
+  # (scripts/pg-roles.sql). It runs before every ingest and is idempotent, so on a volume an earlier release wrote as
+  # postgres it hands the tables over in place. The working copy may be CRLF, which psql would read into the statements.
+  postgres-roles:
+    image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    restart: 'no'
+    logging: *logging
     depends_on:
       postgres:
         condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        export PGPASSWORD=$$(cat /secrets/pg_password) && test -s /scripts/pg-roles.sql &&
+        tr -d '\r' < /scripts/pg-roles.sql | psql -h postgres -U postgres -d legal -v ON_ERROR_STOP=1 -q -f -
+    # Only the two files it reads, as postgres does.
+    volumes:
+      - ./scripts:/scripts:ro
+      - *pg-password
+      - type: volume
+        source: staging-secrets
+        target: /secrets/pg_app_password
+        read_only: true
+        volume:
+          subpath: pg_app_password
+
+  legal-search-ingest:
+    build: ../../services/legal-search
+    image: iqraa/legal-search:phase1
+    restart: 'no'
+    mem_limit: ${IQRAA_MEM_LEGAL_SEARCH:-2g}
+    cpus: ${IQRAA_CPUS_LEGAL_SEARCH:-2}
+    logging: *logging
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-roles:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL_FILE: /secrets/database_url
+      PGAPPNAME: legal-search-ingest
     command:
       - legal-search-ingest
       - --registry
@@ -90,11 +242,20 @@ services:
   legal-search:
     build: ../../services/legal-search
     image: iqraa/legal-search:phase1
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_LEGAL_SEARCH:-2g}
+    cpus: ${IQRAA_CPUS_LEGAL_SEARCH:-2}
+    logging: *logging
     depends_on:
       legal-search-ingest:
         condition: service_completed_successfully
     environment:
       DATABASE_URL_FILE: /secrets/database_url
+      # libpq's application_name, so pg_stat_activity names the service. Adding it also recreated legal-search on the
+      # O-34 upgrade: `up` leaves a running service alone unless its own definition changed, even when secrets-init
+      # rewrote database_url, and a legal-search left running would have kept its superuser connections. After a later
+      # change to database_url alone, `docker compose up -d --force-recreate legal-search`.
+      PGAPPNAME: legal-search
       LEGAL_SEARCH_SECRET_FILE: /secrets/legal_search
       LEGAL_SEARCH_ALLOWED_HOSTS: 'legal-search:*'
       LEGAL_SEARCH_PER_ANSWER_CAP: '8'
@@ -103,7 +264,11 @@ services:
       - staging-secrets:/secrets:ro
 
   mock-llm:
-    image: node:24-alpine
+    image: node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_MOCK:-512m}
+    cpus: ${IQRAA_CPUS_MOCK:-1}
+    logging: *logging
     entrypoint: ['node', '/mock/mock-llm.cjs']
     volumes:
       - ./mock-llm.cjs:/mock/mock-llm.cjs:ro
@@ -114,6 +279,20 @@ services:
     # Drills switch releases with IQRAA_IMAGE.
     image: ${IQRAA_IMAGE:-iqraa/release:staging}
     pull_policy: never
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_LIBRECHAT:-4g}
+    cpus: ${IQRAA_CPUS_LIBRECHAT:-2}
+    logging: *logging
+    healthcheck:
+      # /readyz, not /health: /health answers as soon as the server listens, before MCP and agent
+      # startup finish, and a chat sent in that window can end without a model call.
+      # Health gates the proxy's start only: Docker restarts a container that exits, not one that turns unhealthy.
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:3080/readyz']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+      start_interval: 5s
     depends_on:
       secrets-init:
         condition: service_completed_successfully
@@ -132,11 +311,12 @@ services:
       # LibreChat's nonce policy for scripts, enforcing; the proxy adds the narrow image/connect policy.
       CSP_ENABLED: 'true'
       CSP_REPORT_ONLY: 'false'
-      MONGO_URI: mongodb://mongo:27017/LibreChat?replicaSet=rs0
+      # MONGO_URI is iqraa_app's and holds its password (O-34), so the entrypoint reads it from the secrets volume: in
+      # the environment, `docker inspect` would show it.
       CONFIG_PATH: /config/librechat.yaml
       IQRAA_CONFIG_PATH: /config/iqraa.json
-      DOMAIN_CLIENT: http://localhost:3080
-      DOMAIN_SERVER: http://localhost:3080
+      DOMAIN_CLIENT: http://localhost:${IQRAA_PORT:-3080}
+      DOMAIN_SERVER: http://localhost:${IQRAA_PORT:-3080}
       SEARCH: 'false'
       NO_INDEX: 'true'
       # No passwords (plan Decision 3): the fork refuses to start unless these are false. Sign-in is the fork's
@@ -150,11 +330,16 @@ services:
       ALLOW_SHARED_LINKS: 'false'
       # The footer is ours only (REQ-UI-002): LibreChat shows its name and version unless this is set.
       CUSTOM_FOOTER: 'Iqraa LAW AI'
-      # Scenario 11: per-user message rate limit. The concurrent-message limiter stays off (unset) so
-      # scenario 8's parallel chats are bounded by the credit ledger, not by LibreChat.
+      # Scenario 11: per-user message rate limit. The concurrent-message limiter (O-34) is on at 8, not LibreChat's
+      # default of 2, so scenario 8's six parallel chats stay bounded by the credit ledger rather than by LibreChat,
+      # and the concurrent scenario fills the eight slots and is refused a ninth. Production must set both itself:
+      # LibreChat's limiter is off unless LIMIT_CONCURRENT_MESSAGES is true (2 is only its default maximum), and the
+      # fork does not check this at start-up (O-34).
       LIMIT_MESSAGE_USER: 'true'
       MESSAGE_USER_MAX: '30'
       MESSAGE_USER_WINDOW: '1'
+      LIMIT_CONCURRENT_MESSAGES: 'true'
+      CONCURRENT_MESSAGE_MAX: '8'
     entrypoint:
       - sh
       - -c
@@ -162,7 +347,7 @@ services:
         export JWT_SECRET=$$(cat /secrets/jwt) JWT_REFRESH_SECRET=$$(cat /secrets/jwt_refresh)
         CREDS_KEY=$$(cat /secrets/creds_key) CREDS_IV=$$(cat /secrets/creds_iv)
         LEGAL_SEARCH_SECRET=$$(cat /secrets/legal_search) MOCK_LLM_API_KEY=$$(cat /secrets/mock_llm)
-        IQRAA_AUTH_SECRET=$$(cat /secrets/iqraa_auth)
+        IQRAA_AUTH_SECRET=$$(cat /secrets/iqraa_auth) MONGO_URI=$$(cat /secrets/mongo_uri)
         && exec docker-entrypoint.sh node server/index.js
     volumes:
       - ./librechat.yaml:/config/librechat.yaml:ro
@@ -173,13 +358,21 @@ services:
       - ./test-skills/staging-listed:/app/skill/staging-listed:ro
       - ./test-skills/staging-unlisted:/app/skill/staging-unlisted:ro
       - staging-secrets:/secrets:ro
+      # O-69: uploads and generated images (api/config/paths.js) and the winston logs (api/logs under the cwd /app/api).
+      - staging-uploads:/app/uploads
+      - staging-images:/app/client/public/images
+      - staging-logs:/app/api/logs
 
   proxy:
-    image: nginx:1.27-alpine
+    image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+    restart: unless-stopped
+    mem_limit: ${IQRAA_MEM_PROXY:-256m}
+    cpus: ${IQRAA_CPUS_PROXY:-1}
+    logging: *logging
     depends_on:
       librechat:
-        condition: service_started
+        condition: service_healthy
     ports:
-      - '127.0.0.1:3080:8080'
+      - '127.0.0.1:${IQRAA_PORT:-3080}:8080'
     volumes:
       - ./proxy/default.conf:/etc/nginx/conf.d/default.conf:ro

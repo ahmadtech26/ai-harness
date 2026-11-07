@@ -1,0 +1,29 @@
+# Overlay of compose.yaml for an isolated copy of the staging stack (docker-tests/isolated.mjs), beside staging:
+# the proxy on its own loopback port instead of 3080, and legal-search under a throwaway tag, so a missing image
+# is built as hardening-test/legal-search:isolated and never written over iqraa/legal-search:phase1.
+# The caller sets IQRAA_IMAGE to a hardening-test release and passes its own project name (-p hardening-*),
+# so the volumes and the network are the project's own and staging's are never touched. No host folder is bound
+# writable (nonroot.test.mjs checks the merged configuration).
+services:
+  proxy:
+    ports: !override
+      - '127.0.0.1:${IQRAA_ISOLATED_PORT:-3186}:8080'
+
+  librechat:
+    environment:
+      DOMAIN_CLIENT: http://localhost:${IQRAA_ISOLATED_PORT:-3186}
+      DOMAIN_SERVER: http://localhost:${IQRAA_ISOLATED_PORT:-3186}
+
+  legal-search-ingest:
+    image: hardening-test/legal-search:isolated
+
+  legal-search:
+    image: hardening-test/legal-search:isolated
+
+  # compose.yaml binds ./out, where mock-llm appends every request: run from the main tree that is staging's own
+  # llm-requests.jsonl, which scenarios.mjs reconciles against. The isolated copy keeps its log in the container.
+  mock-llm:
+    environment:
+      MOCK_LLM_LOG: /tmp/llm-requests.jsonl
+    volumes: !override
+      - ./mock-llm.cjs:/mock/mock-llm.cjs:ro

@@ -1,0 +1,203 @@
+{
+ "metrics": {
+  "overall": {
+   "hit@10": 0.7,
+   "hit@5": 0.6125,
+   "items": 80,
+   "mrr": 0.4513,
+   "recall@10": 0.625,
+   "recall@5": 0.5375
+  },
+  "per_law": {
+   "bar-association": {
+    "hit@10": 1.0,
+    "hit@5": 1.0,
+    "items": 2,
+    "mrr": 0.625,
+    "recall@10": 1.0,
+    "recall@5": 1.0
+   },
+   "civil-code": {
+    "hit@10": 0.5714,
+    "hit@5": 0.4286,
+    "items": 14,
+    "mrr": 0.303,
+    "recall@10": 0.5714,
+    "recall@5": 0.4286
+   },
+   "civil-procedure": {
+    "hit@10": 0.6667,
+    "hit@5": 0.6667,
+    "items": 6,
+    "mrr": 0.5,
+    "recall@10": 0.6667,
+    "recall@5": 0.5833
+   },
+   "commerce": {
+    "hit@10": 0.6667,
+    "hit@5": 0.6667,
+    "items": 3,
+    "mrr": 0.4167,
+    "recall@10": 0.6667,
+    "recall@5": 0.5
+   },
+   "companies": {
+    "hit@10": 0.3333,
+    "hit@5": 0.3333,
+    "items": 3,
+    "mrr": 0.1667,
+    "recall@10": 0.3333,
+    "recall@5": 0.3333
+   },
+   "court-fees": {
+    "hit@10": 1.0,
+    "hit@5": 1.0,
+    "items": 2,
+    "mrr": 1.0,
+    "recall@10": 1.0,
+    "recall@5": 1.0
+   },
+   "courts-formation": {
+    "hit@10": 1.0,
+    "hit@5": 1.0,
+    "items": 2,
+    "mrr": 0.4167,
+    "recall@10": 1.0,
+    "recall@5": 1.0
+   },
+   "criminal-procedure": {
+    "hit@10": 0.6667,
+    "hit@5": 0.6667,
+    "items": 6,
+    "mrr": 0.5556,
+    "recall@10": 0.5833,
+    "recall@5": 0.5833
+   },
+   "customs": {
+    "hit@10": 1.0,
+    "hit@5": 0.5,
+    "items": 2,
+    "mrr": 0.1556,
+    "recall@10": 0.75,
+    "recall@5": 0.5
+   },
+   "evidence": {
+    "hit@10": 0.6667,
+    "hit@5": 0.6667,
+    "items": 3,
+    "mrr": 0.4444,
+    "recall@10": 0.6667,
+    "recall@5": 0.6667
+   },
+   "execution": {
+    "hit@10": 0.6667,
+    "hit@5": 0.6667,
+    "items": 3,
+    "mrr": 0.6667,
+    "recall@10": 0.5,
+    "recall@5": 0.5
+   },
+   "income-tax": {
+    "hit@10": 1.0,
+    "hit@5": 1.0,
+    "items": 2,
+    "mrr": 1.0,
+    "recall@10": 1.0,
+    "recall@5": 1.0
+   },
+   "investment-fund": {
+    "hit@10": 0.0,
+    "hit@5": 0.0,
+    "items": 2,
+    "mrr": 0.0,
+    "recall@10": 0.0,
+    "recall@5": 0.0
+   },
+   "labour": {
+    "hit@10": 0.6667,
+    "hit@5": 0.6667,
+    "items": 3,
+    "mrr": 0.5,
+    "recall@10": 0.5,
+    "recall@5": 0.5
+   },
+   "landlords-tenants": {
+    "hit@10": 1.0,
+    "hit@5": 1.0,
+    "items": 3,
+    "mrr": 0.3167,
+    "recall@10": 0.8333,
+    "recall@5": 0.8333
+   },
+   "magistrates-courts": {
+    "hit@10": 0.5,
+    "hit@5": 0.5,
+    "items": 2,
+    "mrr": 0.5,
+    "recall@10": 0.5,
+    "recall@5": 0.5
+   },
+   "majalla": {
+    "hit@10": 0.5,
+    "hit@5": 0.3333,
+    "items": 6,
+    "mrr": 0.1944,
+    "recall@10": 0.3333,
+    "recall@5": 0.1667
+   },
+   "major-felonies-court": {
+    "hit@10": 1.0,
+    "hit@5": 0.0,
+    "items": 2,
+    "mrr": 0.1333,
+    "recall@10": 1.0,
+    "recall@5": 0.0
+   },
+   "maritime-commerce": {
+    "hit@10": 1.0,
+    "hit@5": 1.0,
+    "items": 2,
+    "mrr": 0.5,
+    "recall@10": 0.75,
+    "recall@5": 0.75
+   },
+   "mediation": {
+    "hit@10": 1.0,
+    "hit@5": 1.0,
+    "items": 2,
+    "mrr": 0.75,
+    "recall@10": 1.0,
+    "recall@5": 1.0
+   },
+   "penal-code": {
+    "hit@10": 0.75,
+    "hit@5": 0.75,
+    "items": 8,
+    "mrr": 0.6875,
+    "recall@10": 0.5625,
+    "recall@5": 0.5625
+   },
+   "sales-tax": {
+    "hit@10": 1.0,
+    "hit@5": 0.5,
+    "items": 2,
+    "mrr": 0.5833,
+    "recall@10": 0.75,
+    "recall@5": 0.5
+   }
+  }
+ },
+ "run": {
+  "config": {
+   "rank_normalization": 4,
+   "synonyms": true
+  },
+  "corpus_sha256": "1c31a2106af1a9e7a599b9d13fbafa7d5c6414117b0394595eb310ba6d8c8eb7",
+  "depth": 10,
+  "label": "release",
+  "set": "retrieval-v1",
+  "set_review": "draft",
+  "set_sha256": "870ce8df5335f6fae364c07b7af3d3de9a0b2f98bede262858ab83510cbd79f2",
+  "use_law_filter": false
+ }
+}
