@@ -2,7 +2,8 @@
 `sweep_flags_one_open` with `ON CONFLICT ... DO NOTHING`, so of two calls opening a flag at once the second
 waits for the first's transaction and then opens nothing (its own log row still commits). Clearing records
 who and when and moves the user's watermark to the newest retrieval_log id, so the detector only counts the
-events after it and a cleared sweep does not fire again from its old events."""
+events after it and a cleared sweep does not fire again from its old events. Staff can also suspend a user's
+library directly (suspend), as when their account is suspended."""
 
 from dataclasses import asdict, dataclass
 from datetime import datetime
@@ -22,7 +23,7 @@ class Flag:
     opened_log_id: int          # the retrieval_log row of the call that opened it
     escalated_at: datetime | None
     escalated_log_id: int | None
-    evidence: dict              # {"opened": [signal, ...], "escalated": [signal, ...]}
+    evidence: dict              # {"opened": [signal, ...], "escalated": [signal, ...], "staff": {by, reason}}
     cleared_at: datetime | None
     cleared_by: str | None
     clear_reason: str | None
@@ -96,6 +97,27 @@ async def clear(conn: AsyncConnection, user_id: str, who: str, reason: str | Non
         SELECT * FROM cleared
         """,
         (who, reason, user_id),
+    )
+
+
+async def suspend(conn: AsyncConnection, user_id: str, who: str, reason: str | None) -> Flag:
+    """Suspends the user's library at staff request, as when their account is suspended (R1 n=16): opens a
+    proven flag at the user's newest log row, or raises their open suspected flag to proven there; an open proven
+    flag stays proven. The evidence records the staff member and reason under "staff". clear() lifts it."""
+    return await _one(
+        conn,
+        f"""
+        INSERT INTO sweep_flags AS f (user_id, level, opened_log_id, evidence)
+        VALUES (%s, 'proven', (SELECT COALESCE(max(id), 0) FROM retrieval_log WHERE user_id = %s),
+                jsonb_build_object('opened', '[]'::jsonb, 'staff', %s::jsonb))
+        ON CONFLICT (user_id) WHERE status = 'open' DO UPDATE SET
+          level = 'proven',
+          escalated_at = CASE WHEN f.level = 'suspected' THEN now() ELSE f.escalated_at END,
+          escalated_log_id = CASE WHEN f.level = 'suspected' THEN EXCLUDED.opened_log_id ELSE f.escalated_log_id END,
+          evidence = f.evidence || jsonb_build_object('staff', %s::jsonb)
+        RETURNING {_COLUMNS}
+        """,
+        (user_id, user_id, Jsonb({'by': who, 'reason': reason}), Jsonb({'by': who, 'reason': reason})),
     )
 
 

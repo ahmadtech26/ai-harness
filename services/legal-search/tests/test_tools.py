@@ -170,3 +170,21 @@ async def test_get_memorandum_past_the_last_note_says_so_and_logs_an_empty_attem
     assert text == 'لا ملاحظات بعد الموضع 7: للمادة 1 7 ملاحظة في المذكرة الإيضاحية.'
     cur = await conn.execute('SELECT query, note_ids FROM retrieval_log')
     assert await cur.fetchall() == [('civil-code:memorandum:1@7', [])]
+
+
+async def test_a_search_above_the_query_bound_is_not_run_and_only_the_bound_is_stored(conn, monkeypatch):
+    # R2 n=19: a pasted contract was ranked on a shared connection and stored whole in the retrieval log.
+    searched = []
+    real = db.search
+
+    async def spy(*args, **kwargs):
+        searched.append(args[1])
+        return await real(*args, **kwargs)
+
+    monkeypatch.setattr(db, 'search', spy)
+
+    text = await tools.search_law(conn, CAPS, CALLER, 'يعاقب كل من خالف العقد ' * 250, 5, max_query=200)
+
+    cur = await conn.execute('SELECT length(query), article_ids FROM retrieval_log')
+    assert (text, searched) == (tools.QUERY_TOO_LONG, [])
+    assert await cur.fetchall() == [(200, [])]

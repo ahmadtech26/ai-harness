@@ -22,7 +22,7 @@ from dataclasses import dataclass, replace
 
 from psycopg import AsyncConnection
 
-from legal_search import events, flags
+from legal_search import db, events, flags
 from legal_search.alerts import alert
 from legal_search.caps import Caps
 from legal_search.detector import Signal, assess
@@ -47,13 +47,26 @@ class Decision:
         return self.caps is None
 
 
+def _suspended(flag: flags.Flag | None) -> Decision | None:
+    """A proven flag suspends: nothing is served."""
+    if flag is not None and flag.level == 'proven':
+        return Decision(None, 'suspended', 'proven', flag_id=flag.id)
+    return None
+
+
+async def suspension(conn: AsyncConnection, settings: GuardSettings | None, user: str) -> Decision | None:
+    """The decision for a user whose library is suspended, or None, from one read of the open flag: search_law
+    asks it before any search or budget sum (R3 n=11)."""
+    return None if settings is None else _suspended(await flags.open_flag(conn, user))
+
+
 async def decide(conn: AsyncConnection, settings: GuardSettings | None, caps: Caps, user: str,
                  attempt: events.Attempt) -> Decision:
     if settings is None:
         return Decision(caps, 'capped')
     flag = await flags.open_flag(conn, user)
-    if flag is not None and flag.level == 'proven':
-        return Decision(None, 'suspended', 'proven', flag_id=flag.id)
+    if (suspended := _suspended(flag)) is not None:
+        return suspended
     after = await flags.watermark(conn, user)
     history, now = await events.load_user_events(conn, user, after, events.lookback(settings))
     # The detector is CPU work over the whole look-back: off the event loop that serves every user (R1 n=14).
@@ -71,7 +84,9 @@ async def decide(conn: AsyncConnection, settings: GuardSettings | None, caps: Ca
 
 
 async def commit(conn: AsyncConnection, user: str, decision: Decision, log_id: int) -> list[Alert]:
-    evidence = [signal.evidence() for signal in decision.signals]
+    # An unknown law is recorded as a fixed token, never the model's own string (R3 n=10).
+    laws = set(await db.law_slugs(conn)) if decision.signals else set()
+    evidence = [signal.evidence(laws) for signal in decision.signals]
     if decision.change == 'opened':
         flag = await flags.open_new(conn, user, decision.level, log_id, evidence)
         if flag is None:  # a concurrent call opened one first: this call's log row stays, nothing else

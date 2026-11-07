@@ -152,3 +152,39 @@ def test_an_alert_is_written_once_in_a_process_running_the_mcp_server():
 
     assert [line for line in result.stderr.splitlines() if '"sweep_flag_opened"' in line] == [
         '{"event": "sweep_flag_opened", "flag_level": "suspected", "level": "error", "user_id": "u1"}']
+
+
+def test_an_alert_escapes_every_character_outside_ascii(alert_caplog):
+    # R3 n=10: a model-chosen string, bidirectional controls included, must not reach the log line raw.
+    alert('sweep_flag_opened', user_id='u1', law='civil\u2010code\u202e')
+
+    [record] = [r for r in alert_caplog.records if r.name == 'legal_search.alerts']
+    assert record.getMessage().isascii()
+    assert json.loads(record.getMessage())['law'] == 'civil\u2010code\u202e'
+
+
+async def test_a_staff_suspension_raises_an_open_suspected_flag_to_proven(conn):
+    # R1 n=16: the account's suspension must suspend the library too, also for a user the guard only throttles.
+    await flags.open_new(conn, 'u1', 'suspected', 12, OPENED)
+
+    suspended = await flags.suspend(conn, 'u1', 'staff-1', 'account suspended')
+
+    assert (suspended.level, suspended.evidence['opened']) == ('proven', OPENED)
+    assert suspended.evidence['staff'] == {'by': 'staff-1', 'reason': 'account suspended'}
+    assert await _count(conn, "SELECT count(*) FROM sweep_flags WHERE status = 'open'") == 1
+
+
+async def test_purging_a_user_deletes_their_log_flags_and_watermark_and_nothing_else(conn):
+    # R2 n=33: suspicion records outlived any deletion of the user; the purge removes all three in one transaction.
+    await conn.execute("INSERT INTO retrieval_log (user_id, tool) VALUES ('u1', 'get_article'), ('u2', 'get_article')")
+    await flags.open_new(conn, 'u1', 'suspected', 1, OPENED)
+    await flags.clear(conn, 'u1', 'staff-1', 'reviewed')
+    await flags.open_new(conn, 'u1', 'proven', 1, OPENED)
+    await flags.open_new(conn, 'u2', 'suspected', 2, OPENED)
+
+    await db.purge_user(conn, 'u1')
+
+    remaining = [await _count(conn, f"SELECT count(*) FROM {table} WHERE user_id = 'u1'")
+                 for table in ('retrieval_log', 'sweep_flags', 'guard_watermarks')]
+    others = [await _count(conn, f"SELECT count(*) FROM {table} WHERE user_id = 'u2'") for table in ('retrieval_log', 'sweep_flags')]
+    assert (remaining, others) == ([0, 0, 0], [1, 1])

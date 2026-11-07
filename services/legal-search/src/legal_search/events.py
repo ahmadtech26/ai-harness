@@ -1,5 +1,6 @@
 """Retrieval-log rows as sweep-detector events (spec C.1). Every tool call is a row, served or refused."""
 
+import asyncio
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -13,6 +14,8 @@ from legal_search.guard_settings import GuardSettings
 
 # The detector's longest look-back: 7 days of coverage plus the 24 h behind the oldest cap crossing.
 BASE_LOOKBACK = timedelta(days=8)
+# Rows fetched and decoded at a time; the event loop gets the interpreter in between.
+BATCH = 2_000
 
 _EVENTS = """
 SELECT r.id, r.user_id, r.created_at, r.tool, r.requested_law, r.requested_number, r.requested_suffix, r.outcome,
@@ -57,44 +60,59 @@ async def _now(conn: AsyncConnection) -> datetime:
     return (await cur.fetchone())[0]
 
 
+def _events(rows: list[dict]) -> list[Event]:
+    return [_event(row) for row in rows]
+
+
 async def load_user_events(conn: AsyncConnection, user_id: str, after_log_id: int, span: timedelta) -> tuple[list[Event], datetime]:
     """The user's events after log id `after_log_id` (the watermark) and within `span` of now, in log
-    order, and the database's now (the decision time)."""
+    order, and the database's now (the decision time). Rows come a batch at a time and are decoded in a
+    worker thread, so a long history does not hold the event loop that serves every user (R1 n=14)."""
     now = await _now(conn)
+    history: list[Event] = []
     async with conn.cursor(row_factory=dict_row) as cur:
         await cur.execute(
             _EVENTS + ' WHERE r.user_id = %s AND r.id > %s AND r.created_at > %s ORDER BY r.id',
             (user_id, after_log_id, now - span),
         )
-        return [_event(row) for row in await cur.fetchall()], now
+        while rows := await cur.fetchmany(BATCH):
+            history += await asyncio.to_thread(_events, rows)
+    return history, now
 
 
-# One telemetry or simulation request reads at most this many events; a larger window is refused, never cut.
+# One telemetry or simulation request reads at most this many events of one user. A user with more in the window
+# is left out and named, never cut: the ceiling was global, so one customer could refuse the request for every
+# other (R1 n=15).
 MAX_EVENTS = 200_000
+# ...and at most this many in total, the memory bound of one request (R1 n=15): past it the largest users are
+# left out and named too.
+MAX_TOTAL_EVENTS = 1_000_000
 
 
-class TooManyEvents(Exception):
-    """The window holds more events than one telemetry or simulation request reads."""
-
-
-def load_window_sync(conninfo: str, span: timedelta) -> tuple[dict[str, list[Event]], datetime]:
-    """Every user's events of the last `span`, in log order (watermarks ignored: raw behaviour), and the
-    database's now. Raises TooManyEvents, before reading any, when the window holds more than MAX_EVENTS.
-    Blocking, on a connection of its own: admin.py runs it in a worker thread, because decoding up to
-    MAX_EVENTS rows into events takes seconds that would otherwise hold the event loop."""
+def load_window_sync(conninfo: str, span: timedelta) -> tuple[dict[str, list[Event]], datetime, list[str]]:
+    """Every user's events of the last `span`, in log order (watermarks ignored: raw behaviour), the database's
+    now, and the users left out, none of whose events is read: those with more than MAX_EVENTS events in the
+    window, and, smallest users first, those that would take the total past MAX_TOTAL_EVENTS.
+    Blocking, on a connection of its own: admin.py runs it in a worker thread, because decoding the rows into
+    events takes seconds that would otherwise hold the event loop."""
     with psycopg.connect(conninfo, autocommit=True) as conn:
         now = conn.execute('SELECT now()').fetchone()[0]
         since = now - span
-        count = conn.execute(
-            'SELECT count(*) FROM (SELECT 1 FROM retrieval_log WHERE created_at > %s LIMIT %s) AS window_rows',
-            (since, MAX_EVENTS + 1),
-        ).fetchone()[0]
-        if count > MAX_EVENTS:
-            raise TooManyEvents(f'the window holds more than {MAX_EVENTS} events; choose fewer days')
+        counts = conn.execute(
+            'SELECT user_id, count(*) FROM retrieval_log WHERE created_at > %s GROUP BY user_id', (since,),
+        ).fetchall()
+        left_out, total = [], 0
+        for user_id, count in sorted(counts, key=lambda row: (row[1], row[0])):  # smallest first
+            if count > MAX_EVENTS or total + count > MAX_TOTAL_EVENTS:
+                left_out.append(user_id)
+            else:
+                total += count
+        left_out.sort()
         by_user: dict[str, list[Event]] = defaultdict(list)
         with conn.cursor(row_factory=dict_row) as cur:
-            cur.execute(_EVENTS + ' WHERE r.created_at > %s ORDER BY r.user_id, r.id', (since,))
-            while rows := cur.fetchmany(2_000):  # a batch at a time: the event loop gets the interpreter in between
+            cur.execute(_EVENTS + ' WHERE r.created_at > %s AND NOT (r.user_id = ANY (%s)) ORDER BY r.user_id, r.id',
+                        (since, left_out))
+            while rows := cur.fetchmany(BATCH):  # a batch at a time: the event loop gets the interpreter in between
                 for row in rows:
                     by_user[row['user_id']].append(_event(row))
-    return dict(by_user), now
+    return dict(by_user), now, left_out

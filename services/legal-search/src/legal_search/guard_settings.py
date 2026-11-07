@@ -55,6 +55,8 @@ class GuardSettings:
 NAMES = tuple(field.name for field in fields(GuardSettings))
 _FLAGS = ('proven_if_signal_while_throttled',)
 _PAIRS = (('suspected_run', 'proven_run'), ('suspected_distinct_7d', 'proven_distinct_7d'))
+# A wider gap or window catches more runs, so these loosen the guard when they fall (R1 n=18).
+_LOOSER_WHEN_LOWER = ('run_gap', 'run_window_hours')
 # Ceilings: every window must stay a usable time span (a huge run_window overflows the date arithmetic on
 # every retrieval), and no count needs to exceed a million.
 MAX_COUNT = 1_000_000
@@ -92,11 +94,18 @@ def validate(values: dict) -> GuardSettings:
 
 
 def loosened(previous: GuardSettings, updated: GuardSettings) -> list[str]:
-    """The settings a change made more permissive: a higher cap or threshold, or the escalation switched off."""
+    """The settings a change made more permissive: a higher cap or threshold, a narrower run gap or window,
+    or the escalation switched off."""
     names = []
     for name in NAMES:
         before, after = getattr(previous, name), getattr(updated, name)
-        if (before and not after) if name in _FLAGS else after > before:
+        if name in _FLAGS:
+            looser = before and not after
+        elif name in _LOOSER_WHEN_LOWER:
+            looser = after < before
+        else:
+            looser = after > before
+        if looser:
             names.append(name)
     return names
 

@@ -1,6 +1,8 @@
+from dataclasses import replace
+
 import pytest
 
-from legal_search.guard_settings import GuardSettings, SettingsError, merged, validate
+from legal_search.guard_settings import GuardSettings, SettingsError, loosened, merged, validate
 
 DEFAULTS = GuardSettings()
 
@@ -85,3 +87,20 @@ def test_merged_applies_changes_over_the_current_settings():
     result = merged(DEFAULTS, {'suspected_run': 13})
 
     assert (result.suspected_run, result.proven_run, result.daily) == (13, 30, 300)
+
+
+def test_narrowing_the_run_gap_or_window_counts_as_a_loosening():
+    # R1 n=18: a narrower gap or window catches fewer runs, so lowering either one loosens the guard.
+    previous = GuardSettings()
+
+    changed = loosened(previous, replace(previous, run_gap=1, run_window_hours=1))
+
+    assert changed == ['run_gap', 'run_window_hours']
+
+
+def test_widening_the_run_gap_or_window_is_not_a_loosening():
+    previous = GuardSettings()
+
+    changed = loosened(previous, replace(previous, run_gap=3, run_window_hours=48))
+
+    assert changed == []

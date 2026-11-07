@@ -21,6 +21,7 @@ STAFF = {'x-iqraa-staff': 'staff-1'}
 ADMIN_ROUTES = [
     ('GET', '/admin/flags'),
     ('POST', '/admin/flags/u1/clear'),
+    ('POST', '/admin/flags/u1/suspend'),
     ('GET', '/admin/guard-settings'),
     ('PUT', '/admin/guard-settings'),
     ('GET', '/admin/guard-settings/history'),
@@ -180,13 +181,33 @@ def test_simulate_refuses_settings_that_are_not_an_object(client):
     assert _refusal(response) == (400, 'bad_request', 'bad_request', True)
 
 
-def test_simulate_refuses_a_window_with_more_events_than_it_reads(client):
+def test_a_user_above_the_event_ceiling_is_left_out_and_named_and_everyone_else_is_reported(client):
+    # R1 n=15: the ceiling was global, so one customer's rows refused the simulation and the telemetry for everyone.
     _sql("INSERT INTO retrieval_log (user_id, tool) SELECT 'bulk', 'search_law' FROM generate_series(1, %s)",
          (events.MAX_EVENTS + 1,))
+    _walk_rows('walker', range(1, 12))
 
-    responses = [client.post('/admin/guard-settings/simulate', json={'days': 1}), client.get('/admin/telemetry?days=1')]
+    simulated = client.post('/admin/guard-settings/simulate', json={'settings': {'suspected_run': 10}, 'days': 1})
+    report = client.get('/admin/telemetry?days=1')
 
-    assert [_refusal(response) for response in responses] == [(400, 'bad_request', 'too_many_events', True)] * 2
+    assert (simulated.status_code, report.status_code) == (200, 200)
+    assert ([user['user_id'] for user in simulated.json()['would_flag']], simulated.json()['left_out']) == (['walker'], ['bulk'])
+    assert (report.json()['users'], report.json()['left_out']) == (1, ['bulk'])
+
+
+def test_past_the_total_event_ceiling_the_largest_users_are_left_out(client, monkeypatch):
+    # R1 n=15: the per-user ceiling alone left one request's memory unbounded; past the total, the largest users go.
+    monkeypatch.setattr(events, 'MAX_EVENTS', 50)
+    monkeypatch.setattr(events, 'MAX_TOTAL_EVENTS', 100, raising=False)
+    for user, count in (('u37', 37), ('u38', 38), ('u39', 39), ('u40', 40)):
+        _sql("INSERT INTO retrieval_log (user_id, tool) SELECT %s, 'search_law' FROM generate_series(1, %s)", (user, count))
+
+    simulated = client.post('/admin/guard-settings/simulate', json={'days': 1})
+    report = client.get('/admin/telemetry?days=1')
+
+    assert (simulated.status_code, report.status_code) == (200, 200)
+    assert (simulated.json()['left_out'], report.json()['left_out']) == (['u39', 'u40'], ['u39', 'u40'])
+    assert report.json()['users'] == 2
 
 
 @pytest.mark.parametrize(('method', 'path', 'computation'), [
@@ -226,3 +247,16 @@ def test_telemetry_reports_the_window_and_refuses_days_outside_one_to_thirty(cli
     assert (report['window_days'], report['users'], report['longest_run']['max']) == (1, 2, 12)
     assert report['open_flags'] == {'suspected': 1, 'proven': 0}
     assert [_refusal(response) for response in refused] == [(400, 'bad_request', 'bad_days', True)] * 3
+
+
+def test_a_staff_suspension_refuses_every_retrieval_until_the_flag_is_cleared(client):
+    # R1 n=16: suspending an account left the library open to the tool calls its last model step requested.
+    _articles((1,))
+
+    suspended = client.post('/admin/flags/u-acct/suspend', headers=STAFF, json={'reason': 'account suspended'})
+    refused = tool_text(client, 'u-acct', 'get_article', {'number': 1})
+    client.post('/admin/flags/u-acct/clear', headers=STAFF, json={'reason': 'account restored'})
+    served = tool_text(client, 'u-acct', 'get_article', {'number': 1})
+
+    assert suspended.status_code == 200 and suspended.json()['flag']['level'] == 'proven'
+    assert refused == tools.SUSPENDED and 'المادة 1' in served

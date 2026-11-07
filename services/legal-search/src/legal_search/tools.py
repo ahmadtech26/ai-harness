@@ -33,6 +33,7 @@ MEMORANDUM_HINT = 'للمادة مذكرة إيضاحية (get_memorandum)'
 MEMORANDUM_LAW = 'civil-code'
 SUSPENDED = 'تم إيقاف الوصول إلى المكتبة القانونية لهذا الحساب مؤقتًا. يُرجى التواصل مع الدعم.'
 UNKNOWN_LAW = 'رمز القانون غير معروف'
+QUERY_TOO_LONG = 'عبارة البحث أطول من الحد المسموح. يُرجى البحث بكلمات مفتاحية أقل.'
 
 
 @dataclass(frozen=True)
@@ -83,17 +84,26 @@ async def _unknown_law(conn: AsyncConnection, law: str) -> str | None:
 
 
 async def search_law(conn: AsyncConnection, caps: Caps, caller: Caller, query: str, limit: int = 5,
-                     law: str | None = None, guard: GuardSettings | None = None) -> str:
+                     law: str | None = None, guard: GuardSettings | None = None, max_query: int | None = None) -> str:
     law = (law or '').strip() or None  # models often send "" for an optional argument (plan A)
-    if law is not None:
-        unknown = await _unknown_law(conn, law)
-        if unknown:
+    # A query above `max_query` characters is not searched, and only its first `max_query` are stored (R2 n=19);
+    # None sets no bound (the owner sets it with the retrieval eval).
+    too_long = max_query is not None and len(query) > max_query
+    if too_long:
+        query = query[:max_query]
+    # A suspended user is refused before the search and its budget sums run, as by the other tools (R3 n=11).
+    suspended = await sweep.suspension(conn, guard, caller.user)
+    if suspended is not None:
+        return await _refuse(conn, caller, Attempt('search_law', law), query, suspended)
+    if too_long or law is not None:
+        fixed = QUERY_TOO_LONG if too_long else await _unknown_law(conn, law)  # the answer instead of a search
+        if fixed:
             attempt = Attempt('search_law', law)
             decision = await sweep.decide(conn, guard, caps, caller.user, attempt)
             if decision.suspended:
                 return await _refuse(conn, caller, attempt, query, decision)
             await _record(conn, caller, attempt, query, decision, 'served')
-            return unknown
+            return fixed
     # The candidates are what this call would serve under the normal caps; the guard decides on them.
     candidates = await db.search(conn, query, await _budget(conn, caps, caller, limit), law=law)
     attempt = Attempt('search_law', law, keys=frozenset(article_key(f.law_slug, f.number, f.suffix) for f in candidates))
