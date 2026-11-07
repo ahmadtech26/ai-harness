@@ -31,6 +31,10 @@ const MARKERS = {
 };
 const AUTHORING_TOOLS = ['create_file', 'edit_file', 'execute_code', 'bash_tool'];
 const INSTRUCTIONS_MARKER = 'AQEL LEGAL ENGINE'; // in the specialist's instructions (AQEL prompt)
+// What a customer reads when metering refuses a turn: the fork's refusal text, with no IQRAA_ code (O-39). Keep in
+// step with AI Platform packages/api/src/iqraa/metering.ts MESSAGES; the texts are drafts for the owner.
+const REFUSED_FOR_CREDITS = 'رصيدك غير كافٍ لإتمام هذا الطلب. يرجى شحن الرصيد ثم المحاولة مجددًا.';
+const REFUSED_SUSPENDED = 'تم إيقاف هذا الحساب مؤقتًا. يُرجى التواصل مع الدعم.';
 
 async function scenario1(ctx) {
   const { c1, agentId } = ctx;
@@ -233,7 +237,8 @@ async function scenario9(ctx) {
       oneEventPerCall: check(n1 === 1 && n2 === 2 && events.length === totalCalls && reservations.length === totalCalls, `${events.length} usage events and ${reservations.length} reservations for ${totalCalls} provider calls (plain 1, tool turn ${n2}, no-usage ${noUsage.calls.length})`),
       providerUsageSettled: check(m1.ok && m2.ok && [...e1, ...e2].every((e) => e.estimated === false), `expected ${JSON.stringify([...m1.expected, ...m2.expected])} got ${JSON.stringify([...m1.actual, ...m2.actual])}`),
       legalSearchToolRan: check(withTool.calls.length === 2 && String(withTool.calls[0].decision?.name ?? '').startsWith('search_law') && /TOOL_RESULT_SEEN/.test(withTool.result.text ?? ''), withTool.result.text?.slice(0, 200)),
-      missingUsageSettledAtEstimate: check(noUsage.calls.length === 1 && noUsage.calls[0].sentUsage === false && e3.length === 1 && e3[0].estimated === true && r3.length === 1 && e3[0].amount === r3[0].amount, `events=${e3.length} estimated=${e3[0]?.estimated} amount=${e3[0]?.amount} reserved=${r3[0]?.amount}`),
+      // R1 n=23: with no usage report the call settles at the streamed estimate, capped at the hold, flagged; not the whole hold.
+      missingUsageSettledAtEstimate: check(noUsage.calls.length === 1 && noUsage.calls[0].sentUsage === false && e3.length === 1 && e3[0].estimated === true && r3.length === 1 && e3[0].amount > 0 && e3[0].amount < r3[0].amount, `events=${e3.length} estimated=${e3[0]?.estimated} amount=${e3[0]?.amount} reserved=${r3[0]?.amount}`),
     }),
     turns: [withUsage, withTool, noUsage].map(summarizeTurn),
   };
@@ -282,7 +287,7 @@ async function scenario8(ctx) {
   await sleep(6000);
   const turns = tags.map((tag, i) => ({ tag, result: results[i], calls: callsFor(tag), titles: titleCallsFor(tag) }));
   const succeeded = turns.filter(answered);
-  const denied = turns.filter((t) => /IQRAA_INSUFFICIENT_CREDITS/.test(t.result.text ?? ''));
+  const denied = turns.filter((t) => (t.result.text ?? '').includes(REFUSED_FOR_CREDITS));
   const unresolved = turns.filter((t) => !answered(t) && !denied.includes(t));
   const reservations = reservationsOf(c.id);
   const settled = reservations.filter((r) => r.status === 'settled');
@@ -685,7 +690,7 @@ async function scenarioGuard(ctx) {
       simulateChangesNothing: check(simulated.status === 200 && sweeperWould?.level === 'proven' && !wouldFlag.some((u) => u.user_id === control) && flagsAfter === flagsBefore && settingsAfter === settingsBefore, `simulate ${simulated.status}: ${wouldFlag.length} user(s) would be flagged, the sweeper ${sweeperWould?.level}; flags unchanged ${flagsAfter === flagsBefore}; settings unchanged ${settingsAfter === settingsBefore}`),
       telemetryReport: check(telemetry.status === 200 && telemetry.json?.window_days === 1 && telemetry.json?.users >= 3, `telemetry ${telemetry.status}: users ${telemetry.json?.users}, user-days ${telemetry.json?.user_days}, longest run p99 ${telemetry.json?.longest_run?.p99} max ${telemetry.json?.longest_run?.max}`),
       customerDenied: check(allDenied, allDenied ? 'all 9 staff routes: 403 IQRAA_FORBIDDEN' : JSON.stringify(denied)),
-      accountSuspendedBeforeProvider: check(suspend.status === 200 && providerCalls(blocked) === 0 && !answered(blocked) && (blocked.result.text ?? '').includes('IQRAA_ACCOUNT_SUSPENDED'), `suspend ${suspend.status}; provider calls ${blocked.calls.length}, title calls ${blocked.titles.length}; reply: ${blocked.result.text?.slice(0, 200)}`),
+      accountSuspendedBeforeProvider: check(suspend.status === 200 && providerCalls(blocked) === 0 && !answered(blocked) && (blocked.result.text ?? '').includes(REFUSED_SUSPENDED), `suspend ${suspend.status}; provider calls ${blocked.calls.length}, title calls ${blocked.titles.length}; reply: ${blocked.result.text?.slice(0, 200)}`),
       unsuspendRestoresChat: check(unsuspend.status === 200 && answered(back) && back.calls.length >= 1, `unsuspend ${unsuspend.status}; provider calls ${back.calls.length}; reply: ${back.result.text?.slice(0, 120)}`),
     }),
     turns: [viaChat, blocked, back].map(summarizeTurn),
@@ -745,10 +750,12 @@ async function scenarioAuth(ctx) {
   const backup = a.app.backupCodes[0];
   const byBackup = await verifyCode(a.phone, 'backup', backup);
 
-  // 5b. Hook L5, the other side: staff can give ADMIN to an account that has the app. A throwaway account takes it
-  // (`a` must stay a customer for the code sign-ins below) and goes back to USER at once, so no stray admin stays.
+  // 5b. Hook L5, the other side: staff can give ADMIN to an account that has the app, and only with a fresh code read
+  // from that app (R2 n=4). A throwaway account takes it (`a` must stay a customer for the code sign-ins below) and
+  // goes back to USER at once, so no stray admin stays.
   const b = await enableApp(await signUp(newAccount('auth-admin')));
-  const toAdminWithApp = await api('/api/admin/roles/ADMIN/members', { token: staff.token, method: 'POST', body: { userId: b.id } });
+  const toAdminNoCode = await api('/api/admin/roles/ADMIN/members', { token: staff.token, method: 'POST', body: { userId: b.id } });
+  const toAdminWithApp = await api('/api/admin/roles/ADMIN/members', { token: staff.token, method: 'POST', body: { userId: b.id, appCode: await appCode(b) } });
   const fromAdmin = await api(`/api/admin/roles/ADMIN/members/${b.id}`, { token: staff.token, method: 'DELETE' });
 
   // 6. Add an email: bound only after its code; then sign in by email code (the app does not stop it, item 2).
@@ -797,6 +804,7 @@ async function scenarioAuth(ctx) {
     signInByWhatsAppCode: check(sameUser(byCode, first.id) && signin.row.channel === 'whatsapp' && signin.row.to === first.phone, `typed ${local}; sink row to ${signin.row.to} by ${signin.row.channel}; verify ${said(byCode)}`),
     refreshFromCodeSignIn: check(Boolean(a.refreshToken) && refreshed.status === 200 && Boolean(refreshed.json?.token) && sameUser(refreshed, first.id), `refresh cookie ${a.refreshToken ? 'set' : 'missing'}; refresh ${refreshed.status}`),
     staffRoleNeedsApp: check(toAdmin.status === 403 && toAdmin.json?.code === 'IQRAA_STAFF_NEEDS_APP', `POST /api/admin/roles/ADMIN/members: ${said(toAdmin)}`),
+    staffRoleNeedsFreshCode: check(toAdminNoCode.status === 403 && toAdminNoCode.json?.code === 'IQRAA_STAFF_NEEDS_FRESH_APP', `POST /api/admin/roles/ADMIN/members with no appCode: ${said(toAdminNoCode)}`),
     staffRoleWithApp: check(toAdminWithApp.status === 200 && toAdminWithApp.json?.success === true && fromAdmin.status === 200, `POST /api/admin/roles/ADMIN/members for an account with the app: ${said(toAdminWithApp)}; role taken back (DELETE …/members/<id>): ${said(fromAdmin)}`),
     appLabelIsThePhone: check(!label.includes('phone.iqraa.invalid') && label.replace(/\D/g, '').endsWith(national), `authenticator label ${label}`),
     appSignIn: check(sameUser(byApp, first.id), `app code: ${said(byApp)}`),
