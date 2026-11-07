@@ -4,7 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { BEGIN, END, applyToIqraa, applyToYaml, setModel, specsBlock, validateTiers } from './tiers.mjs';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+import { BEGIN, END, applyToIqraa, applyToYaml, setModel, specsBlock, usageProblems, validateTiers } from './tiers.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const tiers = JSON.parse(fs.readFileSync(path.join(here, 'tiers.json'), 'utf8'));
@@ -92,6 +94,87 @@ test('sets iqraa.json tiers from the table (spec and plans only) and keeps its o
 test('writes no tier to iqraa.json until every tier has an agent, so the fork can start and be released into', () => {
   assert.deepEqual(applyToIqraa({ prices }, tiers, { tiers: [] }).tiers, []);
   assert.deepEqual(applyToIqraa({ prices }, tiers, { tiers: [resolved.tiers[0]] }).tiers, []);
+});
+
+// A librechat.yaml with two custom endpoints; `mock` is the MockLLM entry's lines after its name.
+const endpoints = (mock, name = "'MockLLM'") =>
+  [
+    'version: 1.3.18',
+    'endpoints:',
+    '  agents:',
+    '    titleTiming: final',
+    '  custom:',
+    "    - name: 'Other'",
+    "      baseURL: 'http://other/v1'",
+    '      addParams:',
+    '        streamUsage: true',
+    `    - name: ${name}`,
+    "      baseURL: 'http://mock-llm:8080/v1'",
+    ...mock,
+    "      modelDisplayLabel: 'Mock LLM'",
+    'fileConfig:',
+    '  serverFileSizeLimit: 5',
+    '',
+  ].join('\n');
+const ASKS = ['      addParams:', '        # the provider reports usage only when asked', '        streamUsage: true'];
+const NOT_ASKED = /provider MockLLM: its endpoint must set addParams\.streamUsage: true/;
+
+test('accepts a tier endpoint that asks for usage, in block or flow style, quoted or not, with CRLF line ends', () => {
+  assert.deepEqual(usageProblems(endpoints(ASKS), ['MockLLM']), []);
+  assert.deepEqual(usageProblems(endpoints(['      addParams: { streamUsage: true }']), ['MockLLM']), []);
+  assert.deepEqual(usageProblems(endpoints(ASKS, 'MockLLM'), ['MockLLM']), []);
+  assert.deepEqual(usageProblems(endpoints(ASKS, '"MockLLM"').replace(/\n/g, '\r\n'), ['MockLLM', 'MockLLM']), []);
+});
+
+test('refuses a tier endpoint that does not ask for usage, though another endpoint does', () => {
+  const cases = [
+    [],
+    ['      addParams:', '        streamUsage: false'],
+    ['      addParams:', '        temperature: 0.2'],
+    ['      headers:', '        streamUsage: true'],
+    ['      addParams: { streamUsage: false }'],
+  ];
+  for (const mock of cases) {
+    const problems = usageProblems(endpoints(mock), ['MockLLM', 'Other']);
+    assert.equal(problems.length, 1, mock.join(' / '));
+    assert.match(problems[0], NOT_ASKED);
+  }
+});
+
+test('refuses a tier provider with no custom endpoint of its name, and leaves built-in endpoints alone', () => {
+  assert.deepEqual(usageProblems(endpoints(ASKS), ['Ghost']), ['provider Ghost: librechat.yaml has no custom endpoint of that name']);
+  assert.deepEqual(usageProblems(endpoints(ASKS), ['openAI', 'anthropic', 'azureOpenAI', 'google', 'bedrock']), []);
+  assert.deepEqual(usageProblems('version: 1.3.18\n', ['MockLLM']), ['provider MockLLM: librechat.yaml has no custom endpoint of that name']);
+});
+
+test('apply refuses a librechat.yaml whose tier endpoint does not ask for usage, and writes neither file', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tiers-apply-'));
+  try {
+    const yamlFile = path.join(dir, 'librechat.yaml');
+    const iqraaFile = path.join(dir, 'iqraa.json');
+    const resolvedFile = path.join(dir, 'resolved.json');
+    const yaml = endpoints([]).replace('fileConfig:', `${BEGIN}\nmodelSpecs:\n  list: []\n${END}\nfileConfig:`);
+    fs.writeFileSync(yamlFile, yaml);
+    fs.writeFileSync(iqraaFile, '{}\n');
+    fs.writeFileSync(resolvedFile, JSON.stringify(resolved));
+    const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => key !== 'IQRAA_PROVIDER'));
+    const apply = (file) =>
+      spawnSync(process.execPath, [path.join(here, 'tiers.mjs'), 'apply', '--resolved', resolvedFile, '--yaml', file, '--iqraa', iqraaFile], { encoding: 'utf8', env });
+
+    const refused = apply(yamlFile);
+
+    assert.equal(refused.status, 1);
+    assert.match(refused.stderr, NOT_ASKED);
+    assert.equal(fs.readFileSync(yamlFile, 'utf8'), yaml);
+    assert.equal(fs.readFileSync(iqraaFile, 'utf8'), '{}\n');
+
+    fs.writeFileSync(yamlFile, endpoints(ASKS).replace('fileConfig:', `${BEGIN}\nmodelSpecs:\n  list: []\n${END}\nfileConfig:`));
+    const accepted = apply(yamlFile);
+    assert.equal(accepted.status, 0, accepted.stderr);
+    assert.ok(fs.readFileSync(yamlFile, 'utf8').includes(`agent_id: agent_${ordered[0].key}`));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('changes a tier model only with a reason and a price, and returns the audit row', () => {

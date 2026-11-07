@@ -5,6 +5,11 @@
 // name, description, internal model and the four featured starters. The lint refuses an agent that carries any
 // other tool, an unknown model parameter, or instructions without the corpus rule, so a tier can never be
 // released with a web search, code execution or another MCP server.
+//
+// Usage reporting is not the agent's: LibreChat (since v0.8.9-rc1) refuses `streamUsage` on an agent and drops a
+// stored one at run time, and a custom endpoint streams no usage unless the run's parameters ask for it. The tier
+// endpoint asks instead (`addParams: { streamUsage: true }` in librechat.yaml), which `tiers.mjs` checks; without
+// it every tier turn is charged its full hold.
 import fs from 'node:fs';
 import path from 'node:path';
 import { composeSpecialist } from './compose.mjs';
@@ -12,8 +17,15 @@ import { featuredTexts } from './starters.mjs';
 
 /** The three legal-search tools as LibreChat names an MCP tool: `<tool>_mcp_<server>`. */
 export const LIBRARY_TOOLS = ['search_law_mcp_legal-search', 'get_article_mcp_legal-search', 'get_memorandum_mcp_legal-search'];
-/** Model parameters a tier agent may set; anything else (a provider-side search switch, the responses API) is refused. */
-export const ALLOWED_PARAMETERS = ['streamUsage', 'max_tokens', 'temperature', 'top_p'];
+/**
+ * Model parameters a tier agent may set; anything else (a provider-side search switch, the responses API) is refused.
+ * LibreChat checks every agent write against its own list for the endpoint (`packages/api/src/agents/inference.ts`,
+ * the openai profile a custom endpoint gets) and refuses the release on any other key: re-check these on an upgrade.
+ */
+export const ALLOWED_PARAMETERS = ['max_tokens', 'temperature', 'top_p'];
+/** Why a tier agent may not carry `streamUsage`: LibreChat refuses it on an agent, so the endpoint asks for usage. */
+export const USAGE_ON_AGENT =
+  'model parameter streamUsage is not allowed: LibreChat refuses it on an agent, so the tier endpoint sets addParams.streamUsage: true';
 /** Each tier agent's `category` marks it as that tier's (the key survives a rename of the label). */
 export const TIER_CATEGORY_PREFIX = 'iqraa-tier-';
 /** Agents of earlier releases that customers must no longer reach: the old single agent of the first release. */
@@ -43,9 +55,9 @@ export function lintAgentBody(body) {
   for (const tool of tools.filter((name) => !LIBRARY_TOOLS.includes(name))) errors.push(`tool ${tool} is not a library tool`);
   for (const tool of LIBRARY_TOOLS.filter((name) => !tools.includes(name))) errors.push(`library tool ${tool} is missing`);
   for (const key of Object.keys(body.model_parameters ?? {})) {
-    if (!ALLOWED_PARAMETERS.includes(key)) errors.push(`model parameter ${key} is not allowed`);
+    if (key === 'streamUsage') errors.push(USAGE_ON_AGENT);
+    else if (!ALLOWED_PARAMETERS.includes(key)) errors.push(`model parameter ${key} is not allowed`);
   }
-  if (body.model_parameters?.streamUsage !== true) errors.push('model_parameters.streamUsage must be true (usage is undercounted otherwise)');
   if (!String(body.instructions ?? '').includes(CORPUS_MARKER)) errors.push(`instructions lack the AQEL text (${CORPUS_MARKER})`);
   if (body.skill_authoring_enabled !== false) errors.push('skill_authoring_enabled must be false');
   if (!Array.isArray(body.conversation_starters) || body.conversation_starters.length !== 4) errors.push('conversation_starters must be the four featured prompts');

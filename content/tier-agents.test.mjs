@@ -5,7 +5,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { featuredTexts } from './starters.mjs';
-import { LIBRARY_TOOLS, TIER_CATEGORY_PREFIX, findTierAgent, lintAgentBody, planTierAgents, retiredAgents } from './tier-agents.mjs';
+import { LIBRARY_TOOLS, TIER_CATEGORY_PREFIX, USAGE_ON_AGENT, findTierAgent, lintAgentBody, planTierAgents, retiredAgents } from './tier-agents.mjs';
 
 const contentDir = path.dirname(fileURLToPath(import.meta.url));
 const tiersDoc = JSON.parse(fs.readFileSync(path.join(contentDir, 'tiers.json'), 'utf8'));
@@ -82,7 +82,7 @@ test('the lint refuses web search, code execution, another MCP server and a miss
   ]);
 });
 
-test('the lint refuses a provider-side search switch, a missing usage flag, instructions without the corpus rule and authoring', () => {
+test('the lint refuses a provider-side search switch, instructions without the corpus rule and authoring', () => {
   const body = good();
   body.model_parameters = { web_search: true, useResponsesApi: true };
   body.instructions = 'be helpful';
@@ -92,7 +92,22 @@ test('the lint refuses a provider-side search switch, a missing usage flag, inst
 
   assert.ok(errors.includes('model parameter web_search is not allowed'));
   assert.ok(errors.includes('model parameter useResponsesApi is not allowed'));
-  assert.ok(errors.some((e) => e.includes('streamUsage must be true')));
   assert.ok(errors.some((e) => e.includes('instructions lack the AQEL text')));
   assert.ok(errors.includes('skill_authoring_enabled must be false'));
+});
+
+// LibreChat (since v0.8.9-rc1) refuses `streamUsage` in an agent's model_parameters, so a release carrying it fails
+// with a 400, and a stored one is dropped at run time. Usage is the tier endpoint's job (addParams, see tiers.mjs).
+test('the planned agents carry no usage flag of their own', () => {
+  for (const { body } of plan()) assert.equal(Object.hasOwn(body.model_parameters ?? {}, 'streamUsage'), false);
+});
+
+test('the lint refuses streamUsage on an agent, true or false, and names the endpoint setting that replaces it', () => {
+  for (const value of [true, false]) {
+    const body = good();
+    body.model_parameters = { ...body.model_parameters, streamUsage: value };
+
+    assert.deepEqual(lintAgentBody(body), [USAGE_ON_AGENT]);
+    assert.ok(USAGE_ON_AGENT.includes('addParams.streamUsage: true'));
+  }
 });

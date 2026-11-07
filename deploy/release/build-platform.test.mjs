@@ -53,7 +53,7 @@ assert.deepEqual(
 let caseNumber = 0;
 
 // Runs the script in a fresh folder. defaults: true leaves its three settings unset and runs a copy from inside a Harness-shaped tree.
-function runBuild(args = [], { images = '', env = {}, leftover = false, defaults = false } = {}) {
+function runBuild(args = [], { images = '', env = {}, leftover = false, defaults = false, overlay = false } = {}) {
   caseNumber += 1;
   const work = `${root}/case ${caseNumber}`;
   mkdirSync(work);
@@ -61,6 +61,11 @@ function runBuild(args = [], { images = '', env = {}, leftover = false, defaults
   const tarInput = `${work}/tar-input`;
   const platform = `${work}/AI Platform`;
   const build = defaults ? `${work}/AI Harness/deploy/release/.build` : `${work}/build dir`;
+  if (overlay) {
+    // Our work after the 2026-11-07 split: the checkout carries its own assemble tool, stubbed to log its argv.
+    mkdirSync(`${platform}/tools`, { recursive: true });
+    writeFileSync(`${platform}/tools/assemble.sh`, `(IFS='\t'; printf '%s\\n' "assemble\t$*") >> "$STUB_LOG"\n`);
+  }
   if (leftover) {
     mkdirSync(`${build}/${SHA}`, { recursive: true });
     writeFileSync(`${build}/${SHA}/leftover`, '');
@@ -165,6 +170,15 @@ test('the committed tree is exported with core.autocrlf off and piped into tar',
   assert.deepEqual(run.calls[run.find('tar', '-x')], ['tar', '-x', '-C', run.dir]);
   assert.equal(readFileSync(run.tarInput, 'utf8'), 'tar-stream');
   assert.ok(run.find('git', 'archive') < run.find('docker', 'build'));
+});
+
+test('an overlay checkout is assembled by its own tool, not exported', () => {
+  const run = runBuild([], { overlay: true });
+
+  assert.equal(run.status, 0, run.stderr);
+  assert.deepEqual(run.calls[run.find('assemble', run.dir)], ['assemble', run.dir]);
+  assert.equal(run.find('git', 'archive'), -1);
+  assert.ok(run.find('assemble', run.dir) < run.find('docker', 'build'));
 });
 
 test('a failed export stops before the build, even though tar succeeds', () => {

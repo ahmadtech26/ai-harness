@@ -3,7 +3,7 @@
 # (content/roles.json: every permission explicit, only AGENTS.USE and MCP_SERVERS.USE on), so creation stays
 # enabled for staff. The flags below also hide the matching screens for everyone, and the fork's default-deny
 # API allowlist (customer-api.ts) is what actually closes the routes.
-version: 1.3.17
+version: 1.3.18
 cache: true
 
 interface:
@@ -108,6 +108,11 @@ endpoints:
       titleConvo: true
       titleModel: 'mock-model'
       modelDisplayLabel: 'Mock LLM'
+      # Metering settles a tier turn on the usage the provider reports, which a custom endpoint streams only when
+      # asked. LibreChat refuses `streamUsage` on an agent (since v0.8.9-rc1), so the endpoint asks: every endpoint
+      # a tier runs on needs this, production's too, and `content/tiers.mjs apply` refuses a file without it.
+      addParams:
+        streamUsage: true
 
 # Attachments are context only (REQ-CHAT: documents the customer brings, never a search index): three files of
 # up to 5 MB each, 10 MB together, PDF, Word and plain text. Sizes are in MB.

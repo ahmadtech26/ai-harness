@@ -54,8 +54,14 @@ if [ -n "$(ls -A "$dir")" ]; then
   exit 1
 fi
 
-# The committed tree only, with LF endings whatever the checkout's autocrlf says.
-git -C "$platform_dir" -c core.autocrlf=false archive --format=tar HEAD | tar -x -C "$dir"
+if [ -f "$platform_dir/tools/assemble.sh" ]; then
+  # AI Platform after the 2026-11-07 split holds only our work: its own tool lays the committed overlay and hooks over
+  # the LibreChat it pins.
+  bash "$platform_dir/tools/assemble.sh" "$dir"
+else
+  # A LibreChat fork checkout: the committed tree only, with LF endings whatever the checkout's autocrlf says.
+  git -C "$platform_dir" -c core.autocrlf=false archive --format=tar HEAD | tar -x -C "$dir"
+fi
 
 echo "building $prefix/platform:$sha (branch $branch), log: $log"
 status=0

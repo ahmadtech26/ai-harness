@@ -365,6 +365,12 @@ The customer product is chat only, with three named tiers and a closed corpus (`
   `modelSpecs` block (between the `BEGIN`/`END iqraa:modelSpecs` markers) and `iqraa.json` `tiers`; it prints `changed` the first time
   and the driver then **recreates** LibreChat (never a restart). To move a tier to another model:
   `node content/tiers.mjs set-model <key> <provider> <model> --note "<why>" --prices deploy/staging/iqraa.json`, then release.
+- **Usage.** Metering settles each tier turn on the usage the provider reports; with none, the turn is charged its full hold
+  and the log says only `provider reported no usage`. A custom endpoint reports usage only when asked, and LibreChat (since
+  v0.8.9-rc1) refuses `streamUsage` on an agent, so the ask lives on the endpoint: `addParams: { streamUsage: true }` under
+  `MockLLM` here, and under every endpoint a tier runs on in production. `tiers.mjs apply` (and `tiers.mjs check --yaml <file>`)
+  refuses a `librechat.yaml` without it, `librechat.test.mjs` checks this file, and the tier lint refuses the key on the agent.
+  Settlements at the estimate in the daily reconcile report mean the endpoint lost it.
 - **The guard.** `iqraa.json` `grounding.mode` is `shadow` (log only) or `block` (replace an ungrounded answer with the fixed
   message); `off` skips it. Change it, recreate LibreChat, and run `SCENARIOS=chatonly node scenarios.mjs`: the scenario reads the
   mode from the file and checks the matching behaviour, also for an answer the customer stops halfway (the mock streams a

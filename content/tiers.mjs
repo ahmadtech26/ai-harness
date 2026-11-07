@@ -1,6 +1,6 @@
 // The customer tiers (chat-only product): validation, the generated config, and the audited model change.
 //
-//   node content/tiers.mjs check [--prices deploy/staging/iqraa.json]
+//   node content/tiers.mjs check [--prices deploy/staging/iqraa.json] [--yaml deploy/staging/librechat.yaml]
 //   node content/tiers.mjs apply --resolved <resolved.json> --yaml <librechat.yaml> --iqraa <iqraa.json>
 //   node content/tiers.mjs specs --resolved <resolved.json>
 //   node content/tiers.mjs set-model <key> <provider> <model> --note "<why>" [--prices <iqraa.json>] [--actor <name>]
@@ -9,6 +9,8 @@
 // internal provider/model that serves it. `release.mjs` creates one private agent per tier and writes a resolved
 // file ({ tiers: [{ key, spec, agentId }] }); `apply` then writes the matching `modelSpecs` block into
 // librechat.yaml (between the BEGIN/END markers) and the `tiers` block into iqraa.json, and a restart picks both up.
+// `apply` (and `check` given --yaml) refuses a librechat.yaml whose endpoint for a tier's provider does not set
+// `addParams: { streamUsage: true }`: the agent may not ask for usage itself (see `usageProblems`).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -110,6 +112,91 @@ export function applyToIqraa(iqraa, doc, resolved) {
   return { ...iqraa, tiers };
 }
 
+/** LibreChat's built-in endpoints: each reports usage by itself, so only a custom endpoint must ask for it. */
+const BUILT_IN_ENDPOINTS = ['openAI', 'azureOpenAI', 'anthropic', 'google', 'bedrock'];
+
+const indentOf = (line) => line.length - line.trimStart().length;
+const isContent = (line) => line.trim() !== '' && !line.trimStart().startsWith('#');
+const plain = (value) => value.replace(/\s+#.*$/, '').trim().replace(/^(['"])(.*)\1$/, '$2');
+
+/** Indexes of the content lines one level under line `at` (or under the whole text when `at` is -1). */
+function childLines(lines, at) {
+  const parent = at === -1 ? -1 : indentOf(lines[at]);
+  const nested = [];
+  for (let i = at + 1; i < lines.length; i += 1) {
+    if (!isContent(lines[i])) continue;
+    if (indentOf(lines[i]) <= parent) break;
+    nested.push(i);
+  }
+  const level = Math.min(...nested.map((i) => indentOf(lines[i])));
+  return nested.filter((i) => indentOf(lines[i]) === level);
+}
+
+/** Whether a mapping line (or a list item's first line) holds key `name`. */
+const isKey = (line, name) => {
+  const text = line.trimStart().replace(/^- +/, '');
+  return text === `${name}:` || text.startsWith(`${name}: `);
+};
+/** The line of key `name` among `candidates` (a mapping's child lines), or -1. */
+const keyLine = (lines, candidates, name) => candidates.find((i) => isKey(lines[i], name)) ?? -1;
+
+/** Per custom endpoint in librechat.yaml (`endpoints.custom`): its name and whether `addParams.streamUsage` is true. */
+function customEndpoints(yamlText) {
+  const lines = yamlText.replace(/\r\n/g, '\n').split('\n');
+  const endpoints = keyLine(lines, childLines(lines, -1), 'endpoints');
+  const custom = endpoints === -1 ? -1 : keyLine(lines, childLines(lines, endpoints), 'custom');
+  if (custom === -1) return [];
+  return childLines(lines, custom)
+    .filter((i) => /^\s*- /.test(lines[i]))
+    .map((dash) => {
+      // An item's keys: the one after its dash, and the lines at that key's column below it.
+      const column = lines[dash].match(/^\s*-\s+/)[0].length;
+      const keys = [dash];
+      for (let i = dash + 1; i < lines.length; i += 1) {
+        if (!isContent(lines[i])) continue;
+        if (indentOf(lines[i]) < column) break;
+        if (indentOf(lines[i]) === column) keys.push(i);
+      }
+      const at = (key) => keyLine(lines, keys, key);
+      const name = at('name') === -1 ? undefined : plain(lines[at('name')].replace(/^\s*(- )?name:/, ''));
+      const params = at('addParams');
+      let asksForUsage = false;
+      if (params !== -1) {
+        const inline = lines[params].replace(/^\s*(- )?addParams:/, '').trim();
+        asksForUsage = inline.startsWith('{')
+          ? /[{,]\s*streamUsage\s*:\s*true\s*[,}]/.test(inline)
+          : childLines(lines, params).some((i) => /^\s*streamUsage:\s*true\s*(#.*)?$/.test(lines[i]));
+      }
+      return { name, asksForUsage };
+    });
+}
+
+/**
+ * Tier providers whose endpoint in librechat.yaml would not report usage, as readable lines; empty when every one
+ * does. LibreChat turns usage streaming off for a custom endpoint unless the run's parameters carry `streamUsage`
+ * (`packages/api/src/agents/run.ts`), and since v0.8.9-rc1 it refuses that key on an agent, so only the endpoint's
+ * `addParams: { streamUsage: true }` can ask for it. Without it metering never sees the usage and every tier turn is
+ * charged its full hold, with no error. A built-in endpoint reports usage by itself and is not checked. The scan
+ * reads a list item written `- name: X`; an item whose dash stands alone on its line is not read, so its endpoint is
+ * reported missing (a refusal, never a silent pass).
+ */
+export function usageProblems(yamlText, providers) {
+  const endpoints = customEndpoints(yamlText);
+  const problems = [];
+  for (const provider of new Set(providers)) {
+    if (BUILT_IN_ENDPOINTS.includes(provider)) continue;
+    const endpoint = endpoints.find((entry) => entry.name === provider);
+    if (!endpoint) problems.push(`provider ${provider}: librechat.yaml has no custom endpoint of that name`);
+    else if (!endpoint.asksForUsage) {
+      problems.push(`provider ${provider}: its endpoint must set addParams.streamUsage: true (LibreChat refuses it on the agent, and without it every tier turn is charged its full hold)`);
+    }
+  }
+  return problems;
+}
+
+/** The provider each tier's agent is released on: `release.mjs` lets IQRAA_PROVIDER override every tier. */
+export const tierProviders = (doc, env = process.env) => doc.tiers.map((tier) => env.IQRAA_PROVIDER ?? tier.provider);
+
 /** A copy of the table with one tier's model changed, and the audit row that records it. */
 export function setModel(doc, { key, provider, model, note, actor, prices, now = new Date() }) {
   const tier = doc.tiers.find((entry) => entry.key === key);
@@ -141,7 +228,11 @@ function main(args) {
   const pricesFile = flag(rest, '--prices');
   const prices = pricesFile ? readJson(pricesFile).prices : undefined;
   if (command === 'check') {
-    const errors = validateTiers(doc, { roles, prices });
+    const yamlFile = flag(rest, '--yaml');
+    const errors = [
+      ...validateTiers(doc, { roles, prices }),
+      ...(yamlFile ? usageProblems(fs.readFileSync(yamlFile, 'utf8'), tierProviders(doc)) : []),
+    ];
     if (errors.length > 0) {
       console.error(errors.join('\n'));
       process.exit(1);
@@ -153,6 +244,8 @@ function main(args) {
     const resolved = readJson(flag(rest, '--resolved'));
     const yamlFile = flag(rest, '--yaml');
     const iqraaFile = flag(rest, '--iqraa');
+    const unmetered = usageProblems(fs.readFileSync(yamlFile, 'utf8'), tierProviders(doc));
+    if (unmetered.length > 0) throw new Error(`${yamlFile}:\n${unmetered.join('\n')}`);
     const yaml = applyToYaml(fs.readFileSync(yamlFile, 'utf8'), specsBlock(doc, resolved));
     const iqraa = JSON.stringify(applyToIqraa(readJson(iqraaFile), doc, resolved), null, 2) + '\n';
     const changed = yaml !== fs.readFileSync(yamlFile, 'utf8').replace(/\r\n/g, '\n') || iqraa !== fs.readFileSync(iqraaFile, 'utf8');

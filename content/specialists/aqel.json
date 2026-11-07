@@ -5,7 +5,6 @@
   "provider": null,
   "model": null,
   "model_parameters": {
-    "streamUsage": true,
     "max_tokens": 4096
   },
   "tools": [
