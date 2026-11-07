@@ -16,6 +16,8 @@ the first transaction and then insert nothing: the second call's log row commits
 dropped, and the user's next call is decided under the first call's flag.
 """
 
+import asyncio
+from contextvars import ContextVar
 from dataclasses import dataclass, replace
 
 from psycopg import AsyncConnection
@@ -27,6 +29,8 @@ from legal_search.detector import Signal, assess
 from legal_search.guard_settings import GuardSettings
 
 Alert = tuple[str, dict]
+# Alerts held until the call's outer transaction commits; None outside one.
+DEFERRED: ContextVar[list[Alert] | None] = ContextVar('deferred_alerts', default=None)
 
 
 @dataclass(frozen=True)
@@ -52,7 +56,9 @@ async def decide(conn: AsyncConnection, settings: GuardSettings | None, caps: Ca
         return Decision(None, 'suspended', 'proven', flag_id=flag.id)
     after = await flags.watermark(conn, user)
     history, now = await events.load_user_events(conn, user, after, events.lookback(settings))
-    verdict = assess([*history, attempt.event(now)], settings, now, flag.opened_log_id if flag else None)
+    # The detector is CPU work over the whole look-back: off the event loop that serves every user (R1 n=14).
+    verdict = await asyncio.to_thread(assess, [*history, attempt.event(now)], settings, now,
+                                      flag.opened_log_id if flag else None)
     throttled = replace(caps, daily=min(caps.daily, settings.throttle_daily_cap))
     if verdict.level == 'proven':
         change = 'escalated' if flag is not None else 'opened'
@@ -85,5 +91,10 @@ async def commit(conn: AsyncConnection, user: str, decision: Decision, log_id: i
 
 
 def raise_alerts(pending: list[Alert]) -> None:
+    """Emits the alerts now, or, inside `server.serialised`, once its outer transaction has committed (R2 n=18)."""
+    held = DEFERRED.get()
+    if held is not None:
+        held.extend(pending)
+        return
     for event, fields in pending:
         alert(event, **fields)

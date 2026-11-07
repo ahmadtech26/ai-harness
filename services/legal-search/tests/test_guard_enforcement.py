@@ -138,3 +138,24 @@ async def test_clearing_restores_normal_caps_and_access_without_refiring_on_old_
 
     assert ['المادة 25' in texts[0], 'المادة 26' in texts[1]] == [True, True]
     assert await flags.open_flag(conn, 'sweeper') is None
+
+
+async def test_the_detector_runs_off_the_event_loop(conn, monkeypatch):
+    # R1 n=14: rebuilding a long history on the shared event loop stalls every other user's call.
+    import threading
+
+    from legal_search import guard as sweep
+
+    loop_thread = threading.get_ident()
+    threads = []
+    real = sweep.assess
+
+    def spy(*args, **kwargs):
+        threads.append(threading.get_ident())
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(sweep, 'assess', spy)
+
+    await _walk(conn, [1])
+
+    assert threads and loop_thread not in threads

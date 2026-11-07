@@ -102,6 +102,100 @@ def test_the_first_start_seeds_the_guard_settings_from_the_environment_caps():
     assert (stored['per_answer'], stored['daily'], stored['max_results'], stored['suspected_run']) == (6, 200, 4, 12)
 
 
+async def test_concurrent_calls_of_one_answer_share_its_cap():
+    # R1 n=12 (as amended by R2 n=18): parallel tool calls of one model step each read the budget before any was logged.
+    import asyncio
+
+    import httpx
+
+    from legal_search import db
+    from legal_search.corpus import Article
+    from legal_search.registry import Law
+
+    _fresh_tables()
+    secret = secrets.token_hex(16)
+    pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=4, open=False, kwargs={'autocommit': True})
+    guard = build_app(pool, Caps(per_answer=5, daily=300, max_results=5), secret, ['legal-search:*'])
+    inner = guard.app
+    async with inner.router.lifespan_context(inner):
+        async with pool.connection() as conn:
+            await db.upsert_laws(conn, [Law(slug='labour', title='قانون العمل', folder='l')])
+            await db.upsert_articles(conn, [Article('labour', 'x', n, '', f'يعاقب العامل في الحالة {n}.', 's', 'l.md') for n in range(1, 21)])
+        transport = httpx.ASGITransport(app=guard)
+        async with httpx.AsyncClient(transport=transport, base_url='http://legal-search:8000') as client:
+            async def call(query: str) -> None:
+                await client.post(
+                    '/mcp',
+                    headers={'x-iqraa-secret': secret, 'x-iqraa-user': 'u-par', 'x-iqraa-message': 'm-par',
+                             'accept': 'application/json, text/event-stream'},
+                    json={'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+                          'params': {'name': 'search_law', 'arguments': {'query': query, 'limit': 5}}},
+                )
+
+            await asyncio.gather(*(call(query) for query in ('يعاقب', 'العامل', 'الحالة', 'يعاقب العامل')))
+        async with pool.connection() as conn:
+            served = await db.documents_for_message(conn, 'm-par')
+
+    assert 0 < served <= 5
+
+
+async def test_an_alert_waits_for_the_commit_of_its_call(alert_caplog):
+    # R2 n=18 (b): inside the call's outer transaction, a flag alert raised before a rollback must never go out.
+    from legal_search import guard as sweep
+    from legal_search.server import UserLocks, serialised
+
+    pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=2, open=False, kwargs={'autocommit': True})
+    await pool.open()
+
+    async def opens_then_fails(conn):
+        sweep.raise_alerts([('sweep_flag_opened', {'user_id': 'u-roll'})])
+        raise RuntimeError('after the insert')
+
+    async def opens(conn):
+        sweep.raise_alerts([('sweep_flag_opened', {'user_id': 'u-ok'})])
+        return 'served'
+
+    try:
+        with pytest.raises(RuntimeError):
+            await serialised(pool, UserLocks(), 'u-roll', opens_then_fails)
+        assert [r for r in alert_caplog.records if r.name == 'legal_search.alerts'] == []
+        assert await serialised(pool, UserLocks(), 'u-ok', opens) == 'served'
+    finally:
+        await pool.close()
+
+    assert [json.loads(r.getMessage())['user_id'] for r in alert_caplog.records if r.name == 'legal_search.alerts'] == ['u-ok']
+
+
+async def test_one_users_queue_does_not_hold_every_connection():
+    # R2 n=18 (c): a user's calls wait for their turn before taking a pool connection, so another user is not starved.
+    import asyncio
+    import time
+
+    from legal_search.server import UserLocks, serialised
+
+    pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=2, open=False, kwargs={'autocommit': True})
+    await pool.open()
+    locks = UserLocks()
+
+    async def slow(conn):
+        await asyncio.sleep(0.5)
+
+    async def quick(conn):
+        return time.monotonic()
+
+    try:
+        start = time.monotonic()
+        busy = [asyncio.create_task(serialised(pool, locks, 'u-a', slow)) for _ in range(4)]
+        await asyncio.sleep(0.05)
+        done = await serialised(pool, locks, 'u-b', quick)
+        await asyncio.gather(*busy)
+    finally:
+        await pool.close()
+
+    assert done - start < 0.9
+    assert locks.held() == 0
+
+
 def test_mcp_tool_calls_are_decided_by_the_guard():
     _fresh_tables()
     secret = secrets.token_hex(16)

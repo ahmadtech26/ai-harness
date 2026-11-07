@@ -32,6 +32,7 @@ NOT_FOUND_ARTICLE = 'هذه المادة غير موجودة في المصادر
 MEMORANDUM_HINT = 'للمادة مذكرة إيضاحية (get_memorandum)'
 MEMORANDUM_LAW = 'civil-code'
 SUSPENDED = 'تم إيقاف الوصول إلى المكتبة القانونية لهذا الحساب مؤقتًا. يُرجى التواصل مع الدعم.'
+UNKNOWN_LAW = 'رمز القانون غير معروف'
 
 
 @dataclass(frozen=True)
@@ -73,11 +74,12 @@ async def _refuse(conn: AsyncConnection, caller: Caller, attempt: Attempt, query
 
 
 async def _unknown_law(conn: AsyncConnection, law: str) -> str | None:
-    """None for a loaded law; otherwise the message naming the slugs the library has."""
+    """None for a loaded law; otherwise the message naming the slugs the library has. It never repeats `law`: the
+    caller's text would come back as if the library had printed it (R1 n=7)."""
     slugs = await db.law_slugs(conn)
     if law in slugs:
         return None
-    return f'رمز القانون غير معروف: {law}. الرموز المتاحة: {"، ".join(slugs)}.'
+    return f'{UNKNOWN_LAW}. الرموز المتاحة: {"، ".join(slugs)}.'
 
 
 async def search_law(conn: AsyncConnection, caps: Caps, caller: Caller, query: str, limit: int = 5,

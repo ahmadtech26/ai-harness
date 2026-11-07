@@ -11,6 +11,7 @@ from psycopg import AsyncConnection
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
+from legal_search.alerts import alert
 from legal_search.caps import Caps
 
 CACHE_SECONDS = 30.0
@@ -90,6 +91,16 @@ def validate(values: dict) -> GuardSettings:
     return GuardSettings(**values)
 
 
+def loosened(previous: GuardSettings, updated: GuardSettings) -> list[str]:
+    """The settings a change made more permissive: a higher cap or threshold, or the escalation switched off."""
+    names = []
+    for name in NAMES:
+        before, after = getattr(previous, name), getattr(updated, name)
+        if (before and not after) if name in _FLAGS else after > before:
+            names.append(name)
+    return names
+
+
 def merged(current: GuardSettings, changes: dict) -> GuardSettings:
     """`current` with `changes` applied, validated as a whole."""
     return validate({**current.as_dict(), **changes})
@@ -157,6 +168,12 @@ async def update_settings(conn: AsyncConnection, changes: dict, who: str | None,
             'INSERT INTO guard_settings_history (changed_by, reason, previous, settings) VALUES (%s, %s, %s, %s)',
             (who.strip(), why.strip(), Jsonb(previous.as_dict()), Jsonb(updated.as_dict())),
         )
+    looser = loosened(previous, updated)
+    if looser:
+        # A loosening must be noticed, not only kept in the history table (R1 n=18).
+        alert('guard_settings_loosened', changed_by=who.strip(), reason=why.strip(), loosened=looser,
+              previous={name: getattr(previous, name) for name in looser},
+              settings={name: getattr(updated, name) for name in looser})
     return updated
 
 
