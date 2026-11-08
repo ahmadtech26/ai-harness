@@ -1,0 +1,2 @@
+# The package ships run_w1.py by its sha256, so its bytes must not depend on the checkout (core.autocrlf).
+* text eol=lf
