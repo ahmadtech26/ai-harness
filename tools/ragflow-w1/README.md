@@ -433,6 +433,12 @@ python -I score_w1.py --results "/d/Iqraa Law/.hq/quarantine/ragflow-export/wali
   --laws-held "<law slugs he declared, comma-separated>"
 # Check the scorer on our own data (no file from Walid needed)
 python -I score_w1.py --self-check
+# Score our own W2 run (README «Own runs (W2)»): no intake, no screen, a W2 manifest instead
+python -I score_w1.py --own-run \
+  --results "/d/Iqraa Law/.hq/scratch/w2-run/out/elasticsearch/w2-results-v3.jsonl" \
+  --manifest "/d/Iqraa Law/.hq/scratch/w2-run/out/elasticsearch/w2-manifest.json" \
+  --fallback "/d/Iqraa Law/.hq/scratch/w2-run/out/elasticsearch/w2-fallback-v3.json" \
+  --out-dir "/d/Iqraa Law/.hq/scratch/w2-run/out/elasticsearch/score-v3" --w2-decide
 # WSL: the same commands with python3 and /mnt/d/... paths
 ```
 
@@ -522,6 +528,11 @@ step 4).
 | `--laws-held a,b` | The law slugs his dataset holds. Default: inferred from his chunks. |
 | `--allow-unevidenced-laws` | Keep a `--laws-held` law that none of his chunks comes from. Refused otherwise. |
 | `--articles-lacking law:number,...` | Articles his copy lacks, for example `civil-code:107` (‡, below). |
+| `--own-run --manifest PATH` | The results are our own W2 run, beside its `w2-manifest.json` («Own runs (W2)», below). |
+| `--w2-decide` | With `--own-run`: print the pre-registered W2 reading. Refused unless the file is the deciding cell. |
+| `--fallback PATH` | With `--own-run`: `w2-fallback-<arm>.json`, for the dense-only fallback sensitivity reading. |
+| `--split PATH` | `split.json`. Default: the durable copy `p3-evidence/rag-bench-split.json`, else the bench's, with a warning. |
+| `--package DIR` | With `--own-run`: the package the header hashes must equal. Default `.hq/docs/specs/w1-for-walid`. |
 | `--bench DIR`, `--baseline PATH` | The bench folder and `eval-final.json`. Defaults: the workspace paths. |
 
 **Article texts.** For every article, the text search_law serves. The registry, the shards and
@@ -618,17 +629,37 @@ stops. The recomputed figures on 2026-11-08, all equal to the record:
 | field | arm | source | recall@5 | hit@5 | MRR |
 |---|---|---|---|---|---|
 | query | A0, Postgres today | `.hq/docs/audits/librechat-platform/p3-evidence/eval-final.json` | 0.5625 | 0.6375 | 0.4874 |
-| query | T-B2 `r2\|b2\|t0.5\|h1.0` | bench `results/rows-round2.jsonl` | 0.7229 | 0.7875 | 0.5498 |
-| query | T-B3d `r2\|b3d\|l2.0\|w16` | bench `results/rows-round2.jsonl` | 0.7063 | 0.7625 | 0.5740 |
+| query | T-B2 `r2\|b2\|t0.5\|h1.0` | `p3-evidence/rag-bench-rows-round2.jsonl` | 0.7229 | 0.7875 | 0.5498 |
+| query | T-B3d `r2\|b3d\|l2.0\|w16` | `p3-evidence/rag-bench-rows-round2.jsonl` | 0.7063 | 0.7625 | 0.5740 |
 | question | A0q `pgrust:question:gold` | bench `results/perf/pg-rows-question.jsonl` | 0.4604 | 0.5250 | 0.3707 |
-| question | B1q `r2\|q:question` | bench `results/rows-round2.jsonl` | 0.6937 | 0.7625 | 0.5987 |
-| question | T-B2q `r4\|q:question\|r2\|b2\|t0.5\|h1.0` | bench `results/rows-round4.jsonl` | 0.6750 | 0.7375 | 0.6005 |
-| question | T-B3dq `r4\|q:question\|r2\|b3d\|l2.0\|w16` | bench `results/rows-round4.jsonl` | 0.6875 | 0.7500 | 0.6206 |
-| question | B4q `r4\|q:question\|r2\|b4\|guardlight\|dismax` | bench `results/rows-round4.jsonl` | 0.7000 | 0.7625 | 0.6003 |
+| question | B1q `r2\|q:question` | `p3-evidence/rag-bench-rows-round2.jsonl` | 0.6937 | 0.7625 | 0.5987 |
+| question | T-B2q `r4\|q:question\|r2\|b2\|t0.5\|h1.0` | `p3-evidence/rag-bench-rows-round4.jsonl` | 0.6750 | 0.7375 | 0.6005 |
+| question | T-B3dq `r4\|q:question\|r2\|b3d\|l2.0\|w16` | `p3-evidence/rag-bench-rows-round4.jsonl` | 0.6875 | 0.7500 | 0.6206 |
+| question | B4q `r4\|q:question\|r2\|b4\|guardlight\|dismax` | `p3-evidence/rag-bench-rows-round4.jsonl` | 0.7000 | 0.7625 | 0.6003 |
 
 The recorded figures are `results/score-all.json[cfg]['all']['overall']`, and `eval-final.json`'s metrics for
 A0. «Our best arm» on a field is the arm with the highest recorded all-80 recall@5: T-B2 on the query field,
 B4q on the question field. The report reads decision rule (c) against every arm and names the best one.
+
+**Where the arms are read from.** `rows-round2.jsonl` and `rows-round4.jsonl` are read from their durable copies
+in `.hq/docs/audits/librechat-platform/p3-evidence/` (`rag-bench-rows-round2.jsonl`, sha256 `7bccbab94956…`;
+`rag-bench-rows-round4.jsonl`, `89f61a4ceaf1…`; copied 2026-11-08, byte-identical to the bench files). If a copy
+is missing, the bench file is read, with a warning on the terminal and in the report. A0q's
+`results/perf/pg-rows-question.jsonl` and the strata's `data/eval.jsonl` have no durable copy and are read from
+the bench. If one of them, or any other source file, is missing, scoring is refused before any source is read,
+and the refusal names each missing file (before, it crashed with a traceback). The report records each source's path
+and sha256 (`sources` in the JSON, «Sources» in the markdown), and marks the bench ones «scratch bench». The
+re-scored-equals-recorded check runs on whichever file is read.
+
+**Halves** (`split.json`). The bench split T-B2's settings were tuned on: half A, 40 items, and the held-out
+half B, 40 items. Read from `p3-evidence/rag-bench-split.json` (sha256 `6e7909beedf2…`), else from the bench's
+`data/split.json` with a warning, or from `--split`. If neither copy exists and no `--split` is given, scoring is
+refused (before, it crashed). Its ids must be the eval set's, each `A` or `B`, in two equal halves. Its key order
+is kept: the intervals resample in that order («Intervals», below). Every report, W1 and W2, adds the scopes `half_A` and `half_B` (the held items of each half), with
+intervals by keys and through the rule, in a «Halves» table beside the held scope (all 80 in an own run). For
+W1 the half scopes are reported, not decisive. Decision rule (c)'s logic is unchanged, but its interval ends
+are not: with the split loaded, its scopes now resample in the split's key order, not the eval set's
+(«Intervals», «Order», below).
 
 **Strata** (spec «Definitions», «The miss pattern»). They are defined on the `query` field and used for both
 fields. An item's stratum is the share of its query terms that prefix-match its best single expected article.
@@ -689,6 +720,30 @@ expected articles are all among them leaves the held scopes and is reported with
 **Intervals.** A paired bootstrap of W1 minus the arm over the scope's items: 10,000 resamples, seed 20261106,
 a fresh `random.Random(seed)` per interval, `rng.choice` per item, and the 2.5% and 97.5% means. This is the
 bench's `py/report.py` `bootstrap()` (lines 21-26); a test checks it against a copy of that code.
+- **Order.** The resampling picks items by position, so the order of a scope's items moves the interval's ends.
+  Every scope takes its items in `split.json`'s key order, as `report.py` does (line 22:
+  `ids = [i for i in split if ...]`). That is not the eval set's file order. Only when no split is loaded (the
+  self-check) is the eval set's order used. The report names the order under `rules.bootstrap.order`.
+- **This changed W1's interval ends.** Before W2, the scorer resampled every W1 scope (all 80, held, stratum,
+  stratum ∩ held) in the eval set's order. Rule (c)'s logic is the same, but for the same input its interval
+  ends move, by up to 0.0063 on the recorded arms. Recall@5 on all 80, eval-set order, then split order
+  (`.hq/scratch/w2-review-score/r2/probes/order_w1.txt`): T-B2 minus A0 [+0.0521, +0.2729], then
+  [+0.0542, +0.2667]; T-B2q minus B4q [-0.1000, +0.0437], then [-0.0938, +0.0437]; B4q minus A0q
+  [+0.1500, +0.3375], then [+0.1479, +0.3333]. That can flip a borderline reading. The split order is the
+  bench's, which the spec runs on. Whether W1 keeps it is a pre-registration detail for the owner to confirm
+  before the package goes to Walid (‡). A real-data test pins one W1 rule (c) interval in split order, so any
+  later change of order fails a test.
+- **Off zero.** An end counts as above zero only when it is more than 1e-9, and as below zero only when it is
+  less than -1e-9 (`ZERO_TOLERANCE`, recorded as `rules.bootstrap.zero_tolerance`). An item's recall is k/1,
+  k/2 or k/3, since no item has more than 3 expected articles. So each difference is a multiple of 1/6, and a
+  nonzero mean over n items is at least 1/(6n): 0.002 at 80 items. Without the tolerance, a resample whose
+  thirds cancel exactly could leave float residue. For example, +1 on 5 items, -1/3 on 3 and 0 on 32 gave a
+  low end of 2.8e-18. That read «wins» while printing +0.0000. No pinned value changes. The deciding reading
+  could not meet the residue, because every half-B item has 1 or 2 expected articles. The exploratory all-80
+  readings and W1's rule (c) could, because the one item with 3 expected articles is in half A.
+- **Checked against the bench.** A real-data test reproduces PROOF-rag-bench.md's published interval in split
+  order: B2 minus Postgres, MRR on half B, +0.132 [+0.019, +0.248] (the test pins 0.1319 [0.0187, 0.2479]). In
+  the eval set's order the same differences give [+0.0169, +0.2506].
 
 **Decision rule (c).** W1 «beats with an interval excluding zero» when the interval of W1 minus the arm lies
 wholly above zero, on held recall or on stratum ∩ held recall. Otherwise it «does not beat».
@@ -747,13 +802,162 @@ draw on 2026-11-08, after the review fixes; the earlier file had 2,294 and 4,693
 - Most of the time is the whole-chunk LCS that each candidate article must pass before its stretches are
   tested. The stretch tests add about a quarter (profiled on 300 such chunks).
 
+### Own runs (W2)
+
+The spec's block «Owner decision 2026-11-08: W2 first, run here, with a pre-registered rule» runs W2 on this
+machine: our served articles, one generated file per law, in a throwaway pinned RAGFlow v0.27.3, indexed by
+Walid's indexing-pipeline canvas and queried by `run_w1.py`. `--own-run` scores that file. It is our data, so
+the third-party gates of the safe path (the quarantine copy and the person's screen) are skipped. A W2 manifest
+ties the file to our dataset instead.
+
+**The W2 manifest** is the shared contract. The ingest tool writes it when it creates the dataset, as
+`.hq/scratch/w2-run/out/<engine>/w2-manifest.json`. A key outside this table, or a missing one, is refused, and
+refusals name the key.
+
+| key | checked |
+|---|---|
+| `w2` | 1 |
+| `created_at` | an ISO-8601 time |
+| `engine` | `elasticsearch` or `infinity`; the results sit in a folder of that name |
+| `embedder` | exactly `name`, `revision` and `via`, each a non-empty string; `revision` is a 40 lower-case hex commit; `via` is `builtin-tei` |
+| `ragflow_version` | exactly `v0.27.3` (so `v0.27.30` is refused), and equals the header's `ragflow_version` |
+| `ragflow_image_digest` | holds `sha256:` and 64 hex characters |
+| `dataset_id` | 32 lower-case hex characters, and the header's only dataset |
+| `language` | a non-empty string |
+| `document_count` | 22, and equals the header's |
+| `chunk_count` | above 0, and equals the header's |
+| `predicted_chunk_count` | equals `chunk_count` |
+| `all_match` | `true`: the dataset's chunks matched the predictor exactly |
+| `canvas_sha256`, `upload_manifest_sha256` | 64 lower-case hex characters |
+| `file_shape` | `slug-title-served-v1` |
+| `embedding_batch_size` | a whole number, 1 or more |
+
+**The gate.** `--own-run` refuses, before it scores anything:
+- a results file that does not resolve under `.hq/scratch/w2-run/out/` (a link that points elsewhere included),
+  that does not sit directly in `out/<engine>/` (`out/nested/elasticsearch/` is refused), that is a link under
+  another name, or that is not named `w2-results-v3.jsonl` or `w2-results-rt.jsonl`;
+- a `--manifest` other than the `w2-manifest.json` beside it, or no manifest there;
+- a manifest that breaks the contract above, including an `all_match` that is anything but the JSON value
+  `true` (`false`, `"false"`, `"true"` and `1` are all refused) or a document count other than 22;
+- a results folder whose name is not the manifest's engine;
+- a file that breaks the results contract. Every `read_results` check and screen runs, as for Walid's file:
+  keys, types, secrets, URLs, IP addresses and long tokens;
+- a header whose datasets are not exactly the manifest's dataset id, or whose `document_count` or `chunk_count`
+  differs from the manifest's;
+- a header `script_sha256` or `queries_sha256` that is not the sha256 of the package's `run_w1.py` or
+  `w1-queries.jsonl` (`--package`, default `.hq/docs/specs/w1-for-walid`);
+- a header `ragflow_version` other than the manifest's;
+- settings other than the arm's. `v3` is `run_w1.py`'s defaults, the FINAL REVIEW v3 Retrieval node: page_size
+  20, similarity_threshold 0.2, vector_similarity_weight 0.3, top_k 1024, rerank_candidates_count 64, no
+  rerank_id, and the options that call a model off. `rt` is the same with vector_similarity_weight 0.4
+  (Retrieval TEST). The whole settings object must equal the arm's: a header that differs in any one key, or
+  sends a `rerank_id`, is refused. A test checks both arms against `run_w1.py`'s own parser;
+- a returned chunk whose `document_name` is not `<registry slug>.md`, for a slug of `content/corpus/laws.json`.
+  Those 22 files are the only ones the ingest tool uploads. A chunk named like Walid's files
+  (`IQRA_LAW_…_REVIEW.md`) is refused even beside a manifest that matches. The refusal gives the count, not the
+  names. It is also refused when the registry does not have the manifest's 22 laws. A law that no returned chunk
+  comes from is not refused: retrieval need not reach every law, and the laws-held note reports it;
+- `--laws-held`, `--articles-lacking` or `--allow-unevidenced-laws` with `--own-run`, since they describe
+  Walid's corpus; and `--manifest`, `--w2-decide` or `--fallback` without it.
+
+A file from Walid copied under `out/` is refused. With no manifest beside it, there is none to match. Beside our
+manifest, its dataset id differs. Tests pin both cases, and a file outside `out/`.
+
+**Laws held and articles lacking.** An own run holds our whole corpus: all 22 laws and no article lacking. Every
+item is held, so «held» is all 80. The evidence of laws (each returned chunk counted for the law of its best
+source) is still computed and printed. A law that is the best source of fewer than 3 returned chunks gets a note
+worded for our corpus: «<law> is the best source (8+ tokens) of N returned chunks, fewer than 3; the dataset
+holds it, so this is what retrieval returned, not a missing law». The note moves no item. None of W1's warnings about laws held is raised, and the
+report has no wording about his corpus (a test searches the markdown for «his» and «he»).
+
+**The deciding reading** (`--w2-decide`). The amendment fixed one cell before anything ran:
+- the cell: Elasticsearch, the built-in TEI `Qwen/Qwen3-Embedding-0.6B`, the `v3` arm, the `query` field;
+- the pins it checks (`DECIDING` in `score_w1.py`):
+  - the model revision `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3`, the one the runbook fetches
+    (`.hq/scratch/w2-research/deploy/runbook.md`, Step 4);
+  - the canvas sha256 `3f0fcb62b79a0b292f05ccfc9ad198259acfb3b459a21c73c6ca4fc369bf588d`. That is the sha256 of
+    the raw bytes of Walid's «اقرأ – فهرسة التشريعات القانونية.json», which `rf_ingest.py` hashes the same way.
+    So the canvas must be imported as it is;
+  - the embedding model the server reports for the dataset (the header's `datasets[1].embedding_model`, which
+    `run_w1.py` reads from the server). It is parsed as v0.27.3 parses a composite name, from the right
+    (`tenant_model_service.py:206-230`): the model must be exactly `Qwen/Qwen3-Embedding-0.6B`, and the
+    provider `Builtin` or none. `Qwen/Qwen3-Embedding-0.6B-ft@Builtin`, `BAAI/bge-m3@Builtin` and an empty value
+    are gaps. A 32-hex tenant-model id names no model: it is no gap, but the report warns that only the
+    manifest names the embedder;
+  - T-B2's rows read from the durable `p3-evidence/rag-bench-rows-round2.jsonl`, sha256
+    `7bccbab9495646bc770d3ac5dbe6d243befd5a675d37861b32e5b3b46b0691ac`. The re-scored all-80 figures alone do
+    not pin the half-B rows, and a bench copy read instead is a gap;
+- against T-B2 (`r2|b2|t0.5|h1.0`), on the held-out half B (40 items) of the pinned split (`6e7909beedf2…`),
+  in that split's key order;
+- both scored through the mapping rule at T-B2's served-text budget. W2's chunks are cut at the budget, and
+  T-B2's own top-5 text is mapped the same way: like with like, not T-B2's ranked keys;
+- the paired bootstrap of W2 minus T-B2, 10,000 resamples, seed 20261106;
+- «wins» only if the 95% interval lies above zero. Otherwise «not shown», with a note on what that means:
+  - an interval that includes zero: «A smaller effect cannot be detected on 40 items»;
+  - an interval wholly below zero: «W2 is behind T-B2 on half B: the whole interval lies below zero».
+- A failed or missing half-B line counts as a W2 miss, and is listed. A failed half-A line is not listed there.
+
+`--w2-decide` on any other file is refused, before the library loads, with each reason named: Infinity, the `rt`
+arm, another embedder in the manifest or as the server reports it, another model revision, another canvas, no
+query field, another split, or T-B2's rows from another source. Without the flag, the report still holds the
+deciding reading when the file is the deciding cell, and says why not otherwise.
+
+The RAGFlow image digest is recorded from the run and printed beside the pins, but not pinned. The digests in
+`.hq/scratch/w2-research/deploy/compose.yaml` were read through a summariser (its lines 16-17), and no
+`docker pull` has confirmed one yet. Pin it in `DECIDING` once one has; until then it is a known limit.
+
+What 40 items can detect, as the tests pin it. With no item going the other way, W2 reaching 4 more half-B items
+than T-B2 wins: the interval's low end is +0.025. Three more (+0.075 on average) is «not shown», because 4.4% of
+the resamples hold none of the three.
+
+**Exploratory**, printed under that heading and never deciding:
+- the query field: W2 vs T-B2 through the rule on all 80 and on half A; vs T-B2's keys on half B; vs A0 and
+  T-B3d on half B;
+- the question field: vs T-B2q on half B, all 80 and half A, and vs B4q (the best question arm) on half B;
+- W1's rule (c), read under its own name in each field's tables;
+- Infinity on a fresh stack, and the `rt` arm: each is its own file, scored on its own.
+
+**The dense-only fallback** (`--fallback`). `POST /api/v1/retrieval` keeps RAGFlow's dense-only fallback on;
+his agent turns it off (the amendment). `w2-fallback-<arm>.json`, beside the results, holds
+`{"query": [ids], "question": [ids]}`: the items whose returned chunks came only from that fallback, read from
+the server's debug log. It must name each field of the results file and nothing else, its arm must be the
+results file's, and each id must have an ok line with chunks. The sensitivity reading scores the file again with
+those items' chunks emptied. It reports W2 vs T-B2 (T-B2q on the question field) on half B, all 80 and half A.
+It is exploratory only, and the deciding reading is unchanged.
+
+**Outputs.** `w2-score.json` and `w2-score.md` in `--out-dir`; an existing one is refused.
+- The markdown opens with «# W2 score» and «Own run (W2)», then the manifest's fields as a table, the results
+  facts, the laws held, the rules and the sources. Then «Deciding reading», then «Exploratory», then each
+  field's tables, with W2 in place of W1.
+- In the JSON, `w2_manifest` holds the manifest with its path and sha256; `w2_decision` the deciding reading,
+  or `why_not`; `w2_exploratory` the other readings; `fallback_sensitivity` the sensitivity reading.
+- The per-item and per-scope keys keep their W1 names (`w1_recall`, `w1_reached`). In a W2 report they hold
+  W2's figures.
+- No chunk text is written.
+
+**What the gate does not prove.** The manifest is ours and is not signed: one written by hand to match another
+file would pass. The ingest tool is its only writer. That the chunks came from the dataset the manifest names
+rests on facts the server returned:
+- the header's dataset facts, which `run_w1.py` reads from the server;
+- each chunk's document name (one of our 22 `<slug>.md` files);
+- for the deciding cell, the embedding model the server reports.
+
+A file from another server whose dataset id, counts, document names and embedder all match would still pass.
+Two pins are only as good as what was recorded:
+- the image digest is not pinned (above);
+- the version must be exactly `v0.27.3`. The image writes `git describe --tags --match=v* --first-parent
+  --always` into its VERSION file (v0.27.3 `Dockerfile:267-269`). For a release built at the tag
+  (`.github/workflows/release-python.yml:79`) that is exactly `v0.27.3`. A build after the tag reports
+  `v0.27.3-N-g<hash>` and is refused. If the real server reports a suffix, that is a fact to look into, not a
+  reason to widen the match.
+
 ### Tests
 
 ```bash
 cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittest tests.test_intake_w1 tests.test_score_w1 -v
 ```
 
-- **`tests/test_intake_w1.py`**, 45 tests. They cover:
+- **`tests/test_intake_w1.py`**, 46 tests. They cover:
   - the contract refusals, the `counts` and `settings` checks, and every setting name `run_w1.py` sends;
   - the secret and address patterns, IPv6 included, with the accepted cases: the redacted Bearer, document
     names, clause numbers, the header's times;
@@ -763,7 +967,8 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     to another folder;
   - the screening gate: pending, flagged, a flagged screen recorded clear afterwards, the history, a changed
     file, a cleared pair copied out of quarantine, and a manifest edited to declare client data.
-- **`tests/test_score_w1.py`**, 57 tests. They cover:
+- **`tests/test_score_w1.py`**, 127 tests: 59 for W1 (the 57 from before W2, and 2 added in the third review)
+  and 68 for W2. The W1 ones cover:
   - the bit-parallel LCS, over the whole chunk and over every stretch, against the dynamic programme;
   - the mapping-rule cases above;
   - the candidate restriction against full scans;
@@ -774,12 +979,59 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     from the key reading;
   - the inference of laws held by best source (the article held most within one stretch), and given laws
     refused or warned about against that evidence;
-  - `--articles-lacking`, our best arm, the bootstrap against the bench's code and its determinism;
+  - `--articles-lacking`, our best arm, the bootstrap against the bench's code and its determinism (on a
+    fixture whose ends differ from their neighbours, so an off-by-one at either end fails), and an end that is
+    zero in exact arithmetic not read as above or below zero;
   - the sent-text check, with a two-field file.
 
   The real-data tests need `.hq/scratch/rag-bench` and `eval-final.json`. They check that the strata are the
   spec's 17, that the A0 self-check gives back 0.5625, the null control at 1,200 characters, that a scored file
-  writes no chunk text, and that civil-code 107 lacking leaves civil-code-01 out of the held scopes.
+  writes no chunk text, that civil-code 107 lacking leaves civil-code-01 out of the held scopes, and one rule (c)
+  interval pinned in split order: W1 (A0's own text) minus T-B2 on all 80, -0.2896 [-0.3875, -0.1896]. In the
+  eval set's order the same differences give [-0.3937, -0.1875].
+
+  The 68 W2 tests cover:
+  - the own-run gate: our file beside its manifest accepted; refused for a Walid-shaped file with no manifest,
+    the same file beside our manifest, a file outside `out/`, a file one folder below `out/<engine>/`, a link
+    under another name, a dataset id other than the manifest's, a second dataset beside ours, a manifest whose
+    `all_match` is not `true` (`false`, `"false"`, `"true"`, `1`), a document or chunk count other than the
+    manifest's, header hashes other than the package's, settings other than the arm's (and the `rt` file
+    accepted), settings that differ from v3 only in `similarity_threshold`, `top_k` or an added `rerank_id`, a
+    server version other than the manifest's, a URL in a chunk (the screens still
+    run), a manifest not beside the results or naming another engine, a file not named for an arm, a chunk from a
+    document named like Walid's, and 16 manifests that break the contract, one per check (`w2`, `created_at`,
+    the image digest, the batch size, both hashes, the revision, `v0.27.30` among them); a registry without
+    the manifest's 22 laws; and every registry slug's `<slug>.md` accepted;
+  - the arm settings against `run_w1.py`'s own parser;
+  - the options: W2 options without `--own-run`, `--own-run` without a manifest or with `--laws-held`; and
+    `--w2-decide` refused before the library loads, through `main`, for an Infinity file, a `--split` with
+    another sha256, and a header whose server-reported embedder is not Qwen3;
+  - the split: each item's half, in the file's key order; only the bench split recorded as pinned; refused for
+    an id outside the set, a missing id, a third half and unequal halves; the durable copy first, the bench's
+    with a warning, and a refusal when neither exists; arm sources from the durable copy, the bench's with a
+    warning, and A0q's bench-only file with none; T-B2's source for the `--w2-decide` gate (the durable copy,
+    the bench's, or none); and, with no bench folder, a refusal through `main` (exit 2) that names both
+    bench-only files;
+  - the half scopes, with and without a split, and each scope handed to the bootstrap in the split's order;
+  - the deciding reading on 40 half-B items: a win, a loss (noted as behind, below zero) and a tie (noted as not
+    detectable); three more items not shown and four a win; half A ignored; T-B2 through the rule, not by its
+    keys; an expected article W2 serves only past T-B2's budget counted as a miss; a failed half-B line listed
+    and counted as a miss, a failed half-A line not listed; no verdict for a
+    file that is not the deciding cell; no gap for the deciding cell; each gap (engine, embedder, revision,
+    canvas, arm, field, split, T-B2's rows not durable, another sha or missing); the server's embedding model
+    (another model, a longer name, another provider, none) as gaps, an opaque tenant-model id as none; the
+    printed «not shown» line;
+  - own-run scoring on a fixture: every law held, nothing lacking, no warning; a server embedder other than the
+    manifest's warned about and not deciding; an opaque tenant-model id warned about and still deciding; the
+    report's «own run (W2)», the manifest's fields and no wording about his corpus; `w2-score.*` with no chunk
+    text; the fallback sensitivity emptying its items and leaving the deciding reading alone; in a two-field
+    file, question ids in the fallback emptying only the question field's items;
+  - the fallback file: read per field; refused for another arm, a field the file lacks, an id with no chunks and
+    an id given twice;
+  - real data: the arms and the split from the durable copies, with no warning; half B in the split's order gives
+    back PROOF-rag-bench.md's +0.132 [+0.019, +0.248]; a W1 report's held items of each half (9 and 7 of 16);
+    T-B2's own top-5 text as an own run, which ties T-B2 on half B and reads «not shown» with all 22 laws held;
+    and `--w2-decide` end to end through `main`, the deciding reading printed before «Exploratory».
 - **Each check was shown to be tested.** On 2026-11-08, after the review fixes, 32 checks were each replaced by
   a broken version at run time, and both test modules were run each time. The script is
   `.hq/scratch/w1-scorer-fix/mutants.py`, built from the review's. Each time a test failed:
@@ -795,6 +1047,23 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     by whole-chunk LCS; the screening history overwritten.
   - The best-source check first survived (no test failed). A test was added for it, and the mutant was run
     again: a test failed.
+- **The W2 checks were shown to be tested** (2026-11-08, after the second review). 28 checks were each
+  replaced by a broken version at run time, and the W2 test classes were run each time
+  (`.hq/scratch/w2-review-score/mutants3.py`, log `logs/mutants3.txt`). A test failed every time: 28 of 28.
+  They include the 10 that had survived the review (the link name, five manifest keys, the half-B filter of
+  failed lines, the split always pinned, `main`'s split to the deciding gate, the embedder warning), and
+  each new check: the server's embedder, provider and name match, the revision and canvas pins, the split
+  order in `score_field` and `load_split`, the document names and the registry count, the exact version,
+  the folder depth, the below-zero note, T-B2's durable source and sha, and the missing-split refusal.
+- **The third review's checks were shown to be tested** (2026-11-08). The six mutants of the second review that
+  had survived (`.hq/scratch/w2-review-score/r2/mutants4.py`, run again unchanged, log `r3/mutants4-r3.txt`)
+  are now each killed: two
+  datasets accepted, settings compared on the vector weight only, the upper end one place higher, W2's chunks
+  counted past the budget (now by the fast `W2DecisionTests`, not only the real-data ones), a truthy
+  `all_match`, and the query ids emptying every field. The fixes' own mutants
+  (`.hq/scratch/w2-review-score/r3/mutants6.py`, log `r3/mutants6.txt`; the real-data caches cleared before each
+  run) are each killed too: no tolerance at either end, the upper end one place higher or lower, the eval set's
+  order with a split loaded, no missing-source check, and `load_context` outside `main`'s refusal.
 
 ### What this does not prove
 
@@ -814,5 +1083,10 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
   passes intake. URLs, `localhost` and IP addresses are refused.
 - **The question-field arms are recorded rows, not A1q.** A1q (spec Part 1) has not run. When it does, it
   replaces them as «our best arm» on that field.
-- **The bench folder is scratch.** The arms and the strata are read from `.hq/scratch/rag-bench` at each run,
-  with each source's sha256 recorded in `w1-score.json`. If that folder goes, the scorer cannot run.
+- **The bench folder is still needed.** T-B2, T-B3d, B1q, T-B2q, T-B3dq, B4q and the split are read from their
+  durable copies in `p3-evidence/`. A0q's rows and the strata's recorded query terms (`data/eval.jsonl`) have
+  none, and are read from `.hq/scratch/rag-bench` at each run. Each source's path and sha256 is recorded in the
+  report. If the bench folder goes, the scorer cannot score: it refuses, naming the missing files. Copying the
+  two into `p3-evidence/` and adding them to `DURABLE` would close this. Their sha256 on 2026-11-08:
+  `results/perf/pg-rows-question.jsonl` `6e72dd666cef13e8ce965049dcfa0c7748bd4cb71d6c8e5557cbbe65c4be2901`,
+  `data/eval.jsonl` `d9538dd041b7b8e9e4ec45c9c4b4f16db9cf4723db832e4ec4eab74e3a60024b`.

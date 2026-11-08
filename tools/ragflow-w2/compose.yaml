@@ -1,0 +1,327 @@
+# ragbench-rf: the sealed, throwaway RAGFlow v0.27.3 for W2 (spec-rag-system.md, «Owner decision 2026-11-08»).
+# Reconciled from .hq/scratch/w2-research/deploy/compose.yaml with the critic's gaps closed (README.md,
+# «## The sealed stack»). Derived from v0.27.3 docker/docker-compose.yml and docker-compose-base.yml, trimmed
+# to the API. On purpose, unlike upstream:
+#   - every container is ragbench-rf-*, on one network ragbench-rf-net that is internal (no egress);
+#     no service publishes a port;
+#   - every store is on tmpfs, so nothing survives `down` (compose.store-volumes.yaml is the fallback for a
+#     store that refuses tmpfs, and is not used unless one does);
+#   - secrets come from one file outside every repository (RF_SECRETS), passed as env_file; nothing reads a
+#     file named .env;
+#   - every image is pinned by digest; the digests come from `docker buildx imagetools inspect`, written by
+#     the prepare step into a pins file passed with --env-file (README.md, «## Runbook»);
+#   - TEI has no health check (upstream gives it none, docker-compose-base.yml:422-433, and its image may
+#     hold no curl): the one-shot tei-probe waits for it in Python, and the server waits for tei-probe;
+#   - the server logs at DEBUG for the dense-only fallback lines (rag/nlp/search.py:357, :394), with the
+#     noisy loggers held at INFO, and to json-file capped at 20 files of 100 MB (this daemon's default
+#     driver is `local`, 5 files of 20 MB; `docker logs` reads rotated files with either driver, and only
+#     the span of one query arm must survive until the runbook saves it);
+#   - a runner (python:3.12-slim) shares the server's network namespace: http://127.0.0.1:9380 is the API,
+#     the key lives only in its tmpfs, and it reaches nothing the server cannot.
+#
+# Interpolation variables (shell or --env-file; none has a secret value):
+#   RF_WS                    workspace root, "D:/Iqraa Law" (Git Bash with MSYS_NO_PATHCONV=1)
+#   RF_SECRETS               the secrets file, e.g. "C:/Users/accou/.ragbench-rf/secrets.conf"
+#   RF_DOC_ENGINE            elasticsearch (profile es) or infinity (profile infinity): exactly one per stack
+#   RF_TEI_MODEL             default Qwen/Qwen3-Embedding-0.6B, the deciding embedder (owner, 2026-11-08)
+#   RF_TEI_REVISION          the Hugging Face commit the model files were fetched at (40 hex)
+#   RF_EMBEDDING_BATCH_SIZE  from the prepare step's probe (tei_probe.py time)
+#   RF_PIN_*                 image digests, "sha256:<64 hex>", from the prepare step
+
+name: ragbench-rf
+
+networks:
+  rfnet:
+    name: ragbench-rf-net
+    driver: bridge
+    internal: true
+
+x-secrets: &secrets
+  env_file:
+    - ${RF_SECRETS:?set RF_SECRETS to the secrets file outside every repository}
+
+services:
+  es01:
+    profiles: ["es"]
+    container_name: ragbench-rf-es01
+    image: elasticsearch:8.11.3@${RF_PIN_ES:?run the prepare step (pins)}
+    <<: *secrets
+    environment:  # as upstream (docker-compose-base.yml:15-25); ELASTIC_PASSWORD comes from the secrets file
+      - node.name=es01
+      - bootstrap.memory_lock=false
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - cluster.routing.allocation.disk.watermark.low=5gb
+      - cluster.routing.allocation.disk.watermark.high=3gb
+      - cluster.routing.allocation.disk.watermark.flood_stage=2gb
+    tmpfs:
+      - /usr/share/elasticsearch/data:size=12g,mode=1777  # 12g: the absolute watermarks above need free room
+      - /tmp:mode=1777,size=512m                          # as upstream (docker-compose-base.yml:8-11)
+    mem_limit: 8g
+    cpus: "4"
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    healthcheck:  # upstream's (docker-compose-base.yml:31-35); curl is in the ES image
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks: [rfnet]
+    restart: "no"
+
+  infinity:
+    profiles: ["infinity"]
+    container_name: ragbench-rf-infinity
+    image: infiniflow/infinity:v0.7.4-x64-v3@${RF_PIN_INFINITY:?run the prepare step (pins)}
+    command: ["-f", "/infinity_conf.toml"]
+    volumes:
+      - type: bind
+        source: ./upstream/infinity_conf.toml  # byte copy of v0.27.3 docker/infinity_conf.toml
+        target: /infinity_conf.toml
+        read_only: true
+    tmpfs:
+      - /var/infinity:size=12g,mode=1777
+    mem_limit: 10g
+    cpus: "4"
+    ulimits:
+      nofile: { soft: 500000, hard: 500000 }
+    healthcheck:  # upstream's (docker-compose-base.yml:96-100)
+      test: ["CMD", "curl", "-s", "http://localhost:23820/admin/node/current"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks: [rfnet]
+    restart: "no"
+
+  mysql:
+    container_name: ragbench-rf-mysql
+    # 8.0.40 as upstream (docker-compose-base.yml:223); 8.4 refuses --default-authentication-plugin.
+    image: mysql:8.0.40@${RF_PIN_MYSQL:?run the prepare step (pins)}
+    <<: *secrets
+    command:  # upstream's, with its documented opt-in for a rebuildable database (docker-compose-base.yml:227-241)
+      - --max_connections=1000
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --tls_version=TLSv1.2,TLSv1.3
+      - --init-file=/data/application/init.sql
+      - --skip-log-bin
+      - --innodb-flush-log-at-trx-commit=2
+      - --sync-binlog=0
+      - --innodb-buffer-pool-size=1G
+      - --innodb-io-capacity=2000
+      - --innodb-io-capacity-max=4000
+      - --innodb-redo-log-capacity=1G
+    volumes:
+      - type: bind
+        source: ./upstream/init.sql  # byte copy of v0.27.3 docker/init.sql
+        target: /data/application/init.sql
+        read_only: true
+    tmpfs:
+      - /var/lib/mysql:size=4g,mode=1777
+    healthcheck:  # upstream's (docker-compose-base.yml:271-275), the password read inside the container
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks: [rfnet]
+    restart: "no"
+
+  minio:
+    container_name: ragbench-rf-minio
+    image: pgsty/silo:RELEASE.2026-08-06T00-00-00Z@${RF_PIN_MINIO:?run the prepare step (pins)}
+    command: ["server", "--console-address", ":9001", "/data"]
+    <<: *secrets
+    tmpfs:
+      - /data:size=4g,mode=1777
+    healthcheck:  # upstream's (docker-compose-base.yml:317-321)
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks: [rfnet]
+    restart: "no"
+
+  redis:
+    container_name: ragbench-rf-redis
+    image: valkey/valkey:8@${RF_PIN_VALKEY:?run the prepare step (pins)}  # the tag moves; the digest does not
+    <<: *secrets
+    # Upstream's command (docker-compose-base.yml:328), plus no snapshot and no append-only file.
+    entrypoint: ["/bin/sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --maxmemory 1gb --maxmemory-policy volatile-lru --save '' --appendonly no"]
+    tmpfs:
+      - /data:size=2g,mode=1777
+    healthcheck:  # upstream's (docker-compose-base.yml:337-341)
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks: [rfnet]
+    restart: "no"
+
+  tei:
+    container_name: ragbench-rf-tei
+    # The base of RAGFlow's Dockerfile_tei (FROM ...:cpu-1.8, Dockerfile_tei:1), plus one model fetched once
+    # at a pinned revision into .hq/scratch/w2-run/models (README.md, «## Runbook», prepare).
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8@${RF_PIN_TEI:?run the prepare step (pins)}
+    command: ["--model-id", "/data/${RF_TEI_MODEL:-Qwen/Qwen3-Embedding-0.6B}", "--auto-truncate"]  # as upstream (:432)
+    environment:
+      - HF_HUB_OFFLINE=1
+      - RAYON_NUM_THREADS=12
+    volumes:  # compose.tei-volume.yaml swaps this for a throwaway volume copy if the share is too slow
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/models
+        target: /data
+        read_only: true
+        bind: { create_host_path: false }
+    cpus: "12"
+    networks: [rfnet]
+    restart: "no"
+
+  tei-probe:
+    container_name: ragbench-rf-tei-probe
+    image: python:3.12-slim@${RF_PIN_PYTHON:?run the prepare step (pins)}
+    command: ["python3", "-I", "-B", "/w2/tei_probe.py", "--url", "http://ragbench-rf-tei:80",
+              "wait", "--model", "${RF_TEI_MODEL:-Qwen/Qwen3-Embedding-0.6B}"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    volumes:
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w2
+        target: /w2
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/in
+        target: /in
+        read_only: true
+        bind: { create_host_path: false }
+    depends_on:
+      tei: { condition: service_started }
+    networks: [rfnet]
+    restart: "no"
+
+  ragflow:
+    container_name: ragbench-rf-server
+    image: infiniflow/ragflow:v0.27.3@${RF_PIN_RAGFLOW:?run the prepare step (pins)}
+    # The baked entrypoint and service_conf template (Dockerfile:284-285); nothing is mounted over them.
+    # No --enable-adminserver (off by default, entrypoint.sh:50); MCP off (:49); data sync off (:93-95).
+    command: ["--init-superuser", "--init-model-provider-tables", "--disable-datasync"]
+    <<: *secrets
+    environment:
+      - API_PROXY_SCHEME=python  # the Python API server and task executor start only then (entrypoint.sh:340-343, :389-393)
+      - DOC_ENGINE=${RF_DOC_ENGINE:?set RF_DOC_ENGINE to elasticsearch or infinity, matching the profile}
+      # "tei-" makes the built-in embedder TEI_MODEL (common/settings.py:392-395; tenant_model_service.py:265-280)
+      - COMPOSE_PROFILES=${RF_DOC_ENGINE:?set RF_DOC_ENGINE},cpu,tei-cpu,metadata-mysql
+      - TEI_MODEL=${RF_TEI_MODEL:-Qwen/Qwen3-Embedding-0.6B}
+      - TEI_HOST=ragbench-rf-tei
+      - REGISTER_ENABLED=0  # sign-up off from the first boot (common/settings.py:342-346; user_api.py:504-509)
+      - SANDBOX_ENABLED=0
+      - DB_TYPE=mysql
+      - STORAGE_IMPL=MINIO
+      - MYSQL_HOST=ragbench-rf-mysql
+      - MINIO_HOST=ragbench-rf-minio
+      - REDIS_HOST=ragbench-rf-redis
+      - ES_HOST=ragbench-rf-es01
+      - INFINITY_HOST=ragbench-rf-infinity
+      # The fallback lines are root-logger DEBUG (search.py:357, :394). Named loggers are set one by one
+      # (common/log_utils.py:50-70): the doc-store clients log whole queries and answers at DEBUG
+      # (rag/utils/es_conn.py:342, :353), so they stay at INFO, as do the HTTP clients.
+      - LOG_LEVELS=root=DEBUG,ragflow.es_conn=INFO,ragflow.infinity_conn=INFO,elastic_transport=INFO,elasticsearch=INFO,urllib3=INFO,httpx=INFO,httpcore=INFO,peewee=WARNING,pdfminer=WARNING
+      - EMBEDDING_BATCH_SIZE=${RF_EMBEDDING_BATCH_SIZE:?run the prepare step (tei_probe.py time)}  # settings.py:517
+      - MAX_CONCURRENT_CHUNK_BUILDERS=1  # one embedding batch at a time, as the probe timed (task_executor_limiter.py:21-26)
+    volumes:  # read-only inputs for predict_chunks.py and make_key.py; the server writes nothing to the host
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w2
+        target: /w2
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/in
+        target: /in
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/canvas
+        target: /canvas
+        read_only: true
+        bind: { create_host_path: false }
+    tmpfs:
+      - /ragflow/logs:size=1g
+    logging:
+      # Capped, because the ingest logs at root=DEBUG for hours onto the VM disk the other containers share.
+      # 2 GB is far above one query arm; runbook E7 saves each arm's log and checks that it brackets the run.
+      driver: json-file
+      options: { max-size: "100m", max-file: "20" }
+    mem_limit: 12g
+    cpus: "6"
+    ulimits:
+      nofile: { soft: 65535, hard: 65535 }
+      nproc: { soft: 65535, hard: 65535 }
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      minio: { condition: service_healthy }
+      tei-probe: { condition: service_completed_successfully }
+      es01: { condition: service_healthy, required: false }
+      infinity: { condition: service_healthy, required: false }
+    healthcheck:  # 200 only when db, redis, doc engine and storage are ok (system_api.py:269-272)
+      test: ["CMD", "python3", "-I", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:9380/api/v1/system/healthz', timeout=5).status == 200 else 1)"]
+      interval: 15s
+      timeout: 10s
+      retries: 60
+      start_period: 300s
+    networks: [rfnet]
+    restart: "no"
+
+  runner:
+    container_name: ragbench-rf-runner
+    image: python:3.12-slim@${RF_PIN_PYTHON:?run the prepare step (pins)}
+    network_mode: "service:ragflow"  # 127.0.0.1:9380 is the API; no other route out
+    command: ["sleep", "infinity"]
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+      - /run/rf:size=1m,mode=0700  # the API key, piped in by make_key.py; gone when the runner goes
+    environment:  # facts rf_ingest.py records in the W2 manifest, from the same variables as the server's
+      - W2_DOC_ENGINE=${RF_DOC_ENGINE:?set RF_DOC_ENGINE}
+      - W2_TEI_MODEL=${RF_TEI_MODEL:-Qwen/Qwen3-Embedding-0.6B}
+      - W2_TEI_REVISION=${RF_TEI_REVISION:?run the prepare step (model revision)}
+      - W2_EMBEDDING_BATCH_SIZE=${RF_EMBEDDING_BATCH_SIZE:?run the prepare step (tei_probe.py time)}
+      - W2_RAGFLOW_IMAGE=infiniflow/ragflow:v0.27.3@${RF_PIN_RAGFLOW:?run the prepare step (pins)}
+    volumes:
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w2
+        target: /w2
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w1  # run_w1.py, by its sha256
+        target: /w1
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/docs/specs/w1-for-walid  # w1-queries.jsonl and SHA256SUMS
+        target: /pkg
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/in
+        target: /in
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/canvas
+        target: /canvas
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/out
+        target: /out
+        bind: { create_host_path: false }
+    depends_on:
+      ragflow: { condition: service_healthy }
+    restart: "no"

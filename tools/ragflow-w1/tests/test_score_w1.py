@@ -3,10 +3,14 @@
 Most tests use small invented Arabic fixtures. The tests marked «real data» load our library and the recorded
 arms; they need the bench folder (.hq/scratch/rag-bench) and p3-evidence/eval-final.json."""
 
+import contextlib
 import dataclasses
 import functools
+import hashlib
+import io
 import json
 import random
+import re
 import tempfile
 import unittest
 from collections import Counter
@@ -14,9 +18,10 @@ from pathlib import Path
 from unittest import mock
 
 import intake_w1
+import run_w1
 import score_w1 as s
 from intake_w1 import Refused
-from tests.test_intake_w1 import chunk, header, make_results
+from tests.test_intake_w1 import chunk, header, line, make_results
 
 LEASE = ('lease-law', 1, '')
 SALE = ('sale-law', 2, '')
@@ -460,20 +465,40 @@ class BestArmTests(unittest.TestCase):
 
 class BootstrapTests(unittest.TestCase):
     def test_the_interval_is_the_bench_report_py_bootstrap(self):
-        diffs = [1.0, 0.0, -0.5, 0.5, 0.0, 1.0, 0.0, 0.0, -1.0, 0.5] * 4
-        rng = random.Random(20261106)  # rag-bench py/report.py:21-26, copied as the oracle
-        means = sorted(sum(rng.choice(diffs) for _ in diffs) / len(diffs) for _ in range(10000))
+        spread = random.Random(1)
+        fixtures = {'steps of 0.5': [1.0, 0.0, -0.5, 0.5, 0.0, 1.0, 0.0, 0.0, -1.0, 0.5] * 4,
+                    # each end differs from its neighbours at 4 places, so an off-by-one index shows
+                    'spread values': [round(spread.uniform(-1, 1), 3) for _ in range(40)]}
+        for name, diffs in fixtures.items():
+            with self.subTest(name):
+                rng = random.Random(20261106)  # rag-bench py/report.py:21-26, copied as the oracle
+                means = [round(m, 4) for m in
+                         sorted(sum(rng.choice(diffs) for _ in diffs) / len(diffs) for _ in range(10000))]
 
-        got = s.bootstrap(diffs)
+                got = s.bootstrap(diffs)
 
-        self.assertEqual((round(means[250], 4), round(means[9749], 4)), (got['lo'], got['hi']))
-        self.assertEqual(got, s.bootstrap(diffs))  # seeded: the same every run
+                self.assertEqual((means[250], means[9749]), (got['lo'], got['hi']))
+                self.assertEqual(got, s.bootstrap(diffs))  # seeded: the same every run
+        self.assertTrue(len({*means[249:252]}) == 3 and len({*means[9748:9751]}) == 3)  # the spread fixture's
 
     def test_the_interval_excludes_zero_only_when_it_lies_wholly_on_one_side(self):
         self.assertTrue(s.bootstrap([1.0, 0.5, 1.0])['excludes_zero_above'])
         self.assertFalse(s.bootstrap([0.0, 0.0, 0.0])['excludes_zero_above'])
         self.assertTrue(s.bootstrap([-1.0, -0.5])['excludes_zero_below'])
         self.assertIsNone(s.bootstrap([]))
+
+    def test_an_end_that_is_zero_in_exact_arithmetic_is_not_off_zero(self):
+        # +1 on 5 items, -1/3 on 3 (an item with 3 expected articles), 0 on 32: the 2.5% resample's thirds cancel
+        # exactly, but its float mean is 2.8e-18. That must read «not shown» / «does not beat», not «wins».
+        ahead = [1.0] * 5 + [0.0 - 1 / 3] * 3 + [0.0] * 32
+        rng = random.Random(s.SEED)
+        raw_lo = sorted(sum(rng.choice(ahead) for _ in ahead) / len(ahead) for _ in range(s.RESAMPLES))[250]
+        self.assertTrue(0 < raw_lo < 1e-15)  # the residue this test is about
+
+        above, below = s.bootstrap(ahead), s.bootstrap([-d for d in ahead])
+
+        self.assertEqual((0.0, False), (above['lo'], above['excludes_zero_above']))
+        self.assertEqual((0.0, False), (abs(below['hi']), below['excludes_zero_below']))
 
 
 class SentTextTests(unittest.TestCase):
@@ -565,6 +590,14 @@ class RealDataTests(unittest.TestCase):
 
         self.assertEqual((16, ['civil-code-01']), (held, report['articles_lacking']['items_left_out']))  # 14 + 3 - 1
 
+    def test_rule_c_intervals_resample_in_the_split_s_order(self):
+        # W1 (A0's own text) minus T-B2 on all 80, recall within budget, in split.json's key order. In the eval set's
+        # order, which the scorer used before W2, the same differences give [-0.3937, -0.1875]. (On the 16 held
+        # items here both orders happen to give the same ends.)
+        interval = real_scored()[0]['fields']['query']['arms']['T-B2']['intervals']['all_recall']
+
+        self.assertEqual((-0.2896, -0.3875, -0.1896), (interval['mean'], interval['lo'], interval['hi']))
+
 
 @functools.lru_cache(maxsize=1)
 def real_scored():
@@ -589,6 +622,862 @@ def real_scored():
         written = s.write_outputs(report, Path(tmp) / 'out')
         outputs = [path.read_text(encoding='utf-8') for path in written]
     return report, outputs, marker
+
+
+# W2: own runs, halves, the deciding reading, the fallback sensitivity -----------------------------------------------
+
+W2_DATASET = 'e' * 32
+OUR_DOCUMENT = 'evidence.md'  # one of the 22 <registry slug>.md files the ingest tool uploads
+
+
+def w2_manifest(**changes) -> dict:
+    """The manifest of the deciding cell: its revision and canvas are the pinned ones."""
+    value = {'w2': 1, 'created_at': '2026-11-08T13:00:00+00:00', 'engine': 'elasticsearch',
+             'embedder': {'name': 'Qwen/Qwen3-Embedding-0.6B', 'revision': s.DECIDING['revision'], 'via': 'builtin-tei'},
+             'ragflow_version': 'v0.27.3', 'ragflow_image_digest': 'sha256:' + '1' * 64,
+             'dataset_id': W2_DATASET, 'language': 'English', 'document_count': 22, 'chunk_count': 6600,
+             'predicted_chunk_count': 6600, 'all_match': True, 'canvas_sha256': s.DECIDING['canvas_sha256'],
+             'upload_manifest_sha256': '3' * 64, 'file_shape': 'slug-title-served-v1', 'embedding_batch_size': 4}
+    value.update(changes)
+    return value
+
+
+def own_chunk(rank: int, **changes) -> dict:
+    return chunk(rank, **{'document_name': OUR_DOCUMENT, **changes})
+
+
+def own_line(item_id: str = 'civil-code-01', field: str = 'query', sent: str = 'العربون', chunks=None, **changes):
+    """A result line whose chunks come from one of our uploaded files."""
+    return line(item_id, field, sent, chunks=[own_chunk(1), own_chunk(2)] if chunks is None else chunks, **changes)
+
+
+def sha(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+class OwnRunFolder:
+    """A temporary out/ root with an engine folder, and a package whose two files the header hashes name."""
+
+    def __init__(self, tmp: Path, engine: str = 'elasticsearch'):
+        self.root = tmp / 'out'
+        self.folder = self.root / engine
+        self.folder.mkdir(parents=True)
+        self.package = tmp / 'package'
+        self.package.mkdir()
+        (self.package / 'run_w1.py').write_bytes(b'# a stand-in for run_w1.py\n')
+        (self.package / 'w1-queries.jsonl').write_bytes(b'{"w1": 1}\n')
+
+    def own_header(self, **changes) -> dict:
+        value = header(script_sha256=sha(self.package / 'run_w1.py'),
+                       queries_sha256=sha(self.package / 'w1-queries.jsonl'),
+                       datasets=[{'id': W2_DATASET, 'document_count': 22, 'chunk_count': 6600,
+                                  'embedding_model': 'Qwen/Qwen3-Embedding-0.6B@Builtin', 'chunk_method': None,
+                                  'parser_config': {}}],
+                       settings=dict(s.OWN_ARMS['v3']), fields=['query'])
+        value.update(changes)
+        return value
+
+    def write(self, head: dict, rows: list, arm: str = 'v3', manifest: dict | None = None) -> Path:
+        if manifest is not None:
+            (self.folder / s.W2_MANIFEST).write_text(json.dumps(manifest), encoding='utf-8')
+        return make_results(self.folder / f'w2-results-{arm}.jsonl', head, rows)
+
+    def open(self, path: Path | None = None, manifest: Path | None = None) -> tuple:
+        return s.open_own_run(path or self.folder / 'w2-results-v3.jsonl', manifest or self.folder / s.W2_MANIFEST,
+                              self.package, self.root)
+
+
+class OwnRunCase(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp = Path(self._tmp.name)
+        self.run = OwnRunFolder(self.tmp)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+
+class OwnRunGateTests(OwnRunCase):
+    """--own-run takes our own file only: under out/<engine>/, beside a W2 manifest naming its dataset."""
+
+    def test_an_own_run_beside_its_manifest_is_accepted(self):
+        self.run.write(self.run.own_header(), [own_line()], manifest=w2_manifest())
+
+        own, results = self.run.open()
+
+        self.assertEqual(('v3', W2_DATASET, 1), (own.arm, own.manifest['dataset_id'], len(results.lines)))
+
+    def test_a_walid_shaped_file_without_a_manifest_is_refused(self):
+        self.run.write(header(), [line()])  # his header: another dataset, 5 documents, 900 chunks
+
+        with self.assertRaisesRegex(Refused, 'no w2-manifest.json beside the results file'):
+            self.run.open()
+
+    def test_a_walid_shaped_file_beside_our_manifest_is_refused(self):
+        self.run.write(header(), [line()], manifest=w2_manifest())
+
+        with self.assertRaisesRegex(Refused, 'does not name exactly the manifest\'s dataset'):
+            self.run.open()
+
+    def test_a_file_outside_the_own_run_folder_is_refused(self):
+        inbox = self.tmp / 'inbox'
+        inbox.mkdir()
+        path = make_results(inbox / 'w2-results-v3.jsonl', self.run.own_header(), [own_line()])
+        (inbox / s.W2_MANIFEST).write_text(json.dumps(w2_manifest()), encoding='utf-8')
+
+        with self.assertRaisesRegex(Refused, 'scores only a file under'):
+            self.run.open(path, inbox / s.W2_MANIFEST)
+
+    def test_a_dataset_id_other_than_the_manifest_s_is_refused(self):
+        head = self.run.own_header()
+        head['datasets'][0]['id'] = 'a' * 32
+        self.run.write(head, [own_line()], manifest=w2_manifest())
+
+        with self.assertRaisesRegex(Refused, 'does not name exactly the manifest\'s dataset'):
+            self.run.open()
+
+    def test_a_header_naming_a_second_dataset_beside_ours_is_refused(self):
+        head = self.run.own_header()
+        head['datasets'].append({**head['datasets'][0], 'id': 'a' * 32})
+        self.run.write(head, [own_line()], manifest=w2_manifest())
+
+        with self.assertRaisesRegex(Refused, 'does not name exactly the manifest\'s dataset'):
+            self.run.open()
+
+    def test_a_manifest_whose_all_match_is_anything_but_true_is_refused(self):
+        for value in (False, 'false', 'true', 1):  # the JSON boolean true only, not a truthy value
+            with self.subTest(all_match=value):
+                self.run.write(self.run.own_header(), [own_line()], manifest=w2_manifest(all_match=value))
+
+                with self.assertRaisesRegex(Refused, '"all_match" is not true'):
+                    self.run.open()
+
+    def test_document_or_chunk_counts_other_than_the_manifest_s_are_refused(self):
+        for name, value in (('document_count', 21), ('chunk_count', 6599)):
+            with self.subTest(name=name):
+                head = self.run.own_header()
+                head['datasets'][0][name] = value
+                self.run.write(head, [own_line()], manifest=w2_manifest())
+
+                with self.assertRaisesRegex(Refused, f'datasets\\[1\\].{name} differs'):
+                    self.run.open()
+
+    def test_header_hashes_other_than_the_package_s_are_refused(self):
+        for name in ('script_sha256', 'queries_sha256'):
+            with self.subTest(name=name):
+                self.run.write(self.run.own_header(**{name: '9' * 64}), [own_line()], manifest=w2_manifest())
+
+                with self.assertRaisesRegex(Refused, f'header\'s {name} is not the package\'s'):
+                    self.run.open()
+
+    def test_settings_other_than_the_arm_s_are_refused(self):
+        rt = dict(s.OWN_ARMS['rt'])
+        self.run.write(self.run.own_header(settings=rt), [own_line()], manifest=w2_manifest())  # named v3, sent rt
+
+        with self.assertRaisesRegex(Refused, 'not the v3 arm\'s'):
+            self.run.open()
+        path = self.run.write(self.run.own_header(settings=rt), [own_line()], arm='rt')
+        self.assertEqual('rt', self.run.open(path)[0].arm)
+
+    def test_settings_that_differ_from_the_arm_s_in_any_one_key_are_refused(self):
+        for name, value in (('similarity_threshold', 0.1), ('top_k', 512), ('rerank_id', 'a-reranker')):
+            with self.subTest(name=name):
+                settings = {**s.OWN_ARMS['v3'], name: value}  # rerank_id is not sent by v3 at all
+                self.run.write(self.run.own_header(settings=settings), [own_line()], manifest=w2_manifest())
+
+                with self.assertRaisesRegex(Refused, 'not the v3 arm\'s'):
+                    self.run.open()
+
+    def test_a_server_version_other_than_the_manifest_s_is_refused(self):
+        self.run.write(self.run.own_header(ragflow_version='v0.27.2'), [own_line()], manifest=w2_manifest())
+
+        with self.assertRaisesRegex(Refused, 'ragflow_version is not the manifest\'s'):
+            self.run.open()
+
+    def test_the_results_contract_screens_still_run(self):
+        rows = [line(chunks=[chunk(1, content='see https://example.org')])]
+        self.run.write(self.run.own_header(), rows, manifest=w2_manifest())
+
+        with self.assertRaisesRegex(Refused, 'looks like it holds a URL'):
+            self.run.open()
+
+    def test_a_manifest_that_is_not_beside_the_results_or_names_another_engine_is_refused(self):
+        self.run.write(self.run.own_header(), [own_line()], manifest=w2_manifest(engine='infinity'))
+        elsewhere = self.tmp / s.W2_MANIFEST
+        elsewhere.write_text(json.dumps(w2_manifest()), encoding='utf-8')
+
+        with self.assertRaisesRegex(Refused, 'must be the w2-manifest.json beside the results file'):
+            self.run.open(manifest=elsewhere)
+        with self.assertRaisesRegex(Refused, 'the manifest\'s engine is infinity'):
+            self.run.open()
+
+    def test_a_results_file_not_named_for_an_arm_is_refused(self):
+        path = make_results(self.run.folder / 'w1-results.jsonl', self.run.own_header(), [own_line()])
+
+        with self.assertRaisesRegex(Refused, 'named w2-results-v3.jsonl or w2-results-rt.jsonl'):
+            self.run.open(path)
+
+    def test_a_manifest_that_breaks_the_contract_is_refused(self):
+        revision = s.DECIDING['revision']
+        broken = {'an extra key': ({**w2_manifest(), 'note': 'x'}, 'keys outside the contract'),
+                  'a missing key': ({k: v for k, v in w2_manifest().items() if k != 'canvas_sha256'}, 'missing keys'),
+                  'another contract version': (w2_manifest(w2=2), '"w2" must be 1'),
+                  'a time that is not ISO-8601': (w2_manifest(created_at='8 November 2026'), '"created_at"'),
+                  '21 documents': (w2_manifest(document_count=21), '"document_count"'),
+                  'another file shape': (w2_manifest(file_shape='slug-demoted'), '"file_shape"'),
+                  'another embedder route': (w2_manifest(embedder={'name': 'bge-m3', 'revision': revision,
+                                                                   'via': 'ollama'}), '"embedder.via"'),
+                  'a revision that is a branch name': (w2_manifest(embedder={'name': 'Qwen/Qwen3-Embedding-0.6B',
+                                                                             'revision': 'main', 'via': 'builtin-tei'}),
+                                                       '"embedder.revision"'),
+                  'another RAGFlow': (w2_manifest(ragflow_version='v0.20.0'), '"ragflow_version"'),
+                  'a version that only contains 0.27.3': (w2_manifest(ragflow_version='v0.27.30'), '"ragflow_version"'),
+                  'an image without a digest': (w2_manifest(ragflow_image_digest='infiniflow/ragflow:v0.27.3'),
+                                                '"ragflow_image_digest"'),
+                  'counts that disagree': (w2_manifest(predicted_chunk_count=6601), '"predicted_chunk_count"'),
+                  'a short dataset id': (w2_manifest(dataset_id='e' * 31), '"dataset_id"'),
+                  'a canvas sha that is not hex': (w2_manifest(canvas_sha256='G' * 64), '"canvas_sha256"'),
+                  'a short upload manifest sha': (w2_manifest(upload_manifest_sha256='3' * 63),
+                                                  '"upload_manifest_sha256"'),
+                  'a batch size of 0': (w2_manifest(embedding_batch_size=0), '"embedding_batch_size"')}
+        for name, (manifest, message) in broken.items():
+            with self.subTest(name):
+                self.run.write(self.run.own_header(), [own_line()], manifest=manifest)
+
+                with self.assertRaisesRegex(Refused, f'^the W2 manifest: .*{re.escape(message)}'):
+                    self.run.open()
+
+    def test_a_results_file_below_the_engine_folder_is_refused(self):
+        deep = self.run.root / 'nested' / 'elasticsearch'
+        deep.mkdir(parents=True)
+        (deep / s.W2_MANIFEST).write_text(json.dumps(w2_manifest()), encoding='utf-8')
+        path = make_results(deep / 'w2-results-v3.jsonl', self.run.own_header(), [own_line()])
+
+        with self.assertRaisesRegex(Refused, 'directly in .*<engine>/, not in a folder below it'):
+            self.run.open(path, deep / s.W2_MANIFEST)
+
+    def test_a_link_under_another_name_is_refused(self):
+        # A file link needs a privilege Windows does not grant by default, so the link is os.path.realpath's answer.
+        target = make_results(self.run.folder / 'copied.jsonl', self.run.own_header(), [own_line()])
+        (self.run.folder / s.W2_MANIFEST).write_text(json.dumps(w2_manifest()), encoding='utf-8')
+        link, realpath = self.run.folder / 'w2-results-v3.jsonl', s.os.path.realpath
+
+        with mock.patch.object(s.os.path, 'realpath', lambda p: realpath(target if Path(p) == link else p)), \
+                self.assertRaisesRegex(Refused, 'is a link to another file'):
+            self.run.open(link)
+
+    def test_chunks_from_a_document_that_is_not_one_of_our_uploads_are_refused(self):
+        # The shape of Walid's document names (intake_w1.py), beside our manifest and header.
+        rows = [own_line(chunks=[own_chunk(1), own_chunk(2, document_name='IQRA_LAW_Criminal_Procedure_Articles_'
+                                                                         '1-370_REVIEW.md')])]
+        self.run.write(self.run.own_header(), rows, manifest=w2_manifest())
+
+        with self.assertRaisesRegex(Refused, '^1 returned chunks carry a document name that is not <registry slug>.md'):
+            self.run.open()
+
+    def test_a_registry_without_the_manifest_s_22_laws_is_refused(self):
+        laws = json.loads(s.REGISTRY.read_text(encoding='utf-8'))
+        laws['laws'] = laws['laws'][:21]
+        registry = self.tmp / 'laws.json'
+        registry.write_text(json.dumps(laws, ensure_ascii=False), encoding='utf-8')
+        self.run.write(self.run.own_header(), [own_line()], manifest=w2_manifest())
+
+        with self.assertRaisesRegex(Refused, 'the registry has 21 laws, not the manifest\'s 22 documents'):
+            s.open_own_run(self.run.folder / 'w2-results-v3.jsonl', self.run.folder / s.W2_MANIFEST,
+                           self.run.package, self.run.root, registry)
+
+    def test_every_registry_slug_names_an_upload(self):
+        rows = [own_line(chunks=[own_chunk(rank, document_name=f'{slug}.md')
+                                 for rank, slug in enumerate(sorted(s.registry_slugs()), 1)])]
+        self.run.write(self.run.own_header(), rows, manifest=w2_manifest())
+
+        own, results = self.run.open()
+
+        self.assertEqual(22, len(results.lines[0]['chunks']))
+
+    def test_the_arm_settings_are_what_run_w1_sends(self):
+        base = ['--base-url', 'http://127.0.0.1:9380', '--api-key-file', 'key']
+
+        v3 = run_w1.retrieval_settings(run_w1.build_parser().parse_args(base))
+        rt = run_w1.retrieval_settings(run_w1.build_parser().parse_args(base + ['--vector-similarity-weight', '0.4']))
+
+        self.assertEqual((s.OWN_ARMS['v3'], s.OWN_ARMS['rt']), (v3, rt))
+
+
+class OwnRunOptionTests(OwnRunCase):
+    """The command line keeps W1's options and W2's apart, and --w2-decide reads only the deciding cell."""
+
+    def main(self, *argv) -> tuple:
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err), \
+                mock.patch.object(s, 'OWN_ROOT', self.run.root):
+            code = s.main(list(argv))
+        return code, out.getvalue(), err.getvalue()
+
+    def test_w2_options_without_own_run_are_refused(self):
+        for option in (['--w2-decide'], ['--manifest', 'm.json'], ['--fallback', 'f.json']):
+            with self.subTest(option=option[0]):
+                code, _, err = self.main('--results', 'x.jsonl', '--out-dir', 'out', *option)
+
+                self.assertEqual((2, True), (code, f'{option[0]}: only with --own-run' in err))
+
+    def test_own_run_needs_a_manifest_and_refuses_w1_options(self):
+        self.assertIn('--own-run needs --manifest', self.main('--results', 'x', '--out-dir', 'o', '--own-run')[2])
+        code, _, err = self.main('--results', 'x', '--out-dir', 'o', '--own-run', '--manifest', 'm',
+                                 '--laws-held', 'evidence')
+        self.assertEqual((2, True), (code, 'an own run holds our whole corpus' in err))
+
+    def test_w2_decide_on_a_file_that_is_not_the_deciding_cell_is_refused(self):
+        infinity = OwnRunFolder(self.tmp / 'second', engine='infinity')
+        infinity.root = self.run.root  # the same out/ root, another engine folder
+        infinity.folder = self.run.root / 'infinity'
+        infinity.folder.mkdir()
+        path = infinity.write(infinity.own_header(), [own_line()], manifest=w2_manifest(engine='infinity'))
+
+        code, out, err = self.main('--results', str(path), '--own-run', '--manifest', str(infinity.folder / s.W2_MANIFEST),
+                                   '--package', str(infinity.package), '--out-dir', str(self.tmp / 'score'), '--w2-decide')
+
+        self.assertEqual(2, code)
+        self.assertIn('--w2-decide reads only the pre-registered deciding cell', err)
+        self.assertIn('the engine is infinity, not elasticsearch', err)
+        self.assertEqual('', out)  # refused before the library is loaded
+
+    def decide(self, head: dict, *extra) -> tuple:
+        path = self.run.write(head, [own_line()], manifest=w2_manifest())
+        return self.main('--results', str(path), '--own-run', '--manifest', str(self.run.folder / s.W2_MANIFEST),
+                         '--package', str(self.run.package), '--out-dir', str(self.tmp / 'score'), '--w2-decide', *extra)
+
+    def test_w2_decide_with_a_split_other_than_the_bench_s_is_refused(self):
+        # The same halves with a trailing newline: another sha256, so not the split T-B2 was tuned against.
+        split = self.tmp / 'split.json'
+        split.write_bytes(s.SPLIT.read_bytes() + b'\n')
+
+        code, out, err = self.decide(self.run.own_header(), '--split', str(split))
+
+        self.assertEqual((2, ''), (code, out))
+        self.assertIn(f'split.json {sha(split)[:12]} is not the bench split', err)
+
+    def test_w2_decide_on_a_dataset_the_server_says_has_another_embedder_is_refused(self):
+        head = self.run.own_header()
+        head['datasets'][0]['embedding_model'] = 'BAAI/bge-m3@Builtin'  # the manifest still says Qwen3
+
+        code, out, err = self.decide(head)
+
+        self.assertEqual((2, ''), (code, out))
+        self.assertIn('the embedding model the server reports for the dataset is not Qwen/Qwen3-Embedding-0.6B', err)
+
+
+class SplitTests(unittest.TestCase):
+    ITEMS = [s.Item(f'lease-law-{n:02d}', 'ايجار', 'ايجار؟', frozenset({LEASE}), 'lease-law') for n in range(1, 5)]
+
+    def write(self, value) -> Path:
+        handle = tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf-8')
+        with handle:
+            json.dump(value, handle)
+        self.addCleanup(Path(handle.name).unlink)
+        return Path(handle.name)
+
+    def test_the_split_maps_each_item_to_its_half(self):
+        split = {'lease-law-01': 'A', 'lease-law-02': 'B', 'lease-law-03': 'B', 'lease-law-04': 'A'}
+
+        self.assertEqual(split, s.load_split(self.write(split), self.ITEMS))
+
+    def test_the_split_keeps_the_file_s_key_order_not_the_eval_set_s(self):
+        split = {'lease-law-03': 'B', 'lease-law-01': 'A', 'lease-law-04': 'A', 'lease-law-02': 'B'}
+
+        self.assertEqual(list(split), list(s.load_split(self.write(split), self.ITEMS)))
+
+    def test_only_the_bench_split_s_sha256_is_recorded_as_pinned(self):
+        other = self.write({'lease-law-01': 'A'})
+
+        self.assertEqual((True, False), (s.split_source(s.SPLIT)['pinned'], s.split_source(other)['pinned']))
+
+    def test_a_split_that_is_not_two_equal_halves_of_the_eval_set_is_refused(self):
+        bad = {'an id outside the set': {'lease-law-01': 'A', 'lease-law-02': 'B', 'lease-law-03': 'B',
+                                         'other-law-01': 'A'},
+               'a missing id': {'lease-law-01': 'A', 'lease-law-02': 'B', 'lease-law-03': 'B'},
+               'a third half': {'lease-law-01': 'A', 'lease-law-02': 'B', 'lease-law-03': 'C', 'lease-law-04': 'A'},
+               'unequal halves': {'lease-law-01': 'A', 'lease-law-02': 'B', 'lease-law-03': 'B', 'lease-law-04': 'B'}}
+        for name, split in bad.items():
+            with self.subTest(name), self.assertRaises(ValueError):
+                s.load_split(self.write(split), self.ITEMS)
+
+    def test_the_durable_split_is_read_first_and_the_bench_s_only_with_a_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bench_split = Path(tmp) / 'bench' / 'data' / 'split.json'
+            bench_split.parent.mkdir(parents=True)
+            bench_split.write_text('{}', encoding='utf-8')
+            with mock.patch.object(s, 'SPLIT', Path(tmp) / 'missing.json'):
+                path, warning = s.resolve_split(None, Path(tmp) / 'bench')
+
+            self.assertEqual(bench_split, path)
+            self.assertIn('the durable copy', warning)
+        self.assertEqual((s.SPLIT, None), s.resolve_split(None))
+        with self.assertRaisesRegex(Refused, '--split: no file'):
+            s.resolve_split(Path('no-such-split.json'))
+
+    def test_no_split_at_all_is_refused_not_a_crash(self):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(s, 'SPLIT', Path(tmp) / 'missing.json'):
+            with self.assertRaisesRegex(Refused, 'neither the durable copy .* nor the bench\'s'):
+                s.resolve_split(None, Path(tmp) / 'bench')
+
+    def test_without_the_bench_folder_the_command_refuses_naming_the_bench_only_files(self):
+        # A0q's rows and the strata's query terms have no durable copy (README, «The bench folder is still needed»).
+        err = io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(err), \
+                contextlib.redirect_stdout(io.StringIO()):
+            code = s.main(['--self-check', '--bench', str(Path(tmp) / 'bench')])
+
+        self.assertEqual(2, code)
+        self.assertRegex(err.getvalue(), r'^refused: missing: .*bench/results/perf/pg-rows-question\.jsonl, '
+                                         r'.*bench/data/eval\.jsonl\.')
+
+    def test_arm_sources_prefer_the_durable_copy_and_warn_when_it_is_missing(self):
+        t_b2 = next(spec for spec in s.ARMS if spec.name == 'T-B2')
+        a0q = next(spec for spec in s.ARMS if spec.name == 'A0q')
+        with tempfile.TemporaryDirectory() as tmp:
+            durable, bench = Path(tmp) / 'evidence', Path(tmp) / 'bench'
+            durable.mkdir()
+            (durable / 'rag-bench-rows-round2.jsonl').write_text('', encoding='utf-8')
+
+            found = s.arm_source(t_b2, bench, s.BASELINE, durable)
+            missing = s.arm_source(t_b2, bench, s.BASELINE, Path(tmp) / 'nowhere')
+            bench_only = s.arm_source(a0q, bench, s.BASELINE, durable)
+
+        self.assertEqual((durable / 'rag-bench-rows-round2.jsonl', True, None), found)
+        self.assertEqual((bench / 'results/rows-round2.jsonl', False), missing[:2])
+        self.assertIn('the durable copy', missing[2])
+        self.assertEqual((bench / 'results/perf/pg-rows-question.jsonl', False, None), bench_only)
+
+    def test_t_b2_s_source_for_the_deciding_gate_is_the_file_arm_source_picks(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bench = Path(tmp) / 'bench'
+            (bench / 'results').mkdir(parents=True)
+            (bench / 'results' / 'rows-round2.jsonl').write_bytes(b'{}\n')
+
+            from_bench = s.t_b2_source(bench, s.BASELINE, Path(tmp) / 'no-evidence')
+            nowhere = s.t_b2_source(Path(tmp) / 'no-bench', s.BASELINE, Path(tmp) / 'no-evidence')
+        durable = s.t_b2_source()
+
+        self.assertEqual((False, hashlib.sha256(b'{}\n').hexdigest()), (from_bench['durable'], from_bench['sha256']))
+        self.assertEqual((False, None), (nowhere['durable'], nowhere['sha256']))
+        self.assertEqual((True, s.T_B2_ROWS_SHA256), (durable['durable'], durable['sha256']))
+
+
+class HalfScopeTests(unittest.TestCase):
+    def test_halves_add_the_held_items_of_each_half(self):
+        halves = {'lease-law-01': 'B', 'sale-law-01': 'B', 'civil-01': 'A'}
+
+        scored = s.score_field('query', ScopeTests.ITEMS, ScopeTests.LINES, [ScopeTests.ARM], MAPPER, TEXTS,
+                               ScopeTests.STRATA, {'lease-law', 'civil'}, halves=halves)
+        scopes = scored['arms']['X']['scopes']
+
+        self.assertEqual((1, 1), (scopes['half_A']['items'], scopes['half_B']['items']))  # sale-law is not held
+        self.assertEqual((1, 1), (scopes['half_B']['w1_reached'], scopes['half_B']['arm_reached']))
+        self.assertIn('half_B_recall_vs_rule', scored['arms']['X']['intervals'])
+        self.assertEqual('B', scored['items'][0]['half'])
+
+    def test_with_a_split_each_scope_is_resampled_in_the_split_s_order(self):
+        # The bootstrap resamples by position, so the order of the differences moves the interval's ends
+        # (RealDataW2Tests reproduces the bench's interval only in split order). Here: the lists it is handed.
+        halves = dict(reversed(list(B_HALVES.items())))  # the same halves, the items in the other order
+        reached = set(B_IDS[:7]) | set(A_IDS[:1])
+        lines = {i.id: {'status': 'ok', 'chunks': [{'content': TEXTS[LEASE] if i.id in reached else 'نص'}]}
+                 for i in B_ITEMS}
+        ranked = {i.id: (LEASE,) if i.id in B_IDS[-3:] else (CONTRACT,) for i in B_ITEMS}
+        diffs = {i: float((i in reached) - (i in B_IDS[-3:])) for i in halves}
+
+        with mock.patch.object(s, 'bootstrap', wraps=s.bootstrap) as spy:
+            s.score_field('query', B_ITEMS, lines, [arm('T-B2', 'query', ranked)], MAPPER, TEXTS,
+                          {i.id: {'stratum': 'half'} for i in B_ITEMS}, {'lease-law'}, halves=halves)
+        handed = [call.args[0] for call in spy.call_args_list]
+
+        self.assertIn([diffs[i] for i in halves if halves[i] == 'B'], handed)  # half B, in split order
+        self.assertIn([diffs[i] for i in halves], handed)  # all held items, in split order
+        self.assertNotIn([diffs[i] for i in B_IDS], handed)  # half B in the eval set's order
+        self.assertNotIn([diffs[i.id] for i in B_ITEMS], handed)
+
+    def test_without_halves_no_half_scope_is_scored(self):
+        scopes = s.score_field('query', ScopeTests.ITEMS, ScopeTests.LINES, [ScopeTests.ARM], MAPPER, TEXTS,
+                               ScopeTests.STRATA, {'lease-law'})['arms']['X']['scopes']
+
+        self.assertNotIn('half_B', scopes)
+
+
+def own(engine: str = 'elasticsearch', arm_name: str = 'v3', **embedder) -> s.OwnRun:
+    manifest = w2_manifest(engine=engine)
+    manifest['embedder'].update(embedder)
+    return s.OwnRun(manifest, '0' * 64, 'out/x/w2-manifest.json', '0' * 64, arm_name, Path('w2-results.jsonl'))
+
+
+def own_with(**manifest_changes) -> s.OwnRun:
+    return dataclasses.replace(own(), manifest=w2_manifest(**manifest_changes))
+
+
+B_ITEMS = [s.Item(f'lease-law-{n:02d}', 'ايجار', 'ايجار؟', frozenset({LEASE}), 'lease-law') for n in range(1, 45)]
+B_HALVES = {item.id: 'A' if n < 4 else 'B' for n, item in enumerate(B_ITEMS)}  # 4 in half A, 40 in half B
+B_IDS = [item.id for item in B_ITEMS if B_HALVES[item.id] == 'B']
+A_IDS = [item.id for item in B_ITEMS if B_HALVES[item.id] == 'A']
+
+
+class W2DecisionTests(unittest.TestCase):
+    """The pre-registered reading: W2 vs T-B2, half B (40 items), both through the mapping rule, «wins» only
+    when the paired-bootstrap interval lies above zero."""
+
+    def decide(self, w2_reaches=(), arm_reaches=(), arm_through_rule=()) -> dict:
+        """W2 serves LEASE on the items in `w2_reaches`, nothing on the rest. T-B2 serves LEASE on the items in
+        `arm_reaches`, ECHO (which holds half of LEASE: by keys a miss, through the rule a hit) on those in
+        `arm_through_rule`, and CONTRACT on the rest."""
+        lines = {i.id: {'status': 'ok', 'chunks': [{'content': TEXTS[LEASE] if i.id in w2_reaches else 'نص'}]}
+                 for i in B_ITEMS}
+        ranked = {i.id: (LEASE,) if i.id in arm_reaches else (ECHO,) if i.id in arm_through_rule else (CONTRACT,)
+                  for i in B_ITEMS}
+        scored = s.score_field('query', B_ITEMS, lines, [arm('T-B2', 'query', ranked)], DECISION_MAPPER,
+                               DECISION_TEXTS, {i.id: {'stratum': 'half'} for i in B_ITEMS}, {'lease-law'},
+                               halves=B_HALVES)
+        self.scored = scored
+        return s.w2_decision(scored, own(), [], s.SPLIT_SHA256)
+
+    def test_w2_wins_when_its_half_b_interval_lies_above_zero(self):
+        decision = self.decide(w2_reaches=B_IDS)
+
+        self.assertEqual(('wins', 'above zero', None, 40), (decision['verdict'], decision['side'], decision['note'],
+                                                            decision['items']))
+        self.assertEqual((1.0, 1.0), (decision['interval']['lo'], decision['interval']['hi']))
+
+    def test_w2_behind_t_b2_on_half_b_is_not_shown_and_says_it_is_behind(self):
+        decision = self.decide(arm_reaches=B_IDS)
+
+        self.assertEqual(('not shown', 'below zero', 'W2 is behind T-B2 on half B: the whole interval lies below zero'),
+                         (decision['verdict'], decision['side'], decision['note']))
+
+    def test_a_tie_on_half_b_is_not_shown_and_says_what_40_items_cannot_detect(self):
+        decision = self.decide(w2_reaches=B_IDS, arm_reaches=B_IDS)
+
+        self.assertEqual(('not shown', 'includes zero', 0.0, 0.0, 'a smaller effect cannot be detected on 40 items'),
+                         (decision['verdict'], decision['side'], decision['interval']['lo'], decision['interval']['hi'],
+                          decision['note']))
+
+    def test_on_40_items_three_more_reached_are_not_shown_and_four_win(self):
+        # The resampled mean is 0 with probability (37/40)^40 = 4.4% for three, (36/40)^40 = 1.5% for four.
+        three, four = self.decide(w2_reaches=B_IDS[:3]), self.decide(w2_reaches=B_IDS[:4])
+
+        self.assertEqual(('not shown', 0.0, 0.075), (three['verdict'], three['interval']['lo'], three['interval']['mean']))
+        self.assertEqual(('wins', 0.025), (four['verdict'], four['interval']['lo']))
+
+    def test_the_decision_reads_half_b_only(self):
+        decision = self.decide(w2_reaches=A_IDS)  # W2 ahead on every half-A item, level on half B
+
+        self.assertEqual(('not shown', 'includes zero'), (decision['verdict'], decision['side']))
+        self.assertTrue(self.scored['arms']['T-B2']['intervals']['half_A_recall_vs_rule']['excludes_zero_above'])
+
+    def test_the_decision_scores_t_b2_through_the_rule_not_by_its_keys(self):
+        decision = self.decide(w2_reaches=B_IDS, arm_through_rule=B_IDS)
+        by_keys = s.w2_reading(self.scored, 'T-B2', 'half_B', by='keys')
+
+        self.assertEqual(('not shown', 'includes zero'), (decision['verdict'], decision['side']))
+        self.assertEqual('above zero', by_keys['side'])
+
+    def test_an_expected_article_served_only_past_t_b2_s_budget_is_a_miss(self):
+        # T-B2 serves CONTRACT, so its budget is CONTRACT's length. W2's first chunk fills it, and LEASE, its second,
+        # starts past the budget: it never counts, so W2 reaches nothing.
+        filler = 'نص ' * len(DECISION_TEXTS[CONTRACT])
+        lines = {i.id: {'status': 'ok', 'chunks': [{'content': filler}, {'content': TEXTS[LEASE]}]} for i in B_ITEMS}
+        scored = s.score_field('query', B_ITEMS, lines, [arm('T-B2', 'query', {i.id: (CONTRACT,) for i in B_ITEMS})],
+                               DECISION_MAPPER, DECISION_TEXTS, {i.id: {'stratum': 'half'} for i in B_ITEMS},
+                               {'lease-law'}, halves=B_HALVES)
+
+        decision = s.w2_decision(scored, own(), [], s.SPLIT_SHA256)
+
+        self.assertEqual(('not shown', 0, 0.0), (decision['verdict'], decision['w2_reached'], decision['w2_recall']))
+
+    def test_a_failed_half_b_line_is_listed_and_counts_as_a_miss(self):
+        lines = {i.id: {'status': 'ok', 'chunks': [{'content': TEXTS[LEASE]}]} for i in B_ITEMS}
+        lines[B_IDS[0]] = {'status': 'error', 'chunks': []}
+        scored = s.score_field('query', B_ITEMS, lines, [arm('T-B2', 'query', {i.id: (LEASE,) for i in B_ITEMS})],
+                               DECISION_MAPPER, DECISION_TEXTS, {i.id: {'stratum': 'half'} for i in B_ITEMS},
+                               {'lease-law'}, halves=B_HALVES)
+
+        decision = s.w2_decision(scored, own(), [], s.SPLIT_SHA256)
+
+        self.assertEqual(([B_IDS[0]], 39), (decision['not_ok_in_scope'], decision['w2_reached']))
+
+    def test_a_failed_half_a_line_is_not_listed_in_the_deciding_scope(self):
+        lines = {i.id: {'status': 'ok', 'chunks': [{'content': TEXTS[LEASE]}]} for i in B_ITEMS}
+        lines[A_IDS[0]] = {'status': 'error', 'chunks': []}
+        scored = s.score_field('query', B_ITEMS, lines, [arm('T-B2', 'query', {i.id: (LEASE,) for i in B_ITEMS})],
+                               DECISION_MAPPER, DECISION_TEXTS, {i.id: {'stratum': 'half'} for i in B_ITEMS},
+                               {'lease-law'}, halves=B_HALVES)
+
+        decision = s.w2_decision(scored, own(), [], s.SPLIT_SHA256)
+
+        self.assertEqual(([], [A_IDS[0]]), (decision['not_ok_in_scope'], scored['not_ok']))
+
+    def test_a_file_that_is_not_the_deciding_cell_gets_no_verdict(self):
+        decision = s.w2_decision(None, own(), ['the engine is infinity, not elasticsearch'], s.SPLIT_SHA256)
+
+        self.assertEqual((False, None), (decision['deciding_cell'], decision.get('verdict')))
+
+    T_B2_ROWS = {'sha256': s.T_B2_ROWS_SHA256, 'durable': True}
+
+    def gaps(self, run=None, model='Qwen/Qwen3-Embedding-0.6B@Builtin', fields=('query',), split=s.SPLIT_SHA256,
+             against=None) -> list:
+        head = {'fields': list(fields), 'datasets': [{'embedding_model': model}]}
+        return s.deciding_gaps(run or own(), head, split, self.T_B2_ROWS if against is None else against)
+
+    def test_the_deciding_cell_has_no_gap(self):
+        self.assertEqual([], self.gaps(fields=('query', 'question')))
+        for model in ('Qwen/Qwen3-Embedding-0.6B', 'Qwen/Qwen3-Embedding-0.6B@default@Builtin'):
+            with self.subTest(model):
+                self.assertEqual([], self.gaps(model=model))
+
+    def test_each_departure_from_the_deciding_cell_is_a_gap(self):
+        cases = {'engine is infinity': {'run': own(engine='infinity')},
+                 'embedder is BAAI/bge-m3': {'run': own(name='BAAI/bge-m3')},
+                 'embedder revision is cccccccccccc, not the pinned 97b0c614be4d': {'run': own(revision='c' * 40)},
+                 'canvas is 222222222222, not Walid\'s indexing pipeline': {'run': own_with(canvas_sha256='2' * 64)},
+                 'arm is rt': {'run': own(arm_name='rt')},
+                 'no query field': {'fields': ('question',)},
+                 'is not the bench split': {'split': '0' * 64},
+                 'rows were not read from the durable p3-evidence copy': {'against': {'sha256': s.T_B2_ROWS_SHA256,
+                                                                                      'durable': False}},
+                 'rows are 000000000000, not the pinned 7bccbab94956': {'against': {'sha256': '0' * 64,
+                                                                                    'durable': True}},
+                 'rows are missing, not the pinned': {'against': {'sha256': None, 'durable': True}}}
+        for gap, change in cases.items():
+            with self.subTest(gap):
+                self.assertIn(gap, ' '.join(self.gaps(**change)))
+
+    def test_the_server_s_embedding_model_must_name_the_deciding_embedder(self):
+        # The manifest says Qwen3 each time; the header is what the server reported (run_w1.py embedding_model()).
+        other = 'the embedding model the server reports for the dataset is not Qwen/Qwen3-Embedding-0.6B via Builtin'
+        cases = {'another model': ('BAAI/bge-m3@Builtin', other),
+                 'a model whose name only starts like it': ('Qwen/Qwen3-Embedding-0.6B-ft@Builtin', other),
+                 'the model from another provider': ('Qwen/Qwen3-Embedding-0.6B@SILICONFLOW', other),
+                 'nothing': (None, 'the server reported no embedding model')}
+        for name, (model, gap) in cases.items():
+            with self.subTest(name):
+                self.assertIn(gap, ' '.join(self.gaps(model=model)))
+
+    def test_an_opaque_tenant_model_id_from_the_server_is_no_gap(self):
+        # A 32-hex tenant_model id names no model: the manifest's name stands, with a warning (OwnRunScoringTests).
+        self.assertEqual([], self.gaps(model='a' * 32))
+
+    def test_the_printed_reading_says_not_shown_and_what_40_items_cannot_detect(self):
+        text = '\n'.join(s.decision_text(self.decide(w2_reaches=B_IDS[:3])))
+
+        self.assertIn('Verdict: not shown. A smaller effect cannot be detected on 40 items.', text)
+        self.assertIn('Scope: the held-out half B, 40 items', text)
+
+
+def own_context(items: list, ranked: dict, halves: dict) -> s.Context:
+    sources = {'arms': {'T-B2': {'path': 'p3/rows.jsonl', 'sha256': s.T_B2_ROWS_SHA256, 'durable': True}},
+               'split': {'path': 'p3/split.json', 'sha256': s.SPLIT_SHA256, 'pinned': True},
+               'strata_terms': {'path': 'bench/eval.jsonl', 'sha256': '0' * 64, 'durable': False}}
+    return s.Context(DECISION_TEXTS, items, 'set', 'corpus', [arm('T-B2', 'query', ranked)],
+                     {i.id: {'stratum': 'half'} for i in items}, DECISION_MAPPER, {k[0] for k in DECISION_TEXTS},
+                     halves, sources, [])
+
+
+class OwnRunScoringTests(OwnRunCase):
+    ITEMS = B_ITEMS[:4]  # lease-law-01 to -04
+    HALVES = {'lease-law-01': 'A', 'lease-law-02': 'A', 'lease-law-03': 'B', 'lease-law-04': 'B'}
+
+    def scored(self, fallback: dict | None = None, embedding_model: str | None = None) -> tuple:
+        rows = [own_line(item.id, 'query', item.query, chunks=[own_chunk(1, content=TEXTS[LEASE])])
+                for item in self.ITEMS]
+        head = self.run.own_header()
+        if embedding_model is not None:
+            head['datasets'][0]['embedding_model'] = embedding_model
+        self.run.write(head, rows, manifest=w2_manifest())
+        run, results = self.run.open()
+        if fallback is not None:
+            (self.run.folder / 'w2-fallback-v3.json').write_text(json.dumps(fallback), encoding='utf-8')
+            fallback = s.load_fallback(self.run.folder / 'w2-fallback-v3.json', run, results)
+        context = own_context(self.ITEMS, {i.id: (CONTRACT, SALE) for i in self.ITEMS}, self.HALVES)
+        return s.score_own_run(run, results, context, fallback), context
+
+    def test_an_own_run_holds_every_law_with_nothing_lacking_and_no_warning(self):
+        report, context = self.scored()
+        held, scopes = report['laws_held'], report['fields']['query']['arms']['T-B2']['scopes']
+
+        self.assertEqual((sorted(context.slugs), 'own run (W2)', []), (held['laws'], held['source'], held['warnings']))
+        self.assertEqual({'given': [], 'items_left_out': []}, report['articles_lacking'])
+        self.assertEqual((4, 4, 0), (scopes['held']['items'], scopes['all']['items'], scopes['lacking']['items']))
+        self.assertTrue(all('not a missing law' in note for note in held['notes']))  # notes, worded for our corpus
+        self.assertEqual([], report['results']['warnings'])
+
+    def test_a_server_embedder_other_than_the_manifest_s_is_warned_about_and_does_not_decide(self):
+        report, _ = self.scored(embedding_model='BAAI/bge-m3@Builtin')
+
+        self.assertEqual(['the header\'s embedding model does not name the manifest\'s embedder '
+                          'Qwen/Qwen3-Embedding-0.6B'], report['results']['warnings'])
+        self.assertFalse(report['w2_decision']['deciding_cell'])
+        self.assertIn('**Warning:** the header\'s embedding model does not name', s.markdown(report))
+
+    def test_an_opaque_tenant_model_id_is_warned_about_and_still_decides(self):
+        report, _ = self.scored(embedding_model='a' * 32)
+
+        self.assertEqual(['the header\'s embedding model is an opaque tenant-model id: only the manifest names the '
+                          'embedder'], report['results']['warnings'])
+        self.assertTrue(report['w2_decision']['deciding_cell'])
+
+    def test_the_report_says_own_run_with_the_manifest_s_fields_and_no_third_party_wording(self):
+        report, _ = self.scored()
+        text = s.markdown(report)
+
+        self.assertEqual(('own run (W2)', W2_DATASET), (report['results']['own_run'], report['w2_manifest']['dataset_id']))
+        self.assertTrue(text.startswith('# W2 score\n'))
+        self.assertIn(f'| dataset id | {W2_DATASET} |', text)
+        self.assertIn('## Deciding reading (pre-registered', text)
+        self.assertIn('## Exploratory (reported, never deciding)', text)
+        self.assertIsNone(re.search(r'\b(his|he)\b', text), 'an own run is ours: no wording about Walid\'s corpus')
+
+    def test_the_outputs_are_w2_score_files_without_chunk_text(self):
+        report, _ = self.scored()
+
+        written = s.write_outputs(report, self.tmp / 'score', 'w2-score')
+
+        self.assertEqual(['w2-score.json', 'w2-score.md'], [path.name for path in written])
+        for path in written:
+            self.assertNotIn(TEXTS[LEASE][:20], path.read_text(encoding='utf-8'))
+
+    def test_the_fallback_sensitivity_empties_those_items_and_leaves_the_reading_alone(self):
+        report, _ = self.scored(fallback={'query': ['lease-law-03', 'lease-law-04']})
+        sensitivity = report['fallback_sensitivity']['fields']['query']
+        half_b = next(r for r in sensitivity['readings'] if r['scope'] == 'half_B')
+
+        self.assertEqual((['lease-law-03', 'lease-law-04'], 0.0), (sensitivity['items_emptied'], half_b['w2_recall']))
+        self.assertEqual((1.0, 'wins'), (report['w2_decision']['w2_recall'], report['w2_decision']['verdict']))
+        self.assertIn('dense-only fallback treated as empty (2 query items emptied)', s.markdown(report))
+
+    def test_question_ids_in_the_fallback_empty_only_the_question_field_s_items(self):
+        rows = [own_line(item.id, field, getattr(item, field), chunks=[own_chunk(1, content=TEXTS[LEASE])])
+                for field in ('query', 'question') for item in self.ITEMS]
+        self.run.write(self.run.own_header(fields=['query', 'question']), rows, manifest=w2_manifest())
+        run, results = self.run.open()
+        (self.run.folder / 'w2-fallback-v3.json').write_text(
+            json.dumps({'query': [], 'question': ['lease-law-03', 'lease-law-04']}), encoding='utf-8')
+        fallback = s.load_fallback(self.run.folder / 'w2-fallback-v3.json', run, results)
+        ranked = {i.id: (CONTRACT, SALE) for i in self.ITEMS}
+        context = own_context(self.ITEMS, ranked, self.HALVES)
+        context = dataclasses.replace(context, arms=[*context.arms, arm('T-B2q', 'question', ranked)])
+
+        fields = s.score_own_run(run, results, context, fallback)['fallback_sensitivity']['fields']
+
+        half_b = {field: next(r['w2_recall'] for r in fields[field]['readings'] if r['scope'] == 'half_B')
+                  for field in ('query', 'question')}
+        self.assertEqual({'query': 1.0, 'question': 0.0}, half_b)
+
+
+class FallbackFileTests(OwnRunCase):
+    def opened(self):
+        rows = [own_line('civil-code-01'), own_line('civil-code-02', chunks=[])]
+        self.run.write(self.run.own_header(), rows, manifest=w2_manifest())
+        return self.run.open()
+
+    def fallback(self, value, name: str = 'w2-fallback-v3.json') -> Path:
+        path = self.run.folder / name
+        path.write_text(json.dumps(value), encoding='utf-8')
+        return path
+
+    def test_the_ids_answered_only_by_the_fallback_are_read_per_field(self):
+        run, results = self.opened()
+
+        read = s.load_fallback(self.fallback({'query': ['civil-code-01']}), run, results)
+
+        self.assertEqual({'query': ['civil-code-01']}, read['fields'])
+
+    def test_a_fallback_file_that_does_not_fit_the_results_is_refused(self):
+        run, results = self.opened()
+        cases = {'another arm': ({'query': []}, 'w2-fallback-rt.json', 'must be the w2-fallback-v3.json'),
+                 'a field the file lacks': ({'query': [], 'question': []}, None, 'one list of item ids per field'),
+                 'an id with no chunks': ({'query': ['civil-code-02']}, None, 'no ok line with chunks'),
+                 'an id twice': ({'query': ['civil-code-01', 'civil-code-01']}, None, 'distinct item ids')}
+        for name, (value, file_name, message) in cases.items():
+            with self.subTest(name):
+                path = self.fallback(value, file_name or 'w2-fallback-v3.json')
+
+                with self.assertRaisesRegex(Refused, message):
+                    s.load_fallback(path, run, results)
+
+
+@unittest.skipUnless(REAL_DATA, 'real data: the bench folder or eval-final.json is missing')
+class RealDataW2Tests(unittest.TestCase):
+    def test_the_arms_and_the_split_are_read_from_the_durable_copies(self):
+        sources = real_context().sources
+
+        self.assertTrue(sources['arms']['T-B2']['path'].endswith('p3-evidence/rag-bench-rows-round2.jsonl'))
+        self.assertTrue(sources['arms']['B4q']['durable'])
+        self.assertEqual((True, {'A': 40, 'B': 40}), (sources['split']['pinned'],
+                                                      dict(Counter(real_context().halves.values()))))
+        self.assertEqual([], real_context().warnings)
+
+    def test_half_b_in_the_split_s_order_gives_back_the_bench_s_published_interval(self):
+        # PROOF-rag-bench.md §1: B2 against Postgres, MRR on half B, +0.132 [+0.019, +0.248] (py/report.py
+        # bootstrap()). In the eval set's order the same differences give [+0.0169, +0.2506].
+        from legal_search.metrics import reciprocal_rank
+        context = real_context()
+        arms, by_id = {a.spec.name: a for a in context.arms}, {i.id: i for i in context.items}
+        half_b = [i for i, half in context.halves.items() if half == 'B']  # the order score_field resamples in
+
+        got = s.bootstrap([reciprocal_rank(by_id[i].expected, arms['T-B2'].ranked[i])
+                           - reciprocal_rank(by_id[i].expected, arms['A0'].ranked[i]) for i in half_b])
+
+        self.assertEqual((0.1319, 0.0187, 0.2479), (got['mean'], got['lo'], got['hi']))
+
+    def test_a_w1_report_gives_the_held_items_of_each_half(self):
+        report, _, _ = real_scored()
+        scopes = report['fields']['query']['arms']['T-B2']['scopes']
+
+        self.assertEqual((9, 7, 16), (scopes['half_A']['items'], scopes['half_B']['items'], scopes['held']['items']))
+
+    def test_t_b2_s_own_text_as_an_own_run_ties_t_b2_on_half_b_and_is_not_shown(self):
+        report, outputs = real_own_scored()
+        decision = report['w2_decision']
+
+        self.assertEqual(('not shown', 40, 0.0, 0.0), (decision['verdict'], decision['items'],
+                                                       decision['interval']['lo'], decision['interval']['hi']))
+        self.assertEqual((22, [], 80), (len(report['laws_held']['laws']), report['laws_held']['warnings'],
+                                        report['fields']['query']['arms']['T-B2']['scopes']['held']['items']))
+        for text in outputs:
+            self.assertNotIn(real_context().texts[('civil-code', 107, '')][:40], text)
+
+    def test_w2_decide_prints_the_deciding_reading_then_the_exploratory_ones(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run, rows = OwnRunFolder(Path(tmp)), real_own_rows()
+            path = run.write(run.own_header(), rows, manifest=w2_manifest())
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), mock.patch.object(s, 'OWN_ROOT', run.root), \
+                    mock.patch.object(s, 'load_context', lambda *a, **k: real_context()):
+                code = s.main(['--results', str(path), '--own-run', '--manifest', str(run.folder / s.W2_MANIFEST),
+                               '--package', str(run.package), '--out-dir', str(Path(tmp) / 'score'), '--w2-decide'])
+        text = out.getvalue()
+
+        self.assertEqual(0, code)
+        self.assertLess(text.index('Deciding reading (pre-registered'), text.index('Exploratory (reported, never deciding):'))
+        self.assertIn('Verdict: not shown. A smaller effect cannot be detected on 40 items.', text)
+        self.assertIn('laws held: all 22 (our whole corpus); articles lacking: none', text)
+
+
+def real_own_rows() -> list:
+    """T-B2's own top 5 served texts as the chunks of every query line: W2 then equals T-B2 through the rule."""
+    context = real_context()
+    t_b2 = next(a for a in context.arms if a.spec.name == 'T-B2')
+    return [{'id': i.id, 'field': 'query', 'sent': i.query, 'status': 'ok', 'error': None,
+             'chunks': [chunk(r, content=context.texts[k], document_name=f'{k[0]}.md')
+                        for r, k in enumerate(t_b2.ranked[i.id][:s.TOP], 1)]} for i in context.items]
+
+
+@functools.lru_cache(maxsize=1)
+def real_own_scored():
+    with tempfile.TemporaryDirectory() as tmp:
+        run = OwnRunFolder(Path(tmp))
+        run.write(run.own_header(), real_own_rows(), manifest=w2_manifest())
+        report = s.score_own_run(*run.open(), real_context())
+        written = s.write_outputs(report, Path(tmp) / 'score', 'w2-score')
+        outputs = [path.read_text(encoding='utf-8') for path in written]
+    return report, outputs
 
 
 if __name__ == '__main__':

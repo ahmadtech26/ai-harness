@@ -1,0 +1,2 @@
+# upload-manifest.json records make_w2_corpus.py by its sha256, so its bytes must not depend on the checkout (core.autocrlf).
+* text eol=lf

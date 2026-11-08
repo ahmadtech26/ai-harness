@@ -1,0 +1,23 @@
+# Use only if MinIO or Infinity refuses to start on tmpfs (README.md, «## The sealed stack»: both may ask
+# for O_DIRECT; tmpfs takes it on this machine's 6.18 kernel, so it is not expected). The store then writes
+# to a throwaway named volume (ragbench-rf-minio-data, ragbench-rf-infinity-data) that `down --volumes`
+# removes, and the prefix sweep removes if `down` is skipped. Nothing else moves off tmpfs.
+#   docker compose -f compose.yaml -f compose.store-volumes.yaml ...
+services:
+  minio:
+    tmpfs: !reset []
+    volumes:
+      - type: volume
+        source: minio-data
+        target: /data
+  infinity:
+    tmpfs: !reset []
+    volumes:
+      - type: volume
+        source: infinity-data
+        target: /var/infinity
+volumes:
+  minio-data:
+    name: ragbench-rf-minio-data
+  infinity-data:
+    name: ragbench-rf-infinity-data

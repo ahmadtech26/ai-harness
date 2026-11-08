@@ -1,0 +1,16 @@
+# Use only if TEI never turns ready reading the model through Docker Desktop's Windows file share
+# (README.md, «## Runbook», prepare step P8). TEI then reads a throwaway copy of the same files from the
+# volume ragbench-rf-tei-models, which the runbook creates and fills before `up` and removes at teardown
+# (prefix ragbench-rf-). The copy is checked file by file against the fetched model's sha256 list.
+#   docker compose -f compose.yaml -f compose.tei-volume.yaml ...
+services:
+  tei:
+    volumes: !override
+      - type: volume
+        source: tei-models
+        target: /data
+        read_only: true
+volumes:
+  tei-models:
+    name: ragbench-rf-tei-models
+    external: true
