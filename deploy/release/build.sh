@@ -56,8 +56,9 @@ if [ "$mode" = production ]; then
   fi
   harness_commit="$(git -C "$harness" rev-parse --short HEAD)"
 
-  # The fork gate runs jest and tsc on the AI Platform working tree, so that tree must be the commit the platform image
-  # was built from, with nothing uncommitted: otherwise the suites pass for code the release does not ship.
+  # The fork gate runs jest and tsc on the AI Platform working tree (since the split, on the .assembled tree that
+  # deploy/dev/platform.sh has tools/dev.sh assemble from it before each run), so that tree must be the commit the
+  # platform image was built from, with nothing uncommitted: otherwise the suites pass for code the release does not ship.
   platform_dir="${PLATFORM_DIR:-$harness/../AI Platform}"  # sibling repository, as build-platform.sh and platform.sh
   platform_head="$(git -C "$platform_dir" rev-parse --short HEAD)" \
     || { echo "production: git cannot read the AI Platform checkout $platform_dir (PLATFORM_DIR)" >&2; exit 1; }
@@ -72,7 +73,7 @@ if [ "$mode" = production ]; then
     printf '%s\n' "$platform_dirty" >&2
     exit 1
   fi
-  export PLATFORM_DIR="$platform_dir"  # the fork gate (deploy/dev/platform.sh) mounts the checkout checked here
+  export PLATFORM_DIR="$platform_dir"  # the fork gate (deploy/dev/platform.sh) runs on the checkout checked here
 fi
 
 env_lines="$(docker image inspect --format '{{range .Config.Env}}{{println .}}{{end}}' "$prefix/platform:$platform")" \

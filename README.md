@@ -17,7 +17,7 @@ somewhere else.
 | Folder | What it holds |
 |---|---|
 | `content` | What ships in a release: the AQEL prompt (`prompts/`), the specialist (`specialists/aqel.json`), the customer tiers (`tiers.json`), plan roles (`roles.json`), reviewed starter prompts (`starters/`), the content skills (`skills/`), the law registry, aliases and corrections (`corpus/`), the retrieval evaluation set (`eval/`), and the Node scripts that check and release them (`release.mjs`, `tiers.mjs`, `starters.mjs`, `grounding-laws.mjs`). |
-| `deploy/dev` | `platform.sh`: runs a command in the AI Platform checkout inside a pinned Node container, with each workspace's `node_modules` in a Docker volume and `/tmp` on a RAM disk. |
+| `deploy/dev` | `platform.sh`: runs a command in the AI Platform dev container: through the checkout's own `tools/dev.sh run` when it has one (AI Platform since the split), else in a LibreChat checkout inside a pinned Node container, with each workspace's `node_modules` in a Docker volume and `/tmp` on a RAM disk. |
 | `deploy/release` | Release builds: `build-platform.sh` (the fork image), `build.sh` (the release image), the release `Dockerfile`, the retrieval baseline `eval-baseline.json` and the eval overlay `compose.eval.yaml`. |
 | `deploy/staging` | The local, production-shaped staging stack (`compose.yaml`) and its acceptance driver (`scenarios.mjs`), drills, mock model and Docker tests. See `deploy/staging/README.md`. |
 | `jordanian-law` | The law library as a skill (`SKILL.md`): 22 Jordanian laws verbatim with the Civil Code explanatory memorandum (`references/القوانين-الأردنية`), and practitioner commentary that is context, not authority (`references/docs`). |
@@ -63,6 +63,14 @@ scripts and tests.
 The `fork` step keeps the fork's `node_modules` in Docker volumes. On a new machine, install them once with
 `deploy/dev/platform.sh 'npm ci'` before the first run.
 
+Since the 2026-11-07 split AI Platform holds only our work, so when `PLATFORM_DIR` has `tools/dev.sh`, `platform.sh`
+runs its `assemble` and then hands the command to its `run`: `.assembled`, the tree `tools/dev.sh assemble` keeps, is
+first brought in step with the AI Platform working tree, and the command runs on it in the same pinned container, with
+that tree's own `iqraa-ap-nm-*` volumes. So the `fork` step tests the working tree as it is, never the tree as it was
+last assembled, and an assemble that fails fails the step. `deploy/dev/platform.sh 'npm ci'` (an assemble, then the
+same as `tools/dev.sh install`) installs into it. A `PLATFORM_DIR` without `tools/dev.sh` is a LibreChat checkout and
+runs as before.
+
 Settings: `IQRAA_IMAGE_PREFIX` (default `iqraa`) names the images, `IQRAA_GATES_PROJECT` (default `release-gates`)
 names the compose projects of the `legal-search` and `eval` steps, and `PLATFORM_DIR` names the fork checkout.
 
@@ -82,9 +90,11 @@ Two scripts, in this order:
      that image only.
    - `--production`: the Harness must be committed (`git status --porcelain` empty), the AI Platform checkout
      (`PLATFORM_DIR`) must be at `<platform-sha>` with nothing uncommitted, because the `fork` gate runs its suites
-     on that working tree, and the platform image must carry `BUILD_COMMIT=<platform-sha>`, which only
-     `build-platform.sh` guarantees. It then runs `tools/gates.sh --release` with every step but `docker`, writes the
-     released skill versions to `content/skills/RELEASED.json` and labels the image with the Harness commit.
+     on that working tree (since the split, on the `.assembled` tree `platform.sh` assembles from it before each run,
+     which a clean checkout makes the committed state), and
+     the platform image must carry `BUILD_COMMIT=<platform-sha>`, which only `build-platform.sh` guarantees. It then
+     runs `tools/gates.sh --release` with every step but `docker`, writes the released skill versions to
+     `content/skills/RELEASED.json` and labels the image with the Harness commit.
      `--extra` is refused.
 
    Two things leave the Harness uncommitted around a production build. The staging driver writes the tier agent ids

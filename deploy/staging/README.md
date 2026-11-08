@@ -58,7 +58,8 @@ platform build refuses a build folder that is not empty, so a second build of th
 Every build here uses `--allow-draft` (staging and the drills): `tools/gates.sh checks`, where the skills, the law
 registry, the corrections and the starter prompts need not be approved yet, and nothing is recorded. `--production`
 stops before anything else unless the Harness is committed (`git status --porcelain` empty), the AI Platform checkout
-(`PLATFORM_DIR`) is at `<sha>` with nothing uncommitted (the `fork` gate runs on that working tree), and the platform
+(`PLATFORM_DIR`) is at `<sha>` with nothing uncommitted (the `fork` gate runs on that working tree; since the split, on
+the `.assembled` tree `deploy/dev/platform.sh` has `tools/dev.sh assemble` make from it before each run), and the platform
 image carries `BUILD_COMMIT=<sha>`, which `build-platform.sh` bakes in from the committed tree. It then runs
 `tools/gates.sh --release` with every step but `docker` (skill-ci, corpus-ci and the starter prompts must be approved),
 writes the released versions to `content/skills/RELEASED.json`, labels the image `org.iqraa.harness-commit`, and refuses

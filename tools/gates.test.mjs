@@ -20,21 +20,17 @@ const root = mkdtempSync(path.join(os.tmpdir(), 'gates test ')).replaceAll('\\',
 after(() => rmSync(root, { recursive: true, force: true }));
 
 // Each stub appends one line per call, tab separated: the tool, the two settings gates.sh answers for, then argv.
-// A call whose argv contains $STUB_FAIL exits $STUB_EXIT (default 1); every other call exits 0.
-const stubDir = `${root}/stubs`;
-mkdirSync(stubDir);
-for (const tool of ['docker', 'node']) {
-  writeFileSync(
-    `${stubDir}/${tool}`,
-    `#!/bin/sh
+// A call whose argv contains $STUB_FAIL exits $STUB_EXIT (default 1); every other call exits 0. The AI Platform's
+// tools/dev.sh, which a case may give PLATFORM_DIR, is the same stub.
+const stub = (tool) => `#!/bin/sh
 (IFS='\t'; printf '%s\\n' "${tool}\t\${MSYS_NO_PATHCONV:-}\t\${IQRAA_EVAL_OUT:-}\t$*") >> "$STUB_LOG"
 if [ -n "\${STUB_FAIL:-}" ]; then
   case " $* " in *"$STUB_FAIL"*) exit "\${STUB_EXIT:-1}" ;; esac
 fi
-`,
-    { mode: 0o755 },
-  );
-}
+`;
+const stubDir = `${root}/stubs`;
+mkdirSync(stubDir);
+for (const tool of ['docker', 'node']) writeFileSync(`${stubDir}/${tool}`, stub(tool), { mode: 0o755 });
 
 const scrubbed = ['path', 'platform_dir', 'iqraa_image_prefix', 'iqraa_gates_project', 'iqraa_eval_out', 'msys_no_pathconv', 'tmpdir', 'stub_fail', 'stub_exit'];
 const baseEnv = {
@@ -66,7 +62,8 @@ const win = (dir) => spawnSync('bash', ['-c', 'pwd -W 2>/dev/null || pwd'], { cw
 
 let caseNumber = 0;
 
-function runGates(args = [], { env = {}, fail, exitCode, without = [] } = {}) {
+// dev: true makes PLATFORM_DIR an AI Platform after the split, with a tools/dev.sh, in place of a LibreChat checkout.
+function runGates(args = [], { env = {}, fail, exitCode, without = [], dev = false } = {}) {
   caseNumber += 1;
   const work = `${root}/case ${caseNumber}`;
   const tree = `${work}/AI Harness`;
@@ -78,6 +75,10 @@ function runGates(args = [], { env = {}, fail, exitCode, without = [] } = {}) {
     for (const file of files) writeFileSync(`${tree}/${folder}/${file}`, '');
   }
   mkdirSync(platform);
+  if (dev) {
+    mkdirSync(`${platform}/tools`);
+    writeFileSync(`${platform}/tools/dev.sh`, stub('dev.sh'));
+  }
   mkdirSync(`${work}/tmp`);
   copyFileSync(source('../deploy/dev/platform.sh'), `${tree}/deploy/dev/platform.sh`);
   if (existsSync(source('./gates.sh'))) copyFileSync(source('./gates.sh'), `${tree}/tools/gates.sh`);
@@ -271,6 +272,31 @@ test('fork mounts PLATFORM_DIR, and a failing api run skips the client run', () 
   assert.deepEqual(run.marks, ['== fork', 'FAIL fork']);
   assert.equal(run.calls.length, 1);
   assert.ok(run.calls[0].argv.includes(`${win(run.platform)}:/work`), run.calls[0].text);
+});
+
+// The release reads as gated on the checked-out commit, so each fork run must follow an assemble of that checkout:
+// a run on the tree last assembled would test whatever overlay and pin that was.
+test('fork on an AI Platform with tools/dev.sh assembles the tree before each of its runs', () => {
+  const run = runGates(['fork'], { dev: true });
+
+  assert.equal(run.status, 0, run.shown);
+  assert.deepEqual(run.marks, ['== fork', 'PASS fork']);
+  const texts = run.calls.map((call) => call.text);
+  assert.deepEqual(texts, [
+    'dev.sh assemble',
+    'dev.sh run cd packages/api && npx jest src/iqraa && npx tsc --noEmit',
+    'dev.sh assemble',
+    'dev.sh run cd client && npx jest src/iqraa',
+  ]);
+  assert.ok(texts.indexOf('dev.sh assemble') < texts.findIndex((text) => text.includes('npx jest')));
+});
+
+test('a failing assemble fails fork before any of its suites runs', () => {
+  const run = runGates(['fork'], { dev: true, fail: 'assemble', exitCode: 3 });
+
+  assert.equal(run.status, 1, run.shown);
+  assert.deepEqual(run.marks, ['== fork', 'FAIL fork']);
+  assert.deepEqual(run.calls.map((call) => call.text), ['dev.sh assemble']);
 });
 
 test('a folder a step must mount being absent fails the step, without a call that mounts an empty path', () => {
