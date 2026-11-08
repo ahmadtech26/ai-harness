@@ -1,5 +1,6 @@
-// Arabic RTL acceptance check (REQ-RTL-001..004) and the account label (REQ-AUTH-011). Started by
-// run-rtl-check.mjs inside mcr.microsoft.com/playwright, in the proxy container's network namespace. Signs a
+// Arabic RTL acceptance check (REQ-RTL-001..004), the account label (REQ-AUTH-011) and the sign-in footer
+// (REQ-UI-002, O-37). Started by run-rtl-check.mjs inside mcr.microsoft.com/playwright, in the proxy container's
+// network namespace. Reads «Iqraa LAW AI» in the sign-in screen's footer before typing, then signs a
 // phone-only plan customer in on the fork's code screens (an app code, then a backup code), checks the account
 // menu shows the phone and never the placeholder email, asks the specialist the deterministic Arabic demo
 // question, waits for the full answer and checks computed styles. INJECT_CSS=<file under /work> adds a candidate
@@ -16,6 +17,7 @@ const OUT = '/work/out';
 const QUESTION = 'ARABIC_DEMO ما حكم العربون في القانون المدني الأردني؟';
 const ANSWER_ONLY = 'أصبح باتًا'; // in the demo answer, not in the question
 const LAST_LINE = 'مراجعة محامٍ مختص'; // the demo answer's final line
+const BRAND_NAME = 'Iqraa LAW AI'; // the footer on every screen, sign-in included (REQ-UI-002)
 const { CUSTOMER_PHONE, CUSTOMER_APP_SECRET, CUSTOMER_APP_LAST_STEP, CUSTOMER_BACKUP_CODE, INJECT_CSS } = process.env;
 const LOCAL_PHONE = `0${CUSTOMER_PHONE.slice(4)}`; // +96279… typed the local way, 079…
 let lastStep = Number(CUSTOMER_APP_LAST_STEP);
@@ -46,6 +48,25 @@ async function askDemo(browser, { cookieLang, file, backup }) {
     loginResponses.push(`${r.request().method()} ${r.url()} ${r.status()} (origin ${h.origin ?? 'absent'}, sec-fetch-site ${h['sec-fetch-site'] ?? 'absent'})`);
   });
   await page.goto(`${BASE}/login`);
+  // The sign-in footer (REQ-UI-002, O-37), read before anything is typed. Before sign-in /api/config sends no
+  // customFooter, so the name is the fork's own text (hook C16-footer), outside upstream's footer landmark.
+  await page.getByTestId('iqraa-identifier').waitFor({ timeout: 30000 });
+  await page.getByTestId('iqraa-brand-footer').waitFor({ timeout: 15000 }).catch(() => {});
+  const signIn = await page.evaluate(() => {
+    const footers = [...document.querySelectorAll('[data-testid="iqraa-brand-footer"]')];
+    const el = footers[0];
+    const r = el?.getBoundingClientRect();
+    const cs = el && getComputedStyle(el);
+    return {
+      count: footers.length,
+      text: el?.textContent ?? null,
+      shown: Boolean(r && r.width > 0 && r.height > 0 && cs.visibility === 'visible' && cs.display !== 'none' && Number(cs.opacity) > 0),
+      inViewport: Boolean(r && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth),
+      inLandmark: Boolean(el?.closest('[role="contentinfo"]')),
+      landmarks: document.querySelectorAll('[role="contentinfo"]').length,
+    };
+  });
+  await page.screenshot({ path: `${OUT}/signin-${file}` });
   await page.getByTestId('iqraa-identifier').fill(LOCAL_PHONE);
   await page.getByTestId('iqraa-use-app').click();
   if (backup) await page.getByTestId('iqraa-use-backup').click();
@@ -83,15 +104,23 @@ async function askDemo(browser, { cookieLang, file, backup }) {
   await page.screenshot({ path: `${OUT}/${file}`, fullPage: false });
   const measured = await page.evaluate(({ answerOnly }) => {
     const css = (el, pseudo) => (el ? getComputedStyle(el, pseudo ?? null) : null);
-    const messages = [...document.querySelectorAll('.text-message')];
-    const answer = messages[messages.length - 1];
+    // Each message's text sits in upstream's Container, marked data-message-text (it was .text-message before
+    // LibreChat f4154b649); a customer's answer is wrapped whole in the fork's [data-iqraa-answer] (IqraaAnswer).
+    const answers = [...document.querySelectorAll('[data-iqraa-answer]')];
+    const messages = [...document.querySelectorAll('[data-message-text]')];
+    const answer = answers[answers.length - 1] ?? messages[messages.length - 1];
     const quote = answer?.querySelector('.markdown blockquote');
     const quoteP = quote?.querySelector('p');
     const list = answer?.querySelector('.markdown ol');
     const para = [...(answer?.querySelectorAll('.markdown p') ?? [])].find((p) => p.textContent.includes(answerOnly));
     const code = answer?.querySelector('.markdown li code');
-    const user = [...document.querySelectorAll('.text-message *')].find((el) => el.childElementCount === 0 && el.textContent.includes('ما حكم العربون'));
+    // The question's own text, inside the customer's last turn (packages/chat MessageRow marks it .user-turn).
+    const turns = [...document.querySelectorAll('.user-turn')];
+    const userTurn = turns[turns.length - 1];
+    const user = [...(userTurn?.querySelectorAll('[data-message-text] *') ?? [])].find((el) => el.childElementCount === 0 && el.textContent.includes('ما حكم العربون'));
     return {
+      answerSource: answers.length ? 'data-iqraa-answer' : messages.length ? 'data-message-text' : 'none',
+      answerCount: answers.length,
       html: { dir: document.documentElement.dir, lang: document.documentElement.lang },
       quote: quote && { left: css(quote).borderLeftWidth, right: css(quote).borderRightWidth, before: css(quoteP, '::before')?.content, after: css(quoteP, '::after')?.content },
       list: list && { direction: css(list).direction, paddingLeft: css(list).paddingLeft, paddingRight: css(list).paddingRight },
@@ -101,7 +130,7 @@ async function askDemo(browser, { cookieLang, file, backup }) {
     };
   }, { answerOnly: ANSWER_ONLY });
   await context.close();
-  return { ...measured, account: { label, placeholderOnPage } };
+  return { ...measured, signIn, account: { label, placeholderOnPage } };
 }
 
 const px = (value) => Number.parseFloat(value ?? '0');
@@ -115,6 +144,8 @@ const noQuote = (content) => content === 'none' || content === 'normal' || conte
     const en = await askDemo(browser, { cookieLang: 'en-US', file: 'rtl-en.png', backup: true });
     report.measured = { ar, en };
     const check = (name, ok, detail) => (report.checks[name] = { ok: Boolean(ok), detail });
+    // The checks below measure the fork's answer: the upstream message fallback would measure another element.
+    check('answerFound', ar.answerSource === 'data-iqraa-answer', JSON.stringify({ source: ar.answerSource, count: ar.answerCount }));
     check('htmlRtlByDefault', ar.html.dir === 'rtl' && ar.html.lang === 'ar', JSON.stringify(ar.html));
     check('blockquoteBarOnRight', ar.quote && px(ar.quote.right) > 0 && px(ar.quote.left) === 0, JSON.stringify(ar.quote));
     check('noCssQuoteMarks', ar.quote && noQuote(ar.quote.before) && noQuote(ar.quote.after), JSON.stringify(ar.quote));
@@ -123,12 +154,14 @@ const noQuote = (content) => content === 'none' || content === 'normal' || conte
     check('inlineCodeIsolated', ar.code?.unicodeBidi === 'isolate' && ar.code?.direction === 'ltr', JSON.stringify(ar.code));
     check('englishUiLtr', en.html.dir === 'ltr' && en.para?.unicodeBidi === 'plaintext', JSON.stringify({ html: en.html, para: en.para }));
     check('accountLabelIsThePhone', [ar, en].every((m) => digitsOf(m.account.label).endsWith(CUSTOMER_PHONE.slice(-9)) && !m.account.label.includes('phone.iqraa.invalid') && !m.account.placeholderOnPage), JSON.stringify([ar.account, en.account]));
+    // A FAIL here on a stack that otherwise passes means its image predates the fork's hook C16-footer.
+    check('signInShowsName', [ar, en].every((m) => m.signIn.count === 1 && m.signIn.text === BRAND_NAME && m.signIn.shown && m.signIn.inViewport && !m.signIn.inLandmark && m.signIn.landmarks <= 1), JSON.stringify([ar.signIn, en.signIn]));
   } catch (error) {
     report.error = String(error.stack ?? error);
   } finally {
     await browser.close();
   }
-  report.pass = !report.error && Object.values(report.checks).length === 8 && Object.values(report.checks).every((c) => c.ok);
+  report.pass = !report.error && Object.values(report.checks).length === 10 && Object.values(report.checks).every((c) => c.ok);
   fs.writeFileSync(`${OUT}/rtl-check.json`, JSON.stringify(report, null, 2));
   for (const [name, c] of Object.entries(report.checks)) console.log(`${c.ok ? 'ok  ' : 'FAIL'} ${name}: ${c.detail}`);
   if (report.error) console.log(`error: ${report.error}`);

@@ -218,7 +218,32 @@ an authenticator-app code or a backup code. Staff (ADMIN) sign in with an app or
   for the next step. `SCENARIOS=auth node scenarios.mjs` runs the sign-in acceptance alone.
 - **RTL check.** `ui/run-rtl-check.mjs` signs a phone-only customer in on the code screens with an app code and
   then a backup code (the browser container cannot read the sink), and checks the account menu shows the phone,
-  never the `@phone.iqraa.invalid` placeholder.
+  never the `@phone.iqraa.invalid` placeholder. Before it types, it reads the sign-in screen's footer
+  (`signInShowsName`, REQ-UI-002, O-37): exactly one footer element reading «Iqraa LAW AI» (the wordmark above the
+  form shows the name too and is not counted), shown inside the viewport and outside upstream's footer landmark, in
+  Arabic and in English (screenshots `out/signin-rtl-ar.png`, `out/signin-rtl-en.png`). That name is the fork's own
+  text (hook C16-footer), not `CUSTOM_FOOTER` (see Branding); the staging build of AI Platform-next `bcb9058` shows
+  it, and a stack whose image predates the hook fails this check. The answer's styles are measured on the fork's
+  `[data-iqraa-answer]` (`answerFound` fails when only upstream's message text is there), the question's in the
+  customer's last turn.
+- **Screen pass.** `ui/run-screen-pass.mjs` walks the customer screens and states its sections list (sign-in and its
+  error, the tier landing and its animated heading, the composer and its controls, the demo question's Living Answer
+  and a library turn, conversation actions, sidebar, header menus, account menu, every settings tab and row, unknown
+  routes; then the question builder and starter gallery, the second tier, the strip's section index live and after
+  reopening, editing a question, copy, fork options, a regenerated answer, archiving, the error page's details, an
+  upload, the English interface, and log out). Not every screen: a fork carried out, an edited question sent, a file
+  sent with a question, the phone and email change flows and the staff screens are not opened (`screen-pass.cjs`
+  header). It runs at 1440x900 and at 390x844 with touch, each in the light and the dark theme, with the same image, network and
+  app-code sign-in as the RTL check: one staff (ADMIN) account and one plan customer with a 30-credit grant per pass,
+  both left on staging and recorded in `accounts.json` (labels, phones, ids; no secret), four app sign-ins and four
+  wrong codes (ten lock the identifier). `IQRAA_PASS_DIR` takes the output (default `out/screen-pass`): screenshots
+  `shots/<viewport>-<theme>-<nn>-<slug>.png`, `census.json` (Latin text and labels per screenshot, dir, lang and
+  direction of the main containers), `screens.json`, `findings.json` (entries marked `"source": "review"` survive a
+  rerun), `known-items.json` (O-35, O-37, O-38, N-08; points read by hand, marked `"source": "review"`, survive too)
+  and `arabic-texts.json` (per text: occurrences, distinct screenshots, the first three). `IQRAA_PASS_ONLY=desktop-light:landing`
+  runs part of it; sign-in and log out run in every run, a partial one too. `node ui/screen-pass-report.mjs <folder>`
+  works the report out again from the census after a rule changes; the rules are in `ui/screen-pass.lib.cjs`, tested
+  by `node --test ui/screen-pass.test.mjs`.
 - **Real WhatsApp.** Not exercised here. One real code to a real phone waits for Meta's approval of the Arabic
   authentication template (spec «Acceptance → Manual»).
 
@@ -419,7 +444,9 @@ The customer product is chat only, with three named tiers and a closed corpus (`
   the fork checks none of them at start-up; production sets all four (`.hq/docs/specs/spec-production.md`, REQ-PROD-002). The
   client reads them from `GET /api/config` (`customFooter`, `appTitle`, `helpAndFaqURL`, `interface.contextUsage`), and the shell
   page `index.html` holds only a flag, so check them through a signed-in `/api/config`, not by grepping the page: LibreChat's
-  latest sends `customFooter` and `helpAndFaqURL` only after sign-in.
+  latest sends `customFooter` and `helpAndFaqURL` only after sign-in. The sign-in screens therefore never read `CUSTOM_FOOTER`:
+  their «Iqraa LAW AI» is the fork's fixed text (hook C16-footer), and the RTL check reads it rendered (`signInShowsName`).
+  Keep `CUSTOM_FOOTER` at the same words, or the footer reads one name before sign-in and another after.
 
 ## Arriving with the fork-fixes merge
 
