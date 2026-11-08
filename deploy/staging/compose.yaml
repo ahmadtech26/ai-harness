@@ -333,6 +333,12 @@ services:
       ALLOW_SHARED_LINKS: 'false'
       # The footer is ours only (REQ-UI-002): LibreChat shows its name and version unless this is set.
       CUSTOM_FOOTER: 'Iqraa LAW AI'
+      # Our name, not LibreChat's (O-38): the tab title once /api/config loads (appTitle), the subject of the sign-in
+      # code email, and the name an authenticator app shows for an entry enrolled from now on (IqraaLAWAI, spaces
+      # removed; entries already enrolled keep LibreChat). '/' drops the account menu's Help item, which otherwise opens
+      # librechat.ai; put an Iqraa help page here once one exists. lib.test.mjs pins both: the fork does not check them.
+      APP_TITLE: 'Iqraa LAW AI'
+      HELP_AND_FAQ_URL: '/'
       # Scenario 11: per-user message rate limit. The concurrent-message limiter (O-34) is on at 8, not LibreChat's
       # default of 2, so scenario 8's six parallel chats stay bounded by the credit ledger rather than by LibreChat,
       # and the concurrent scenario fills the eight slots and is refused a ninth. Production must set both itself:

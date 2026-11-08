@@ -24,6 +24,9 @@ interface:
   schedules: false
   prompts: false
   sharedLinks: false
+  # No context gauge and no Compact button beside it, for everyone (O-90, O-115). LibreChat's default is true, so the
+  # key must stay; librechat.test.mjs pins it.
+  contextUsage: false
   agents:
     use: true
     create: true

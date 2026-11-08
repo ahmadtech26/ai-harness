@@ -408,8 +408,17 @@ The customer product is chat only, with three named tiers and a closed corpus (`
   by the `endpoint` field of the form, which the client chooses, and spelled out for `anthropic`, `assistants` and `azureAssistants`,
   whose built-in entries (ten files for `anthropic`) LibreChat keeps and `default` does not override. The scenario probes
   `endpoint: openAI` and `endpoint: anthropic`.
-- **Footer.** `CUSTOM_FOOTER` in `compose.yaml` («Iqraa LAW AI»). The client prints it from `GET /api/config` (`customFooter`); the
-  shell page `index.html` holds only a flag, so check the footer through `/api/config`, not by grepping the page.
+- **Branding.** Four settings keep LibreChat's name, its links and its context gauge off the screens (REQ-UI-002, O-38, O-90,
+  O-115). In `compose.yaml`: `CUSTOM_FOOTER` («Iqraa LAW AI»), the chat and landing footer, which shows LibreChat's name and
+  version without it; `APP_TITLE` («Iqraa LAW AI»), the tab title once the config loads, the subject of the sign-in code email and
+  the name an authenticator app shows for an entry enrolled from now on (`IqraaLAWAI`, spaces removed; entries already enrolled
+  keep `LibreChat`); and `HELP_AND_FAQ_URL: '/'`, which removes the account menu's Help item (it opens librechat.ai otherwise; put
+  an Iqraa help page there once one exists). In `librechat.yaml`: `interface.contextUsage: false`, no context gauge and no Compact
+  button beside it, for everyone (LibreChat's default is on). `lib.test.mjs` and `librechat.test.mjs` pin the last three, because
+  the fork checks none of them at start-up; production sets all four (`.hq/docs/specs/spec-production.md`, REQ-PROD-002). The
+  client reads them from `GET /api/config` (`customFooter`, `appTitle`, `helpAndFaqURL`, `interface.contextUsage`), and the shell
+  page `index.html` holds only a flag, so check them through a signed-in `/api/config`, not by grepping the page: LibreChat's
+  latest sends `customFooter` and `helpAndFaqURL` only after sign-in.
 
 ## Arriving with the fork-fixes merge
 

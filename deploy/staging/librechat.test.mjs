@@ -15,3 +15,23 @@ const tiersDoc = JSON.parse(fs.readFileSync(path.join(here, '..', '..', 'content
 test('the endpoint of every tier, and the MockLLM endpoint the scenarios release on, asks the provider for usage', () => {
   assert.deepEqual(usageProblems(yaml, [...tierProviders(tiersDoc, {}), 'MockLLM']), []);
 });
+
+// A top-level block of this plain two-space YAML, as { key: value } of its own keys, values unquoted (nested keys skipped).
+function topLevelBlock(text, name) {
+  const lines = text.split(/\r?\n/);
+  const start = lines.indexOf(`${name}:`);
+  assert.notEqual(start, -1, `librechat.yaml has no top-level ${name}:`);
+  const block = {};
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() === '' || line.trimStart().startsWith('#')) continue;
+    if (!line.startsWith(' ')) break;
+    const pair = /^  ([A-Za-z0-9_]+):\s*(.*)$/.exec(line);
+    if (pair) block[pair[1]] = pair[2].replace(/^(['"])(.*)\1$/, '$2');
+  }
+  return block;
+}
+
+// LibreChat shows the context gauge, and the Compact button beside it, unless the interface turns it off (default true).
+test('the interface turns the context gauge and its Compact button off, for everyone (O-90, O-115)', () => {
+  assert.equal(topLevelBlock(yaml, 'interface').contextUsage, 'false');
+});

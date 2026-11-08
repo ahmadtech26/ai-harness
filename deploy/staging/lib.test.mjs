@@ -68,3 +68,12 @@ test('staging enforces LibreChat script policy, or the fork refuses to start it 
   assert.equal(env.CSP_REPORT_ONLY, 'false');
   assert.notEqual((env.SECURITY_HEADERS ?? '').toLowerCase(), 'false');
 });
+
+// The interface's own name and menu (O-38). The fork does not refuse to start without them, so these tests are their guard.
+test('staging names the app Iqraa LAW AI, so the tab title, the code email and new authenticator entries do not read LibreChat (O-38)', () => {
+  assert.equal(librechatEnvironment(COMPOSE).APP_TITLE, 'Iqraa LAW AI');
+});
+
+test("staging drops the account menu's Help item, which otherwise opens librechat.ai (O-38)", () => {
+  assert.equal(librechatEnvironment(COMPOSE).HELP_AND_FAQ_URL, '/');
+});
