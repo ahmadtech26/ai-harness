@@ -1979,6 +1979,11 @@ Git Bash on this machine, as P and E. Stop at the first check that fails. The W2
    its rules let a client CONNECT to `openrouter.ai:443` and nothing else, IP literals and private addresses refused
    («The gateway», «What it leaves as it was»). A client of the stack could reach those listeners only by taking
    over Squid itself.
+
+   **The owner's answers, 2026-11-09** (AskUserQuestion): (a) Nebius; (b) yes, `--provider-order nebius`; (c) the
+   one smoke call approved; (e) the residual retention accepted; the proxy's reach to 111 and 46425 above accepted.
+   The privacy switches of step 2 are account-wide, so they bind every key on the account: the stakeholder demo was
+   moved to a free model that does not train on prompts for that reason (owner, same day).
 5. One line for the record, the data-policy note H4 passes, for example: «owner set 2026-11-09: training off,
    ZDR only (All other models), guardrail qwen/qwen3-embedding-8b on Nebius only, $2 budget; observability off».
 
