@@ -753,11 +753,33 @@ The tests run with the same command as the generator's tests above. Nothing here
     handshake sent, nothing after; an untrusted certificate (interception) fails; a refused tunnel fails; 403 counts
     as refused, 200 and 503 do not; a silent proxy fails both kinds; refusals without a tunnel, and either check
     without `--proxy`, refused.
-  - **`tests/test_net_check_scan.py`** (6 tests, fix2). `--scan` against a real listener on 127.0.0.1: connected, and
-    the listener receives 0 bytes; both ends of the range tried; each outcome counted and the connected and timed-out
-    ports named (the review's 111/46425 and 80/443/8080 shape); open ports never change the exit status; a list cut
-    at 200 with the count of the rest; a name, a port 0 or 65536, a reversed or unreadable range, and
-    `--scan-ports` without `--scan` refused before anything is tried.
+  - **`tests/test_net_check_scan.py`** (10 tests, fix2, then stage 5 and its review). `--scan` against a real
+    listener on 127.0.0.1: connected, and the listener receives 0 bytes; both ends of the range tried; each outcome
+    counted and the connected, refused and timed-out ports named (the review's 111/46425, 80/443/8080 and 65,530
+    refused shape); any port that accepts a connection fails the run (a `FAIL scan` line naming it, exit 1), and so
+    does a refused one, alone among silent ports (a host answered); an error that is not silence (errno 24) fails as
+    «not checked»; only timed-out, «no route to host» and «network unreachable» ports pass, with an `ok   scan`
+    line; a clean scan does not hide another failed check; a list cut at 200 with the count of the rest; a name, a
+    port 0 or 65536, a reversed or unreadable range, and `--scan-ports` without `--scan` refused before anything is
+    tried.
+  - **`tests/test_es_mapping.py`** (26 tests, stage 5 and its review) uses an invented `mapping.json` shaped like v0.27.3's (its
+    pinned sha256 swapped for the fixture's) and the v0.27.3 source tree copy when it is there. `write`: one
+    template added right after `*_1536_vec`, formatted as the source, its eleven lines the `*_1536_vec` block's with
+    the two numbers changed; the record and the diff (11 lines added, none removed). Refused, nothing written: any
+    source but the pinned one; CR bytes, not UTF-8; the `*_1536_vec` block found 0 or 2 times; a source already
+    naming `*_4096_vec`; an earlier template that would take `q_4096_vec` (a `*_vec` match, a regex, a
+    `match_mapping_type` it cannot judge), and one whose `match` is a list or a regex that does not compile (each
+    counts as one that would, refused with a message, not a traceback); a property of that name; `--out` rules as
+    `patch_tei_wait.py`'s, a symlinked `mapping.json` in it foreign even with `--replace`; a copy that reads back
+    with other bytes, removed. The second pass: its text layer refuses changes the JSON does not show, its JSON layer
+    a block put in the wrong place. `check`: the approved copy passes, and so does one with earlier templates that
+    match only part of the name or a dot taken as a wildcard (`q_4096`, `4096_vec`, `q.4096.vec`, two regexes);
+    another sha256 fails though the template is right; a wrong `dims`, `similarity`, `index`, `type` or an extra
+    option fails though the sha256 is approved, and so do a template missing, after `*_bin`, twice, shadowed, after
+    a second `*_1536_vec`, or after a template with a `match_pattern` it cannot judge; a list `match` or a regex that
+    does not compile fails with `BAD` and `ES MAPPING NOT APPROVED`; unreadable JSON fails; a missing file is refused. On the real file:
+    the pinned sha256 is the tree copy's, the copy's sha256 is `PATCHED_SHA256`, lines 204-214, the hunk
+    `@@ -201,6 +201,17 @@`, the other 19 templates unchanged, and `check` fails the shipped file.
   - **`tests/test_key_leak_check.py`** (22 tests). Clean files pass and are counted; the key found in a file by its
     path, split across two reads once each, cut short by its pieces, on stdin under its label; files and stdin read
     together; the key file itself skipped; the last 16 characters of a secret whose length is no multiple of 16 found
@@ -797,7 +819,25 @@ host (Python 3.11.9, the Git Bash command above). On 2026-11-09, after the settl
 review's fixes, these 146 and the folder's 190 passed (`.hq/scratch/w2-stage4/fix1/suites.txt`). After the hosted
 run's build (2026-11-09: 59 new tests in four files, the 190 unchanged), the folder's 249 passed
 (`.hq/scratch/w2-stage4/build/logs/suites.txt`). After the two reviews' fixes (fix2: 16 new tests, one new file,
-`tests/test_net_check_scan.py`), the folder's 265 passed (`.hq/scratch/w2-stage4/fix2/logs/suites.txt`).
+`tests/test_net_check_scan.py`), the folder's 265 passed (`.hq/scratch/w2-stage4/fix2/logs/suites.txt`). After
+stage 5 (the gateway and the Elasticsearch mapping: 21 tests in one new file, `tests/test_es_mapping.py`, and two
+more in `tests/test_net_check_scan.py`, two of whose six changed with `--scan`'s verdict), the folder's 288 passed,
+and `../ragflow-w1`'s 261, `run_w1.py` still `b6440e5b…cb10` (`.hq/scratch/w2-stage5/build/logs/suites-w2.txt`,
+`suites-w1.txt`). One more full run on that code, at 14:30Z, failed one older test once,
+`test_a_failed_document_alone_is_parsed_again` (`tests/test_rf_ingest.py`), with nothing to show but `1 != 0`, since
+its exit-code assertion carried no message (`build/logs/suites-w2-final.txt`); the runs before and after it passed
+(`suites-w2.txt`, `suites-w2-final2.txt`), and the stage 5 review saw no failure in 48 runs of it, six at a time. That
+assertion now prints the tool's output, so a repeat names its own cause; if it fails again it is quarantined, not
+passed over. After the stage 5 review's fixes (five new tests in `tests/test_es_mapping.py` and one changed; two new
+in `tests/test_net_check_scan.py` and four changed with `--scan`'s stricter verdict), the folder's 295 passed, and
+`../ragflow-w1`'s 261, `run_w1.py` still `b6440e5b…cb10` (`.hq/scratch/w2-stage5/fix/logs/suites-w2.txt`,
+`suites-w1.txt`). The new checks' mutations, each on a copy of the folder, never the worktree, were all killed; the
+mutations the review's own list had left alive in `patch_es_mapping.py`, rerun as eight (its `:127` change split in
+two, and the same change to the regex branch), were killed but one (`.hq/scratch/w2-stage5/fix/logs/mutations.txt`).
+That one, the `settings` comparison in the second pass,
+cannot be killed by any test: one insertion that passes the text layer either lands right after `*_1536_vec`, where
+the settings cannot differ, or fails the template comparison beside it. It stays as part of the JSON layer, which
+is meant to hold without the text layer.
 
 **What the tests catch, measured with a list chosen by a reviewer, not by the builder.** An earlier version of
 this section reported «21 of 21 mutations killed». That was true of a list the builder chose, and it did not
@@ -863,6 +903,17 @@ the folder per mutation, never the worktree), measures it instead:
   runs: `fix2/logs/red-w2.txt`, before any code (the new options unknown), and `red-w2-stubs.txt`, with the options
   accepted and ignored so that each new test fails on its own assertion; the tests that pin behaviour already there
   (the six survivors) were shown by the mutations instead.
+- **Stage 5, 2026-11-09: the gateway and the Elasticsearch mapping.** A list chosen by the builder
+  (`.hq/scratch/w2-stage5/build/mutate_stage5.py`, one copy of the folder each under that stage's scratch): 22
+  mutations of `patch_es_mapping.py` (the sha256 pin, the CR refusal, the block's two numbers, its place, the
+  anchor count, a source already naming 4096, the precedence check and its regex and unjudgeable branches, the
+  property check, each layer of the second pass, the `--out` rules, the diff's hunk, the approved sha256, and
+  `check`'s sha256, shape, place, count and exit), 3 of `net_check.py --scan`'s verdict, and two controls. The
+  first run left four survivors, each a guard another guard covered (`logs/mutations-run1.txt`); the tests then
+  named each refusal's own message, and the second pass was cut to two layers, each with a case only it catches.
+  Second run: all 25 killed, both controls passing (`logs/mutations.txt`). Red runs before any code:
+  `red/test_es_mapping-red.txt` (the tool missing), `red/test_net_check_scan-red.txt` (4 failures),
+  `red/check-render-red.txt` (4 `FAIL` lines and the guard not stopping the render).
 
 Each of these files is outside the repository.
 
@@ -1506,6 +1557,7 @@ run against OpenRouter, and no agent reads the key.
 | What | Path | When |
 |---|---|---|
 | The text of every chunk (6,612 chunks, about 2.2 M characters of our served law text in W2) and each file name once (22 calls, `rag/flow/tokenizer/tokenizer.py:95`) | server → `ragbench-rf-proxy` (Squid, CONNECT only, no TLS interception) → `openrouter.ai:443` → the provider the owner's guardrail allows (Nebius) | H5, the parse |
+| The word «ok», once per document task when RAGFlow binds the embedder (about 22 calls, `rag/svr/task_executor_refactor/task_handler.py:384`); each goes through `LLMBundle.encode`, so `used-tokens.txt` counts it (`api/db/services/llm_service.py:219`) | the same | H5, the parse |
 | The 80 items' `query` and `question` texts, once per arm (2 arms: 320 calls) | the same | H7 |
 | One test sentence, «Test if the api key is available» (about 8 tokens) | the same | H4, only if the owner approved the smoke call |
 | The OpenRouter key | the owner's file → the runner (a read-only bind of that one file) → the server, in one `PUT` body over loopback → MySQL on tmpfs, in plain text (`tenant_model_instance.api_key`, `api/db/db_models.py:1863-1872`) → the `Authorization` header of the server's OpenAI client, inside TLS | H4 to H10 |
@@ -1574,9 +1626,13 @@ same internal network, no published port. Its header lists every change; in shor
 |---|---|
 | `tei` and `tei-probe` move to the profile `builtin`, never enabled here; the server's wait for `tei-probe` becomes `required: false` | no TEI on this stack (the pattern compose.yaml uses for `es01` and `infinity`) |
 | The server's volumes are restated (`!override`) without the TEI-wait patch and `/patch` | the hosted run uses the shipped `embedding_model.py` (PREMISES §5) |
+| The server reads `$HR/es-mapping/mapping.json` (`RF_ES_MAPPING_DIR`, with a `:?` guard), bound read-only over `/ragflow/conf/mapping.json`: the image's file with one more template, `*_4096_vec` (`dense_vector`, `dims` 4096, `cosine`, `index` true, as the 512/768/1024/1536 ones), written by `patch_es_mapping.py` in H1 | the model's vectors go to `q_4096_vec` (`tokenizer.py:124`), which no shipped template matches, so Elasticsearch 8.11 would map it by its own dynamic mapping (PREMISES §6); with the template, the mapping RAGFlow sends decides it (below, «The Elasticsearch mapping») |
 | `COMPOSE_PROFILES` without `tei-cpu` | no built-in embedder (`common/settings.py:392-395`; every TEI path is gated on «tei-»), and the boot-time tenant has no default embedding model to test (`api/db/init_data.py:91-94`) |
 | `ragbench-rf-proxy` (`ubuntu/squid:7.2-26.04_edge`, by digest) on `ragbench-rf-net` and on `ragbench-rf-egress`, the one non-internal network; nobody else joins it | the only route out (spec :472) |
-| `ragbench-rf-net`'s subnet pinned to `10.231.47.0/27`, its gateway to `10.231.47.1` | `squid.conf`'s `src` ACLs name both: only the subnet may use the proxy, so the egress side cannot, and its gateway, the Docker engine's side of the bridge, is refused first |
+| `ragbench-rf-net`'s subnet pinned to `10.231.47.0/27`, its gateway to `10.231.47.1` | `squid.conf`'s `src` ACLs name both: only the subnet may use the proxy, so the egress side cannot, and the gateway address is refused first. The pin also keeps that address reserved, so no container is given it |
+| `ragbench-rf-net` gets the bridge option `com.docker.network.bridge.inhibit_ipv4: "true"`; still internal | the bridge has no IPv4 address on the Docker engine's side, so the engine's own listeners (111 and 46425 answered on `10.231.47.1` before) are out of the stack's reach over IPv4; names, peers and the proxy work as before (below, «The gateway») |
+| Every service on `ragbench-rf-net` (es01, mysql, minio, redis, proxy, ragflow, and the runner, which has its own capabilities though it shares the server's namespace): `cap_drop: [NET_RAW]` | the bridge keeps an IPv6 link-local address on the engine's side, where 111 still accepted a connection; the containers have IPv6 off on eth0, so only a raw frame reached it, and a raw frame needs `CAP_NET_RAW`, which Docker grants by default (stage 5 review; below, «IPv6 and raw frames») |
+| The proxy: `sysctls` `net.ipv4.ip_forward` and `net.ipv4.conf.all.forwarding` `"0"`; `squid.conf`: `pinger_enable off` | the proxy is on both networks, and a container's namespace forwards by default (`ip_forward` 1), so a raw frame addressed to it from `ragbench-rf-net` could have been routed onto `ragbench-rf-egress` (the review's inference). Live, the engine dropped every such frame on the internal bridge before any container counted it (below, «IPv6 and raw frames»), so this is a second guard; Squid's ICMP helper is setuid root and opens raw sockets, which the proxy may no longer |
 | The server: `HTTPS_PROXY`/`https_proxy` = `http://ragbench-rf-proxy:3128`, `NO_PROXY`/`no_proxy` naming every internal host, `localhost`, `127.0.0.1` and `::1`; no `HTTP_PROXY` | openai 2.41.0 on httpx 0.28.1 honours them (PREMISES §5). Every internal URL is `http://`, so no internal call can reach the proxy even if `NO_PROXY` missed a name. The server waits for the proxy to start |
 | `LOG_LEVELS` adds `openai=INFO` | at root DEBUG the SDK would log every request's options, chunk text included (PREMISES §4) |
 | `LLM_TIMEOUT_SECONDS=60` | the wait of a provider check, default 10 s (`provider_api_service.py:894`); only the smoke call uses it |
@@ -1632,18 +1688,199 @@ carry the log (the image's Pebble does not forward its service's output); the ru
   with `docker exec`, held every line (`docker logs` held only Pebble's), and a tunnel held open for 12 s was
   logged only when it closed (fix2, step 5). **Not exercised:** a client at the gateway's own address, which only
   a container on the Docker engine's host network could be; the rule that refuses it rests on the parse and on
-  the `src` ACL working from the egress side.
-- **A finding for the owner: the internal network's gateway answers on two ports.** A TCP connect scan of
-  `10.231.47.1`, every port, nothing sent, from the internal network (`review2-safety/`, then fix2 with `net_check.py
-  --scan`): **111 and 46425 accept a connection**; 80, 443 and 8080, ports other containers publish, time out; the
-  other 65,530 refuse. The gateway is the Docker engine's side of the bridge, so the stack can reach those two
-  services: 111 is by convention rpcbind, 46425 is not identified, and neither was shown to lead anywhere.
-  `wsl.exe -e ss -ltn` showed neither port in the default WSL distribution, so they are on Docker Desktop's side
-  (inferred). There is still no route beyond it (1.1.1.1 unreachable). W2's gateway lines tested 443 and a port
-  another container publishes, which time out, so they could not show this; the W2 stacks, on the same Docker,
-  most likely had the same exposure (inferred). The proxy refuses the gateway as a client (above). Whether «no route
-  beyond the Docker VM, two unidentified listeners on it» is enough is the owner's decision, made on the port list
-  (H0 (f)); H3 scans again and stops if the list differs.
+  the `src` ACL working from the egress side. Since stage 5 no interface holds that address («The gateway»).
+- The internal network's gateway answered on two ports (`review2-safety/`, then fix2): closed by the build since,
+  below («The gateway»).
+- Stage 5 (2026-11-09, later; logs in `.hq/scratch/w2-stage5/build/`): the overlay with the two fixes below renders
+  (`render/check-render.txt`, 28 lines `ok`: the 22 above, the network option, no option on the egress network,
+  and the mapping bind in the server alone, read-only, with no other server mount); without `RF_ES_MAPPING_DIR` the
+  render stops («required variable RF_ES_MAPPING_DIR is missing a value»); `compose.yaml` alone renders as before,
+  its network without driver options. The same check run against the overlay before the change failed on those
+  lines (`red/check-render-red.txt`). `squid.conf`'s comments changed, not its rules; `squid -k parse` of it in the
+  pinned image, offline: exit 0, no warning (`logs/squid-parse.txt`).
+- The stage 5 review's fixes (2026-11-09, later; logs in `.hq/scratch/w2-stage5/fix/`): the render check, extended
+  (`render/check-render.txt`, 39 lines `ok`: the 28 above, `cap_drop [NET_RAW]` on each of the seven services, no
+  service adding a capability or privileged, the proxy's two sysctls at `"0"` and no other service's); the same
+  check against the overlay before the change failed on the eight lines that need it, the seven `cap_drop` lines
+  and the sysctls (`red/check-render-red.txt`);
+  `compose.yaml` alone renders as before, without `cap_drop` or `sysctls`. `squid.conf` gains one rule,
+  `pinger_enable off` (the pinned Squid 7.7 is built with `--enable-icmp`, so its helper would start): `squid -k
+  parse` in the pinned image, offline, with `NET_RAW` dropped: exit 0, no warning (`logs/squid-parse.txt`).
+
+### The gateway
+
+**The finding** (2026-11-09; `.hq/scratch/w2-stage4/review2-safety/`, then fix2 with `net_check.py --scan`). A TCP
+connect scan of `10.231.47.1`, every port, nothing sent, from the internal network: 111 and 46425 accepted a
+connection; 80, 443 and 8080, ports other containers publish, timed out; the other 65,530 refused. The gateway was
+the Docker engine's side of the bridge, so the stack could reach two services of the Docker VM: 111 is by
+convention rpcbind, 46425 was not identified, and `wsl.exe -e ss -ltn` showed neither in the default WSL
+distribution, so they are on Docker Desktop's side (inferred). W2's gateway lines tested 443 and a published port,
+which time out, so they could not show it; the W2 stacks, on the same Docker, most likely had the same exposure
+(inferred). The owner did not accept it as a residual risk (2026-11-09), so the build removes it.
+
+**The fix.** `compose.hosted.yaml` gives `ragbench-rf-net` the bridge driver option
+`com.docker.network.bridge.inhibit_ipv4: "true"`; the network stays internal and its subnet and gateway stay
+pinned. Docker's bridge driver documentation (https://docs.docker.com/engine/network/drivers/bridge/, read
+2026-11-09; the engine here is 29.9.1): the option is to «Prevent Docker from assigning an IP address to the bridge»,
+for user-defined bridge networks only, and with it «north-south traffic (to and from the bridge network) won't work
+unless you've manually configured the gateway address on the bridge, or a device attached to it». The Engine 28.0.0
+release notes (https://docs.docker.com/engine/release-notes/28/, moby PR 49261) add that an internal bridge
+network with this option reserves no gateway address unless one is configured. Ours is configured, so `10.231.47.1`
+stays reserved (no container is given it, and `squid.conf` still refuses it as a client) while no interface holds
+it. The same notes describe the finding itself (PR 49262): an internal network's bridge normally has an address,
+through which its containers reach the host's services, those listening on every address included. That PR's
+gateway mode `isolated` (internal networks only) has the same IPv4 effect, and for IPv6 is said to keep the bridge
+from a link-local address too; on this engine, on an IPv4-only network, it did not (below, «IPv6 and raw frames»),
+so it is not used. The IPv4 fix alone was not enough: the build's claim here that the containers' IPv6 being off
+closed the IPv6 side was wrong, and the stage 5 review showed why (below).
+
+**Seen live, 2026-11-09** (`.hq/scratch/w2-stage5/build/live_gateway.sh`, `logs/live-gateway.txt`): the proxy
+service started from the compose files themselves (placeholder pins and secrets, `up --no-deps proxy`), which made
+`ragbench-rf-net` and `ragbench-rf-egress`; two throwaway clients, `ragbench-rf-st-*` (python:3.12-slim by digest),
+on `ragbench-rf-net`; everything removed afterwards.
+- `docker network inspect ragbench-rf-net`: internal, `10.231.47.0/27`, IPAM gateway `10.231.47.1`, option
+  `com.docker.network.bridge.inhibit_ipv4` `true`; the proxy, the peer and the client at `.2`, `.3` and `.4`.
+- In the client: one route, `10.231.47.0/27` on eth0, and no default route; the addresses `10.231.47.4` and
+  `127.0.0.1`; IPv6 off on eth0 (`disable_ipv6` 1, only `::1` on lo).
+- Docker's embedded DNS (`127.0.0.11`): `ragbench-rf-proxy` and `proxy` gave `10.231.47.2`, `ragbench-rf-st-peer`
+  `10.231.47.3`; TCP by name to the peer and to the proxy (both names) connected.
+- The proxy from the subnet: `CONNECT openrouter.ai:443` answered 200 (the tunnel closed at once, nothing sent
+  through it), `CONNECT huggingface.co:443` 403; its log holds both lines.
+- `net_check.py --scan 10.231.47.1`, every port (4 min 16 s): **no port accepted a connection** (61,664 timed out,
+  3,871 «no route to host», errno 113; none refused, so the stricter verdict the review asked for, below, passes it
+  too), and the client's neighbour table left `10.231.47.1` unresolved (`00:00:00:00:00:00`, flags `0x0`): nothing
+  on the bridge answers for that address over IPv4.
+- The control, in the same run: an internal network made without the option (`ragbench-rf-st-ctl`,
+  `10.231.47.32/27`) and a client on it. The scan of its gateway, `10.231.47.33`, found **111 and 46425**
+  connected, as before (80, 443 and 8080 timed out). So the empty scan is the option's doing, not a change in the
+  engine.
+
+**IPv6 and raw frames** (the stage 5 review, 2026-11-09, later: `.hq/scratch/w2-stage5/review-security/`, then the
+fixes, `.hq/scratch/w2-stage5/fix/`). `inhibit_ipv4` takes the bridge's IPv4 address away, not its IPv6 link-local
+one. The containers have IPv6 off on eth0 (`disable_ipv6` 1; `/proc/sys` is read-only, so they cannot turn it back
+on), but Docker gives every container `CAP_NET_RAW` by default, and with it a root process sends frames of its own
+making through a packet socket (`AF_PACKET`), IPv6 ones included, whatever eth0's setting. The review did that from a
+client on a network built as the overlay builds this one: an ICMPv6 echo to all nodes was answered by one address,
+the engine's side of the bridge, and a TCP SYN to its port 111 got a SYN-ACK (46425 and 1 a reset), so the engine's
+rpcbind was still reachable (`rv_run.log`). Root runs in the server and the runner, in redis (its entrypoint is
+overridden), in minio and in mysql's entrypoint; Elasticsearch runs as 1000:0 and Squid as 584792, but Squid's ICMP
+helper, `/usr/lib/squid/pinger`, is setuid root. The `isolated` gateway modes did not help on an IPv4-only network:
+with `gateway_mode_ipv6=isolated`, beside `inhibit_ipv4` or with `gateway_mode_ipv4=isolated`, the link-local address
+stayed and 111 still answered (`rv_fix.log`, cases A and B). Without `CAP_NET_RAW` the client could not open the
+packet socket at all (case C). An IPv6 subnet (a ULA) with `isolated` left nobody answering (`rv_fix_d.log`, case D);
+it is not used, since it would give every container an IPv6 address, which `squid.conf`'s `src` rules and `NO_PROXY`
+do not name.
+
+**The fix for raw frames.** Every service on `ragbench-rf-net` drops `CAP_NET_RAW` (`cap_drop: [NET_RAW]`, the runner too: it shares
+the server's namespace but has its own capabilities); the proxy routes nothing between its two networks
+(`net.ipv4.ip_forward` and `net.ipv4.conf.all.forwarding` `"0"`); Squid's ICMP helper is off (`pinger_enable off`).
+Nothing in the stack needs `CAP_NET_RAW`: the stores and the server open ordinary sockets (the server's entrypoint
+starts nginx and Python, and nothing in it pings: `docker/entrypoint.sh`, read from the source), and Squid uses its
+helper only to measure round trips, which a tunnel-only proxy does not need. Only `NET_RAW` is dropped, not every
+capability: mysql's entrypoint needs `SETUID` and `SETGID` for `gosu`, and the server's nginx binds port 80.
+
+**Seen live, 2026-11-09, later** (`.hq/scratch/w2-stage5/fix/live/live_fix.sh`, `live-fix.txt`): es01, mysql, minio,
+redis and the proxy started from the compose files as they now are (placeholder pins and secrets, `up --no-deps`; no
+server, no runner, no key), throwaway `ragbench-rf-s6-*` containers beside them, everything removed afterwards.
+- The four stores healthy after 90 s and the proxy running, each with `drop=[CAP_NET_RAW] add=[] privileged=false`
+  and the bounding set `00000000a80405fb`, Docker's default `a80425fb` without bit 13: H3's capability lines print
+  `ok` for all five. The proxy's forwarding values are `0` and `0`, and its `cache.log` names no pinger.
+- A client with `NET_RAW` dropped: the packet socket refused (EPERM), IPv6 off on eth0 with only `::1` on lo, and the
+  review's probe stops at the socket (`PermissionError`). The control, a client with Docker's default set on the same
+  network: H3's capability and socket lines `FAIL` it, and its probe got the bridge's link-local answer and a SYN-ACK
+  on 111 again. So the finding holds on the network compose builds, with the stores and the proxy on it.
+- The pinned server image's own interpreters (`python3` and `/ragflow/.venv/bin/python`, as a one-off, not the
+  server) on `ragbench-rf-net` with `NET_RAW` dropped: the packet socket refused; with the default set, opened, and
+  H3's line `FAIL`s it. IPv6 is off on its eth0.
+- The proxy still serves: `CONNECT openrouter.ai:443` 200 (the tunnel closed at once, nothing sent through it),
+  `CONNECT huggingface.co:443` 403.
+- Forwarding (the review's inference that a raw frame addressed to the proxy could be routed onto the egress
+  network; `fwd_probe.py`, then `live_fwd.sh`, `live-fwd.txt`). From a client with Docker's default set, one UDP frame
+  at a time, each addressed to a dual-homed container's MAC, and a listener on `ragbench-rf-egress`. The stand-in,
+  a container on both networks with forwarding on (1, the default), counted the frame for its own address on
+  `ragbench-rf-net` (`InReceives` and `InDelivers` +1, so the frames are well made), but not one for its own address
+  on the egress network, nor one for the listener; the proxy (forwarding 0) counted nothing either, and the
+  listener got nothing. So the engine drops, on the internal bridge, every frame whose destination is outside
+  `10.231.47.0/27`, before any container's IP layer sees it (inferred: Docker's rules for an internal network,
+  which this setup cannot read). The path is closed twice, then: by the engine, and by no container holding
+  `CAP_NET_RAW`; the proxy's sysctls are a third guard, kept since they cost nothing.
+- H3's gateway lines with the new verdict, from the client without `NET_RAW` (4 min 17 s): `--block` `:443` and `:1`
+  errno 113; `scan connected: none`, `scan refused: none`, `ok   scan 10.231.47.1: no port answered (errno 113
+  3908, timeout 61627)`; then `ok   arp 10.231.47.1: unresolved, nothing on the bridge answers for it`. The control,
+  an internal network without the option (`10.231.47.32/27`): `FAIL block 10.231.47.33:1` (refused), `FAIL scan
+  10.231.47.33: 65532 port(s) answered, so a host holds this address (connected 2: 111 46425; refused 65530)` and
+  `FAIL arp 10.231.47.33: resolved by a host`, exit 1 each. Under the old rule that gateway would have failed only on
+  its two listeners.
+
+**What it leaves as it was.** What listens on 111 and 46425 is still not identified; the stack just cannot reach
+it. The proxy is also on `ragbench-rf-egress`, a normal bridge whose gateway is its route out, so it can still reach
+the engine's address there, 111 and 46425 included; it runs Squid alone (uid 584792, no effective capabilities, its
+setuid ICMP helper off), whose rules let a client CONNECT to `openrouter.ai:443` and nothing else, refusing IP
+literals before anything else and private destinations; only a client that took over Squid itself could reach the
+engine from there. That is the one way left to the engine's listeners, and H0 puts it before the owner. H3 checks the
+option, the seven containers' capabilities, a packet socket refused in the server and the runner, IPv6 off, the
+proxy's forwarding off, and scans the gateway address again: any port that answers, or a neighbour entry that
+resolves, stops the run.
+
+### The Elasticsearch mapping
+
+**Why.** The hosted model returns 4096 numbers, so RAGFlow stores each vector in `q_4096_vec` (`"q_%d_vec" %
+len(v)`, `rag/flow/tokenizer/tokenizer.py:124`). v0.27.3's `conf/mapping.json` has `dense_vector` templates for
+`*_512_vec`, `*_768_vec`, `*_1024_vec` and `*_1536_vec` only (`conf/mapping.json:160-203`), and none of its other
+templates matches that name, so Elasticsearch 8.11 would decide the field by its own dynamic mapping (PREMISES §6).
+The owner did not accept relying on that (2026-11-09), so the build declares it.
+
+**The file the server reads.** Each Elasticsearch connection reads `os.path.join(get_project_base_directory(),
+"conf", "mapping.json")` once, when its process starts (`common/doc_store/es_conn_base.py:38-51`), and `create_idx`
+sends that file's `settings` and `mappings` as they are (`:120-127`). The task executor calls it before a tenant's
+first chunks are stored, after binding the embedder (`rag/svr/task_executor_refactor/task_handler.py:223-229`,
+`:307-313`, on the refactored path that runs, «## TEI wait patch»; the legacy path the same way,
+`rag/svr/task_executor.py:1504`, `:744-747`). `get_project_base_directory()` is the folder above `common/` unless
+`RAG_PROJECT_BASE` or `RAG_DEPLOY_BASE` is set (`common/file_utils.py:22-42`). Neither is set: not in the image's
+environment (`docker image inspect` of the pin), not in `docker/` or the Dockerfile, not in `compose.yaml` or the
+overlay, and not among the secrets file's 12 names (`.hq/scratch/w2-run/state/prepare.json`, p2_secrets; the file
+was not opened). The code is `COPY common common` and `COPY conf conf` under `WORKDIR /ragflow` (Dockerfile:275,
+:301, :307). So the file is `/ragflow/conf/mapping.json`, and the overlay mounts the copy there, read-only.
+
+**The copy.** `patch_es_mapping.py write` (H1) refuses any source but the pinned image's file (sha256
+`49877a9153c466479ce75a81e5da49e952567ca9c3cb1d46e2b20c2a6bab8097`; copied out of the pin on 2026-11-09, byte for
+byte the source tree copy's, `.hq/scratch/w2-stage5/build/logs/mapping-src-from-image.txt`). It finds the
+`*_1536_vec` block by its exact eleven lines and inserts after it the same lines with `*_1536_vec` and `1536`
+changed to `*_4096_vec` and `4096`: the same name (`dense_vector`), keys, order and options (`type` `dense_vector`,
+`index` true, `similarity` `cosine`). It checks the result twice, as text (the source's lines and the block, nothing
+else) and as JSON (the same settings, mappings and templates in the same order, but the one, right after
+`*_1536_vec`), and checks that the new template is the first one that would take `q_4096_vec` and that no property
+names it. It writes `mapping.json` (sha256 `136b31a0d07b89116e814c99562ecfacbb52aee66ea91e12bf24ba0c4174ef90`, lines
+204-214 added, nothing removed), `mapping.diff` and `mapping-patch.json` (`logs/patch-es-mapping-write.txt`; GNU
+`patch` applies the diff to the image's file and gives the copy byte for byte, `logs/patch-es-mapping-check.txt`).
+`check --copy` verifies a copy: that sha256, and the template's shape, place and precedence. H3 runs it in the
+server, against `/ragflow/conf/mapping.json`.
+
+**Seen live, 2026-11-09** (`.hq/scratch/w2-stage5/build/live_es.sh`, `logs/live-es.txt`; every container and
+network `ragbench-rf-st-*`, removed afterwards):
+- The pinned server image's own Python (3.13.11), network none, read-only, the copy mounted as the overlay mounts
+  it: `RAG_PROJECT_BASE` and `RAG_DEPLOY_BASE` unset, the file `ESConnectionBase` reads is
+  `/ragflow/conf/mapping.json`, and it holds `*_512_vec`, `*_768_vec`, `*_1024_vec`, `*_1536_vec` and `*_4096_vec`;
+  `patch_es_mapping.py check --copy /ragflow/conf/mapping.json` there (H3's command) ends `ES MAPPING OK`. The
+  control, the image without the mount, gets two `BAD` lines and `ES MAPPING NOT APPROVED`.
+- Elasticsearch 8.11.3 from the pinned digest (`58a3a280…292a`), single node, security off (no secret), on an
+  internal network with no published port, and a client beside it. Each body was sent as `create_idx` sends it (one
+  `PUT /<index>` with `settings` and `mappings`).
+  - The patched body: all 20 templates stored, the five `dense_vector` ones in order, the last `*_4096_vec` with
+    `{"dims": 4096, "index": true, "similarity": "cosine", "type": "dense_vector"}`. One document with 4096 floats in
+    `q_4096_vec`: the field reads back exactly that, and a kNN search on it finds the document.
+  - The template decides: 3 floats in another field it matches, `x_4096_vec`, are refused («has a different number
+    of dimensions [3] than defined in the mapping [4096]»), and the field stays unmapped.
+  - The shipped body: 19 templates, no `*_4096_vec`. The same 3 floats in `x_4096_vec` are mapped by Elasticsearch
+    itself, as `float`; the 4096 floats in `q_4096_vec`, by its dynamic mapping, as the same `dense_vector`, dims
+    4096, cosine, indexed.
+
+**What it changes.** For this model, nothing in the field's mapping: Elasticsearch 8.11.3's own dynamic mapping gives
+`q_4096_vec` the same four settings (seen above). What changes is who decides: RAGFlow's file, as for the
+512/768/1024/1536 sizes, so a vector of another length, or another dynamic-mapping rule, can no longer give the
+field another mapping without failing. The hosted server's one departure from the image as shipped is this file
+(it runs the shipped `embedding_model.py`, without the TEI-wait patch); the network option is the stack's, not the
+image's.
 
 ### The tools
 
@@ -1673,9 +1910,23 @@ carry the log (the image's Pebble does not forward its service's output); the ru
   host; nothing sent after it; the positive control through the proxy) and `--tunnel-refused host:port` (the proxy
   must answer 403; a 200 or any other status, such as a 503 when the rules let it through and the connection beyond
   failed, is a `FAIL`). The direct `--reach`/`--block` lines are as before. `--scan IP` (with `--scan-ports`,
-  default every port) records what accepts a TCP connection on one address, each socket closed as it opens, nothing
-  sent: the count of each outcome, then the ports that connected and those that timed out. It never changes the exit
-  status; H3 compares its list with the one the owner accepted (H0 (f)).
+  default every port) tries a TCP connection to every port of one address, each socket closed as it opens, nothing
+  sent: the count of each outcome, the ports that connected, were refused and timed out, then its verdict. The
+  address must be silent: only a timeout, «no route to host» (errno 113) and «network unreachable» (101) pass
+  (`ok   scan <IP>: no port answered (…)`). A port that accepts a connection, and one that refuses it, are a `FAIL`
+  (exit 1), since a refusal is a host's answer: a gateway that came back with nothing listening would refuse every
+  port and pass a rule that fails only listeners (stage 5 review). Any other error is a `FAIL` too: that port was not
+  shown silent. H3 scans the gateway address with it («The gateway»).
+- **`patch_es_mapping.py`** (host, then the server): `write --source <the image's conf/mapping.json> --out <folder>`
+  writes the copy with the `*_4096_vec` template, its diff and `mapping-patch.json` (`file`, `source_sha256`,
+  `patched_sha256`, `inserted_lines`, `after_template`, `template`, `field`); it refuses any source but the pinned
+  v0.27.3 file, a CR byte or non-UTF-8 text, a `*_1536_vec` block found other than once, a source that already names
+  `*_4096_vec`, an earlier template or a property that would take `q_4096_vec`, a result that is not the source
+  and the block (checked as text and as JSON), and an `--out` that is a file, not empty without `--replace`, holds a
+  foreign entry or the source. `check --copy <file>` prints one line for the sha256 (the approved copy's,
+  `136b31a0…ef90`) and one for the template (shape, place, precedence), then `ES MAPPING OK: <file>` (exit 0) or
+  `ES MAPPING NOT APPROVED: …` (exit 1); a file it cannot read exits 2. Standard library, Python 3.9 or later
+  (the server's is 3.13). «The Elasticsearch mapping» says why.
 - **`key_leak_check.py`** (runner): reads the key from its mount, searches every file under `--scan` and the
   `--stdin` stream for the whole key and each of its 16-character pieces, and prints counts and paths only. With
   `--registration` it first checks the key against the record's salted sha256, so it cannot pass by searching for
@@ -1709,46 +1960,27 @@ Git Bash on this machine, as P and E. Stop at the first check that fails. The W2
      wrong slug can only make the calls fail, never route them elsewhere, since no fallback is taken (PREMISES §2);
      the smoke call or the first parse would show it.
    - (c) whether the one smoke call is approved.
-   - (d) relying on Elasticsearch 8.11's own mapping of 4096-dimension vectors, with H5's live check as the stop
-     rule (PREMISES §6).
    - (e) the residual retention at OpenRouter above.
-   - (f) the gateway finding above: whether «no route beyond the Docker VM, and these listeners on it» is enough,
-     written as the exact list of ports accepted, for example `GW_ACCEPTED="111 46425"`. H3 scans the gateway again
-     and stops if the ports that accept a connection are not that list. To see first what listens on them, the
-     command below lists the sockets and their processes on the Docker engine's side.
+
+   (d) and (f) are no longer the owner's to accept (owner, 2026-11-09: not accepted, fixes built instead), and
+   their letters are kept so that (e) keeps its own. (d), Elasticsearch's own mapping of 4096-dimension vectors:
+   the server reads a copy of `conf/mapping.json` that declares `*_4096_vec` (H1 writes it, H3 checks it in the
+   server, H5 reads it back from the live index; «The Elasticsearch mapping»). (f), the gateway's listeners:
+   `ragbench-rf-net` has no IPv4 address on the Docker side, and no container on it holds `CAP_NET_RAW`, so the
+   engine's IPv6 link-local address on the bridge, where 111 still answered a raw frame (stage 5 review), is out of
+   reach too. H3 checks the option, the capabilities of all seven containers, a packet socket refused in the server
+   and the runner, IPv6 off on the stack's interface, and every port of `10.231.47.1` silent with the address
+   unresolved; any answer stops the run («The gateway»).
+
+   **For the owner to know before H1** (no fix is built for it, so if it is not acceptable, say so and the run does
+   not start): the proxy itself stays on `ragbench-rf-egress`, a normal bridge whose gateway is its route out to
+   openrouter.ai, and from there it can reach the same engine listeners, 111 and 46425, on that gateway's address.
+   Only Squid runs in that container (uid 584792, no capabilities, its setuid ICMP helper off, forwarding off), and
+   its rules let a client CONNECT to `openrouter.ai:443` and nothing else, IP literals and private addresses refused
+   («The gateway», «What it leaves as it was»). A client of the stack could reach those listeners only by taking
+   over Squid itself.
 5. One line for the record, the data-policy note H4 passes, for example: «owner set 2026-11-09: training off,
    ZDR only (All other models), guardrail qwen/qwen3-embedding-8b on Nebius only, $2 budget; observability off».
-
-For H0 (f), optional: what listens on the gateway's open ports. A throwaway container on the Docker engine's own
-network and process namespaces (`--network host --pid host`) reads its socket table and the processes that hold
-those sockets. No agent ran it on the engine; its Python was checked in WSL against a socket it opened itself
-(`.hq/scratch/w2-stage4/fix2/runbook-snippets/ident-wsl-test.txt`). If the engine's process table is closed to it,
-it prints the sockets only.
-
-```bash
-MSYS_NO_PATHCONV=1 docker run --rm --name ragbench-rf-gw-ident --network host --pid host --read-only \
-  "python:3.12-slim@$(sed -n 's/^RF_PIN_PYTHON=//p' "D:/Iqraa Law/.hq/scratch/w2-run/state/pins.vars")" python3 -I -c '
-import glob, os, sys
-ports = {int(p) for p in sys.argv[1:]}
-socks = {}
-for name in ("tcp", "tcp6"):
-    for line in open("/proc/net/" + name).read().splitlines()[1:]:
-        f = line.split()
-        port = int(f[1].rsplit(":", 1)[1], 16)
-        if f[3] == "0A" and port in ports:
-            socks[f[9]] = "%s port %d (%s)" % (name, port, f[1])
-print("listening:", sorted(socks.values()) or "nothing on those ports")
-for fd in glob.glob("/proc/[0-9]*/fd/*"):
-    try:
-        link = os.readlink(fd)
-    except OSError:
-        continue
-    if link.startswith("socket:[") and link[8:-1] in socks:
-        pid = fd.split("/")[2]
-        cmd = open("/proc/%s/cmdline" % pid, "rb").read().replace(b"\0", b" ").decode(errors="replace").strip()
-        print(socks[link[8:-1]], "pid", pid, cmd)
-' 111 46425
-```
 
 **H1. Variables, folders, pins and pulls.**
 
@@ -1759,7 +1991,6 @@ T="D:/Iqraa Law/AI Harness-w1/tools/ragflow-w2"; RUN="D:/Iqraa Law/.hq/scratch/w
 HR="D:/Iqraa Law/.hq/scratch/w2-hosted"; HEAVY="/d/Iqraa Law/.hq/scratch/heavy.sh"; PINS="$HR/state/pins.vars"
 CF=(-f "$T/compose.yaml" -f "$T/compose.hosted.yaml" --project-directory "$T" --env-file "$PINS")
 PROVIDER=Nebius                     # H0 (a), as OpenRouter writes it: Nebius or DeepInfra
-GW_ACCEPTED="111 46425"             # H0 (f): the gateway ports the owner accepted, in this form
 [ -s "$RUN/state/secrets-path.txt" ] && export RF_SECRETS="$(cat "$RUN/state/secrets-path.txt")"   # P2's file; if gone, run P2
 mkdir -p "$HR/state" "$HR/out/elasticsearch" "$HR/logs"
 docker ps -a --format '{{.ID}} {{.Names}}' | sort > "$HR/state/before-containers.txt"
@@ -1778,6 +2009,7 @@ ls "$RUN/in"/*.md | wc -l; sha256sum "$RUN/canvas/indexing-pipeline.json" "$RUN/
   echo "RF_PIN_SQUID=sha256:041c64dd14c81548023c9532e4c2fac487e9a3f9f490913b50547d2974722025"
   echo "RF_EMBEDDING_BATCH_SIZE=16"
   echo "RF_OPENROUTER_KEY_FILE=C:/Users/accou/.ragbench-rf/openrouter.key"
+  echo "RF_ES_MAPPING_DIR=$HR/es-mapping"          # written below, after the pull, by patch_es_mapping.py
   # compose.yaml is interpolated whole before the overlay drops TEI: these three are set, and nothing uses them
   echo "RF_PIN_INFINITY=sha256:$(printf '0%.0s' $(seq 64))"; echo "RF_PIN_TEI=sha256:$(printf '0%.0s' $(seq 64))"
   echo "RF_TEI_REVISION=$(printf '0%.0s' $(seq 40))"; echo "RF_TEI_WAIT_DIR=not-used-by-the-hosted-run"
@@ -1796,6 +2028,21 @@ EOF
 docker compose "${CF[@]}" --profile es --profile hosted config --services          # names only, no values
 bash "$HEAVY" docker compose "${CF[@]}" --profile es --profile hosted pull          # by digest; only what F removed
 docker images --digests | grep -E 'ragflow|elasticsearch|mysql|silo|valkey|squid|python'
+# the Elasticsearch mapping («The Elasticsearch mapping»): the pinned image's own file, and the copy with *_4096_vec
+SRC="$HR/mapping-src"
+if [ -e "$SRC" ] || [ -e "$HR/es-mapping" ]; then
+  echo "STOP: $SRC or $HR/es-mapping exists: look at them; to run this step again, remove both folders first"
+else
+  mkdir -p "$SRC"
+  docker create --name ragbench-rf-mapping-src "infiniflow/ragflow@$(sed -n 's/^RF_PIN_RAGFLOW=//p' "$PINS")" >/dev/null
+  docker cp ragbench-rf-mapping-src:/ragflow/conf/mapping.json "$SRC/mapping.json"
+  docker rm ragbench-rf-mapping-src
+  printf '%s  %s\n' 49877a9153c466479ce75a81e5da49e952567ca9c3cb1d46e2b20c2a6bab8097 "$SRC/mapping.json" | sha256sum -c - \
+    && python -I -B "$T/patch_es_mapping.py" write --source "$SRC/mapping.json" --out "$HR/es-mapping"
+fi
+cat "$HR/es-mapping/mapping.diff"
+python -I -B "$T/patch_es_mapping.py" check --copy "$HR/es-mapping/mapping.json"
+grep "^RF_ES_MAPPING_DIR=" "$PINS"
 # the model's endpoints and OpenRouter's ZDR list, both public (no key sent), kept as fetched
 curl -fsS --proto '=https' https://openrouter.ai/api/v1/endpoints/zdr -o "$HR/state/zdr-on-the-day.json"
 curl -fsS --proto '=https' https://openrouter.ai/api/v1/models/qwen/qwen3-embedding-8b/endpoints \
@@ -1820,7 +2067,15 @@ Check: 0 ours before; the subnet free; the key file present (its size is read by
 the canvas `3f0fcb62…588d` and the upload manifest `b0737632…6bc1` (P6, the W2 run); no `MISSING` pin and seven
 `same` lines (the `ragbench-rf-*` digests are W2's, from `$RUN/state/pins.vars`, and the squid one the self-tests');
 the services es01, mysql, minio, redis, proxy, ragflow, runner and no TEI; each pinned digest present in `docker
-images --digests`. The endpoint lines list every provider that serves the model, each with its ZDR entry (on
+images --digests`. The mapping: no `STOP` line (a `STOP` means `$HR/mapping-src` or `$HR/es-mapping` is already
+there, and nothing is copied or written: look at both, and to run the step again remove both folders first; the
+block was run twice offline, the second time changing nothing, `.hq/scratch/w2-stage5/fix/snippets/h1-guard-test.txt`);
+`docker create` starts nothing and `docker rm` removes it; `sha256sum` prints `OK`
+(the image's file, read on 2026-11-09), and only then does the tool write; it prints `lines 204-214: the *_4096_vec template …` and the patched
+sha256 `136b31a0d07b89116e814c99562ecfacbb52aee66ea91e12bf24ba0c4174ef90`; the diff adds those eleven lines after
+the `*_1536_vec` block and removes none; `check` ends `ES MAPPING OK`; the pins file names `$HR/es-mapping` (from
+here on the server cannot start without it; `config` and `pull` above run before the folder exists, and accept it,
+`.hq/scratch/w2-stage5/build/logs/h1-order-missing-mapping-dir.txt`). The endpoint lines list every provider that serves the model, each with its ZDR entry (on
 2026-11-09: Nebius `nebius/bf16 bf16 0.00000001`, DeepInfra and SiliconFlow, all three `ZDR safety_retention False`,
 PREMISES §2-§3), and the last line is `ok   Nebius: 1 endpoint(s), each on the ZDR list without safety retention`
 (the provider of H0 (a)). A `STOP` line, or an endpoint of that provider at another price or quantization: stop and
@@ -1843,15 +2098,37 @@ Check: repeat `ps` until `ragbench-rf-server` is `running healthy` (start period
 
 ```bash
 set -o pipefail                                                                                 # as H1: the «pipeline exit» lines need it
-docker network inspect ragbench-rf-net --format '{{.Internal}} {{range .IPAM.Config}}{{.Subnet}}{{end}}'   # true 10.231.47.0/27
+docker network inspect ragbench-rf-net --format '{{.Internal}} {{range .IPAM.Config}}{{.Subnet}} {{.Gateway}}{{end}} {{index .Options "com.docker.network.bridge.inhibit_ipv4"}}'   # true 10.231.47.0/27 10.231.47.1 true
 docker network inspect ragbench-rf-egress --format '{{.Internal}} {{range .Containers}}{{.Name}} {{end}}'   # false ragbench-rf-proxy
 for c in ragbench-rf-server ragbench-rf-es01 ragbench-rf-mysql ragbench-rf-minio ragbench-rf-redis ragbench-rf-proxy; do
   echo "$c: $(docker inspect $c --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}')"; done
 docker ps --format '{{.Names}} {{.Ports}}' | grep '^ragbench-rf-' | grep -- '->'                 # prints nothing
+# no process on ragbench-rf-net may send a frame of its own making («The gateway», «IPv6 and raw frames»): CAP_NET_RAW
+# dropped in all seven (Docker's record, and the bounding set a new process in each gets: bit 13 clear), a packet
+# socket refused in the server and in the runner (each has its own capabilities), IPv6 off on the stack's interface
+for c in ragbench-rf-server ragbench-rf-runner ragbench-rf-es01 ragbench-rf-mysql ragbench-rf-minio ragbench-rf-redis ragbench-rf-proxy; do
+  B=$(docker exec "$c" cat /proc/self/status | awk '$1 == "CapBnd:" {print $2}')
+  echo "$c $(docker inspect -f 'drop={{.HostConfig.CapDrop}} add={{.HostConfig.CapAdd}} privileged={{.HostConfig.Privileged}}' "$c") CapBnd=${B:-unread}"
+  [ -n "$B" ] && [ $(( 0x$B >> 13 & 1 )) = 0 ] && echo "ok   $c: no CAP_NET_RAW" || echo "FAIL $c: CAP_NET_RAW held, or not read"
+done
+NORAW='import socket
+try:
+    socket.socket(socket.AF_PACKET, socket.SOCK_RAW).close()
+except PermissionError:
+    print("ok   AF_PACKET refused (EPERM): no raw frames from here")
+else:
+    raise SystemExit("FAIL AF_PACKET opened: this container can send raw frames")'
+docker exec ragbench-rf-server python3 -I -c "$NORAW"; echo "server exit $?"
+docker exec ragbench-rf-runner python3 -I -c "$NORAW"; echo "runner exit $?"
+docker exec ragbench-rf-server cat /proc/sys/net/ipv6/conf/eth0/disable_ipv6 /proc/net/if_inet6 | awk 'NR == 1 {d = $1; next} {n++; if ($6 != "lo") bad = 1}
+END {if (d == "1" && n == 1 && !bad) print "ok   IPv6 off on eth0, only ::1 on lo"; else {print "FAIL IPv6: eth0 disable_ipv6 " d ", " n " address(es)"; exit 1}}'; echo "pipeline exit $?"
+docker exec ragbench-rf-proxy cat /proc/sys/net/ipv4/ip_forward /proc/sys/net/ipv4/conf/all/forwarding   # 0 and 0: no routing between its two networks
 docker exec ragbench-rf-server printenv COMPOSE_PROFILES HTTPS_PROXY https_proxy NO_PROXY LLM_TIMEOUT_SECONDS EMBEDDING_BATCH_SIZE MAX_CONCURRENT_TASKS
 docker exec ragbench-rf-server sh -c 'for v in HTTP_PROXY http_proxy ALL_PROXY all_proxy; do printenv $v >/dev/null && echo "SET $v"; done; echo done'
-docker inspect ragbench-rf-server --format '{{range .Mounts}}{{.Destination}} {{end}}'          # /w2 /in /canvas and the image's own
+docker inspect ragbench-rf-server --format '{{range .Mounts}}{{.Destination}} {{end}}'          # /w2 /in /canvas /ragflow/conf/mapping.json and the image's own
 docker exec ragbench-rf-server sha256sum /ragflow/rag/llm/embedding_model.py                    # c2e46e1c…0536, as shipped
+docker inspect ragbench-rf-server --format '{{range .Mounts}}{{if eq .Destination "/ragflow/conf/mapping.json"}}{{.Source}} rw={{.RW}}{{end}}{{end}}'
+docker exec ragbench-rf-server /ragflow/.venv/bin/python -I -B /w2/patch_es_mapping.py check --copy /ragflow/conf/mapping.json
 docker exec ragbench-rf-server sh -c 'test -e /keys/openrouter.key && echo "STOP: key in the server" || echo "no key file in the server"'
 docker inspect ragbench-rf-runner --format '{{range .Mounts}}{{if eq .Destination "/keys/openrouter.key"}}{{.Source}} rw={{.RW}}{{end}}{{end}}'
 docker exec ragbench-rf-runner sh -c 'wc -c < /keys/openrouter.key'                               # 73 or 74 (or 75 with CRLF)
@@ -1859,21 +2136,25 @@ docker inspect ragbench-rf-server ragbench-rf-runner ragbench-rf-proxy ragbench-
   | docker exec -i ragbench-rf-runner python3 -I -B /w2/key_leak_check.py --key-file /keys/openrouter.key --stdin docker-inspect; echo "pipeline exit $?"
 docker exec ragbench-rf-server sh -c 'cat /proc/[0-9]*/environ 2>/dev/null' \
   | docker exec -i ragbench-rf-runner python3 -I -B /w2/key_leak_check.py --key-file /keys/openrouter.key --stdin server-processes-environ; echo "pipeline exit $?"
-GW=$(docker network inspect ragbench-rf-net --format '{{range .IPAM.Config}}{{.Gateway}} {{end}}' | awk '{print $1}')   # 10.231.47.1, pinned
+GW=$(docker network inspect ragbench-rf-net --format '{{range .IPAM.Config}}{{.Gateway}} {{end}}' | awk '{print $1}')   # 10.231.47.1: pinned, held by no interface
 PUB=$(docker ps --format '{{.Ports}}' | tr ',' '\n' | sed -n 's/^ *0\.0\.0\.0:\([0-9][0-9]*\)->.*/\1/p' | head -1)
 echo "gateway: ${GW:-none listed by IPAM}; a port another container publishes: ${PUB:-none, 80 is used}" | tee "$HR/state/gateway.txt"
-GWB=(); [ -n "$GW" ] && GWB=(--block "$GW:443" --block "$GW:${PUB:-80}")
+GWB=(); [ -n "$GW" ] && GWB=(--block "$GW:443" --block "$GW:${PUB:-80}" --block "$GW:1")   # :1, closed: a refusal there is a host
 docker exec ragbench-rf-runner python3 -I -B /w2/net_check.py --reach 127.0.0.1:9380 --reach ragbench-rf-es01:9200 \
   --reach ragbench-rf-proxy:3128 --block 1.1.1.1:443 --block openrouter.ai:443 --block huggingface.co:443 \
   --block pypi.org:443 --block host.docker.internal:443 "${GWB[@]}" --proxy ragbench-rf-proxy:3128 --tunnel openrouter.ai:443 \
   --tunnel-refused huggingface.co:443 --tunnel-refused pypi.org:443 --tunnel-refused 1.1.1.1:443 \
   --tunnel-refused host.docker.internal:443 --tunnel-refused ragbench-rf-mysql:3306 --tunnel-refused openrouter.ai:80 \
   --tunnel-refused www.openrouter.ai:443 --timeout 10 | tee "$HR/logs/net-check.txt"
-# the gateway, every TCP port, nothing sent (a minute or two): recorded, then held against the list H0 (f) accepted
-docker exec ragbench-rf-runner python3 -I -B /w2/net_check.py --reach 127.0.0.1:9380 --block "$GW:443" --scan "$GW" \
-  | tee -a "$HR/state/gateway.txt"
-grep -qx "scan connected: $GW_ACCEPTED" "$HR/state/gateway.txt" && echo "gateway: only the ports H0 (f) accepted" \
-  || echo "STOP: the gateway's open ports are not the list H0 (f) accepted ($GW_ACCEPTED)"
+# the gateway address, every TCP port, nothing sent (about 4 to 5 minutes): no interface holds it, so nothing may
+# answer; a port that connects or refuses (or any error but silence) is a FAIL line and exit 1, and the run stops;
+# then, at once, the neighbour table: the address unresolved, so no host on the bridge answered ARP for it, whatever
+# the protocol (UDP included) («The gateway»)
+docker exec ragbench-rf-runner python3 -I -B /w2/net_check.py --reach 127.0.0.1:9380 --block "$GW:443" --block "$GW:1" \
+  --scan "$GW" | tee -a "$HR/state/gateway.txt"; echo "pipeline exit $?"
+docker exec ragbench-rf-runner cat /proc/net/arp | awk -v gw="$GW" '$1 == gw {n++; if ($3 == "0x0" && $4 == "00:00:00:00:00:00") u++}
+END {if (n == 1 && u == 1) print "ok   arp " gw ": unresolved, nothing on the bridge answers for it"; else {print "FAIL arp " gw ": " (n ? "resolved by a host" : "no entry (read it right after the scan)"); exit 1}}' \
+  | tee -a "$HR/state/gateway.txt"; echo "pipeline exit $?"
 # the proxy's log: every line not one the runbook expects is printed (define unexpected() again in a new shell)
 unexpected() { awk '$3 == "CONNECT" && $4 == "openrouter.ai:443" && $5 == 200 && $6 == "TCP_TUNNEL" {next}
   $3 == "CONNECT" && $5 == 403 && $6 ~ /^TCP_DENIED(_ABORTED)?$/ && $4 ~ /^((huggingface\.co|pypi\.org|1\.1\.1\.1|host\.docker\.internal|www\.openrouter\.ai|raw\.githubusercontent\.com):443|ragbench-rf-mysql:3306|openrouter\.ai:80)$/ {next}
@@ -1886,16 +2167,36 @@ docker logs ragbench-rf-server 2>&1 | grep -c 'Super user initialized'          
 docker logs ragbench-rf-server 2>&1 | grep -m1 'log levels:'                                   # root DEBUG, openai INFO, peewee WARNING
 ```
 
-Check: the networks as commented, the server on `ragbench-rf-net` only and the proxy on both; no port.
+Check: the networks as commented (`ragbench-rf-net` internal, its subnet and gateway pinned, and the option
+`inhibit_ipv4` `true`), the server on `ragbench-rf-net` only and the proxy on both; no port. Each of the seven
+containers prints `drop=[CAP_NET_RAW] add=[] privileged=false CapBnd=00000000a80405fb` (Docker's default bounding
+set, `a80425fb`, without bit 13; the strings seen live on 2026-11-09 on the five containers started from the compose
+files, the stores and the proxy, `.hq/scratch/w2-stage5/fix/live/live-fix.txt`; the server and the runner were not
+started, and the overlay gives them the same `cap_drop`, so H3 is the first sight of theirs)
+and `ok   <container>: no CAP_NET_RAW`; the packet socket prints `ok   AF_PACKET refused (EPERM): no raw frames
+from here`, then `server exit 0`, and the same with `runner exit 0`; IPv6 prints `ok   IPv6 off on eth0, only ::1 on
+lo` and `pipeline exit 0`; the proxy's two values are `0` and `0`. A `FAIL` line, an `unread` bounding set, another
+exit, or a proxy value of `1`: stop; a process on the network could send frames of its own making, which reached the
+engine's port 111 over IPv6 («The gateway», «IPv6 and raw frames»).
 `printenv` gives `elasticsearch,cpu,metadata-mysql`, the proxy twice, the `NO_PROXY` list, `60`, `16`, `1`; the second
 line prints only `done`. No mount at `/ragflow/rag/llm/embedding_model.py` or `/patch`, and the module's sha256 is
-the shipped `c2e46e1cb5d128122a48b8283d135b81321441655dbd9c22c9ecd8035a6c0536` (P9). The key file is absent from
+the shipped `c2e46e1cb5d128122a48b8283d135b81321441655dbd9c22c9ecd8035a6c0536` (P9). The mapping is bound from
+`…/w2-hosted/es-mapping/mapping.json` with `rw=false`, and the check, in the server's own Python, prints two `ok`
+lines (the sha256 `136b31a0…ef90`; the template) and ends `ES MAPPING OK: /ragflow/conf/mapping.json`: the bind was
+made when the container was created, before any process in it started, so every Elasticsearch connection read
+this file (H5 reads the result back from the live index). The key file is absent from
 the server and bound read-only (`rw=false`) into the runner. Both leak checks end `NO KEY FOUND`, each followed by
 `pipeline exit 0` (a container missing from `docker inspect`, or a stream of 0 bytes, is not a pass): the key is in
 no container's configuration or environment and in no process environment of the server. Every gating `net_check`
 line is `ok`: the direct lines blocked, `tunnel openrouter.ai:443 … TLS verified`, every `refused … CONNECT 403`.
-The gateway scan's `connected` line is the list H0 (f) accepted (the others refuse, or time out on a port another
-container publishes). The proxy's log, read with `docker exec` (not `docker logs`), is not empty, and the tally
+The gateway lines (`--block 10.231.47.1:…`: 443, the published port and 1) are `ok` with errno 113 or `timed out`; a
+refusal fails them, since only a host refuses. The gateway scan prints `scan connected: none`, `scan refused: none`
+and `ok   scan 10.231.47.1: no port answered (…)`, then `pipeline exit 0`: on 2026-11-09 every port timed out or had
+no route to host, errno 113 («The gateway»). The neighbour table then prints `ok   arp 10.231.47.1: unresolved,
+nothing on the bridge answers for it` and `pipeline exit 0`. A `FAIL scan` or `FAIL arp` line, a port in `scan
+connected` or `scan refused`, or another exit: stop, and tell the owner; the network is not what
+compose.hosted.yaml builds.
+The proxy's log, read with `docker exec` (not `docker logs`), is not empty, and the tally
 shows only: `CONNECT openrouter.ai:443 200 TCP_TUNNEL` (H3's own tunnel); `CONNECT <host> 403 TCP_DENIED` (or
 `TCP_DENIED_ABORTED`) once for each of H3's seven refusals; one `- error:transaction-end-before-headers 0 NONE_NONE`
 from the reach probe of `ragbench-rf-proxy:3128`; and up to two `CONNECT raw.githubusercontent.com:443 403
@@ -1952,14 +2253,18 @@ bash "$HEAVY" docker exec ragbench-rf-runner python3 -I -B /w2/rf_ingest.py all 
   --out /out/elasticsearch | tee "$HR/logs/ingest.txt"
 # after the ingest (or in a second shell once a progress line reads «done 1» or more): the live mapping, through the server
 docker exec ragbench-rf-server /ragflow/.venv/bin/python -I -B -c "import base64,json,os,urllib.request as u; r=u.Request('http://ragbench-rf-es01:9200/ragflow_*/_mapping/field/q_*_vec', headers={'Authorization': 'Basic ' + base64.b64encode(('elastic:' + os.environ['ELASTIC_PASSWORD']).encode()).decode()}); d=json.load(u.build_opener(u.ProxyHandler({})).open(r, timeout=30)); [print(i, f, json.dumps(m['mapping'][f], sort_keys=True)) for i, v in d.items() for f, m in v['mappings'].items()]" | tee "$HR/logs/es-vector-mapping.txt"
+# the same index's vector templates, as Elasticsearch stored them when create_idx sent the mounted file
+docker exec ragbench-rf-server /ragflow/.venv/bin/python -I -B -c "import base64,json,os,urllib.request as u; r=u.Request('http://ragbench-rf-es01:9200/ragflow_*/_mapping', headers={'Authorization': 'Basic ' + base64.b64encode(('elastic:' + os.environ['ELASTIC_PASSWORD']).encode()).decode()}); d=json.load(u.build_opener(u.ProxyHandler({})).open(r, timeout=30)); [print(i, 'template', n, t['match'], json.dumps(t['mapping'], sort_keys=True)) for i, v in d.items() for e in v['mappings'].get('dynamic_templates', []) for n, t in e.items() if t.get('match', '').endswith('_vec')]" | tee "$HR/logs/es-vector-templates.txt"
 ```
 
 Check: the prediction is W2's byte for byte (same image, canvas and files), 22 files with `repeated texts 0`. The
 ingest ends `wrote <n> chunks to chunks.jsonl and w2-manifest.json …`, after `settled 22`; its log holds `hosted
 embedder: qwen/qwen3-embedding-8b@w2or@OpenRouter at https://openrouter.ai/api/v1 …`. **The stop rule:** the
-mapping prints `q_4096_vec` with `"dims": 4096`, `"index": true`, `"similarity": "cosine"`, `"type":
-"dense_vector"`; a `float` type, or another field, means Elasticsearch did not map the vectors as vectors, and no
-query runs. A document that fails names its cause in the progress line (an embedding error is the provider's
+chunk index (`ragflow_<tenant>`) lists five vector templates, `*_512_vec`, `*_768_vec`, `*_1024_vec`, `*_1536_vec`
+and `*_4096_vec`, the last `{"dims": 4096, "index": true, "similarity": "cosine", "type": "dense_vector"}`: the index
+was made from the mounted copy, so the declared template, not Elasticsearch's own mapping, decided the field («The
+Elasticsearch mapping»). And the field mapping prints `q_4096_vec` with exactly those four settings. A missing
+`*_4096_vec` template (the index was made from another body), a `float` type, or another field: no query runs. A document that fails names its cause in the progress line (an embedding error is the provider's
 answer); `--max-reparse` parses it again at most twice, which costs a few more tokens.
 
 **H6. The gate.**
@@ -2050,10 +2355,13 @@ awk cut from those logs, so neither can hold the key. A `KEY FOUND`: stop, keep 
 **H10. Teardown, and the check that nothing that existed before is gone.**
 
 ```bash
+# what the engine destroys while the teardown runs, subscribed to first (its replay buffer rolls within minutes here)
+docker events --filter event=destroy --format '{{.Type}} {{.Actor.Attributes.name}}' > "$HR/state/destroyed-during-teardown.txt" & EV=$!
 docker compose "${CF[@]}" --profile es --profile hosted down --volumes --remove-orphans --timeout 30
 docker ps -a --format '{{.Names}}' | grep -E '^ragbench-rf-' | xargs -r docker rm -f
 docker network ls --format '{{.Name}}' | grep -E '^ragbench-rf-' | xargs -r docker network rm
 docker volume ls --format '{{.Name}}' | grep -E '^ragbench-rf-' | xargs -r docker volume rm
+kill "$EV"; sort "$HR/state/destroyed-during-teardown.txt" | uniq -c
 docker ps -a --format '{{.ID}} {{.Names}}' | sort > "$HR/state/after-containers.txt"
 docker volume ls --format '{{.Name}}' | sort > "$HR/state/after-volumes.txt"
 docker network ls --format '{{.ID}} {{.Name}}' | sort > "$HR/state/after-networks.txt"
@@ -2066,10 +2374,20 @@ grep -E ' ragbench-rf-(net|egress)$' "$HR/state/after-networks.txt" || echo "bot
 grep -x ragbench-cargo "$HR/state/after-volumes.txt"
 ```
 
-Check: every «gone» and «of ours left» list empty; `both networks removed, the egress one included`;
-`ragbench-cargo` still listed. `down` is scoped by the compose project `ragbench-rf` and needs both files so that it
-knows the proxy and the egress network; every other command matches `^ragbench-rf-`. The pulled images, the squid
-one included, are removed as F says, by digest, only if the owner agrees.
+Check: every «of ours left» list empty; `both networks removed, the egress one included`; `ragbench-cargo` still
+listed. `down` is scoped by the compose project `ragbench-rf` and needs both files so that it knows the proxy and the
+egress network; every other command matches `^ragbench-rf-`. Every «gone» list empty, or holding only names that do
+not start with `ragbench-rf-`: this Docker engine also runs other projects, which create and remove their own
+objects while ours run (stage 5's reviews saw `rp-0-1-rv-*`, `recall-mx-*` and `magento-pim85` objects come and go
+during their own runs, removed by name only, `.hq/scratch/w2-stage5/review-security/rv_fix.log`, `rv_fix_d.log`; its
+fixes saw `forge-pim85*`, `rp-1-1-*` and randomly named containers go, some come back under new IDs, and three
+foreign containers destroyed within the few seconds one throwaway container ran,
+`.hq/scratch/w2-stage5/fix/live/live-fix.txt`, `events-subscription-test.txt`). No command here can remove such an
+object, so record it and do not stop; the sorted list printed after `kill` is what the engine destroyed while the
+teardown ran (ours are the `ragbench-rf-*` lines; the engine does not say who removed the others). Read it from the
+subscription, not with `--since`: a replay of a run's 21-minute window, begun 7 minutes after it ended, came back empty
+(`events-live-fix.txt`). A `ragbench-rf-*` name among the «gone» cannot occur, since H1 found none before: if one does, stop.
+The pulled images, the squid one included, are removed as F says, by digest, only if the owner agrees.
 
 **Then the owner, on openrouter.ai** (nothing after the run checks the provider otherwise: RAGFlow logs only the
 token count of each call, not which provider served it, `rag/llm/embedding_model.py:1544-1550`):
@@ -2090,18 +2408,35 @@ token count of each call, not which provider served it, `rag/llm/embedding_model
   OpenAI-compatible factory (Path B) is not built.
 - **The request-level pin's slug.** `--provider-order nebius` assumes `nebius` is the provider slug OpenRouter's
   `provider.order` takes (the endpoint's tag is `nebius/bf16`); not verified. The guardrail binds either way.
-- **4096 dimensions** rest on Elasticsearch 8.11's own dynamic mapping, at its ceiling (PREMISES §6); H5's live check
-  is the stop rule.
+- **4096 dimensions** are declared by the mounted mapping's `*_4096_vec` template, at Elasticsearch 8.11's ceiling
+  for `dims` (PREMISES §6). That template, the copy in the pinned server image's Python and the field in a pinned
+  Elasticsearch were seen live, but not yet in a RAGFlow server creating its own index: H3's check and H5's two
+  read-backs are the stop rules.
 - **The server's boot without TEI.** `TEI_MODEL` and `TEI_HOST` stay in the server's environment (the overlay merges
   it), unused because every use is gated on «tei-» in `COMPOSE_PROFILES`; and the boot-time tenant gets no default
   embedding model, so nothing embeds at boot. Both are read from the source, not seen; H2's health check is the
   first sight.
 - **The proxy, live, only in self-tests.** Its log, its `src` ACL from the egress side and a tunnel logged at its
-  close were seen (above); the refusal of the gateway as a client was not, since only a container on the Docker
-  engine's host network could connect from that address. The LiteLLM price-list fetch through the proxy at boot is
-  inferred from W2's log, not seen; H3 lists it as expected and stops on anything else.
-- **The gateway finding** above is the owner's to weigh: what listens on 111 and 46425 is not identified (H0 (f)
-  has a command for it, not run by an agent), and nothing showed either leads beyond the Docker VM.
+  close were seen (above); the refusal of the gateway address as a client was not, and now cannot be, since no
+  interface holds that address («The gateway»). Stage 5 saw it serve `CONNECT openrouter.ai:443` (200) and refuse
+  `huggingface.co:443` (403) on the network as the overlay now builds it, and its review's fixes saw the same with
+  `CAP_NET_RAW` dropped, forwarding off and the ICMP helper off (`.hq/scratch/w2-stage5/fix/live/live-fix.txt`,
+  step 5). The LiteLLM price-list fetch through the
+  proxy at boot is inferred from W2's log, not seen; H3 lists it as expected and stops on anything else.
+- **The gateway.** What listens on 111 and 46425 on the Docker engine's side is still not identified; it is out of
+  the stack's reach, seen on a network the overlay built, with a control network beside it where both still answer
+  («The gateway»). Over IPv4 that rests on Docker 29.9.1 honouring `inhibit_ipv4`; over IPv6 (the bridge's
+  link-local address, where 111 still answers) on no container holding `CAP_NET_RAW` and every container's eth0
+  having IPv6 off. The capabilities were seen on the stores and the proxy started from the compose files, and in
+  the server image's own interpreters, not on a running server or runner; H3 checks all of it on the day, on the
+  stack itself. Nothing in the server needs `CAP_NET_RAW` (its entrypoint starts nginx and Python, and nothing in it
+  pings; read from the source, `docker/entrypoint.sh`): H2's health check is the first sight of the server
+  without it. The W2 stacks (`compose.yaml` alone, unchanged) kept Docker's default capabilities, so the same raw
+  path was most likely open there (inferred, not tested).
+- **The proxy's own reach.** From its namespace on `ragbench-rf-egress`, the engine's listeners are still reachable
+  at that network's gateway; only Squid's rules and its unprivileged user stand between a client and them (H0, «For
+  the owner to know»). H3 does not try that address through the proxy: its rule `deny !openrouter` refuses every IP
+  literal before any other, as the self-tests saw (`1.1.1.1:443` and openrouter.ai's own address refused 403).
 - **Which provider served the calls** is known only from OpenRouter's Activity page, which the owner reads after the
   run (H10). The guardrail's provider allowlist binds before it, and `--provider-order` (H0 (b)) adds a pin on every
   request; neither leaves a trace in the stack.

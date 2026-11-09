@@ -263,7 +263,7 @@ class Polling(Base):
 
         rounds = [json.loads(r.body)['document_ids'] for r in fake.requests if r.path.endswith('/parse')]
         doc5 = next(i for i, d in fake.docs.items() if d['name'] == 'law-05.md')
-        self.assertEqual(code, 0)
+        self.assertEqual(code, 0, out)  # the tool's own output, so that a failure names its cause
         self.assertEqual((len(rounds[0]), rounds[1:]), (22, [[doc5]]))
         self.assertIn('law-05.md: FAIL', out)
 

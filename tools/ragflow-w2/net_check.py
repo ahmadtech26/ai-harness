@@ -25,12 +25,16 @@ The hosted run (README.md, «Hosted run (owner, 2026-11-09)») adds checks throu
                             rules let the request through and the connection beyond failed.
 A proxy that does not answer fails every check that goes through it.
 
-And a record of what answers on one address, made for the internal network's gateway (README.md, H3 and H0 (f)):
+And a check that nothing answers on one address, made for the internal network's former gateway, which no
+interface holds on the hosted stack (compose.hosted.yaml, inhibit_ipv4; README.md, H3):
   ... --scan 10.231.47.1 [--scan-ports 1-65535] [--scan-timeout 1]
 --scan IP           a TCP connect to every port of --scan-ports (both ends included), each socket closed as soon as
                     it opens: nothing is sent. It prints the count of each outcome (connected, refused, timeout, or
-                    an errno), the ports that connected and the ports that timed out (the first 200 of each). It is
-                    recorded, not checked: it never changes the exit status. An IP address only, not a name.
+                    an errno), the ports that connected, were refused and timed out (the first 200 of each), then its
+                    verdict. The address must be silent: only a timeout, «no route to host» (errno 113 on Linux) and
+                    «network unreachable» (101) pass. A port that accepts a connection, and one that refuses it (a TCP
+                    reset is a host's answer: something holds the address), are a FAIL (exit 1); so is any other
+                    error, since that port was not shown silent. An IP address only, not a name.
 
 Prints one line per target, exits 0 only when every target behaves as asked (2: refused before checking).
 Standard library only.
@@ -47,6 +51,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 BLOCKED_ERRNOS = {errno.ENETUNREACH, errno.EHOSTUNREACH, errno.ETIMEDOUT}
+SCAN_SILENT = {'timeout', f'errno {errno.EHOSTUNREACH}', f'errno {errno.ENETUNREACH}'}  # what --scan accepts
 HEAD_LIMIT = 64 * 1024
 SCAN_WORKERS = 256
 SCAN_LISTED = 200
@@ -165,18 +170,37 @@ def scan_range(text: str) -> range | None:
     return range(int(low), int(high) + 1)
 
 
-def scan_lines(host: str, ports: range, found: dict[str, list[int]]) -> list[str]:
-    def listed(numbers: list) -> str:
-        more = len(numbers) - SCAN_LISTED
-        return (' '.join(map(str, numbers[:SCAN_LISTED])) or 'none') + (f' and {more} more' if more > 0 else '')
+def listed(numbers: list) -> str:
+    """The first SCAN_LISTED port numbers, and how many more there are."""
+    more = len(numbers) - SCAN_LISTED
+    return (' '.join(map(str, numbers[:SCAN_LISTED])) or 'none') + (f' and {more} more' if more > 0 else '')
 
+
+def scan_verdict(host: str, found: dict[str, list[int]]) -> tuple[bool, str]:
+    """(passed, line): the address passes only when every port was silent (SCAN_SILENT)."""
+    connected, refused = found.get('connected', []), found.get('refused', [])
+    unchecked = sorted((port, outcome) for outcome, numbers in found.items()
+                       if outcome not in SCAN_SILENT | {'connected', 'refused'} for port in numbers)
+    if connected or refused:
+        return False, (f'FAIL scan {host}: {len(connected) + len(refused)} port(s) answered, so a host holds this '
+                       f'address (connected {len(connected)}: {listed(connected)}; refused {len(refused)})')
+    if unchecked:
+        return False, (f'FAIL scan {host}: {len(unchecked)} port(s) not checked (an error that is not silence): '
+                       + ', '.join(f'{port} {outcome}' for port, outcome in unchecked[:SCAN_LISTED]))
+    counts = ', '.join(f'{outcome} {len(numbers)}' for outcome, numbers in sorted(found.items()))
+    return True, f'ok   scan {host}: no port answered ({counts})'
+
+
+def scan_lines(host: str, ports: range, found: dict[str, list[int]]) -> list[str]:
     counts = ', '.join(f'{outcome} {len(numbers)}' for outcome, numbers in sorted(found.items()))
     other = [f'{port} {outcome}' for outcome, numbers in sorted(found.items())
              if outcome not in ('connected', 'refused', 'timeout') for port in numbers]
-    return [f'scan {host} ports {ports[0]}-{ports[-1]} (nothing sent; recorded, not a check): {counts}',
+    return [f'scan {host} ports {ports[0]}-{ports[-1]} (nothing sent): {counts}',
             f'scan connected: {listed(found.get("connected", []))}',
+            f'scan refused: {listed(found.get("refused", []))}',
             f'scan timed out: {listed(found.get("timeout", []))}',
-            'scan other: ' + (', '.join(other[:SCAN_LISTED]) or 'none')]
+            'scan other: ' + (', '.join(other[:SCAN_LISTED]) or 'none'),
+            scan_verdict(host, found)[1]]
 
 
 def main(argv: list[str] | None = None, *, stdout=None) -> int:
@@ -189,7 +213,8 @@ def main(argv: list[str] | None = None, *, stdout=None) -> int:
     ap.add_argument('--tunnel-refused', action='append', type=target, default=[])
     ap.add_argument('--cafile', help='trust this CA file instead of the system store (tests only)')
     ap.add_argument('--timeout', type=float, default=5.0)
-    ap.add_argument('--scan', metavar='IP', help='record what answers on this address (never a check)')
+    ap.add_argument('--scan', metavar='IP', help='every port of this address: any that answers, or that an error '
+                                                 'leaves unchecked, fails')
     ap.add_argument('--scan-ports', metavar='LOW-HIGH', help='with --scan (default: 1-65535)')
     ap.add_argument('--scan-timeout', type=float, default=1.0, help='seconds per port (default: %(default)s)')
     args = ap.parse_args(argv)
@@ -235,7 +260,9 @@ def main(argv: list[str] | None = None, *, stdout=None) -> int:
             good &= ok
             print(f'{"ok  " if ok else "FAIL"} refused {authority(host, port)} by {via}: {outcome}', file=stdout)
     if args.scan is not None:
-        for line in scan_lines(args.scan, ports, scan(args.scan, ports, args.scan_timeout)):
+        found = scan(args.scan, ports, args.scan_timeout)
+        good &= scan_verdict(args.scan, found)[0]
+        for line in scan_lines(args.scan, ports, found):
             print(line, file=stdout, flush=True)
     return 0 if good else 1
 
