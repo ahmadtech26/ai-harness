@@ -927,6 +927,27 @@ arm, another embedder in the manifest or as the server reports it, another model
 query field, another split, or T-B2's rows from another source. Without the flag, the report still holds the
 deciding reading when the file is the deciding cell, and says why not otherwise.
 
+**The hosted run (exploratory only).** The owner's one run with an embedder hosted on OpenRouter
+(spec-rag-system.md:472, decided on 2026-11-09 at :475; `tools/ragflow-w2/README.md`, «Hosted run (owner,
+2026-11-09)») is scored the same way, with three differences:
+- Its files sit under their own root, `.hq/scratch/w2-hosted/out/<engine>/` (`HOSTED_ROOT`), and each root takes
+  only its own kind: a hosted manifest under `w2-run/out/` is refused, and so is a built-in one under
+  `w2-hosted/out/`.
+- Its manifest (`is_hosted`: `embedder.via` is `hosted-openrouter`) has the same contract with `hosted_embedder`
+  in place of `tei_wait_patch`: exactly `model`, `instance`, `factory`, `base_url`, `provider_order` and
+  `data_policy`, with `factory` `OpenRouter`, `base_url` `https://openrouter.ai/api/v1` (the one host the proxy
+  allows), `model` equal to `embedder.name`, an instance name RAGFlow accepts and not `default`, a provider order
+  that is null or a slug, and the owner's data-policy note. `embedder.revision` is null: a hosted model has no
+  revision to pin. A hosted manifest that keeps `tei_wait_patch`, or holds anything more (a `key` field
+  included), is refused.
+- It never decides. `deciding_gaps` names it first («the embedder is hosted (<model> via OpenRouter): exploratory
+  only; the deciding cell is the local elasticsearch run with the built-in Qwen/Qwen3-Embedding-0.6B»), so
+  `--w2-decide` refuses it before the library loads, and without the flag the report says why it is not the
+  deciding cell. The report's «W2 manifest» table prints the embedder as `<model> (hosted: OpenRouter instance
+  <i>, <base_url>, provider order <order or none>)` and a `data policy` row in place of the TEI-wait row, under
+  a line «Hosted run: exploratory only.»; the terminal's first line names it the same way. No TEI-wait warning
+  is raised: the hosted stack mounts no patch.
+
 The RAGFlow image digest is recorded from the run and printed beside the pins, but not pinned. The digests in
 `.hq/scratch/w2-research/deploy/compose.yaml` were read through a summariser (its lines 16-17), and no
 `docker pull` has confirmed one yet. Pin it in `DECIDING` once one has; until then it is a known limit.
@@ -1016,7 +1037,7 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
   interval pinned in split order: W1 (A0's own text) minus T-B2 on all 80, -0.2896 [-0.3875, -0.1896]. In the
   eval set's order the same differences give [-0.3937, -0.1875].
 
-  The 73 W2 tests cover:
+  The 82 W2 tests cover (73 before the hosted run's 8, and one more in fix2):
   - the own-run gate: our file beside its manifest accepted; refused for a Walid-shaped file with no manifest,
     the same file beside our manifest, a file outside `out/`, a file one folder below `out/<engine>/`, a link
     under another name, a dataset id other than the manifest's, a second dataset beside ours, a manifest whose
@@ -1037,6 +1058,14 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
   - the options: W2 options without `--own-run`, `--own-run` without a manifest or with `--laws-held`; and
     `--w2-decide` refused before the library loads, through `main`, for an Infinity file, a `--split` with
     another sha256, and a header whose server-reported embedder is not Qwen3;
+  - the hosted run (`HostedOwnRunTests`, 8 tests, 2026-11-09): a hosted file under the hosted root accepted; a
+    built-in manifest under the hosted root and a hosted one under the local root refused; the local root alone
+    (no hosted root) still refusing a hosted file; the hosted contract broken twelve ways (the TEI-wait patch kept,
+    no `hosted_embedder`, a revision, another factory, another base URL, another model than the embedder, the
+    instance `default`, an instance with a space or a slash (fix2), an empty data policy, a provider order that is
+    not text, a `key` field); `--w2-decide`
+    refused through `main` with the hosted reason; the hosted file scored, never deciding, with no warning; the
+    «W2 manifest» table's embedder and data-policy rows; the terminal's first line;
   - the split: each item's half, in the file's key order; only the bench split recorded as pinned; refused for
     an id outside the set, a missing id, a third half and unequal halves; the durable copy first, the bench's
     with a warning, and a refusal when neither exists; arm sources (T-B2 and A0q) from the durable copy, the
@@ -1054,7 +1083,9 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     printed «not shown» line;
   - own-run scoring on a fixture: every law held, nothing lacking, no warning; the «W2 manifest» table printing
     the TEI-wait patch and the concurrency (the diff kept in the JSON), and no «scratch bench» when every source
-    is durable; a TEI-wait patch other than the approved one warned about and still deciding; a server
+    is durable; a built-in run's embedder row (`revision <40 hex>, via builtin-tei`), its terminal line
+    (`(revision …)`) and no hosted banner or data-policy row (fix2: the hosted run's build had changed these three
+    paths with no test pinning the built-in side); a TEI-wait patch other than the approved one warned about and still deciding; a server
     embedder other than the manifest's warned about and not deciding; an opaque tenant-model id warned about and still deciding; the
     report's «own run (W2)», the manifest's fields and no wording about his corpus; `w2-score.*` with no chunk
     text; the fallback sensitivity emptying its items and leaving the deciding reading alone; in a two-field

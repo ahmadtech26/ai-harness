@@ -1,0 +1,148 @@
+# ragbench-rf, hosted: the overlay for the one hosted W2 run (spec-rag-system.md:472, «The hosted run»; README.md,
+# «Hosted run (owner, 2026-11-09)»). It is used only on top of compose.yaml, with the Elasticsearch profile:
+#   docker compose -f compose.yaml -f compose.hosted.yaml --project-directory . --env-file <hosted pins> \
+#     --profile es --profile hosted up -d
+# Everything not named here is compose.yaml's: the same pinned RAGFlow server, the same Elasticsearch store set
+# (es01, mysql, minio, redis), the same runner, the same internal network, no published port. What changes:
+#   - TEI and tei-probe move to the profile "builtin", which the hosted run never enables. The server no longer
+#     waits for tei-probe (required: false, the pattern compose.yaml uses for es01 and infinity).
+#   - The server runs the shipped rag/llm/embedding_model.py: its volumes are restated (!override) without the
+#     TEI-wait patch and /patch, which only concern TEI (README.md, «## TEI wait patch»).
+#   - COMPOSE_PROFILES loses "tei-cpu", so the server has no built-in embedder (common/settings.py:392-395, every TEI
+#     path in api/ and rag/ is gated on "tei-") and the boot-time tenant has no default embedding model to test
+#     (api/db/init_data.py:91-94). The dataset names its embedder itself: <model>@<instance>@OpenRouter.
+#   - The embedder is OpenRouter (rag/llm/embedding_model.py:1521-1558, openai 2.41.0 on httpx 0.28.1, which honour
+#     HTTPS_PROXY and NO_PROXY). The server reaches it only through ragbench-rf-proxy, the one container on a second,
+#     non-internal network. HTTPS_PROXY only, no HTTP_PROXY: every internal URL is http://, so no internal call can
+#     be sent to the proxy even if NO_PROXY missed a name; NO_PROXY names every internal host anyway.
+#   - openai=INFO: at root=DEBUG the openai SDK would log every request's options, chunk text included
+#     (openai _base_client.py:504-517). peewee stays at WARNING (compose.yaml), so no SQL statement, and so not the
+#     UPDATE that stores the key (provider_api_service.py:470-484), is logged.
+#   - LLM_TIMEOUT_SECONDS=60: the wait of a provider check (provider_api_service.py:894, default 10 s), only used by
+#     the optional smoke call (register_hosted.py smoke); a cold call through the proxy may need more than 10 s.
+#   - The OpenRouter key file is bound read-only into the RUNNER only, as one file (never its folder, which also
+#     holds secrets.conf). No environment variable holds it, and no command line names more than its path.
+#   - The runner writes to .hq/scratch/w2-hosted/out (not W2's out/) and reads the whole hosted folder at /hr for
+#     key_leak_check.py.
+#
+# Interpolation variables, beyond compose.yaml's (none has a secret value). compose.yaml is interpolated whole
+# before this file is merged, so its TEI variables (RF_PIN_TEI, RF_TEI_REVISION, RF_TEI_WAIT_DIR) must still be
+# set; the hosted pins file sets them to values nothing uses (README.md, H1).
+#   RF_PIN_SQUID            the proxy image digest, "sha256:<64 hex>" (README.md, H1)
+#   RF_OPENROUTER_KEY_FILE  the key file, "C:/Users/accou/.ragbench-rf/openrouter.key"; written by the owner (H0)
+#   RF_EMBEDDING_BATCH_SIZE 16 in the hosted pins: the size RAGFlow's OpenRouter client sends anyway (README.md, H1)
+
+networks:
+  rfnet:  # ragbench-rf-net, still internal (compose.yaml); subnet and gateway pinned so squid.conf's src ACLs are exact
+    ipam:
+      config:
+        - subnet: 10.231.47.0/27
+          gateway: 10.231.47.1  # squid.conf refuses it as a client: the Docker engine's side of the bridge
+  rfegress:
+    name: ragbench-rf-egress
+    driver: bridge
+    internal: false  # the one route out; only the proxy joins it
+
+services:
+  tei:
+    profiles: ["builtin"]
+  tei-probe:
+    profiles: ["builtin"]
+
+  proxy:
+    profiles: ["hosted"]
+    container_name: ragbench-rf-proxy
+    image: ubuntu/squid:7.2-26.04_edge@${RF_PIN_SQUID:?run H1 (the hosted pins)}
+    volumes:
+      - type: bind
+        source: ./squid.conf
+        target: /etc/squid/squid.conf
+        read_only: true
+        bind: { create_host_path: false }
+    tmpfs:
+      - /var/spool/squid:size=16m,mode=1777
+      - /var/log/squid:size=16m,mode=1777
+    mem_limit: 256m
+    cpus: "1"
+    networks: [rfnet, rfegress]
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "5" }
+    restart: "no"
+
+  ragflow:
+    depends_on:
+      tei-probe: { condition: service_completed_successfully, required: false }
+      proxy: { condition: service_started }
+    environment:  # merged by name with compose.yaml's list; only these differ
+      - COMPOSE_PROFILES=${RF_DOC_ENGINE:?set RF_DOC_ENGINE},cpu,metadata-mysql
+      - LOG_LEVELS=root=DEBUG,ragflow.es_conn=INFO,ragflow.infinity_conn=INFO,elastic_transport=INFO,elasticsearch=INFO,urllib3=INFO,httpx=INFO,httpcore=INFO,openai=INFO,peewee=WARNING,pdfminer=WARNING
+      - HTTPS_PROXY=http://ragbench-rf-proxy:3128
+      - https_proxy=http://ragbench-rf-proxy:3128
+      - NO_PROXY=localhost,127.0.0.1,::1,ragbench-rf-server,ragflow,ragbench-rf-runner,runner,ragbench-rf-es01,es01,ragbench-rf-infinity,infinity,ragbench-rf-mysql,mysql,ragbench-rf-minio,minio,ragbench-rf-redis,redis,ragbench-rf-tei,tei
+      - no_proxy=localhost,127.0.0.1,::1,ragbench-rf-server,ragflow,ragbench-rf-runner,runner,ragbench-rf-es01,es01,ragbench-rf-infinity,infinity,ragbench-rf-mysql,mysql,ragbench-rf-minio,minio,ragbench-rf-redis,redis,ragbench-rf-tei,tei
+      - LLM_TIMEOUT_SECONDS=60
+    volumes: !override  # compose.yaml's /w2, /in and /canvas; no TEI-wait patch, no /patch
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w2
+        target: /w2
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/in
+        target: /in
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/canvas
+        target: /canvas
+        read_only: true
+        bind: { create_host_path: false }
+
+  runner:
+    environment: !override  # what rf_ingest.py records; no TEI model or revision, and no proxy variable
+      - W2_DOC_ENGINE=${RF_DOC_ENGINE:?set RF_DOC_ENGINE}
+      - W2_EMBEDDER=hosted
+      - W2_EMBEDDING_BATCH_SIZE=${RF_EMBEDDING_BATCH_SIZE:?run H1 (batch size)}
+      - W2_MAX_CONCURRENT_TASKS=${RF_MAX_CONCURRENT_TASKS:-1}
+      - W2_RAGFLOW_IMAGE=infiniflow/ragflow:v0.27.3@${RF_PIN_RAGFLOW:?run H1 (the hosted pins)}
+    volumes: !override
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w2
+        target: /w2
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w1  # run_w1.py, by its sha256
+        target: /w1
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/docs/specs/w1-for-walid  # w1-queries.jsonl and SHA256SUMS
+        target: /pkg
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/in
+        target: /in
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/canvas
+        target: /canvas
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-hosted/out
+        target: /out
+        bind: { create_host_path: false }
+      - type: bind  # everything the hosted run saved, for key_leak_check.py
+        source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-hosted
+        target: /hr
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind  # the owner's OpenRouter key: this one file, read-only, in this one container
+        source: ${RF_OPENROUTER_KEY_FILE:?run H1 (the key file path)}
+        target: /keys/openrouter.key
+        read_only: true
+        bind: { create_host_path: false }

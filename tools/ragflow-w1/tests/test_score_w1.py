@@ -1412,6 +1412,21 @@ class OwnRunScoringTests(OwnRunCase):
         self.assertIn('## Exploratory (reported, never deciding)', text)
         self.assertIsNone(re.search(r'\b(his|he)\b', text), 'an own run is ours: no wording about Walid\'s corpus')
 
+    def test_a_built_in_run_prints_its_revision_and_builtin_tei_and_no_hosted_banner(self):
+        report, _ = self.scored()
+        text = s.markdown(report)
+        out = io.StringIO()
+
+        with contextlib.redirect_stdout(out):
+            s._print_own(report, False)
+
+        self.assertIn(f'| embedder | Qwen/Qwen3-Embedding-0.6B (revision {s.DECIDING["revision"]}, via builtin-tei) |',
+                      text)
+        self.assertNotIn('**Hosted run: exploratory only.**', text)
+        self.assertNotIn('| data policy |', text)
+        self.assertTrue(out.getvalue().startswith('own run (W2): elasticsearch, Qwen/Qwen3-Embedding-0.6B (revision '
+                                                  f'{s.DECIDING["revision"]}), arm v3'), out.getvalue())
+
     def test_the_what_was_run_header_prints_the_tei_wait_patch_and_the_concurrency(self):
         report, _ = self.scored()
         text = s.markdown(report)
@@ -1606,6 +1621,162 @@ def real_own_scored():
         written = s.write_outputs(report, Path(tmp) / 'score', 'w2-score')
         outputs = [path.read_text(encoding='utf-8') for path in written]
     return report, outputs
+
+
+# The hosted run (tools/ragflow-w2/README.md, «Hosted run (owner, 2026-11-09)»): exploratory only ------------------
+
+HOSTED_MODEL = 'qwen/qwen3-embedding-8b'
+HOSTED_POLICY = 'owner set on 2026-11-09: no training, ZDR only, guardrail on Nebius only, $2 budget'
+
+
+def hosted_embedder(**changes) -> dict:
+    """The manifest's hosted_embedder, as rf_ingest.py writes it from register_hosted.py's record."""
+    return {'model': HOSTED_MODEL, 'instance': 'w2or', 'factory': 'OpenRouter',
+            'base_url': 'https://openrouter.ai/api/v1', 'provider_order': 'nebius', 'data_policy': HOSTED_POLICY,
+            **changes}
+
+
+def hosted_manifest(**changes) -> dict:
+    """The manifest of the hosted run: the hosted embedder in place of the TEI-wait patch."""
+    value = {k: v for k, v in w2_manifest().items() if k != 'tei_wait_patch'}
+    value.update(embedder={'name': HOSTED_MODEL, 'revision': None, 'via': 'hosted-openrouter'},
+                 embedding_batch_size=16, hosted_embedder=hosted_embedder())
+    value.update(changes)
+    return value
+
+
+class HostedRunFolder(OwnRunFolder):
+    """Under its own out/ root, as .hq/scratch/w2-hosted/out is beside .hq/scratch/w2-run/out."""
+
+    def __init__(self, tmp: Path, engine: str = 'elasticsearch'):
+        super().__init__(tmp / 'hosted', engine)
+
+    def own_header(self, **changes) -> dict:
+        value = super().own_header(**changes)
+        if 'datasets' not in changes:
+            value['datasets'][0]['embedding_model'] = f'{HOSTED_MODEL}@w2or@OpenRouter'
+        return value
+
+
+class HostedOwnRunTests(OwnRunCase):
+    """A hosted manifest is read under its own root, holds the hosted embedder in place of the TEI-wait patch, is
+    printed in the W2 manifest table, and never decides: --w2-decide refuses it."""
+
+    def setUp(self):
+        super().setUp()
+        self.hosted = HostedRunFolder(self.tmp)
+
+    def open(self, folder, path=None):
+        return s.open_own_run(path or folder.folder / 'w2-results-v3.jsonl', folder.folder / s.W2_MANIFEST,
+                              folder.package, self.run.root, hosted_root=self.hosted.root)
+
+    def test_a_hosted_run_under_the_hosted_root_is_accepted(self):
+        self.hosted.write(self.hosted.own_header(), [own_line()], manifest=hosted_manifest())
+
+        own, results = self.open(self.hosted)
+
+        self.assertEqual((own.arm, own.manifest['hosted_embedder']['model'], len(results.lines)),
+                         ('v3', HOSTED_MODEL, 1))
+
+    def test_a_manifest_under_the_other_kind_s_root_is_refused(self):
+        self.hosted.write(self.hosted.own_header(), [own_line()], manifest=w2_manifest())
+        self.run.write(self.run.own_header(), [own_line()], manifest=hosted_manifest())
+
+        with self.assertRaisesRegex(Refused, 'a built-in W2 manifest is scored only under'):
+            self.open(self.hosted)
+        with self.assertRaisesRegex(Refused, 'a hosted W2 manifest is scored only under'):
+            self.open(self.run)
+
+    def test_the_local_root_alone_still_takes_only_its_own_files(self):
+        self.hosted.write(self.hosted.own_header(), [own_line()], manifest=hosted_manifest())
+
+        with self.assertRaisesRegex(Refused, 'scores only a file under'):
+            s.open_own_run(self.hosted.folder / 'w2-results-v3.jsonl', self.hosted.folder / s.W2_MANIFEST,
+                           self.hosted.package, self.run.root, hosted_root=None)
+
+    def test_a_hosted_manifest_that_breaks_its_contract_is_refused(self):
+        hosted = {k: v for k, v in hosted_manifest().items() if k != 'hosted_embedder'}
+        broken = {'the TEI-wait patch kept': ({**hosted_manifest(), 'tei_wait_patch': tei_wait_patch()},
+                                              'keys outside the contract: tei_wait_patch'),
+                  'no hosted embedder': (hosted, 'missing keys: hosted_embedder'),
+                  'a revision': (hosted_manifest(embedder={'name': HOSTED_MODEL, 'revision': 'a' * 40,
+                                                           'via': 'hosted-openrouter'}), '"embedder" of a hosted run'),
+                  'another factory': (hosted_manifest(hosted_embedder=hosted_embedder(factory='OpenAI')),
+                                      '"hosted_embedder.factory"'),
+                  'another base url': (hosted_manifest(hosted_embedder=hosted_embedder(base_url='http://openrouter.ai')),
+                                       '"hosted_embedder.base_url"'),
+                  'another model than the embedder': (
+                      hosted_manifest(hosted_embedder=hosted_embedder(model='qwen/qwen3-embedding-4b')),
+                      '"hosted_embedder.model"'),
+                  'the instance default': (hosted_manifest(hosted_embedder=hosted_embedder(instance='default')),
+                                           '"hosted_embedder.instance"'),
+                  'an instance with a space': (hosted_manifest(hosted_embedder=hosted_embedder(instance='w2 or')),
+                                               '"hosted_embedder.instance"'),
+                  'an instance with a slash': (hosted_manifest(hosted_embedder=hosted_embedder(instance='w2/or')),
+                                               '"hosted_embedder.instance"'),
+                  'an empty data policy': (hosted_manifest(hosted_embedder=hosted_embedder(data_policy=' ')),
+                                           '"hosted_embedder.data_policy"'),
+                  'a provider order that is no text': (hosted_manifest(hosted_embedder=hosted_embedder(provider_order=5)),
+                                                       '"hosted_embedder.provider_order"'),
+                  'a key field': (hosted_manifest(hosted_embedder={**hosted_embedder(), 'key': {'length': 73}}),
+                                  '"hosted_embedder" must hold exactly')}
+        for name, (manifest, message) in broken.items():
+            with self.subTest(name):
+                self.hosted.write(self.hosted.own_header(), [own_line()], manifest=manifest)
+
+                with self.assertRaisesRegex(Refused, f'^the W2 manifest: .*{re.escape(message)}'):
+                    self.open(self.hosted)
+
+    def test_w2_decide_on_a_hosted_run_is_refused_naming_the_local_deciding_cell(self):
+        path = self.hosted.write(self.hosted.own_header(), [own_line()], manifest=hosted_manifest())
+        out, err = io.StringIO(), io.StringIO()
+
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err), \
+                mock.patch.object(s, 'OWN_ROOT', self.run.root), mock.patch.object(s, 'HOSTED_ROOT', self.hosted.root):
+            code = s.main(['--results', str(path), '--own-run', '--manifest', str(self.hosted.folder / s.W2_MANIFEST),
+                           '--package', str(self.hosted.package), '--out-dir', str(self.tmp / 'score'), '--w2-decide'])
+
+        self.assertEqual((2, ''), (code, out.getvalue()))
+        self.assertIn('the embedder is hosted (qwen/qwen3-embedding-8b via OpenRouter): exploratory only; the '
+                      'deciding cell is the local elasticsearch run with the built-in Qwen/Qwen3-Embedding-0.6B',
+                      err.getvalue())
+
+    def scored(self) -> dict:
+        rows = [own_line(item.id, 'query', item.query, chunks=[own_chunk(1, content=TEXTS[LEASE])])
+                for item in OwnRunScoringTests.ITEMS]
+        self.hosted.write(self.hosted.own_header(), rows, manifest=hosted_manifest())
+        run, results = self.open(self.hosted)
+        context = own_context(OwnRunScoringTests.ITEMS, {i.id: (CONTRACT, SALE) for i in OwnRunScoringTests.ITEMS},
+                              OwnRunScoringTests.HALVES)
+        return s.score_own_run(run, results, context)
+
+    def test_a_hosted_run_is_scored_and_never_decides(self):
+        report = self.scored()
+
+        self.assertFalse(report['w2_decision']['deciding_cell'])
+        self.assertIn('the embedder is hosted (qwen/qwen3-embedding-8b via OpenRouter)',
+                      report['w2_decision']['why_not'][0])
+        self.assertEqual([], report['results']['warnings'])  # no TEI-wait warning: there is no patch
+        self.assertTrue(report['w2_exploratory'])
+
+    def test_the_w2_manifest_table_prints_the_hosted_embedder(self):
+        text = s.markdown(self.scored())
+
+        self.assertIn('| embedder | qwen/qwen3-embedding-8b (hosted: OpenRouter instance w2or, '
+                      'https://openrouter.ai/api/v1, provider order nebius) |', text)
+        self.assertIn(f'| data policy | {HOSTED_POLICY} |', text)
+        self.assertNotIn('| TEI wait patch |', text)
+        self.assertIn('**Hosted run: exploratory only.**', text)
+
+    def test_the_terminal_line_names_the_hosted_embedder(self):
+        report = self.scored()
+        out = io.StringIO()
+
+        with contextlib.redirect_stdout(out):
+            s._print_own(report, False)
+
+        self.assertTrue(out.getvalue().startswith('own run (W2): elasticsearch, qwen/qwen3-embedding-8b (hosted: '
+                                                  'OpenRouter instance w2or), arm v3'), out.getvalue())
 
 
 if __name__ == '__main__':

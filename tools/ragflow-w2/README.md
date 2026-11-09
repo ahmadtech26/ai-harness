@@ -527,6 +527,9 @@ follows no redirect, and only loopback http (and `ragbench-rf-tei` for TEI's `/i
     removed. Every file it writes is scrubbed of the key too.
 - **Exit codes.** 0 done; 1 a check failed or the server refused, with the state kept; 2 refused before
   sending.
+- **Hosted mode** (`--embedder hosted`, the hosted run only): the same steps with a registered OpenRouter model in
+  place of the built-in one and of the TEI-wait record («## Hosted run (owner, 2026-11-09)», «The tools»). The
+  built-in mode described here is unchanged.
 
 **The W2 manifest** (`out/<engine>/w2-manifest.json`, exactly the contract's keys):
 
@@ -622,6 +625,8 @@ It compares `predicted-chunks.jsonl` with `chunks.jsonl`, per law and in total.
   (which must not).
   - Only a name that does not resolve, an unreachable network or host, or a timeout count as blocked.
   - «Connection refused» means a host answered, so it fails the check.
+  - For the hosted run it also checks through a proxy: `--proxy`, `--tunnel` and `--tunnel-refused` («## Hosted
+    run (owner, 2026-11-09)», «The tools»).
 - **`timed_run.py`** runs a command and writes each output line with a UTC timestamp to `--log`. It exits with
   the command's code.
 - **`fallback_items.py`** writes `w2-fallback-<arm>.json` as `{"query": [ids], "question": [ids]}`: the items
@@ -717,6 +722,52 @@ The tests run with the same command as the generator's tests above. Nothing here
   - **`timed_run.py`.** It stamps each line and keeps the exit code, and refuses an existing log.
 - **`tests/test_probes.py`** (7 tests). `tei_probe.py`'s batch choice and article blocks. `net_check.py`:
   connected; refused counts as not blocked; an unresolvable name is blocked; no positive control is refused.
+- **The hosted run's tests** (2026-11-09; «## Hosted run (owner, 2026-11-09)»). The fake gained the v0.27.3 provider
+  routes (its docstring cites them): adding a provider once, a name-only instance, the instance update with its
+  required fields, the instance listing, the key-returning instance read (which no tool may send), the connection
+  check, and a dataset whose `<model>@<instance>@<factory>` must resolve to a registered model with a key.
+  - **`tests/test_register_hosted.py`** (24 tests). The three routes in order and nothing else; the name-only
+    instance, then the key with `verify` false and the exact body; the OpenRouter key in exactly one request body
+    and in no path, query, header, output or file; the RAGFlow key in the `Authorization` header only; the record's
+    keys, with the key's length and salted sha256 only; `--provider-order` sending the key as JSON made in memory;
+    the stored model found by the dataset route. Refused before sending: a key file missing, empty, of two lines (or
+    a blank second one), with a byte-order mark, with spaces, a RAGFlow key, a short key, capital hex, non-ASCII; an
+    instance `default`, with a space or a slash, or empty; a model without a vendor, with an «@» or a space; an
+    empty, blank or two-line note; a provider order in capitals, with a «;» or empty; an existing record; a
+    non-loopback URL; the key-returning route and the listing. One line, with LF, CRLF or no end, is accepted.
+    `Client.redact` alone, and `main`'s own log redacting both keys from a refusal or failure worded with them that
+    never went through `Client.redact` (fix2). A provider already added stops it; a server message repeating both
+    keys is shown redacted and nothing is written; a proxy named in the environment is not used. `smoke`: one connection check
+    with the key and the model, the JSON form with a provider order, a failure shown redacted.
+  - **`tests/test_rf_ingest_hosted.py`** (14 tests; the registration made by `register_hosted.py` against the same
+    fake). The dataset made with the registered model and nothing sent to TEI; the manifest's keys, with
+    `hosted_embedder` in place of `tei_wait_patch` and in its key order, the batch size and concurrency; the same
+    chunks as the built-in mode; `wait` and `dump` run again; a model the server cannot resolve stopping before the
+    upload; the OpenRouter key in no output or file. Refused: a `--tei-wait-patch`; `create`, `dump` and `all`
+    without the model or the record, and the hosted options in the built-in mode, each with its message, a missing
+    one with its own step's usage and «<step>: error:» line, as before the hosted mode (fix2); the stack's
+    other embedder, both ways; four other `--embedding-model` values; eight broken records; a `dump` with another
+    record than `create` kept.
+  - **`tests/test_net_check_proxy.py`** (9 tests; a fake CONNECT proxy, certificates from
+    `../ragflow-w1/tests/tls_cert.py`). A tunnel with a verified handshake; exactly the CONNECT line and the
+    handshake sent, nothing after; an untrusted certificate (interception) fails; a refused tunnel fails; 403 counts
+    as refused, 200 and 503 do not; a silent proxy fails both kinds; refusals without a tunnel, and either check
+    without `--proxy`, refused.
+  - **`tests/test_net_check_scan.py`** (6 tests, fix2). `--scan` against a real listener on 127.0.0.1: connected, and
+    the listener receives 0 bytes; both ends of the range tried; each outcome counted and the connected and timed-out
+    ports named (the review's 111/46425 and 80/443/8080 shape); open ports never change the exit status; a list cut
+    at 200 with the count of the rest; a name, a port 0 or 65536, a reversed or unreadable range, and
+    `--scan-ports` without `--scan` refused before anything is tried.
+  - **`tests/test_key_leak_check.py`** (22 tests). Clean files pass and are counted; the key found in a file by its
+    path, split across two reads once each, cut short by its pieces, on stdin under its label; files and stdin read
+    together; the key file itself skipped; the last 16 characters of a secret whose length is no multiple of 16 found
+    as a piece of their own (fix2). Streams (fix2): an empty stream incomplete, alone or beside files that were read;
+    a stream shorter than `--min-bytes` incomplete, one of exactly that length a pass; a key found outranking a short
+    stream; `--min-bytes` without `--stdin`, or below 0, refused; a `--scan` that read no file incomplete even beside a
+    stream. Refused: a key file missing, empty, of two lines, short or with a space;
+    nothing to search, a path that does not exist; an unreadable file makes it incomplete, but a key found outranks
+    that; an empty folder is not a pass. The registered key confirmed by its salted sha256, another one refused.
+    No test output holds the key or any of its pieces.
 - **`tests/test_tei_wait.py`** (32 tests) uses an invented `embedding_model.py` shaped like v0.27.3's, with a
   `timeout=30` line in a class before and after `HuggingFaceEmbed`, and the v0.27.3 source tree copy when it
   is there.
@@ -743,7 +794,10 @@ The tests run with the same command as the generator's tests above. Nothing here
 On 2026-11-08 these 132 tests, and the whole folder's suite with the generator's tests (176), passed on the
 host (Python 3.11.9, the Git Bash command above). On 2026-11-09, after the settle fix (`wait` above), these
 144 and the folder's 188 passed the same way (`.hq/scratch/w2-stage4/waitfix/suites-2.txt`). After the stage-4
-review's fixes, these 146 and the folder's 190 passed (`.hq/scratch/w2-stage4/fix1/suites.txt`).
+review's fixes, these 146 and the folder's 190 passed (`.hq/scratch/w2-stage4/fix1/suites.txt`). After the hosted
+run's build (2026-11-09: 59 new tests in four files, the 190 unchanged), the folder's 249 passed
+(`.hq/scratch/w2-stage4/build/logs/suites.txt`). After the two reviews' fixes (fix2: 16 new tests, one new file,
+`tests/test_net_check_scan.py`), the folder's 265 passed (`.hq/scratch/w2-stage4/fix2/logs/suites.txt`).
 
 **What the tests catch, measured with a list chosen by a reviewer, not by the builder.** An earlier version of
 this section reported «21 of 21 mutations killed». That was true of a list the builder chose, and it did not
@@ -790,6 +844,25 @@ the folder per mutation, never the worktree), measures it instead:
   either way); a reason's exact text; and four checks older than the fix, with no test yet: the timeout at
   `>=`, `sleep(0)`, the `seen` reset after a re-parse, and `dump` taking any count that is not none. The tests'
   run before this stage's code changes: `fix1/red.txt` (2 failures, 1 error); after them: `fix1/green.txt`.
+- **The hosted run's build, 2026-11-09.** A list chosen by the builder (`.hq/scratch/w2-stage4/build/mutate_build.py`,
+  47 mutations and two controls, one copy each, across `net_check.py`, `register_hosted.py`, `rf_ingest.py`'s hosted
+  mode, `key_leak_check.py` and `score_w1.py`'s hosted manifest), so it shows that each new check has a test, not how
+  much the suite covers. 46 were killed (`build/logs/mutate.txt`). The survivor, a 16-character piece counted again
+  at every read, was killed once the split test asserted the piece count too (`build/logs/mutate-leak-rerun.txt`).
+  Each new test file's red run, before its code existed, and its green run are `build/logs/red-*.txt` and
+  `green-*.txt`. Two layers of redaction in `register_hosted.py` mean that removing either alone shows nothing at its
+  output; `Client.redact` therefore has its own test, and the second layer, in `main`'s `log`, had none until fix2
+  gave it one (below).
+- **The reviews' fixes (fix2), 2026-11-09.** The correctness review's own list
+  (`.hq/scratch/w2-stage4/review2-correct/mutate_review.py`, 28 mutations) left 6 survivors: the log redaction
+  above, the last 16-character piece, the hosted instance check in `score_w1.py`, and three built-in output paths
+  of `score_w1.py` (the embedder row, the terminal line, the hosted banner). fix2's list
+  (`.hq/scratch/w2-stage4/fix2/mutate_fix2.py`, one copy each) repeats those six with the review's own text, adds 18
+  for fix2's changes (the stream rules and `--min-bytes` of `key_leak_check.py`, `net_check.py --scan`, the step's
+  usage in `rf_ingest.py`) and two controls: all 24 killed, both controls passing (`fix2/logs/mutate.txt`). The red
+  runs: `fix2/logs/red-w2.txt`, before any code (the new options unknown), and `red-w2-stubs.txt`, with the options
+  accepted and ignored so that each new test fails on its own assertion; the tests that pin behaviour already there
+  (the six survivors) were shown by the mutations instead.
 
 Each of these files is outside the repository.
 
@@ -957,8 +1030,8 @@ the ingest shows those bytes did not change during it.
 
 Git Bash on this machine, in order, by the main agent: subagents run no git, and these steps hold the only
 run state. Stop at the first check that fails. Heavy steps go through `heavy.sh`. Paths given to docker are
-`D:/...` (with `MSYS_NO_PATHCONV=1`), and bash reads `heavy.sh` by its POSIX path. The hosted OpenRouter run is
-not part of this runbook.
+`D:/...` (with `MSYS_NO_PATHCONV=1`), and bash reads `heavy.sh` by its POSIX path. The hosted OpenRouter run has
+its own runbook, H0 to H10, in «## Hosted run (owner, 2026-11-09)» at the end.
 
 ### P0. Variables (every new shell)
 
@@ -1418,3 +1491,619 @@ docker images --digests --format '{{.Repository}}:{{.Tag}} {{.ID}} {{.Repository
   pulled at the same digest meanwhile is the same image, and a digest cannot tell the two apart. `docker rmi`
   is run without `-f`, so it refuses an image any container still uses; that is also why this stays the owner's
   decision.
+
+## Hosted run (owner, 2026-11-09)
+
+The owner's one extra run with an embedder hosted on OpenRouter, reported only (spec-rag-system.md:472, «The hosted
+run»; decided «now» on 2026-11-09, :475 point 3). It is exploratory: the deciding cell stays the local Elasticsearch
+run with the built-in Qwen3-Embedding-0.6B, and `score_w1.py` refuses `--w2-decide` on a hosted manifest. Its
+premises were checked first: `.hq/scratch/w2-stage4/premises/PREMISES-hosted-run.md` (cited below as PREMISES §n),
+with the raw public data it read in `premises/web/`. This section builds the stack and the tools; nothing here has
+run against OpenRouter, and no agent reads the key.
+
+### What is sent where
+
+| What | Path | When |
+|---|---|---|
+| The text of every chunk (6,612 chunks, about 2.2 M characters of our served law text in W2) and each file name once (22 calls, `rag/flow/tokenizer/tokenizer.py:95`) | server → `ragbench-rf-proxy` (Squid, CONNECT only, no TLS interception) → `openrouter.ai:443` → the provider the owner's guardrail allows (Nebius) | H5, the parse |
+| The 80 items' `query` and `question` texts, once per arm (2 arms: 320 calls) | the same | H7 |
+| One test sentence, «Test if the api key is available» (about 8 tokens) | the same | H4, only if the owner approved the smoke call |
+| The OpenRouter key | the owner's file → the runner (a read-only bind of that one file) → the server, in one `PUT` body over loopback → MySQL on tmpfs, in plain text (`tenant_model_instance.api_key`, `api/db/db_models.py:1863-1872`) → the `Authorization` header of the server's OpenAI client, inside TLS | H4 to H10 |
+
+Nothing else leaves the stack: no canvas, no upload manifest, no result, no log, no query to Hugging Face or PyPI
+(the proxy answers those 403). Squid sees only `CONNECT openrouter.ai:443`, never a header, a body or the key.
+OpenRouter keeps request metadata (token counts, latency) and screens all traffic for CSAM in flight, ZDR included;
+whether its «Anonymous Input Categorization» samples embeddings is not stated (PREMISES §2). The text is our
+published Jordanian law text and the draft test queries, which the owner accepted sending (spec :472).
+
+**The key at rest.** In MySQL on tmpfs, so it is gone at teardown. `GET /api/v1/providers/<p>/instances/<i>`
+answers with it in clear (`api/apps/services/provider_api_service.py:1117`); no tool here may send that route
+(`register_hosted.py` ROUTES, tested). No RAGFlow log line on this path prints it (PREMISES §4), `peewee` stays at
+WARNING so no SQL statement is logged, and the openai SDK redacts its `Authorization` header. The key is checked for
+in every saved file, the server's log and the containers' configuration (H3, H4, H7, H9).
+
+### The data-policy switches the owner sets (H0)
+
+All on openrouter.ai, logged in (PREMISES §2). A key in the file changes none of them, and no agent can see them.
+
+1. **Privacy** (https://openrouter.ai/settings/privacy). Data training: «Allow paid endpoints that train on request
+   data», «Allow free endpoints that train on request data», «Allow free endpoints that publish prompts» and «Allow
+   1% data discount» all **off**. ZDR: enforce for **All other models** (Qwen is in that group), Safety Retention
+   **ZDR only**. Click **Save changes**, reload, and check that the toggles stayed (the labels come from a
+   third-party issue of 2026-09-24; the page itself was not seen).
+2. **Observability** (https://openrouter.ai/workspaces/default/observability): «Input & Output Logging» **off**,
+   «Broadcast» **off**.
+3. **A guardrail** (Workspaces → Default → Guardrails → New Guardrail): model allowlist `qwen/qwen3-embedding-8b`;
+   provider allowlist **Nebius** only; ZDR enforced for All other models, Safety Retention ZDR only; budget **$2**.
+   Assign it to the key. Its «Eligibility preview» must show exactly one endpoint: «Nebius |
+   qwen/qwen3-embedding-8b». This is the layer that binds: a breach is a documented 403, an allowlist nothing
+   satisfies a documented 404, and the openai SDK retries neither (PREMISES §2, §5).
+
+### The key file
+
+`C:/Users/accou/.ragbench-rf/openrouter.key`, written by the owner (H0), never opened by an agent. One line: the raw
+key, `sk-or-v1-` and 64 lower-case hex characters (the shape of every key in OpenRouter's key documentation, read
+2026-11-09; `premises/web/doc-api_api-reference_api-keys_create-keys.md`), with or without one line end, no
+byte-order mark. `register_hosted.py` refuses anything else before it sends anything, and its messages never quote
+the file. A dedicated key: credit limit **$2**, no reset, an expiry a few days after the run; disable or delete it
+after H10. The folder also holds `secrets.conf`, so compose binds the file alone, never the folder.
+
+### The model and its cost
+
+**`qwen/qwen3-embedding-8b`, on Nebius only** (PREMISES §3): bf16, $0.01 per million tokens, a 40,960-token context,
+on OpenRouter's ZDR list with `safety_retention: false`. Its MMTEB mean is 70.58 against 64.33 for the local 0.6B
+(Hugging Face model card); it is the 0.6B's big sibling, so the run changes the model's size, not its family.
+DeepInfra is the fallback if Nebius is down on the day: one provider, never both, or documents and queries are
+embedded by different deployments.
+
+- **Expected cost:** about 0.9 M tokens (864,009 measured Qwen tokens of the corpus, plus the file names and the
+  320 queries) × $0.01/M ≈ **$0.009**. That assumes the 8B's tokenizer is the 0.6B's (same Qwen3 vocabulary; not
+  verified) and that OpenRouter bills the provider's count.
+- **Ceiling:** 1.55 M tokens (RAGFlow's cl100k count) × $0.04/M (SiliconFlow's price, should routing go wrong) ≈
+  **$0.06**. The key's $2 limit is over 30 times that.
+- RAGFlow logs the provider-reported count of each call (`LLMBundle.encode used_tokens`,
+  `api/db/services/llm_service.py:219`, `:247`); H9 sums it for the reconciliation with OpenRouter's activity page.
+
+### The stack: `compose.hosted.yaml` and `squid.conf`
+
+`compose.hosted.yaml` is an overlay, used only on top of `compose.yaml` with the profiles `es` and `hosted`. What is
+not named in it is `compose.yaml`'s: the same pinned server, the same Elasticsearch store set, the same runner, the
+same internal network, no published port. Its header lists every change; in short:
+
+| Change | Why |
+|---|---|
+| `tei` and `tei-probe` move to the profile `builtin`, never enabled here; the server's wait for `tei-probe` becomes `required: false` | no TEI on this stack (the pattern compose.yaml uses for `es01` and `infinity`) |
+| The server's volumes are restated (`!override`) without the TEI-wait patch and `/patch` | the hosted run uses the shipped `embedding_model.py` (PREMISES §5) |
+| `COMPOSE_PROFILES` without `tei-cpu` | no built-in embedder (`common/settings.py:392-395`; every TEI path is gated on «tei-»), and the boot-time tenant has no default embedding model to test (`api/db/init_data.py:91-94`) |
+| `ragbench-rf-proxy` (`ubuntu/squid:7.2-26.04_edge`, by digest) on `ragbench-rf-net` and on `ragbench-rf-egress`, the one non-internal network; nobody else joins it | the only route out (spec :472) |
+| `ragbench-rf-net`'s subnet pinned to `10.231.47.0/27`, its gateway to `10.231.47.1` | `squid.conf`'s `src` ACLs name both: only the subnet may use the proxy, so the egress side cannot, and its gateway, the Docker engine's side of the bridge, is refused first |
+| The server: `HTTPS_PROXY`/`https_proxy` = `http://ragbench-rf-proxy:3128`, `NO_PROXY`/`no_proxy` naming every internal host, `localhost`, `127.0.0.1` and `::1`; no `HTTP_PROXY` | openai 2.41.0 on httpx 0.28.1 honours them (PREMISES §5). Every internal URL is `http://`, so no internal call can reach the proxy even if `NO_PROXY` missed a name. The server waits for the proxy to start |
+| `LOG_LEVELS` adds `openai=INFO` | at root DEBUG the SDK would log every request's options, chunk text included (PREMISES §4) |
+| `LLM_TIMEOUT_SECONDS=60` | the wait of a provider check, default 10 s (`provider_api_service.py:894`); only the smoke call uses it |
+| The runner: `W2_EMBEDDER=hosted` and no TEI variables; `/out` is `.hq/scratch/w2-hosted/out`, `/hr` the whole hosted folder (read-only, for the leak check), `/keys/openrouter.key` the key file (read-only); no `/patch`, no proxy variable | the key reaches no other container and no environment variable |
+
+**Operational settings** (spec: they decide no chunk, vector or score):
+- `EMBEDDING_BATCH_SIZE=16` (the hosted pins file). RAGFlow's OpenRouter client sends at most 16 inputs per request
+  anyway (`OpenRouterEmbed.encode`, `rag/llm/embedding_model.py:1552-1553`), so the pipeline's batches match it:
+  about 440 requests instead of about 6,650 at 1. W2's 1 was for TEI on CPU only. Whether a provider's numbers vary
+  in their last bits with a batch's make-up was not checked; it decides nothing here.
+- `MAX_CONCURRENT_TASKS=1` (compose.yaml's default): one document at a time, so the in-flight spend and the request
+  rate stay small (OpenRouter's in-flight budget answers 402, which the openai SDK does not retry; no rate limit is
+  documented for paid models; PREMISES §3, §6), and the setting is the local run's. `MAX_CONCURRENT_CHUNK_BUILDERS`
+  stays 1.
+
+**Squid** (`squid.conf`) allows `CONNECT openrouter.ai:443` from `ragbench-rf-net` and nothing else: the network's
+gateway refused first, `dstdomain -n` (an IP literal is never looked up in reverse), port 443 only, CONNECT only, a
+destination that resolves to a private address refused, no cache, no `ssl_bump`. Each request is one line in
+`/var/log/squid/access.log` (tmpfs), in the form `<time> <client> CONNECT openrouter.ai:443 200 TCP_TUNNEL <bytes>
+<server>`, or `… 403 TCP_DENIED …` for a refusal. A tunnel is one line, written when it closes, not when it opens:
+the openai client keeps its tunnel open between calls, so the log counts tunnels, not embedding calls, and a tunnel
+still open is not in it yet (H9 stops the server before the last copy). `docker logs ragbench-rf-proxy` does not
+carry the log (the image's Pebble does not forward its service's output); the runbook reads it with `docker exec`.
+
+**What was checked on 2026-11-09, before anything ran** (logs in `.hq/scratch/w2-stage4/build/`, then
+`review2-safety/` and `fix2/` beside it):
+- The overlay renders (`docker compose config`, placeholder secrets and pins): `fix2/render/check-render.txt`, 22
+  lines `ok` (the build's 21, `build/render/check-render.txt`, and the gateway pin). Services es01, mysql, minio,
+  redis, proxy, ragflow, runner; no TEI; only the proxy on the egress network; `ragbench-rf-net` at `10.231.47.0/27`
+  with its gateway `10.231.47.1`; no port; the key bind in the runner only. Without `--profile hosted` the project
+  refuses to load («service "ragflow" depends on undefined service "proxy"», `fix2/render/no-hosted-profile.txt`),
+  so the hosted server cannot start without its proxy; `compose.yaml` alone renders as before
+  (`build/render/base-alone.txt`).
+- The pin: `docker buildx imagetools inspect ubuntu/squid:7.2-26.04_edge` gave
+  `sha256:041c64dd14c81548023c9532e4c2fac487e9a3f9f490913b50547d2974722025`, the digest the premises read from Docker
+  Hub (`build/logs/squid-imagetools-inspect.txt`); pulled by digest (`build/logs/squid-pull.txt`). The tag moves
+  (rebuilt 2026-11-07), so H1 pins this digest instead of reading the tag again.
+- `squid -k parse` in that image (its binary is `/usr/sbin/squid-gnutls`), offline, of the `squid.conf` with the
+  gateway refused: exit 0, no warning (`fix2/selftest/parse-2.txt`; the build's, before that change,
+  `build/logs/squid-parse-2.txt`).
+- Three live self-tests, each with the proxy alone as `ragbench-rf-proxy` on two throwaway networks
+  (`ragbench-rf-st-int`, internal, `10.231.47.0/27`; `ragbench-rf-st-egress`), clients on them, and everything
+  removed afterwards: the build's (`build/proxy_selftest.sh`, `build/logs/proxy-selftest.txt`), the safety review's
+  (`review2-safety/proxy-selftest-review.txt`), and fix2's, after the gateway was refused
+  (`fix2/selftest/proxy_selftest_fix2.sh`, `proxy-selftest-fix2.txt`). From the internal network: direct
+  `1.1.1.1:443` unreachable (errno 101), `openrouter.ai`, `huggingface.co` and `pypi.org` without an address;
+  `CONNECT openrouter.ai:443` answered 200 and a TLS 1.3 handshake verified openrouter.ai's certificate (no
+  interception), with nothing sent after it; `huggingface.co:443`, `pypi.org:443`, `1.1.1.1:443`,
+  `host.docker.internal:443`, `openrouter.ai:80` and `www.openrouter.ai:443` each refused with 403
+  `ERR_ACCESS_DENIED`; of the review's 20 raw request forms (fix2 repeated all but the IP literal), only
+  `openrouter.ai:443` itself (any case, a trailing dot, HTTP/1.0) got 200; its IP literal, other names and ports, a
+  lying `Host`, a plain or absolute `GET` and the cache manager got 403, and a userinfo form 400. From the egress network, both a CONNECT and a GET got 403 (the `src` ACL). `access.log`, read
+  with `docker exec`, held every line (`docker logs` held only Pebble's), and a tunnel held open for 12 s was
+  logged only when it closed (fix2, step 5). **Not exercised:** a client at the gateway's own address, which only
+  a container on the Docker engine's host network could be; the rule that refuses it rests on the parse and on
+  the `src` ACL working from the egress side.
+- **A finding for the owner: the internal network's gateway answers on two ports.** A TCP connect scan of
+  `10.231.47.1`, every port, nothing sent, from the internal network (`review2-safety/`, then fix2 with `net_check.py
+  --scan`): **111 and 46425 accept a connection**; 80, 443 and 8080, ports other containers publish, time out; the
+  other 65,530 refuse. The gateway is the Docker engine's side of the bridge, so the stack can reach those two
+  services: 111 is by convention rpcbind, 46425 is not identified, and neither was shown to lead anywhere.
+  `wsl.exe -e ss -ltn` showed neither port in the default WSL distribution, so they are on Docker Desktop's side
+  (inferred). There is still no route beyond it (1.1.1.1 unreachable). W2's gateway lines tested 443 and a port
+  another container publishes, which time out, so they could not show this; the W2 stacks, on the same Docker,
+  most likely had the same exposure (inferred). The proxy refuses the gateway as a client (above). Whether «no route
+  beyond the Docker VM, two unidentified listeners on it» is enough is the owner's decision, made on the port list
+  (H0 (f)); H3 scans again and stops if the list differs.
+
+### The tools
+
+- **`register_hosted.py`** (runner; its docstring cites every route). `register` adds the provider `OpenRouter`,
+  creates the instance by name only, then stores the key and the model with `verify: false`, so no call reaches
+  OpenRouter (`provider_api_service.py:460-465`). The key is in that one body. It writes `hosted-embedder.json`:
+  factory, instance, model, `embedding_model` (`<model>@<instance>@OpenRouter`), base URL, `max_tokens` 32768,
+  provider order, `verify` false, the owner's data-policy note, and of the key only its length and a salted sha256.
+  `--provider-order nebius` (owner decision, PREMISES §8 item 2; off by default) sends the key as the JSON text
+  `{"api_key", "provider_order"}`, made in memory, so RAGFlow adds `provider {order, allow_fallbacks: false}` to
+  every request (`rag/llm/embedding_model.py:1528-1548`). `smoke` makes the one paid check call through
+  `POST /providers/OpenRouter/connection`, nothing stored. Refused before sending: a key file missing, empty, of two
+  lines, with a byte-order mark or not one OpenRouter key; an instance name RAGFlow refuses, or `default`; a model
+  that is not an OpenRouter id; an empty or multi-line note; a provider order that is not slugs; an existing record;
+  a non-loopback URL. A provider already added stops it (the stack is fresh; registration is not re-run).
+- **`rf_ingest.py --embedder hosted`** (the docstring's hosted paragraph): `create`, `dump` and `all` take
+  `--embedding-model` and `--hosted-record` instead of `--tei-wait-patch`, which is refused. `W2_EMBEDDER` must say
+  hosted; preflight sends nothing to TEI; the record is checked (version, factory, base URL, `verify` false, an
+  instance that is not `default`, `embedding_model` = model@instance@factory, a note) and must name the very
+  `--embedding-model`; `dump` refuses a record other than the one `create` kept. The manifest has
+  `embedder {name, revision null, via "hosted-openrouter"}` and `hosted_embedder` (model, instance, factory,
+  base_url, provider_order, data_policy) in place of `tei_wait_patch`. The canvas, the upload set, the settle rule,
+  the dump and its checks are the built-in mode's, and so is the gate: the Tokenizer embeds the chunker's text and
+  stores it unchanged (`rag/flow/tokenizer/tokenizer.py:99-124`), so `predict_chunks.py`, `w2_check.py` and ALL
+  MATCH stand as they are. The built-in mode is unchanged (its 76 tests unchanged and passing).
+- **`net_check.py`**: `--proxy`, `--tunnel host:port` (CONNECT answered 200, then a TLS handshake verified for that
+  host; nothing sent after it; the positive control through the proxy) and `--tunnel-refused host:port` (the proxy
+  must answer 403; a 200 or any other status, such as a 503 when the rules let it through and the connection beyond
+  failed, is a `FAIL`). The direct `--reach`/`--block` lines are as before. `--scan IP` (with `--scan-ports`,
+  default every port) records what accepts a TCP connection on one address, each socket closed as it opens, nothing
+  sent: the count of each outcome, then the ports that connected and those that timed out. It never changes the exit
+  status; H3 compares its list with the one the owner accepted (H0 (f)).
+- **`key_leak_check.py`** (runner): reads the key from its mount, searches every file under `--scan` and the
+  `--stdin` stream for the whole key and each of its 16-character pieces, and prints counts and paths only. With
+  `--registration` it first checks the key against the record's salted sha256, so it cannot pass by searching for
+  another key. Exit 1 when it finds any, 2 when the check is incomplete: a file it could not read, a `--scan` that
+  read no file, or a `--stdin` stream of 0 bytes or of fewer than `--min-bytes`, which the runbook takes from a count
+  of the same stream made just before, so that an empty, failed or cut-short `docker logs` is never a pass. A key
+  found outranks an incomplete check. It finds bytes as they are, not a key re-encoded (base64, URL or UTF-16).
+- **`score_w1.py`** reads a hosted manifest under `.hq/scratch/w2-hosted/out/<engine>/` only, prints the hosted
+  embedder in the «W2 manifest» table, and never decides (`../ragflow-w1/README.md`, «Own runs (W2)»).
+
+### Runbook H (owner, then the main agent)
+
+Git Bash on this machine, as P and E. Stop at the first check that fails. The W2 stack must be gone (F) before H2.
+
+**H0. Owner steps, before H1.**
+1. Credits: a positive balance on the account (the minimum purchase and fees are on the credits page; not checked
+   here).
+2. The data-policy switches above: privacy (Save changes, reload), observability, the guardrail assigned to the key,
+   its «Eligibility preview» showing only «Nebius | qwen/qwen3-embedding-8b».
+3. The key: dedicated, limit $2, no reset, short expiry; written to the key file without the key on a command line.
+   Copying it puts it on the Windows clipboard, so first, in Settings → System → Clipboard, turn off the sync
+   across devices (it would upload the key to Microsoft) and preferably «Clipboard history». Then copy the key and,
+   in PowerShell, `Get-Clipboard | Set-Content -NoNewline -Encoding ascii -Path
+   C:\Users\accou\.ragbench-rf\openrouter.key` (ASCII: no byte-order mark). Then, on the same settings page, «Clear
+   clipboard data», so that no copy stays in the clipboard history.
+4. The decisions, written down for the main agent:
+   - (a) the provider, Nebius (recommended) or DeepInfra, matching the guardrail; H1 checks its ZDR entry.
+   - (b) whether `register_hosted.py` adds `--provider-order nebius`. **Recommended: yes**, as a second,
+     request-level pin beside the guardrail: every request then carries `provider {order: [nebius],
+     allow_fallbacks: false}`. Its slug is not verified (`nebius` is read from the endpoint tag `nebius/bf16`), but a
+     wrong slug can only make the calls fail, never route them elsewhere, since no fallback is taken (PREMISES §2);
+     the smoke call or the first parse would show it.
+   - (c) whether the one smoke call is approved.
+   - (d) relying on Elasticsearch 8.11's own mapping of 4096-dimension vectors, with H5's live check as the stop
+     rule (PREMISES §6).
+   - (e) the residual retention at OpenRouter above.
+   - (f) the gateway finding above: whether «no route beyond the Docker VM, and these listeners on it» is enough,
+     written as the exact list of ports accepted, for example `GW_ACCEPTED="111 46425"`. H3 scans the gateway again
+     and stops if the ports that accept a connection are not that list. To see first what listens on them, the
+     command below lists the sockets and their processes on the Docker engine's side.
+5. One line for the record, the data-policy note H4 passes, for example: «owner set 2026-11-09: training off,
+   ZDR only (All other models), guardrail qwen/qwen3-embedding-8b on Nebius only, $2 budget; observability off».
+
+For H0 (f), optional: what listens on the gateway's open ports. A throwaway container on the Docker engine's own
+network and process namespaces (`--network host --pid host`) reads its socket table and the processes that hold
+those sockets. No agent ran it on the engine; its Python was checked in WSL against a socket it opened itself
+(`.hq/scratch/w2-stage4/fix2/runbook-snippets/ident-wsl-test.txt`). If the engine's process table is closed to it,
+it prints the sockets only.
+
+```bash
+MSYS_NO_PATHCONV=1 docker run --rm --name ragbench-rf-gw-ident --network host --pid host --read-only \
+  "python:3.12-slim@$(sed -n 's/^RF_PIN_PYTHON=//p' "D:/Iqraa Law/.hq/scratch/w2-run/state/pins.vars")" python3 -I -c '
+import glob, os, sys
+ports = {int(p) for p in sys.argv[1:]}
+socks = {}
+for name in ("tcp", "tcp6"):
+    for line in open("/proc/net/" + name).read().splitlines()[1:]:
+        f = line.split()
+        port = int(f[1].rsplit(":", 1)[1], 16)
+        if f[3] == "0A" and port in ports:
+            socks[f[9]] = "%s port %d (%s)" % (name, port, f[1])
+print("listening:", sorted(socks.values()) or "nothing on those ports")
+for fd in glob.glob("/proc/[0-9]*/fd/*"):
+    try:
+        link = os.readlink(fd)
+    except OSError:
+        continue
+    if link.startswith("socket:[") and link[8:-1] in socks:
+        pid = fd.split("/")[2]
+        cmd = open("/proc/%s/cmdline" % pid, "rb").read().replace(b"\0", b" ").decode(errors="replace").strip()
+        print(socks[link[8:-1]], "pid", pid, cmd)
+' 111 46425
+```
+
+**H1. Variables, folders, pins and pulls.**
+
+```bash
+set -o pipefail
+export MSYS_NO_PATHCONV=1 RF_WS="D:/Iqraa Law" RF_DOC_ENGINE=elasticsearch
+T="D:/Iqraa Law/AI Harness-w1/tools/ragflow-w2"; RUN="D:/Iqraa Law/.hq/scratch/w2-run"
+HR="D:/Iqraa Law/.hq/scratch/w2-hosted"; HEAVY="/d/Iqraa Law/.hq/scratch/heavy.sh"; PINS="$HR/state/pins.vars"
+CF=(-f "$T/compose.yaml" -f "$T/compose.hosted.yaml" --project-directory "$T" --env-file "$PINS")
+PROVIDER=Nebius                     # H0 (a), as OpenRouter writes it: Nebius or DeepInfra
+GW_ACCEPTED="111 46425"             # H0 (f): the gateway ports the owner accepted, in this form
+[ -s "$RUN/state/secrets-path.txt" ] && export RF_SECRETS="$(cat "$RUN/state/secrets-path.txt")"   # P2's file; if gone, run P2
+mkdir -p "$HR/state" "$HR/out/elasticsearch" "$HR/logs"
+docker ps -a --format '{{.ID}} {{.Names}}' | sort > "$HR/state/before-containers.txt"
+docker volume ls --format '{{.Name}}' | sort > "$HR/state/before-volumes.txt"
+docker network ls --format '{{.ID}} {{.Name}}' | sort > "$HR/state/before-networks.txt"
+docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | sort > "$HR/state/before-images.txt"
+grep -c 'ragbench-rf-' "$HR"/state/before-*.txt                                     # 0 for each file
+docker network ls -q | xargs docker network inspect --format '{{.Name}} {{range .IPAM.Config}}{{.Subnet}} {{end}}' \
+  | grep -F '10.231.47.' || echo "subnet 10.231.47.0/27 free"
+[ -s /c/Users/accou/.ragbench-rf/openrouter.key ] && echo "key file present (not opened)"
+ls "$RUN/in"/*.md | wc -l; sha256sum "$RUN/canvas/indexing-pipeline.json" "$RUN/in/upload-manifest.json"
+# the pins: W2's own digests (the same server, stores and runner), and the squid digest the self-tests ran; no tag
+# is read again (valkey/valkey:8 and ubuntu/squid:7.2-26.04_edge move)
+{ for v in RF_PIN_RAGFLOW RF_PIN_ES RF_PIN_MYSQL RF_PIN_MINIO RF_PIN_VALKEY RF_PIN_PYTHON; do
+    grep -m1 "^$v=sha256:[0-9a-f]\{64\}$" "$RUN/state/pins.vars" || echo "$v=MISSING"; done
+  echo "RF_PIN_SQUID=sha256:041c64dd14c81548023c9532e4c2fac487e9a3f9f490913b50547d2974722025"
+  echo "RF_EMBEDDING_BATCH_SIZE=16"
+  echo "RF_OPENROUTER_KEY_FILE=C:/Users/accou/.ragbench-rf/openrouter.key"
+  # compose.yaml is interpolated whole before the overlay drops TEI: these three are set, and nothing uses them
+  echo "RF_PIN_INFINITY=sha256:$(printf '0%.0s' $(seq 64))"; echo "RF_PIN_TEI=sha256:$(printf '0%.0s' $(seq 64))"
+  echo "RF_TEI_REVISION=$(printf '0%.0s' $(seq 40))"; echo "RF_TEI_WAIT_DIR=not-used-by-the-hosted-run"
+} > "$PINS"; cat "$PINS"
+while read -r name want; do got=$(sed -n "s/^$name=//p" "$PINS")
+  [ "$got" = "$want" ] && echo "same      $name" || echo "DIFFERENT $name: $got, expected $want"
+done <<'EOF'
+RF_PIN_RAGFLOW sha256:4ab74ec388e2d897419e01518a516e9386e5ff812587a1025e6f6a407b2ad067
+RF_PIN_ES sha256:58a3a280935d830215802322e9a0373faaacdfd646477aa7e718939c2f29292a
+RF_PIN_MYSQL sha256:d58ac93387f644e4e040c636b8f50494e78e5afc27ca0a87348b2f577da2b7ff
+RF_PIN_MINIO sha256:29a498b24669cae1fed11c1a2fb2b3d73c68829a0a9c0b14e71b386671d38fac
+RF_PIN_VALKEY sha256:8f836008e0986c36adf50da714c7060cf689dbb335f61fe077939d90fa650809
+RF_PIN_SQUID sha256:041c64dd14c81548023c9532e4c2fac487e9a3f9f490913b50547d2974722025
+RF_PIN_PYTHON sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704
+EOF
+docker compose "${CF[@]}" --profile es --profile hosted config --services          # names only, no values
+bash "$HEAVY" docker compose "${CF[@]}" --profile es --profile hosted pull          # by digest; only what F removed
+docker images --digests | grep -E 'ragflow|elasticsearch|mysql|silo|valkey|squid|python'
+# the model's endpoints and OpenRouter's ZDR list, both public (no key sent), kept as fetched
+curl -fsS --proto '=https' https://openrouter.ai/api/v1/endpoints/zdr -o "$HR/state/zdr-on-the-day.json"
+curl -fsS --proto '=https' https://openrouter.ai/api/v1/models/qwen/qwen3-embedding-8b/endpoints \
+  -o "$HR/state/model-endpoints-on-the-day.json"
+python -I -c '
+import json, sys
+zdr_path, eps_path, chosen = sys.argv[1:4]
+zdr = {(r["provider_name"], r["tag"]): r for r in json.load(open(zdr_path, encoding="utf-8"))["data"]
+       if r["model_id"] == "qwen/qwen3-embedding-8b"}
+eps = json.load(open(eps_path, encoding="utf-8"))["data"]["endpoints"]
+for e in eps:
+    z = zdr.get((e["provider_name"], e["tag"]))
+    print(e["provider_name"], e["tag"], e["quantization"], e["pricing"]["prompt"],
+          "ZDR safety_retention %s" % z["safety_retention"] if z else "NOT on the ZDR list")
+mine = [e for e in eps if e["provider_name"] == chosen]
+good = bool(mine) and all(zdr.get((e["provider_name"], e["tag"]), {}).get("safety_retention") is False for e in mine)
+print(("ok   %s: %d endpoint(s), each on the ZDR list without safety retention" if good else "STOP %s: %d endpoint(s), not all on the ZDR list without safety retention") % (chosen, len(mine)))
+' "$HR/state/zdr-on-the-day.json" "$HR/state/model-endpoints-on-the-day.json" "$PROVIDER" | tee "$HR/state/zdr-on-the-day.txt"
+```
+
+Check: 0 ours before; the subnet free; the key file present (its size is read by H3 inside the runner); 22 files,
+the canvas `3f0fcb62…588d` and the upload manifest `b0737632…6bc1` (P6, the W2 run); no `MISSING` pin and seven
+`same` lines (the `ragbench-rf-*` digests are W2's, from `$RUN/state/pins.vars`, and the squid one the self-tests');
+the services es01, mysql, minio, redis, proxy, ragflow, runner and no TEI; each pinned digest present in `docker
+images --digests`. The endpoint lines list every provider that serves the model, each with its ZDR entry (on
+2026-11-09: Nebius `nebius/bf16 bf16 0.00000001`, DeepInfra and SiliconFlow, all three `ZDR safety_retention False`,
+PREMISES §2-§3), and the last line is `ok   Nebius: 1 endpoint(s), each on the ZDR list without safety retention`
+(the provider of H0 (a)). A `STOP` line, or an endpoint of that provider at another price or quantization: stop and
+ask the owner. Another provider `NOT on the ZDR list` is recorded, not a stop: the guardrail's provider allowlist
+keeps it out (PREMISES §2, the layer that binds). The join was checked against the premises' copies of both lists
+and three altered copies (`.hq/scratch/w2-stage4/fix2/runbook-snippets/endpoints-check.txt`). Anything else: stop.
+
+**H2. Up.**
+
+```bash
+docker network ls --format '{{.Name}}' | grep -E '^ragbench-rf-' && echo "STOP: a ragbench-rf network exists (F first)"
+bash "$HEAVY" docker compose "${CF[@]}" --profile es --profile hosted up -d
+docker compose "${CF[@]}" --profile es --profile hosted ps -a --format '{{.Name}} {{.State}} {{.Health}}'
+```
+
+Check: repeat `ps` until `ragbench-rf-server` is `running healthy` (start period 300 s); `ragbench-rf-proxy`
+`running`; no `ragbench-rf-tei`. A subnet clash fails `up` before anything starts.
+
+**H3. Isolation, proxy and key checks.**
+
+```bash
+set -o pipefail                                                                                 # as H1: the «pipeline exit» lines need it
+docker network inspect ragbench-rf-net --format '{{.Internal}} {{range .IPAM.Config}}{{.Subnet}}{{end}}'   # true 10.231.47.0/27
+docker network inspect ragbench-rf-egress --format '{{.Internal}} {{range .Containers}}{{.Name}} {{end}}'   # false ragbench-rf-proxy
+for c in ragbench-rf-server ragbench-rf-es01 ragbench-rf-mysql ragbench-rf-minio ragbench-rf-redis ragbench-rf-proxy; do
+  echo "$c: $(docker inspect $c --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}')"; done
+docker ps --format '{{.Names}} {{.Ports}}' | grep '^ragbench-rf-' | grep -- '->'                 # prints nothing
+docker exec ragbench-rf-server printenv COMPOSE_PROFILES HTTPS_PROXY https_proxy NO_PROXY LLM_TIMEOUT_SECONDS EMBEDDING_BATCH_SIZE MAX_CONCURRENT_TASKS
+docker exec ragbench-rf-server sh -c 'for v in HTTP_PROXY http_proxy ALL_PROXY all_proxy; do printenv $v >/dev/null && echo "SET $v"; done; echo done'
+docker inspect ragbench-rf-server --format '{{range .Mounts}}{{.Destination}} {{end}}'          # /w2 /in /canvas and the image's own
+docker exec ragbench-rf-server sha256sum /ragflow/rag/llm/embedding_model.py                    # c2e46e1c…0536, as shipped
+docker exec ragbench-rf-server sh -c 'test -e /keys/openrouter.key && echo "STOP: key in the server" || echo "no key file in the server"'
+docker inspect ragbench-rf-runner --format '{{range .Mounts}}{{if eq .Destination "/keys/openrouter.key"}}{{.Source}} rw={{.RW}}{{end}}{{end}}'
+docker exec ragbench-rf-runner sh -c 'wc -c < /keys/openrouter.key'                               # 73 or 74 (or 75 with CRLF)
+docker inspect ragbench-rf-server ragbench-rf-runner ragbench-rf-proxy ragbench-rf-es01 ragbench-rf-mysql ragbench-rf-minio ragbench-rf-redis \
+  | docker exec -i ragbench-rf-runner python3 -I -B /w2/key_leak_check.py --key-file /keys/openrouter.key --stdin docker-inspect; echo "pipeline exit $?"
+docker exec ragbench-rf-server sh -c 'cat /proc/[0-9]*/environ 2>/dev/null' \
+  | docker exec -i ragbench-rf-runner python3 -I -B /w2/key_leak_check.py --key-file /keys/openrouter.key --stdin server-processes-environ; echo "pipeline exit $?"
+GW=$(docker network inspect ragbench-rf-net --format '{{range .IPAM.Config}}{{.Gateway}} {{end}}' | awk '{print $1}')   # 10.231.47.1, pinned
+PUB=$(docker ps --format '{{.Ports}}' | tr ',' '\n' | sed -n 's/^ *0\.0\.0\.0:\([0-9][0-9]*\)->.*/\1/p' | head -1)
+echo "gateway: ${GW:-none listed by IPAM}; a port another container publishes: ${PUB:-none, 80 is used}" | tee "$HR/state/gateway.txt"
+GWB=(); [ -n "$GW" ] && GWB=(--block "$GW:443" --block "$GW:${PUB:-80}")
+docker exec ragbench-rf-runner python3 -I -B /w2/net_check.py --reach 127.0.0.1:9380 --reach ragbench-rf-es01:9200 \
+  --reach ragbench-rf-proxy:3128 --block 1.1.1.1:443 --block openrouter.ai:443 --block huggingface.co:443 \
+  --block pypi.org:443 --block host.docker.internal:443 "${GWB[@]}" --proxy ragbench-rf-proxy:3128 --tunnel openrouter.ai:443 \
+  --tunnel-refused huggingface.co:443 --tunnel-refused pypi.org:443 --tunnel-refused 1.1.1.1:443 \
+  --tunnel-refused host.docker.internal:443 --tunnel-refused ragbench-rf-mysql:3306 --tunnel-refused openrouter.ai:80 \
+  --tunnel-refused www.openrouter.ai:443 --timeout 10 | tee "$HR/logs/net-check.txt"
+# the gateway, every TCP port, nothing sent (a minute or two): recorded, then held against the list H0 (f) accepted
+docker exec ragbench-rf-runner python3 -I -B /w2/net_check.py --reach 127.0.0.1:9380 --block "$GW:443" --scan "$GW" \
+  | tee -a "$HR/state/gateway.txt"
+grep -qx "scan connected: $GW_ACCEPTED" "$HR/state/gateway.txt" && echo "gateway: only the ports H0 (f) accepted" \
+  || echo "STOP: the gateway's open ports are not the list H0 (f) accepted ($GW_ACCEPTED)"
+# the proxy's log: every line not one the runbook expects is printed (define unexpected() again in a new shell)
+unexpected() { awk '$3 == "CONNECT" && $4 == "openrouter.ai:443" && $5 == 200 && $6 == "TCP_TUNNEL" {next}
+  $3 == "CONNECT" && $5 == 403 && $6 ~ /^TCP_DENIED(_ABORTED)?$/ && $4 ~ /^((huggingface\.co|pypi\.org|1\.1\.1\.1|host\.docker\.internal|www\.openrouter\.ai|raw\.githubusercontent\.com):443|ragbench-rf-mysql:3306|openrouter\.ai:80)$/ {next}
+  $3 == "-" && $4 == "error:transaction-end-before-headers" && $6 == "NONE_NONE" {next}
+  {print "UNEXPECTED " $0}' "$@"; }
+docker exec ragbench-rf-proxy cat /var/log/squid/access.log > "$HR/logs/proxy-access-h3.log"; echo "copy exit $?"
+awk '{print $3, $4, $5, $6}' "$HR/logs/proxy-access-h3.log" | sort | uniq -c
+unexpected "$HR/logs/proxy-access-h3.log"                                                      # prints nothing
+docker logs ragbench-rf-server 2>&1 | grep -c 'Super user initialized'                          # 1
+docker logs ragbench-rf-server 2>&1 | grep -m1 'log levels:'                                   # root DEBUG, openai INFO, peewee WARNING
+```
+
+Check: the networks as commented, the server on `ragbench-rf-net` only and the proxy on both; no port.
+`printenv` gives `elasticsearch,cpu,metadata-mysql`, the proxy twice, the `NO_PROXY` list, `60`, `16`, `1`; the second
+line prints only `done`. No mount at `/ragflow/rag/llm/embedding_model.py` or `/patch`, and the module's sha256 is
+the shipped `c2e46e1cb5d128122a48b8283d135b81321441655dbd9c22c9ecd8035a6c0536` (P9). The key file is absent from
+the server and bound read-only (`rw=false`) into the runner. Both leak checks end `NO KEY FOUND`, each followed by
+`pipeline exit 0` (a container missing from `docker inspect`, or a stream of 0 bytes, is not a pass): the key is in
+no container's configuration or environment and in no process environment of the server. Every gating `net_check`
+line is `ok`: the direct lines blocked, `tunnel openrouter.ai:443 … TLS verified`, every `refused … CONNECT 403`.
+The gateway scan's `connected` line is the list H0 (f) accepted (the others refuse, or time out on a port another
+container publishes). The proxy's log, read with `docker exec` (not `docker logs`), is not empty, and the tally
+shows only: `CONNECT openrouter.ai:443 200 TCP_TUNNEL` (H3's own tunnel); `CONNECT <host> 403 TCP_DENIED` (or
+`TCP_DENIED_ABORTED`) once for each of H3's seven refusals; one `- error:transaction-end-before-headers 0 NONE_NONE`
+from the reach probe of `ragbench-rf-proxy:3128`; and up to two `CONNECT raw.githubusercontent.com:443 403
+TCP_DENIED`, the LiteLLM library's fetch of its price list at import, which then falls back to its bundled copy
+(in W2 this fetch, failing on DNS, was the only outbound attempt either full server log names:
+`.hq/scratch/w2-run/logs/server-elasticsearch-full.log`, `server-infinity-full.log`; here it meets the proxy
+instead: inferred, not seen). `unexpected` prints nothing. Anything else, or a missing or empty log: stop;
+the CONNECT lines are the run's record of what left the stack. The runner shares the server's network namespace,
+so both appear in the log under the same client address.
+
+**H4. The RAGFlow key, the registration and (only if approved) the smoke call.**
+
+```bash
+set -o pipefail
+docker exec -i ragbench-rf-server /ragflow/.venv/bin/python -I -B /w2/make_key.py \
+  | docker exec -i ragbench-rf-runner sh -c 'umask 077 && cat > /run/rf/key && test -s /run/rf/key' && echo "key stored in the runner's tmpfs"
+docker exec ragbench-rf-runner python3 -I -B /w2/rf_ingest.py preflight --engine elasticsearch --embedder hosted
+POLICY="<H0 step 5, one line>"
+docker exec ragbench-rf-runner python3 -I -B /w2/register_hosted.py register --model qwen/qwen3-embedding-8b \
+  --instance w2or --data-policy "$POLICY" --out /out/elasticsearch | tee "$HR/logs/register.txt"   # + --provider-order nebius if H0 (b)
+# only if H0 (c) approved the one paid check call (same --provider-order as register):
+docker exec ragbench-rf-runner python3 -I -B /w2/register_hosted.py smoke --model qwen/qwen3-embedding-8b | tee "$HR/logs/smoke.txt"
+# the server's log, checked as a stream (nothing on disk yet): only from a running server, and never shorter than a
+# count of the same stream made just before (a failed or cut-short docker logs is not a pass)
+[ "$(docker inspect -f '{{.State.Running}}' ragbench-rf-server)" = true ] && echo "server running" || echo "STOP: the server is not running"
+N=$(docker logs ragbench-rf-server 2>&1 | wc -c); echo "server log: $N bytes"
+docker logs ragbench-rf-server 2>&1 | docker exec -i ragbench-rf-runner python3 -I -B /w2/key_leak_check.py \
+  --key-file /keys/openrouter.key --registration /out/elasticsearch/hosted-embedder.json --stdin server-log \
+  --min-bytes "$N"; echo "pipeline exit $?"
+docker exec ragbench-rf-proxy cat /var/log/squid/access.log | tail -3
+```
+
+Check: every preflight line `ok`, with `embedder: hosted; no TEI on this stack` and 0 datasets; `register` prints
+three `ok` lines and `wrote hosted-embedder.json: the dataset's embedding_model is
+qwen/qwen3-embedding-8b@w2or@OpenRouter`. The smoke call, if made, prints `ok   smoke: …`; its tunnel adds one
+`TCP_TUNNEL` line for `openrouter.ai:443` once it closes (the server's client may keep it open, so the line can come
+later); a 400 means OpenRouter refuses RAGFlow's `drop_params` (PREMISES §4) and
+the run stops there (the OpenAI-compatible factory, Path B, is not built). A 401, 402, 403 or 404 means the key,
+the credits, the guardrail or its allowlist (PREMISES §2): fix it on openrouter.ai, then tear down and start again,
+since registration is not re-run on a used stack. `server running`; the leak check reads at least `$N` bytes and
+ends `NO KEY FOUND`, then `pipeline exit 0`.
+
+**H5. Predict, ingest, and the live mapping check.**
+
+```bash
+O="$HR/out/elasticsearch"
+docker exec ragbench-rf-server /ragflow/.venv/bin/python -B /w2/predict_chunks.py \
+  --canvas /canvas/indexing-pipeline.json --in-dir /in > "$O/predicted-chunks.jsonl" 2> "$O/predict-summary.txt"
+cmp "$O/predicted-chunks.jsonl" "$RUN/out/elasticsearch/predicted-chunks.jsonl" && echo "the W2 prediction, byte for byte"
+grep -c ' repeated texts 0$' "$O/predict-summary.txt"                                            # 22
+bash "$HEAVY" docker exec ragbench-rf-runner python3 -I -B /w2/rf_ingest.py all --engine elasticsearch --embedder hosted \
+  --embedding-model qwen/qwen3-embedding-8b@w2or@OpenRouter --hosted-record /out/elasticsearch/hosted-embedder.json \
+  --canvas /canvas/indexing-pipeline.json --in-dir /in --upload-manifest /in/upload-manifest.json \
+  --out /out/elasticsearch | tee "$HR/logs/ingest.txt"
+# after the ingest (or in a second shell once a progress line reads «done 1» or more): the live mapping, through the server
+docker exec ragbench-rf-server /ragflow/.venv/bin/python -I -B -c "import base64,json,os,urllib.request as u; r=u.Request('http://ragbench-rf-es01:9200/ragflow_*/_mapping/field/q_*_vec', headers={'Authorization': 'Basic ' + base64.b64encode(('elastic:' + os.environ['ELASTIC_PASSWORD']).encode()).decode()}); d=json.load(u.build_opener(u.ProxyHandler({})).open(r, timeout=30)); [print(i, f, json.dumps(m['mapping'][f], sort_keys=True)) for i, v in d.items() for f, m in v['mappings'].items()]" | tee "$HR/logs/es-vector-mapping.txt"
+```
+
+Check: the prediction is W2's byte for byte (same image, canvas and files), 22 files with `repeated texts 0`. The
+ingest ends `wrote <n> chunks to chunks.jsonl and w2-manifest.json …`, after `settled 22`; its log holds `hosted
+embedder: qwen/qwen3-embedding-8b@w2or@OpenRouter at https://openrouter.ai/api/v1 …`. **The stop rule:** the
+mapping prints `q_4096_vec` with `"dims": 4096`, `"index": true`, `"similarity": "cosine"`, `"type":
+"dense_vector"`; a `float` type, or another field, means Elasticsearch did not map the vectors as vectors, and no
+query runs. A document that fails names its cause in the progress line (an embedding error is the provider's
+answer); `--max-reparse` parses it again at most twice, which costs a few more tokens.
+
+**H6. The gate.**
+
+```bash
+python -I -B "$T/w2_check.py" --predicted "$O/predicted-chunks.jsonl" --dumped "$O/chunks.jsonl" \
+  --manifest "$O/w2-manifest.json" --ingest-state "$O/ingest-state.json"
+python -I -c "import json,sys; m=json.load(open(sys.argv[1],encoding='utf-8')); print(m['all_match'], m['chunk_count'], m['embedder'], m['hosted_embedder'], m['embedding_batch_size'], m['max_concurrent_tasks'], 'tei_wait_patch' in m)" "$O/w2-manifest.json"
+```
+
+Check: `ALL MATCH` and 6,612 chunks, as W2; the manifest line ends `16 1 False` after the hosted embedder as
+registered. Anything else: stop.
+
+**H7. The two arms, v3 and rt.** As E7, with the hosted paths, and the server's log checked for the key before it
+is saved to disk:
+
+```bash
+DS=$(python -I -c "import json,sys; print(json.load(open(sys.argv[1]))['dataset_id'])" "$O/w2-manifest.json")
+docker exec ragbench-rf-runner sha256sum /w1/run_w1.py /pkg/w1-queries.jsonl
+for arm in v3 rt; do
+  extra=(); [ "$arm" = rt ] && extra=(--vector-similarity-weight 0.4)
+  T0=$(docker exec ragbench-rf-runner date -u +%Y-%m-%dT%H:%M:%SZ)
+  bash "$HEAVY" docker exec ragbench-rf-runner python3 -I -B /w2/timed_run.py --log "/out/elasticsearch/run-$arm.log" -- \
+    python3 -I -B /w1/run_w1.py --base-url http://127.0.0.1:9380 --api-key-file /run/rf/key --dataset "$DS" \
+    --queries /pkg/w1-queries.jsonl --out "/out/elasticsearch/w2-results-$arm.jsonl" "${extra[@]}" || echo "STOP: arm $arm exited non-zero"
+  [ "$(docker inspect -f '{{.State.Running}}' ragbench-rf-server)" = true ] || echo "STOP: the server is not running"
+  N=$(docker logs --timestamps --since "$T0" ragbench-rf-server 2>&1 | wc -c)
+  docker logs --timestamps --since "$T0" ragbench-rf-server 2>&1 | docker exec -i ragbench-rf-runner python3 -I -B \
+    /w2/key_leak_check.py --key-file /keys/openrouter.key --stdin "server-log-$arm" --min-bytes "$N" \
+    && docker logs --timestamps --since "$T0" ragbench-rf-server > "$HR/logs/server-$arm.log" 2>&1
+  python -I -B "$T/fallback_items.py" --results "$O/w2-results-$arm.jsonl" --server-log "$HR/logs/server-$arm.log" \
+    --run-log "$O/run-$arm.log" --out "$O/w2-fallback-$arm.json"
+done
+```
+
+Check: as E7 (the sha256 values, 160 rows per arm, `fallback_items.py` exit 0), no `STOP` line, and each arm's
+stream check `NO KEY FOUND`, over at least `$N` bytes, before its log is written: under `set -o pipefail` (H4) a
+failed `docker logs` or an incomplete check leaves the log unwritten, and `fallback_items.py` then stops on the
+missing file. Each query is one embedding call through the proxy.
+
+**H8. Score (exploratory).**
+
+```bash
+S="D:/Iqraa Law/AI Harness-w1/tools/ragflow-w1/score_w1.py"
+for arm in v3 rt; do
+  bash "$HEAVY" python -X utf8 -I "$S" --results "$O/w2-results-$arm.jsonl" --own-run --manifest "$O/w2-manifest.json" \
+    --out-dir "$O/score-$arm" --fallback "$O/w2-fallback-$arm.json" | tee "$HR/logs/score-$arm.txt"
+done
+```
+
+Check: each prints `own run (W2): elasticsearch, qwen/qwen3-embedding-8b (hosted: OpenRouter instance w2or), …` and
+`not the deciding cell: the embedder is hosted …`. Never pass `--w2-decide`: it is refused.
+
+**H9. The leak check and the record.**
+
+```bash
+set -o pipefail
+# 1. while the server runs: its whole log as a stream, and every file saved so far, for the key; then its token count
+[ "$(docker inspect -f '{{.State.Running}}' ragbench-rf-server)" = true ] && echo "server running" || echo "STOP: the server is not running"
+N=$(docker logs ragbench-rf-server 2>&1 | wc -c); echo "server log: $N bytes"
+docker logs ragbench-rf-server 2>&1 | docker exec -i ragbench-rf-runner python3 -I -B /w2/key_leak_check.py \
+  --key-file /keys/openrouter.key --registration /out/elasticsearch/hosted-embedder.json --scan /hr --stdin server-log \
+  --min-bytes "$N" | tee "$HR/logs/key-leak-check.txt"; echo "pipeline exit $?"
+docker logs ragbench-rf-server 2>&1 | grep -o 'used_tokens: [0-9]*' | awk '{n++; s += $2} END {print n " calls, " s " tokens"}' \
+  | tee "$HR/logs/used-tokens.txt"
+# 2. stop the server, so that every tunnel its client kept open closes and is logged; then the proxy's log, once
+docker stop --timeout 30 ragbench-rf-server
+docker exec ragbench-rf-proxy cat /var/log/squid/access.log > "$HR/logs/proxy-access.log"; echo "copy exit $?"
+awk '{print $3, $4, $5, $6}' "$HR/logs/proxy-access.log" | sort | uniq -c | tee "$HR/logs/proxy-access-tally.txt"
+unexpected "$HR/logs/proxy-access.log"                                                         # prints nothing (H3 defines it)
+# 3. the proxy's log too, the one file saved after step 1
+docker exec ragbench-rf-runner python3 -I -B /w2/key_leak_check.py --key-file /keys/openrouter.key \
+  --scan /hr/logs/proxy-access.log | tee "$HR/logs/key-leak-check-proxy-log.txt"
+```
+
+Check: `server running`; the first leak check reads at least `$N` bytes of the server's log and every saved file of
+the hosted folder, and ends `NO KEY FOUND`, then `pipeline exit 0`. `used-tokens.txt` holds the calls and tokens
+RAGFlow logged (`LLMBundle.encode` and `encode_queries`, `api/db/services/llm_service.py:219`, `:247`): one call per
+embedding request at batch size 16, the 22 file names and the 320 queries included. After `docker stop` (it prints
+`ragbench-rf-server`) and `copy exit 0`, the tally holds H3's lines (above), the smoke call's tunnel if it was made,
+and the embedding calls' `CONNECT openrouter.ai:443 200 TCP_TUNNEL` lines: one per tunnel, not per call, since the
+client reuses a tunnel. `unexpected` prints nothing; any line it prints: stop and show it to the owner before H10
+(the copy stays in `$HR/logs`). The proxy log's own check ends `NO KEY FOUND` (the runner shares the stopped server's
+network namespace, but it reads files only; should it not answer, record that: the proxy saw no more than the CONNECT
+line). `used-tokens.txt` and `proxy-access-tally.txt`, written after the first scan, hold only counts that grep and
+awk cut from those logs, so neither can hold the key. A `KEY FOUND`: stop, keep the stack, and tell the owner to revoke the key at once.
+
+**H10. Teardown, and the check that nothing that existed before is gone.**
+
+```bash
+docker compose "${CF[@]}" --profile es --profile hosted down --volumes --remove-orphans --timeout 30
+docker ps -a --format '{{.Names}}' | grep -E '^ragbench-rf-' | xargs -r docker rm -f
+docker network ls --format '{{.Name}}' | grep -E '^ragbench-rf-' | xargs -r docker network rm
+docker volume ls --format '{{.Name}}' | grep -E '^ragbench-rf-' | xargs -r docker volume rm
+docker ps -a --format '{{.ID}} {{.Names}}' | sort > "$HR/state/after-containers.txt"
+docker volume ls --format '{{.Name}}' | sort > "$HR/state/after-volumes.txt"
+docker network ls --format '{{.ID}} {{.Name}}' | sort > "$HR/state/after-networks.txt"
+docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | sort > "$HR/state/after-images.txt"
+for k in containers volumes networks images; do
+  echo "== $k that existed before and are gone:"; comm -23 "$HR/state/before-$k.txt" "$HR/state/after-$k.txt"
+  echo "== $k of ours left:"; grep -E '(^| )ragbench-rf-' "$HR/state/after-$k.txt"
+done
+grep -E ' ragbench-rf-(net|egress)$' "$HR/state/after-networks.txt" || echo "both networks removed, the egress one included"
+grep -x ragbench-cargo "$HR/state/after-volumes.txt"
+```
+
+Check: every «gone» and «of ours left» list empty; `both networks removed, the egress one included`;
+`ragbench-cargo` still listed. `down` is scoped by the compose project `ragbench-rf` and needs both files so that it
+knows the proxy and the egress network; every other command matches `^ragbench-rf-`. The pulled images, the squid
+one included, are removed as F says, by digest, only if the owner agrees.
+
+**Then the owner, on openrouter.ai** (nothing after the run checks the provider otherwise: RAGFlow logs only the
+token count of each call, not which provider served it, `rag/llm/embedding_model.py:1544-1550`):
+1. The Activity page (or its logs) for this key: every row shows the provider of H0 (a), Nebius, and the model
+   `qwen/qwen3-embedding-8b`, and the number of rows is about the call count in `used-tokens.txt` (a request the
+   openai client retried, or one that failed, adds a row; the smoke call is one). **Any row with another provider or
+   model: the run did not keep to its data policy.** Record it as non-compliant in the run record, with the rows,
+   and tell the main agent. The page was not seen by an agent, so its column names may differ.
+2. The spend beside the token sum in `used-tokens.txt` (at $0.01 per million tokens, about $0.009 expected).
+3. Disable or delete the key, and delete the key file. Clear the clipboard data again if the key was copied since H0.
+
+### What this does not prove, and what is not settled
+
+- **Nothing here has run against RAGFlow or OpenRouter.** The provider routes are read from the v0.27.3 source and
+  tested against the fake (`tests/fake_ragflow_w2.py`); H4 is their first live use.
+- **`drop_params`.** RAGFlow's OpenRouter client always sends `drop_params: true`, which OpenRouter's embeddings
+  schema does not list; only the smoke call or the first parse shows whether it is accepted (PREMISES §4). The
+  OpenAI-compatible factory (Path B) is not built.
+- **The request-level pin's slug.** `--provider-order nebius` assumes `nebius` is the provider slug OpenRouter's
+  `provider.order` takes (the endpoint's tag is `nebius/bf16`); not verified. The guardrail binds either way.
+- **4096 dimensions** rest on Elasticsearch 8.11's own dynamic mapping, at its ceiling (PREMISES §6); H5's live check
+  is the stop rule.
+- **The server's boot without TEI.** `TEI_MODEL` and `TEI_HOST` stay in the server's environment (the overlay merges
+  it), unused because every use is gated on «tei-» in `COMPOSE_PROFILES`; and the boot-time tenant gets no default
+  embedding model, so nothing embeds at boot. Both are read from the source, not seen; H2's health check is the
+  first sight.
+- **The proxy, live, only in self-tests.** Its log, its `src` ACL from the egress side and a tunnel logged at its
+  close were seen (above); the refusal of the gateway as a client was not, since only a container on the Docker
+  engine's host network could connect from that address. The LiteLLM price-list fetch through the proxy at boot is
+  inferred from W2's log, not seen; H3 lists it as expected and stops on anything else.
+- **The gateway finding** above is the owner's to weigh: what listens on 111 and 46425 is not identified (H0 (f)
+  has a command for it, not run by an agent), and nothing showed either leads beyond the Docker VM.
+- **Which provider served the calls** is known only from OpenRouter's Activity page, which the owner reads after the
+  run (H10). The guardrail's provider allowlist binds before it, and `--provider-order` (H0 (b)) adds a pin on every
+  request; neither leaves a trace in the stack.
+- **The tokenizer and the cost.** The 8B's tokenizer is assumed to be the 0.6B's; the cost is an estimate.
+- **The owner's settings** cannot be checked by an agent; the guardrail's «Eligibility preview» is the owner's check.

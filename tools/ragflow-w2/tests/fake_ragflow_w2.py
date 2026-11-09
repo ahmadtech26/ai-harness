@@ -35,6 +35,19 @@ test that fails without it:
                        rag/svr/task_executor_refactor/dataflow_service.py:161-181)
   dataset_offsets      field -> added to the dataset's document_count or chunk_count only
   redirect             path -> answered with HTTP 302 to that path of the fake
+
+The provider routes of the hosted run (register_hosted.py; v0.27.3 api/apps/restful_apis/provider_api.py and
+api/apps/services/provider_api_service.py): PUT /providers adds a provider once (:217-239, «already exists» after);
+POST .../instances with only instance_name makes an instance with no key (:725-753, never «default»); PUT
+.../instances/<i> needs instance_name, api_key, base_url and model_info (provider_api.py:633-636) and stores them;
+GET .../instances lists names only (:756-786); GET .../instances/<i> answers with the stored key (:1117), the route
+the tools must never send; POST .../connection answers as `connection_message` says. A dataset whose embedding_model
+is «<model>@<instance>@<factory>» is created only when that instance holds that model as an embedding model and a
+key, as verify_embedding_availability resolves it (api/utils/api_utils.py:516-562).
+  provider_exists      the provider OpenRouter is already added
+  echo_key_on_instance the PUT of an instance fails with a message that repeats the key it was sent
+  connection_message   None: the connection check succeeds; else it fails with this message, in which «{key}»
+                       becomes the key it was sent
 """
 
 from __future__ import annotations
@@ -81,7 +94,8 @@ class FakeRagflowW2:
                  fail=None, extra_chunks=None, unstable_paging=None, alter_dsl=False, echo_key_on_dataset=False,
                  tei_model_id=TEI_MODEL_ID, health=None, signup_message='User registration is disabled!',
                  canvas_category=None, store_dataset=None, doc_overrides=None, parse_short=0, foreign_docs=0,
-                 doc_chunk_count_offset=None, dataset_offsets=None, redirect=None, chunk_count_steps=None):
+                 doc_chunk_count_offset=None, dataset_offsets=None, redirect=None, chunk_count_steps=None,
+                 provider_exists=False, echo_key_on_instance=False, connection_message=None):
         self.engine, self.version, self.register_enabled = engine, version, register_enabled
         self.fail = dict(fail or {})              # name -> number of parse rounds that fail
         self.extra_chunks = dict(extra_chunks or {})  # name -> extra invented chunks
@@ -93,6 +107,8 @@ class FakeRagflowW2:
         self.doc_chunk_count_offset = dict(doc_chunk_count_offset or {})
         self.chunk_count_steps = {k: list(v) for k, v in (chunk_count_steps or {}).items()}
         self.dataset_offsets, self.redirect = dict(dataset_offsets or {}), dict(redirect or {})
+        self.providers = {'OpenRouter': {}} if provider_exists else {}  # name -> instance name -> stored fields
+        self.echo_key_on_instance, self.connection_message = echo_key_on_instance, connection_message
         self.requests: list[Recorded] = []
         self.agents, self.datasets, self.docs, self.chunks = {}, {}, {}, {}
         for n in range(existing_datasets):
@@ -145,6 +161,9 @@ class FakeRagflowW2:
             def do_POST(self):
                 self._serve('POST')
 
+            def do_PUT(self):
+                self._serve('PUT')
+
         return Handler
 
     @staticmethod
@@ -196,7 +215,62 @@ class FakeRagflowW2:
         m = re.fullmatch(r'/api/v1/datasets/([0-9a-f]{32})/documents/([0-9a-f]{32})/chunks', r.path)
         if m and r.method == 'GET' and m.group(2) in self.docs:
             return self.list_chunks(m.group(2), r.query)
+        if r.method == 'PUT' and r.path == '/api/v1/providers':
+            return self.add_provider(json.loads(r.body))
+        m = re.fullmatch(r'/api/v1/providers/([^/]+)/(instances|connection)(?:/([^/]+))?', r.path)
+        if m and m.group(2) == 'connection' and r.method == 'POST' and not m.group(3):
+            return self.connection(json.loads(r.body))
+        if m and m.group(2) == 'instances' and not m.group(3) and r.method == 'POST':
+            return self.create_instance(m.group(1), json.loads(r.body))
+        if m and m.group(2) == 'instances' and not m.group(3) and r.method == 'GET':
+            return self.ok([{'instance_name': name} for name in self.providers.get(m.group(1), {})])
+        if m and m.group(2) == 'instances' and m.group(3) and r.method in ('PUT', 'GET'):
+            instance = self.providers.get(m.group(1), {}).get(m.group(3))
+            if instance is None:
+                return self.err(102, f'No instance found for provider {m.group(1)!r} and instance {m.group(3)!r}')
+            if r.method == 'GET':  # show_provider_instance: the stored key, in clear
+                return self.ok({'instance_name': m.group(3), **instance})
+            return self.update_instance(instance, json.loads(r.body))
         return 404, {'code': 404, 'message': 'no such route in the fake', 'data': None}
+
+    def add_provider(self, body):
+        name = body.get('provider_name')
+        if name in self.providers:
+            return self.err(102, f'Provider {name} already exists')
+        if name != 'OpenRouter':
+            return self.err(102, f"Provider '{name}' is not allowed")
+        self.providers[name] = {}
+        return self.ok(None)
+
+    def create_instance(self, provider, body):
+        if provider not in self.providers:
+            return self.err(102, f"Provider '{provider}' does not exist")
+        if set(body) != {'instance_name'}:
+            return self.err(102, 'the fake makes name-only instances only')
+        name = body['instance_name']
+        if name == 'default' or not re.fullmatch(r'[0-9A-Za-z_-]+', name):
+            return self.err(101, "Instance name cannot be 'default'" if name == 'default' else 'bad instance name')
+        if name in self.providers[provider]:
+            return self.err(102, f'Instance {name} already exists')
+        self.providers[provider][name] = {'api_key': '', 'base_url': '', 'models': [], 'verify': None}
+        return self.ok(None)
+
+    def update_instance(self, instance, body):
+        missing = [k for k in ('instance_name', 'api_key', 'base_url', 'model_info') if k not in body]
+        if missing:
+            return self.err(101, f'Missing required fields: {", ".join(missing)}')
+        if self.echo_key_on_instance:
+            return self.err(102, f'cannot store {body["api_key"]} for Bearer {API_KEY}')
+        instance.update(api_key=body['api_key'], base_url=body['base_url'], verify=body.get('verify', True),
+                        models=[(m['model_name'], tuple(m['model_type'])) for m in body['model_info']])
+        return self.ok(None)
+
+    def connection(self, body):
+        if 'api_key' not in body:
+            return self.err(101, 'api_key is required')
+        if self.connection_message is not None:
+            return self.err(102, self.connection_message.replace('{key}', body['api_key']))
+        return self.ok(None)
 
     def create_agent(self, body):
         if body.get('dsl') is None or body.get('title') is None:
@@ -213,6 +287,11 @@ class FakeRagflowW2:
     def create_dataset(self, body):
         if 'chunk_method' in body or body.get('parse_type') in (None, 1) or body.get('pipeline_id') not in self.agents:
             return self.err(101, 'parser_id provided or pipeline fields missing')
+        if str(body.get('embedding_model')).count('@') == 2:  # <model>@<instance>@<factory>
+            model, instance, factory = body['embedding_model'].rsplit('@', 2)
+            held = self.providers.get(factory, {}).get(instance)
+            if not held or not held['api_key'] or (model, ('embedding',)) not in held['models']:
+                return self.err(102, f'Unsupported model {body["embedding_model"]}')
         did = secrets.token_hex(16)
         self.datasets[did] = {'name': body['name'], 'embedding_model': body['embedding_model'],
                               'pipeline_id': body['pipeline_id'], 'language': body.get('language', 'English'),

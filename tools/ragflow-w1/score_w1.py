@@ -93,6 +93,16 @@ W2_TEI_WAIT_APPROVED = {'image_sha256': 'c2e46e1cb5d128122a48b8283d135b813214416
                         'changed_lines': [1247, 1253], 'wait_s': 900}
 W2_ENGINES = ('elasticsearch', 'infinity')
 W2_VIA = 'builtin-tei'
+# The hosted run (spec-rag-system.md:472, «The hosted run»; tools/ragflow-w2/README.md, «Hosted run (owner,
+# 2026-11-09)»): exploratory only, never the deciding cell. Its own root, beside OWN_ROOT; its manifest holds
+# hosted_embedder (rf_ingest.py, from register_hosted.py's record) in place of tei_wait_patch, and an embedder whose
+# revision is null: a hosted model has none to pin.
+HOSTED_ROOT = WORKSPACE / '.hq' / 'scratch' / 'w2-hosted' / 'out'
+W2_HOSTED_VIA = 'hosted-openrouter'
+W2_HOSTED_MANIFEST_KEYS = (W2_MANIFEST_KEYS - {'tei_wait_patch'}) | {'hosted_embedder'}
+W2_HOSTED_KEYS = frozenset({'model', 'instance', 'factory', 'base_url', 'provider_order', 'data_policy'})
+W2_HOSTED_FACTORY = 'OpenRouter'
+W2_HOSTED_BASE_URL = 'https://openrouter.ai/api/v1'
 W2_FILE_SHAPE = 'slug-title-served-v1'
 W2_DOCUMENTS = 22  # one generated file per law of the registry
 # Exactly what the release image reports: its VERSION file is `git describe --tags` run at the tag
@@ -892,15 +902,24 @@ def _need(ok: bool, message: str) -> None:
         raise Refused(f'the W2 manifest: {message}')
 
 
+def is_hosted(manifest: dict) -> bool:
+    """A W2 manifest of the hosted run (embedder.via hosted-openrouter), not the built-in TEI's."""
+    embedder = manifest.get('embedder') if isinstance(manifest, dict) else None
+    return isinstance(embedder, dict) and embedder.get('via') == W2_HOSTED_VIA
+
+
 def load_w2_manifest(path: Path) -> dict:
     """The W2 manifest (README, «Own runs (W2)»: the shared contract the ingest tool writes), checked key by key.
-    It must record the exact chunk match (all_match true) and one document per law (22)."""
+    It must record the exact chunk match (all_match true) and one document per law (22). A hosted run's manifest
+    (is_hosted) has the same contract with hosted_embedder in place of tei_wait_patch."""
     try:
         manifest = json.loads(Path(path).read_text(encoding='utf-8'))
     except (OSError, UnicodeDecodeError, ValueError):
         raise Refused(f'the W2 manifest {where(path)} is not a readable JSON file') from None
     _need(isinstance(manifest, dict), 'it must be a JSON object')
-    extra, missing = sorted(set(manifest) - W2_MANIFEST_KEYS), sorted(W2_MANIFEST_KEYS - set(manifest))
+    hosted = is_hosted(manifest)
+    keys = W2_HOSTED_MANIFEST_KEYS if hosted else W2_MANIFEST_KEYS
+    extra, missing = sorted(set(manifest) - keys), sorted(keys - set(manifest))
     _need(not extra, f'keys outside the contract: {", ".join(map(str, extra))}')
     _need(not missing, f'missing keys: {", ".join(missing)}')
     m = manifest
@@ -909,12 +928,17 @@ def load_w2_manifest(path: Path) -> dict:
           '"created_at" must be an ISO-8601 time')
     _need(m['engine'] in W2_ENGINES, f'"engine" must be one of {", ".join(W2_ENGINES)}')
     embedder = m['embedder']
-    _need(isinstance(embedder, dict) and set(embedder) == W2_EMBEDDER_KEYS
-          and all(isinstance(embedder[k], str) and embedder[k].strip() for k in W2_EMBEDDER_KEYS),
-          '"embedder" must hold name, revision and via, each a non-empty string')
-    _need(embedder['via'] == W2_VIA, f'"embedder.via" must be {W2_VIA}: the server\'s built-in TEI')
-    _need(_HEX40.fullmatch(embedder['revision']) is not None,
-          '"embedder.revision" must be the 40 lower-case hex commit the model files were fetched at')
+    if hosted:
+        _need(set(embedder) == W2_EMBEDDER_KEYS and isinstance(embedder['name'], str) and embedder['name'].strip()
+              and embedder['revision'] is None,
+              f'"embedder" of a hosted run must hold its model name, revision null and via {W2_HOSTED_VIA}')
+    else:
+        _need(isinstance(embedder, dict) and set(embedder) == W2_EMBEDDER_KEYS
+              and all(isinstance(embedder[k], str) and embedder[k].strip() for k in W2_EMBEDDER_KEYS),
+              '"embedder" must hold name, revision and via, each a non-empty string')
+        _need(embedder['via'] == W2_VIA, f'"embedder.via" must be {W2_VIA}: the server\'s built-in TEI')
+        _need(_HEX40.fullmatch(embedder['revision']) is not None,
+              '"embedder.revision" must be the 40 lower-case hex commit the model files were fetched at')
     _need(m['ragflow_version'] == RAGFLOW_VERSION, f'"ragflow_version" must be exactly {RAGFLOW_VERSION}')
     _need(isinstance(m['ragflow_image_digest'], str) and _DIGEST.search(m['ragflow_image_digest']) is not None,
           '"ragflow_image_digest" must hold a sha256:<64 hex> digest')
@@ -938,6 +962,9 @@ def load_w2_manifest(path: Path) -> dict:
           '"embedding_batch_size" must be a whole number, 1 or more')
     _need(_whole(m['max_concurrent_tasks']) and m['max_concurrent_tasks'] >= 1,
           '"max_concurrent_tasks" must be a whole number, 1 or more')
+    if hosted:
+        _check_hosted_embedder(m['hosted_embedder'], embedder['name'])
+        return manifest
     patch = m['tei_wait_patch']
     _need(isinstance(patch, dict) and set(patch) == W2_TEI_WAIT_KEYS,
           f'"tei_wait_patch" must hold exactly {", ".join(sorted(W2_TEI_WAIT_KEYS))}')
@@ -963,6 +990,23 @@ def load_w2_manifest(path: Path) -> dict:
     return manifest
 
 
+def _check_hosted_embedder(hosted, name: str) -> None:
+    """The hosted run's hosted_embedder: exactly W2_HOSTED_KEYS, OpenRouter at its one base URL (the one host the
+    proxy allows), the manifest embedder's model, an instance RAGFlow accepts, the owner's data-policy note."""
+    _need(isinstance(hosted, dict) and set(hosted) == W2_HOSTED_KEYS,
+          f'"hosted_embedder" must hold exactly {", ".join(sorted(W2_HOSTED_KEYS))}')
+    _need(hosted['factory'] == W2_HOSTED_FACTORY, f'"hosted_embedder.factory" must be {W2_HOSTED_FACTORY}')
+    _need(hosted['base_url'] == W2_HOSTED_BASE_URL, f'"hosted_embedder.base_url" must be {W2_HOSTED_BASE_URL}')
+    _need(hosted['model'] == name, '"hosted_embedder.model" must be the embedder\'s name')
+    _need(isinstance(hosted['instance'], str) and re.fullmatch(r'[0-9A-Za-z_-]+', hosted['instance']) is not None
+          and hosted['instance'] != 'default', '"hosted_embedder.instance" must be a RAGFlow instance name, not default')
+    order = hosted['provider_order']
+    _need(order is None or (isinstance(order, str) and bool(order.strip())),
+          '"hosted_embedder.provider_order" must be null or a provider slug')
+    _need(isinstance(hosted['data_policy'], str) and bool(hosted['data_policy'].strip()),
+          '"hosted_embedder.data_policy" must be the owner\'s note')
+
+
 def tei_wait_warning(patch: dict) -> str | None:
     """A warning when the manifest's TEI-wait patch is not the owner's approved one (W2_TEI_WAIT_APPROVED)."""
     off = [k for k, v in W2_TEI_WAIT_APPROVED.items() if patch[k] != v]
@@ -981,20 +1025,26 @@ def registry_slugs(registry: Path = REGISTRY) -> set:
 
 
 def open_own_run(results_path: Path, manifest_path: Path, package: Path = DEFAULT_PACKAGE,
-                 root: Path = OWN_ROOT, registry: Path = REGISTRY) -> tuple:
+                 root: Path = OWN_ROOT, registry: Path = REGISTRY, hosted_root: Path | None = HOSTED_ROOT) -> tuple:
     """(OwnRun, Results) for a results file of our own W2 run, else Refused. It replaces the third-party gates
     (the quarantine copy, the person's screen) with one that ties the file to our dataset: the file sits directly
     in `root`/<engine>/ beside its W2 manifest; the manifest passes load_w2_manifest; the header names exactly the
     manifest's dataset, with its document and chunk counts; its hashes are the package's run_w1.py and
     w1-queries.jsonl; its settings are the arm's; every returned chunk's document name is one of the registry's
     <slug>.md files, the only files the ingest tool uploads. Every read_results screen runs. Refusals quote no
-    header or chunk value."""
+    header or chunk value. The hosted run's files sit under `hosted_root` instead, and each root takes only its own
+    kind of manifest (is_hosted)."""
     given = Path(results_path)
     resolved = Path(os.path.realpath(given))
-    base = Path(os.path.realpath(root))
+    local = Path(os.path.realpath(root))
+    hosted_base = Path(os.path.realpath(hosted_root)) if hosted_root is not None else None
+    under_hosted = hosted_base is not None and resolved.is_relative_to(hosted_base)
+    base = hosted_base if under_hosted else local
     if not resolved.is_relative_to(base):
-        raise Refused(f'--own-run scores only a file under {where(base)}/<engine>/ (this one resolves to {resolved}). '
-                      'A file from Walid is scored from quarantine, without --own-run')
+        raise Refused(f'--own-run scores only a file under {where(local)}/<engine>/'
+                      + (f' or, for the hosted run, {where(hosted_base)}/<engine>/' if hosted_base else '')
+                      + f' (this one resolves to {resolved}). A file from Walid is scored from quarantine, without '
+                      '--own-run')
     if resolved.parent.parent != base:
         raise Refused(f'--own-run scores only a file directly in {where(base)}/<engine>/, not in a folder below it')
     if resolved.name != given.name:
@@ -1010,6 +1060,11 @@ def open_own_run(results_path: Path, manifest_path: Path, package: Path = DEFAUL
         raise Refused(f'no {W2_MANIFEST} beside the results file ({where(beside)}): the ingest tool writes it when it '
                       'creates the dataset; without it nothing ties this file to our dataset')
     manifest = load_w2_manifest(manifest_resolved)
+    if is_hosted(manifest) and not under_hosted:
+        raise Refused(f'a hosted W2 manifest is scored only under {where(hosted_base or HOSTED_ROOT)}/<engine>/, '
+                      'not beside the local runs')
+    if under_hosted and not is_hosted(manifest):
+        raise Refused(f'a built-in W2 manifest is scored only under {where(local)}/<engine>/, not beside the hosted run')
     if resolved.parent.name != manifest['engine']:
         raise Refused(f'the results sit in {resolved.parent.name}/, but the manifest\'s engine is {manifest["engine"]}')
     results = read_results(resolved)  # every screen of the W1 contract
@@ -1204,11 +1259,15 @@ def deciding_gaps(own: OwnRun, header: dict, split_sha256: str, against: dict) -
     `against` T-B2's source ({'sha256', 'durable'}: t_b2_source, or Context.sources). (embedder.via is checked by
     the manifest, and each arm's settings by open_own_run.)"""
     m, gaps = own.manifest, []
+    if is_hosted(m):
+        gaps.append(f'the embedder is hosted ({m["embedder"]["name"]} via {m["hosted_embedder"]["factory"]}): '
+                    f'exploratory only; the deciding cell is the local {DECIDING["engine"]} run with the built-in '
+                    f'{DECIDING["embedder"]}')
     if m['engine'] != DECIDING['engine']:
         gaps.append(f'the engine is {m["engine"]}, not {DECIDING["engine"]}')
-    if m['embedder']['name'] != DECIDING['embedder']:
+    if not is_hosted(m) and m['embedder']['name'] != DECIDING['embedder']:
         gaps.append(f'the embedder is {m["embedder"]["name"]}, not {DECIDING["embedder"]}')
-    if m['embedder']['revision'] != DECIDING['revision']:
+    if not is_hosted(m) and m['embedder']['revision'] != DECIDING['revision']:
         gaps.append(f'the embedder revision is {m["embedder"]["revision"][:12]}, not the pinned '
                     f'{DECIDING["revision"][:12]}')
     kind, name, provider = server_embedder(header['datasets'][0]['embedding_model'])
@@ -1304,7 +1363,8 @@ def score_own_run(own: OwnRun, results, context: Context, fallback: dict | None 
                            'embedder']}.get(kind, [])
     if kind == 'name' and name != m['embedder']['name']:
         warnings.append(f'the header\'s embedding model does not name the manifest\'s embedder {m["embedder"]["name"]}')
-    warnings += [w for w in (tei_wait_warning(m['tei_wait_patch']),) if w]
+    if not is_hosted(m):  # a hosted stack mounts no TEI-wait patch
+        warnings += [w for w in (tei_wait_warning(m['tei_wait_patch']),) if w]
     split_sha = context.sources.get('split', {}).get('sha256', '')
     report = {
         'w1_score': 1, 'w2': 1,
@@ -1595,23 +1655,36 @@ def _tei_wait_text(patch: dict) -> str:
             f'not {W2_TEI_WAIT_SHIPPED} (image file {patch["image_sha256"]}, patched {patch["patched_sha256"]})')
 
 
+def _embedder_text(m: dict) -> str:
+    e = m['embedder']
+    if not is_hosted(m):
+        return f'{e["name"]} (revision {e["revision"]}, via {e["via"]})'
+    h = m['hosted_embedder']
+    return (f'{e["name"]} (hosted: {h["factory"]} instance {h["instance"]}, {h["base_url"]}, provider order '
+            f'{h["provider_order"] or "none"})')
+
+
 def _own_head(report: dict) -> list:
     results, held, m = report['results'], report['laws_held'], report['w2_manifest']
-    e = m['embedder']
-    rows = [('engine', m['engine']), ('embedder', f'{e["name"]} (revision {e["revision"]}, via {e["via"]})'),
+    hosted = is_hosted(m)
+    rows = [('engine', m['engine']), ('embedder', _embedder_text(m)),
             ('RAGFlow', f'{m["ragflow_version"]}, image {m["ragflow_image_digest"]}'), ('dataset id', m['dataset_id']),
             ('language', m['language']), ('documents', m['document_count']),
             ('chunks', f'{m["chunk_count"]} (predicted {m["predicted_chunk_count"]}, all match: {m["all_match"]})'),
             ('canvas sha256', m['canvas_sha256']), ('upload manifest sha256', m['upload_manifest_sha256']),
             ('file shape', m['file_shape']), ('embedding batch size', m['embedding_batch_size']),
             ('max concurrent tasks', m['max_concurrent_tasks']),
-            ('TEI wait patch', _tei_wait_text(m['tei_wait_patch'])),
+            ('data policy', m['hosted_embedder']['data_policy']) if hosted
+            else ('TEI wait patch', _tei_wait_text(m['tei_wait_patch'])),
             ('created at', m['created_at']), ('manifest', f'`{m["path"]}` ({m["sha256"][:12]})')]
     out = ['# W2 score', '',
            '**Own run (W2).** Our served articles, one generated file per law, in our own throwaway RAGFlow, queried '
            'by run_w1.py. Scored with `--own-run`: every screen of the results contract ran; the third-party gates '
            '(the quarantine copy and the person\'s screen) were skipped. The W2 manifest below ties the file to the '
            'dataset: its id, documents and chunks equal the header\'s.', '',
+           *(['**Hosted run: exploratory only.** The embedder is hosted on OpenRouter (the owner\'s one hosted run, '
+              'spec-rag-system.md:472); the deciding cell is the local Elasticsearch run with the built-in embedder, so '
+              'nothing below decides.', ''] if hosted else []),
            '| W2 manifest | value |', '|---|---|', *(f'| {k} | {v} |' for k, v in rows), '',
            f'Results `{results["sha256"][:12]}`, arm `{results["arm"]}` ({results["arm_settings"]}), fields '
            f'{", ".join(results["fields"])}, RAGFlow {results["ragflow_version"]}. Script and queries equal to the '
@@ -1812,7 +1885,9 @@ def _check_options(args) -> None:
 
 def _print_own(report: dict, decide: bool) -> None:
     m, held = report['w2_manifest'], report['laws_held']
-    print(f'{OWN_LABEL}: {m["engine"]}, {m["embedder"]["name"]} (revision {m["embedder"]["revision"]}), arm '
+    how = (f'hosted: {m["hosted_embedder"]["factory"]} instance {m["hosted_embedder"]["instance"]}' if is_hosted(m)
+           else f'revision {m["embedder"]["revision"]}')
+    print(f'{OWN_LABEL}: {m["engine"]}, {m["embedder"]["name"]} ({how}), arm '
           f'{report["results"]["arm"]}, dataset {m["dataset_id"]}, {m["document_count"]} documents, '
           f'{m["chunk_count"]} chunks (predicted {m["predicted_chunk_count"]}, all match)')
     print(f'laws held: all {len(held["laws"])} (our whole corpus); articles lacking: none')
@@ -1846,7 +1921,8 @@ def main(argv: list | None = None) -> int:
             if not args.out_dir:
                 raise Refused('--out-dir is required with --results')
             if args.own_run:
-                own, results = open_own_run(args.results, args.manifest, args.package, OWN_ROOT)
+                own, results = open_own_run(args.results, args.manifest, args.package, OWN_ROOT,
+                                            hosted_root=HOSTED_ROOT)
                 if args.w2_decide:  # every fact read here without loading the library
                     gaps = deciding_gaps(own, results.header, sha256_file(split_path),
                                          t_b2_source(args.bench, args.baseline))

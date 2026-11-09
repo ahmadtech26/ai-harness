@@ -56,6 +56,17 @@ sha256 there), after the patched file beside it is checked against patched_sha25
 changed lines of that file. create records them in the state file, and dump refuses a patch that differs from
 that record.
 
+The hosted run (README.md, «Hosted run (owner, 2026-11-09)»; compose.hosted.yaml) runs the same steps with
+--embedder hosted --embedding-model "<model>@<instance>@OpenRouter" --hosted-record <register_hosted.py's
+hosted-embedder.json> on create, dump and all, and no --tei-wait-patch (it is refused: the hosted stack runs the
+shipped embedding_model.py and has no TEI). The runner's W2_EMBEDDER must say hosted, preflight sends nothing to
+TEI, the dataset is created with that embedding_model (the server resolves it, tenant_model_service.py:206-229), and
+the manifest records embedder {name, revision null, via "hosted-openrouter"} and hosted_embedder (model, instance,
+factory, base_url, provider_order, data_policy, from the record) in place of tei_wait_patch. Everything else is the
+built-in mode's: the canvas, the upload set, the settle rule, the dump and its checks, and so the predicted-chunk
+gate (w2_check.py): the Tokenizer embeds the chunker's text and stores it unchanged (rag/flow/tokenizer/
+tokenizer.py:99-124), so the chunks do not depend on the embedder. This tool never reads the OpenRouter key.
+
 Exit codes: 0 done, 1 a check failed or the server refused (state kept), 2 refused before sending.
 Standard library only; Python 3.9 or later.
 """
@@ -98,6 +109,15 @@ TEI_WAIT_RECORD_KEYS = ('file', 'image_sha256', 'patched_sha256', 'changed_lines
 # the W2 manifest»).
 TEI_WAIT_KEYS = TEI_WAIT_RECORD_KEYS + ('diff',)
 HUNK = re.compile(r'@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@')
+EMBEDDERS = ('builtin', 'hosted')
+HOSTED_FACTORY = 'OpenRouter'
+HOSTED_BASE_URL = 'https://openrouter.ai/api/v1'  # register_hosted.py BASE_URL
+HOSTED_VIA = 'hosted-openrouter'
+HOSTED_RECORD_KEYS = ('factory', 'instance', 'model', 'embedding_model', 'base_url', 'provider_order', 'verify',
+                      'data_policy')  # what register_hosted.py writes, besides its version, time and key summary
+HOSTED_KEYS = ('model', 'instance', 'factory', 'base_url', 'provider_order', 'data_policy')  # the manifest's
+MODEL_ID = re.compile(r'[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._:-]*')  # register_hosted.py MODEL_ID
+INSTANCE = re.compile(r'[0-9A-Za-z_-]+')
 DONE_RUN, FAIL_RUNS = 'DONE', ('FAIL', 'CANCEL')  # TaskStatus names (common/constants.py:106-112), mapped by
                                                   # document_api_service.py:218-234
 STATE, CHUNKS, MANIFEST = 'ingest-state.json', 'chunks.jsonl', 'w2-manifest.json'
@@ -241,14 +261,21 @@ def tei_get(url: str, *, timeout: float = 30.0) -> dict:
 
 # Facts the runner cannot observe: given by compose.yaml from the same variables that set up the server.
 
-def run_facts(engine: str, environ=os.environ) -> dict:
+def run_facts(engine: str, environ=os.environ, embedder: str = 'builtin') -> dict:
+    """The facts compose gives the runner. The built-in stack sets no W2_EMBEDDER; compose.hosted.yaml sets it to
+    hosted and sets no TEI model or revision."""
     facts = {k: environ.get(k, '') for k in
              ('W2_DOC_ENGINE', 'W2_TEI_MODEL', 'W2_TEI_REVISION', 'W2_EMBEDDING_BATCH_SIZE',
               'W2_MAX_CONCURRENT_TASKS', 'W2_RAGFLOW_IMAGE')}
     if facts['W2_DOC_ENGINE'] != engine:
         raise Refused(f'--engine {engine} differs from W2_DOC_ENGINE {facts["W2_DOC_ENGINE"]!r} '
                       '(the engine compose.yaml started)')
-    if not facts['W2_TEI_MODEL'] or not re.fullmatch(r'[0-9a-f]{40}', facts['W2_TEI_REVISION']):
+    stack = environ.get('W2_EMBEDDER', 'builtin')
+    if stack != embedder:
+        raise Refused(f'--embedder {embedder} differs from W2_EMBEDDER {stack!r} (the stack compose started: '
+                      'compose.hosted.yaml sets hosted, compose.yaml alone sets none)')
+    if embedder == 'builtin' and (not facts['W2_TEI_MODEL']
+                                  or not re.fullmatch(r'[0-9a-f]{40}', facts['W2_TEI_REVISION'])):
         raise Refused('W2_TEI_MODEL and W2_TEI_REVISION (a 40-hex commit) must be set by compose.yaml')
     if not facts['W2_EMBEDDING_BATCH_SIZE'].isdigit() or not 1 <= int(facts['W2_EMBEDDING_BATCH_SIZE']) <= 64:
         raise Refused('W2_EMBEDDING_BATCH_SIZE must be a number from 1 to 64 (the prepare step sets it)')
@@ -258,7 +285,9 @@ def run_facts(engine: str, environ=os.environ) -> dict:
     digest = re.search(r'@(sha256:[0-9a-f]{64})$', facts['W2_RAGFLOW_IMAGE'])
     if not facts['W2_RAGFLOW_IMAGE'].startswith('infiniflow/ragflow:') or not digest:
         raise Refused('W2_RAGFLOW_IMAGE must be infiniflow/ragflow:<tag>@sha256:<digest>')
-    return {'engine': engine, 'model': facts['W2_TEI_MODEL'], 'revision': facts['W2_TEI_REVISION'],
+    hosted = embedder == 'hosted'
+    return {'engine': engine, 'embedder': embedder, 'model': None if hosted else facts['W2_TEI_MODEL'],
+            'revision': None if hosted else facts['W2_TEI_REVISION'],
             'batch_size': int(facts['W2_EMBEDDING_BATCH_SIZE']),
             'max_concurrent_tasks': int(facts['W2_MAX_CONCURRENT_TASKS']), 'image': facts['W2_RAGFLOW_IMAGE'],
             'image_digest': digest.group(1)}
@@ -348,6 +377,48 @@ def read_tei_wait_patch(path: Path) -> dict:
     if problem:
         raise Refused(f'the {TEI_WAIT_DIFF} beside {path.name} is not the diff of its change: {problem}')
     return {**{k: record[k] for k in TEI_WAIT_RECORD_KEYS}, 'diff': diff}
+
+
+def read_hosted_record(path: Path, embedding_model: str) -> dict:
+    """The hosted embedder as register_hosted.py recorded its registration (HOSTED_KEYS, for the manifest), checked;
+    --embedding-model must be the very model@instance@factory it registered."""
+    try:
+        record = json.loads(path.read_bytes().decode('utf-8'))
+    except (OSError, UnicodeDecodeError, ValueError):
+        raise Refused(f'the hosted record {path} cannot be read as JSON (register_hosted.py writes it)') from None
+    name = path.name
+    if not isinstance(record, dict) or record.get('w2_hosted_registration') != 1 \
+            or not _whole(record.get('w2_hosted_registration')):
+        raise Refused(f'{name}: not a register_hosted.py record (w2_hosted_registration 1)')
+    missing = [k for k in HOSTED_RECORD_KEYS if k not in record]
+    if missing:
+        raise Refused(f'{name} lacks {", ".join(missing)}')
+    if record['factory'] != HOSTED_FACTORY:
+        raise Refused(f'{name}: factory must be {HOSTED_FACTORY}')
+    if record['base_url'] != HOSTED_BASE_URL:
+        raise Refused(f'{name}: base_url must be {HOSTED_BASE_URL}, the one host the proxy allows')
+    if record['verify'] is not False:
+        raise Refused(f'{name}: verify must be false (the registration made no call to the provider)')
+    model, instance = record['model'], record['instance']
+    if not isinstance(model, str) or not MODEL_ID.fullmatch(model):
+        raise Refused(f'{name}: model must be an OpenRouter model id')
+    if not isinstance(instance, str) or not INSTANCE.fullmatch(instance) or instance == 'default':
+        raise Refused(f'{name}: instance must be letters, digits, «_» or «-», and not «default»')
+    if record['embedding_model'] != f'{model}@{instance}@{HOSTED_FACTORY}':
+        raise Refused(f'{name}: embedding_model is not its model@instance@factory')
+    order = record['provider_order']
+    if order is not None and not (isinstance(order, str) and order.strip()):
+        raise Refused(f'{name}: provider_order must be null or a provider slug')
+    if not isinstance(record['data_policy'], str) or not record['data_policy'].strip():
+        raise Refused(f'{name}: data_policy must be the owner\'s note (H0)')
+    if embedding_model != record['embedding_model']:
+        raise Refused(f'--embedding-model {embedding_model!r} is not the model {name} registered '
+                      f'({record["embedding_model"]})')
+    return {k: record[k] for k in HOSTED_KEYS}
+
+
+def hosted_name(hosted: dict) -> str:
+    return f'{hosted["model"]}@{hosted["instance"]}@{hosted["factory"]}'
 
 
 # Inputs ------------------------------------------------------------------------------------------
@@ -466,7 +537,7 @@ def load_state(out: Path) -> dict:
 
 # Steps -------------------------------------------------------------------------------------------
 
-def preflight(client: Client, facts: dict, tei_url: str, log, *, require_empty: bool) -> dict:
+def preflight(client: Client, facts: dict, tei_url: str, log, *, require_empty: bool, hosted: dict | None = None) -> dict:
     payload = client.call('GET', '/api/v1/system/version')
     version = payload.get('data')
     if not isinstance(version, str) or not version.startswith(RAGFLOW_VERSION_PREFIX):
@@ -490,22 +561,27 @@ def preflight(client: Client, facts: dict, tei_url: str, log, *, require_empty: 
     if engine != facts['engine']:
         raise Failed(f'the server runs doc engine {engine!r}, not {facts["engine"]}')
     log(f'ok   doc engine: {engine}')
-    info = tei_get(tei_url)
-    model_id = str(info.get('model_id', ''))
-    if not model_id.rstrip('/').endswith(facts['model']):
-        raise Failed(f'TEI serves {client.redact(model_id)!r}, not {facts["model"]}')
-    log(f'ok   TEI: {model_id}, max_input_length {info.get("max_input_length")}')
+    if facts['embedder'] == 'hosted':
+        tei = None
+        log(f'ok   embedder: hosted' + (f' ({hosted_name(hosted)})' if hosted else '') + '; no TEI on this stack')
+    else:
+        info = tei_get(tei_url)
+        model_id = str(info.get('model_id', ''))
+        if not model_id.rstrip('/').endswith(facts['model']):
+            raise Failed(f'TEI serves {client.redact(model_id)!r}, not {facts["model"]}')
+        log(f'ok   TEI: {model_id}, max_input_length {info.get("max_input_length")}')
+        tei = {'model_id': model_id, 'max_input_length': info.get('max_input_length')}
     datasets = client.call('GET', '/api/v1/datasets', query={'page': 1, 'page_size': 30}).get('data')
     if not isinstance(datasets, list):
         raise Failed('GET /api/v1/datasets: no data list')
     if require_empty and datasets:
         raise Failed(f'the stack already holds {len(datasets)} dataset(s); W2 runs on a fresh stack only')
     log(f'ok   datasets on the stack: {len(datasets)}')
-    return {'ragflow_version': version.strip(), 'tei': {'model_id': model_id,
-                                                        'max_input_length': info.get('max_input_length')}}
+    return {'ragflow_version': version.strip(), **({'tei': tei} if tei is not None else {})}
 
 
-def create(client: Client, args, facts: dict, out: Path, log, key: str, patch: dict) -> dict:
+def create(client: Client, args, facts: dict, out: Path, log, key: str, patch: dict | None,
+           hosted: dict | None = None) -> dict:
     for name in (STATE, CHUNKS, MANIFEST):
         if (out / name).exists() or (out / (name + '.partial')).exists():
             raise Refused(f'{out / name} already exists: this folder already holds a run')
@@ -516,12 +592,16 @@ def create(client: Client, args, facts: dict, out: Path, log, key: str, patch: d
         log(f'  {line}')
     log(f'upload set: {len(files)} files, {sum(f["bytes"] for f in files):,} bytes; '
         f'manifest sha256 {upload_manifest_sha}')
-    log(f'TEI-wait patch: {patch["file"]} lines {patch["changed_lines"]}, wait {patch["wait_s"]} s, '
-        f'patched sha256 {patch["patched_sha256"]}')
+    if hosted is None:
+        log(f'TEI-wait patch: {patch["file"]} lines {patch["changed_lines"]}, wait {patch["wait_s"]} s, '
+            f'patched sha256 {patch["patched_sha256"]}')
+    else:
+        log(f'hosted embedder: {hosted_name(hosted)} at {hosted["base_url"]}, provider order '
+            f'{hosted["provider_order"] or "none"}; data policy: {hosted["data_policy"]}')
     state = {'w2_ingest': 1, 'created_at': now(), 'engine': facts['engine'], 'canvas_sha256': canvas_sha,
              'upload_manifest_sha256': upload_manifest_sha, 'files': files, 'parse_rounds': [], 'parsed': False,
-             'tei_wait_patch': patch}
-    state.update(preflight(client, facts, args.tei_url, log, require_empty=True))
+             **({'tei_wait_patch': patch} if hosted is None else {'hosted_embedder': hosted})}
+    state.update(preflight(client, facts, args.tei_url, log, require_empty=True, hosted=hosted))
 
     title = f'w2-indexing-{facts["engine"]}'
     agent = client.call('POST', '/api/v1/agents',
@@ -541,7 +621,7 @@ def create(client: Client, args, facts: dict, out: Path, log, key: str, patch: d
     log(f'pipeline imported as it is: agent {agent_id} ({DATAFLOW_CANVAS})')
 
     name = f'w2-laws-{facts["engine"]}'
-    embedding = f'{facts["model"]}@Builtin'
+    embedding = f'{facts["model"]}@Builtin' if hosted is None else hosted_name(hosted)
     dataset = client.call('POST', '/api/v1/datasets', body={
         'name': name, 'embedding_model': embedding, 'parse_type': PARSE_TYPE_PIPELINE,
         'pipeline_id': agent_id, 'language': args.language}).get('data') or {}
@@ -694,13 +774,17 @@ def dump_document(client: Client, dataset_id: str, document_id: str) -> tuple[li
         page += 1
 
 
-def dump(client: Client, args, facts: dict, out: Path, log, key: str, patch: dict) -> dict:
+def dump(client: Client, args, facts: dict, out: Path, log, key: str, patch: dict | None,
+         hosted: dict | None = None) -> dict:
     state = load_state(out)
     if not state.get('parsed'):
         raise Refused('the state does not record a finished parse: run «wait» first')
-    if state.get('tei_wait_patch') != patch:
+    if hosted is None and state.get('tei_wait_patch') != patch:
         raise Refused('--tei-wait-patch differs from the patch «create» recorded in the state file: the server '
                       'that parsed this dataset ran another patch, or none')
+    if hosted is not None and state.get('hosted_embedder') != hosted:
+        raise Refused('--hosted-record differs from the hosted embedder «create» recorded in the state file: this '
+                      'dataset was made with another registration, or none')
     for name in (CHUNKS, MANIFEST):
         if (out / name).exists():
             raise Refused(f'{out / name} already exists')
@@ -744,13 +828,15 @@ def dump(client: Client, args, facts: dict, out: Path, log, key: str, patch: dic
     os.replace(partial, out / CHUNKS)
     manifest = {
         'w2': 1, 'created_at': now(), 'engine': facts['engine'],
-        'embedder': {'name': facts['model'], 'revision': facts['revision'], 'via': 'builtin-tei'},
+        'embedder': ({'name': facts['model'], 'revision': facts['revision'], 'via': 'builtin-tei'} if hosted is None
+                     else {'name': hosted['model'], 'revision': None, 'via': HOSTED_VIA}),
         'ragflow_version': state['ragflow_version'], 'ragflow_image_digest': facts['image_digest'],
         'dataset_id': state['dataset_id'], 'language': ds.get('language'), 'document_count': ds['document_count'],
         'chunk_count': ds['chunk_count'], 'predicted_chunk_count': None, 'all_match': False,
         'canvas_sha256': state['canvas_sha256'], 'upload_manifest_sha256': state['upload_manifest_sha256'],
         'file_shape': FILE_SHAPE, 'embedding_batch_size': facts['batch_size'],
-        'max_concurrent_tasks': facts['max_concurrent_tasks'], 'tei_wait_patch': patch,
+        'max_concurrent_tasks': facts['max_concurrent_tasks'],
+        **({'tei_wait_patch': patch} if hosted is None else {'hosted_embedder': hosted}),
     }
     write_json(out / MANIFEST, manifest, key)
     log(f'wrote {len(rows):,} chunks to {CHUNKS} and {MANIFEST} (all_match false until w2_check.py)')
@@ -764,6 +850,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub = ap.add_subparsers(dest='step', required=True)
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument('--engine', required=True, choices=ENGINES)
+    common.add_argument('--embedder', default='builtin', choices=EMBEDDERS,
+                        help='builtin (TEI, compose.yaml; the default) or hosted (compose.hosted.yaml)')
     common.add_argument('--base-url', default='http://127.0.0.1:9380')
     common.add_argument('--api-key-file', type=Path, default=Path('/run/rf/key'))
     common.add_argument('--tei-url', default='http://ragbench-rf-tei:80')
@@ -784,8 +872,12 @@ def build_parser() -> argparse.ArgumentParser:
     dumping = argparse.ArgumentParser(add_help=False)
     dumping.add_argument('--dump-attempts', type=int, default=3)
     patching = argparse.ArgumentParser(add_help=False)
-    patching.add_argument('--tei-wait-patch', required=True, type=Path,
-                          help="patch_tei_wait.py's patch.json, beside the patched file (/patch/patch.json)")
+    patching.add_argument('--tei-wait-patch', type=Path,
+                          help="built-in embedder (required): patch_tei_wait.py's patch.json, beside the patched file "
+                               "(/patch/patch.json)")
+    patching.add_argument('--embedding-model', help='hosted embedder (required): <model>@<instance>@OpenRouter')
+    patching.add_argument('--hosted-record', type=Path,
+                          help="hosted embedder (required): register_hosted.py's hosted-embedder.json")
     sub.add_parser('preflight', parents=[common], help='check the stack and print what it finds')
     sub.add_parser('create', parents=[common, inputs, patching, output],
                    help='import, create, upload and start the parse')
@@ -793,7 +885,28 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser('dump', parents=[common, patching, output, dumping],
                    help='dump every chunk and write the W2 manifest')
     sub.add_parser('all', parents=[common, inputs, patching, output, waiting, dumping], help='create, wait and dump')
+    ap.step_parsers = sub.choices  # each step's own parser, for embedder_options' usage messages
     return ap
+
+
+def embedder_options(parser: argparse.ArgumentParser, args) -> None:
+    """Each embedder's options on create, dump and all: argparse cannot make an option required for one choice of
+    another, so this stops with the same SystemExit (2), «<step>: error:» line and step usage that a missing required
+    option gives."""
+    if args.step not in ('create', 'dump', 'all'):
+        return
+    parser = parser.step_parsers[args.step]
+    hosted_options = (('--embedding-model', args.embedding_model), ('--hosted-record', args.hosted_record))
+    if args.embedder == 'hosted':
+        missing = [name for name, value in hosted_options if value is None]
+        if missing:
+            parser.error(f'the following arguments are required with --embedder hosted: {", ".join(missing)}')
+    else:
+        if args.tei_wait_patch is None:
+            parser.error('the following arguments are required: --tei-wait-patch')
+        given = [name for name, value in hosted_options if value is not None]
+        if given:
+            parser.error(f'{", ".join(given)}: only with --embedder hosted')
 
 
 def main(argv: list[str] | None = None, *, stdout=None, environ=None, sleep=time.sleep, clock=time.monotonic) -> int:
@@ -804,14 +917,21 @@ def main(argv: list[str] | None = None, *, stdout=None, environ=None, sleep=time
     def log(message: str) -> None:
         print(message.replace(key, '[REDACTED]') if key else message, file=stdout, flush=True)
 
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    embedder_options(parser, args)
     try:
         base = plain_url(args.base_url)
         tei_url = plain_url(args.tei_url, allow_hosts=('ragbench-rf-tei',))
         args.tei_url = tei_url
         key = read_key(args.api_key_file)
-        facts = run_facts(args.engine, environ)
+        facts = run_facts(args.engine, environ, args.embedder)
+        if args.embedder == 'hosted' and getattr(args, 'tei_wait_patch', None):
+            raise Refused('--tei-wait-patch is for the built-in embedder (TEI); the hosted stack has no TEI and runs '
+                          'the shipped embedding_model.py')
         patch = read_tei_wait_patch(args.tei_wait_patch) if getattr(args, 'tei_wait_patch', None) else None
+        hosted = (read_hosted_record(args.hosted_record, args.embedding_model)
+                  if getattr(args, 'hosted_record', None) else None)
         client = Client(base, key, timeout=args.timeout)
         out = getattr(args, 'out', None)
         if out is not None:
@@ -820,11 +940,11 @@ def main(argv: list[str] | None = None, *, stdout=None, environ=None, sleep=time
         if args.step == 'preflight':
             preflight(client, facts, tei_url, log, require_empty=False)
         if args.step in ('create', 'all'):
-            create(client, args, facts, out, log, key, patch)
+            create(client, args, facts, out, log, key, patch, hosted)
         if args.step in ('wait', 'all'):
             wait(client, args, out, log, key, sleep=sleep, clock=clock)
         if args.step in ('dump', 'all'):
-            dump(client, args, facts, out, log, key, patch)
+            dump(client, args, facts, out, log, key, patch, hosted)
     except Refused as refusal:
         log(f'refused: {refusal}')
         return REFUSED
