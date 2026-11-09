@@ -229,7 +229,10 @@ an authenticator-app code or a backup code. Staff (ADMIN) sign in with an app or
 - **Screen pass.** `ui/run-screen-pass.mjs` walks the customer screens and states its sections list (sign-in and its
   error, the tier landing and its animated heading, the composer and its controls, the demo question's Living Answer
   and a library turn, conversation actions, sidebar, header menus, account menu, every settings tab and row, unknown
-  routes; then the question builder and starter gallery, the second tier, the strip's section index live and after
+  routes, typing during an answer and selecting its text (section `during`: a follow-up sent with Enter while a
+  slow-streamed answer is being written, the requests that Enter makes, what became of the follow-up, and whether
+  upstream's quote button shows over a selected sentence of the Living Answer, recorded as probes, no finding); then
+  the question builder and starter gallery, the second tier, the strip's section index live and after
   reopening, editing a question, copy, fork options, a regenerated answer, archiving, the error page's details, an
   upload, the English interface, and log out). Not every screen: a fork carried out, an edited question sent, a file
   sent with a question, the phone and email change flows and the staff screens are not opened (`screen-pass.cjs`
@@ -241,7 +244,8 @@ an authenticator-app code or a backup code. Staff (ADMIN) sign in with an app or
   direction of the main containers), `screens.json`, `findings.json` (entries marked `"source": "review"` survive a
   rerun), `known-items.json` (O-35, O-37, O-38, N-08; points read by hand, marked `"source": "review"`, survive too)
   and `arabic-texts.json` (per text: occurrences, distinct screenshots, the first three). `IQRAA_PASS_ONLY=desktop-light:landing`
-  runs part of it; sign-in and log out run in every run, a partial one too. `node ui/screen-pass-report.mjs <folder>`
+  runs part of it (`desktop-light,phone-light:during`: two runs, one section list); sign-in and log out run in every
+  run, a partial one too. `node ui/screen-pass-report.mjs <folder>`
   works the report out again from the census after a rule changes; the rules are in `ui/screen-pass.lib.cjs`, tested
   by `node --test ui/screen-pass.test.mjs`.
 - **Real WhatsApp.** Not exercised here. One real code to a real phone waits for Meta's approval of the Arabic

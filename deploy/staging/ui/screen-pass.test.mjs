@@ -1,7 +1,7 @@
 // Unit checks for the screen pass's decisions (ui/screen-pass.lib.cjs), run on the host: node --test ui/screen-pass.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { autoFindings, classify, headingJoin, knownItems, mergeFindings, mergeKnown, recordDrift, sectionIndexDrift, shotName } from './screen-pass.lib.cjs';
+import { autoFindings, classify, duringOutcome, headingJoin, knownItems, mergeFindings, mergeKnown, recordDrift, sectionIndexDrift, shotName } from './screen-pass.lib.cjs';
 
 test('English interface text is flagged, Arabic and the allowed Latin are not', () => {
   assert.equal(classify({ text: 'Search settings' }), 'ui');
@@ -264,4 +264,25 @@ test('a cut heading counts only once it can be seen', () => {
   assert.equal(findings.find((f) => f.id === 'heading-letters-apart').shot, 'f2.png');
   const only = (opacities) => autoFindings([entry('landing', 'x.png', { heading: { ...cut, opacities } })]).some((f) => f.id === 'heading-letters-apart');
   assert.equal(only(['0.00', '0.10']), false);
+});
+
+test('a follow-up typed during an answer: sent, steered, refused, queued, left in the box or gone', () => {
+  const followUp = 'وما المدة؟';
+  const question = 'SLOW_STREAM:400 FINAL_TEXT:العربون مبلغ يدفعه أحد المتعاقدين.';
+  const steer = { method: 'POST', path: '/api/agents/chat/steer', status: 403 };
+  const start = { method: 'POST', path: '/api/agents/chat', status: 200 };
+  const failed = { text: `${followUp} تعذّرت الإضافة إلى هذه الإجابة إعادة المحاولة تعديل إرسال كرسالة جديدة`, buttons: ['إعادة المحاولة', 'تعديل', 'إرسال كرسالة جديدة'] };
+  const refused = duringOutcome({ followUp, userTurns: [question], steers: [failed], composer: '', requests: [steer, { method: 'GET', path: '/api/convos', status: 200 }] });
+  assert.equal(refused.outcome, 'steer refused, chip left in the chat');
+  assert.deepEqual([refused.steerRequests, refused.turnStarts], [[403], []]);
+  // the question's own turn holds other words: only a turn with the follow-up counts as sent
+  const sent = duringOutcome({ followUp, userTurns: [question, `${followUp} `], steers: [failed], requests: [steer, start] });
+  assert.deepEqual([sent.outcome, sent.turnStarts], ['sent as a new message', [200]]);
+  assert.equal(duringOutcome({ followUp, userTurns: [question], appliedSteers: [followUp] }).outcome, 'steered into the answer');
+  assert.equal(duringOutcome({ followUp, steers: [{ text: followUp, buttons: ['الانتظار حتى انتهاء الإجابة', 'إلغاء'] }] }).outcome, 'steer pending');
+  assert.equal(duringOutcome({ followUp, steers: [{ text: `${followUp} حالة التسليم غير معروفة`, buttons: [] }] }).outcome, 'steer delivery unknown, chip left in the chat');
+  assert.equal(duringOutcome({ followUp, queued: [`${followUp} تُرسل عند انتهاء هذه الإجابة`] }).outcome, 'queued');
+  assert.equal(duringOutcome({ followUp, composer: followUp }).outcome, 'left in the box');
+  assert.equal(duringOutcome({ followUp, userTurns: [question], composer: '' }).outcome, 'gone');
+  assert.deepEqual(duringOutcome({ followUp, requests: [{ method: 'POST', path: '/api/agents/chat/queued-turns/v2', status: 403 }] }).serverQueueRequests, [403]);
 });

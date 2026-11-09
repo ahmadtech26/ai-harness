@@ -16,6 +16,16 @@
 // (English, then Arabic again; a step that stops in English drops the choice, so the run goes on in Arabic). Every
 // run that signs in logs out at its end, a partial one (IQRAA_PASS_ONLY) too.
 //
+// The section «during» (added 2026-11-09, the owner's «one browser check first», composer.md «Owner decisions»)
+// types a follow-up while an answer is still being written and presses Enter («typing during an answer: Enter
+// pressed», then a second later), records the /api/ requests that Enter makes and what became of the follow-up once
+// the answer finished (sent, steered, refused, queued, left in the box), then selects a sentence of the finished
+// Living Answer («answer text selected») and records whether upstream's quote button shows; the facts are probes of
+// those captures (census.json, and screens.json `probes`). The demo answer arrives in one burst, too fast to type
+// over, so it asks a question the mock streams a word at a time (DURING_QUESTION). It runs before the clean-up, whose
+// «delete all chats» removes its chat; it moved the clean-up's and the `more` section's screenshots up by its own
+// captures (6 on a desktop, 5 on a phone) once, on 2026-11-09. It records and judges nothing: no finding comes from it.
+//
 // Not opened (each needs its own state first): a fork carried out, an edited question saved and sent, a file sent with
 // a question, the phone and email change flows past their first screen, the staff screens.
 //
@@ -28,7 +38,7 @@
 // screenshot, and the pass goes on; the exit status is 1 when any step was not reached.
 //
 // IQRAA_PASS_ONLY=desktop-light[,phone-dark][:landing,composer] runs only those runs and sections (sign-in and log
-// out always).
+// out always); one section list for all the runs named («desktop-light,phone-light:during»).
 const fs = require('fs');
 const { chromium } = require('playwright');
 const { nextAppStep, stepOf, totp } = require('/work/totp.cjs');
@@ -43,6 +53,17 @@ const LIBRARY_QUESTION = 'TOOL_ROUNDS:3 ما شروط العربون في الق
 const SHORT_QUESTION = 'سؤال قصير سيُحذف';
 const TYPED = 'ما حكم العربون إذا عدل المشتري؟';
 const RENAMED = 'محادثة العربون المعاد تسميتها';
+// The «during» section's answer, streamed a word every 400 ms (mock-llm.cjs FINAL_TEXT with SLOW_STREAM, about 19 s):
+// time to type over it. No article number, so the citation guard has nothing to say about it.
+const DURING_ANSWER = [
+  'العربون مبلغ يدفعه أحد المتعاقدين للآخر عند إبرام العقد.',
+  'ويدل دفعه على أن العقد أصبح باتًا ما لم يتفق الطرفان على غير ذلك.',
+  'ولمن دفعه أن يعدل عن العقد فيفقده، ولمن قبضه أن يعدل فيرده ومثله معه.',
+  'ويحسن عرض الوقائع على محامٍ مختص قبل اتخاذ أي إجراء.',
+];
+const DURING_QUESTION = `SLOW_STREAM:400 FINAL_TEXT:${DURING_ANSWER.join(' ')}`;
+const DURING_SENTENCE = DURING_ANSWER[1]; // the sentence selected in the finished answer
+const FOLLOW_UP = 'وما المدة؟';
 const { CUSTOMER_PHONE, CUSTOMER_APP_SECRET, CUSTOMER_APP_LAST_STEP, AUTHENTICATOR_LABEL = '', IQRAA_PASS_ONLY = '' } = process.env;
 const LOCAL_PHONE = `0${CUSTOMER_PHONE.slice(4)}`; // +96279… typed the local way, 079…
 let lastStep = Number(CUSTOMER_APP_LAST_STEP);
@@ -53,7 +74,8 @@ const VIEWPORTS = {
 };
 const RUNS = ['desktop-light', 'desktop-dark', 'phone-light', 'phone-dark'];
 // `more` runs after the clean-up's «delete all chats» and before log out, so the screens it adds never renumber the others.
-const SECTIONS = ['landing', 'composer', 'answer', 'conversation', 'header', 'account', 'settings', 'routes', 'cleanup', 'more'];
+// `during` runs before the clean-up, which deletes its chat (header).
+const SECTIONS = ['landing', 'composer', 'answer', 'conversation', 'header', 'account', 'settings', 'routes', 'during', 'cleanup', 'more'];
 const [onlyRuns, onlySections] = IQRAA_PASS_ONLY.split(':');
 const runs = onlyRuns ? RUNS.filter((run) => onlyRuns.split(',').includes(run)) : RUNS;
 const sections = onlySections ? SECTIONS.filter((s) => onlySections.split(',').includes(s)) : SECTIONS;
@@ -218,6 +240,8 @@ function collect() {
     [...document.querySelectorAll('[data-testid="composer-surface"] button')].find((b) => /التفكير|thinking|effort|الجهد/i.test(b.getAttribute('aria-label') ?? ''));
   const hint = document.querySelector('[id^="composer-hint-"]');
   const field = document.querySelector('[data-testid="text-input"]');
+  const squash = (el) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 200);
+  const quote = document.querySelector('[data-testid="add-to-chat-button"]');
   const probes = {
     exportButton:
       exportButton && visible(exportButton)
@@ -273,6 +297,51 @@ function collect() {
       const b = document.querySelector('[data-testid="header-background-tasks-button"]');
       return b && visible(b) ? b.getAttribute('aria-label') || 'shown' : null;
     })(),
+    // Typing during an answer (the «during» section; screen-pass.lib.cjs duringOutcome reads these): the composer's
+    // during-run send button (packages/chat DuringRunSendButton) and its hovercard of other ways to send, the queue rail
+    // (Composer/Queue.tsx), the steer chips in the thread (PendingSteers.tsx: a failed one offers retry, edit and send as
+    // new), steers shown inside the answer and their receipts, and the customer's own turns (a steer chip is drawn as a
+    // user turn too, SteerPart.tsx, so those are left out).
+    duringRun: (() => {
+      const send = document.querySelector('[data-testid="during-run-send-button"]');
+      const stop = document.querySelector('[data-testid="stop-generation-button"]');
+      const chips = [...document.querySelectorAll('[data-testid="pending-steers"]')].filter(visible);
+      const buttonLabel = (b) => (b.getAttribute('aria-label') || squash(b)).slice(0, 80);
+      return {
+        sendButton: send && visible(send) ? { action: send.getAttribute('data-during-run-action') ?? '', label: send.getAttribute('aria-label') ?? '', disabled: send.disabled } : null,
+        stopButton: Boolean(stop && visible(stop)),
+        sendMenus: [...document.querySelectorAll('[role="dialog"], [role="menu"], [aria-label]')]
+          .filter((d) => visible(d) && d.querySelectorAll('button').length >= 2 && /إرسال|send/i.test(d.getAttribute('aria-label') ?? ''))
+          .map((d) => ({ label: d.getAttribute('aria-label'), rows: [...d.querySelectorAll('button')].map((b) => ({ text: squash(b), disabled: b.disabled || b.getAttribute('aria-disabled') === 'true' })) })),
+        queued: [...document.querySelectorAll('[data-testid="queued-message-row"]')].filter(visible).map(squash),
+        steers: chips.flatMap((list) => [...list.querySelectorAll(':scope > [role="listitem"]')].map((item) => ({ text: squash(item), buttons: [...item.querySelectorAll('button')].map(buttonLabel).filter(Boolean) }))),
+        appliedSteers: [...document.querySelectorAll('[data-testid="steer-part"]')].filter((p) => !p.closest('[data-testid="pending-steers"]')).map(squash),
+        receipts: [...document.querySelectorAll('[data-testid="steer-receipt"]')].filter(visible).map(squash),
+        userTurns: [...document.querySelectorAll('.user-turn')].filter((t) => !t.closest('[data-steer-render]')).map((t) => squash(t.querySelector('[data-message-text]') ?? t)),
+        composer: field ? field.value : null,
+      };
+    })(),
+    // Upstream's quote button (packages/chat QuoteButton.tsx): one per page, portaled to the body, display:none until a
+    // selection inside a `.message-render` is final; and any other control that offers to quote.
+    quoteButton: quote
+      ? (() => {
+          const r = quote.getBoundingClientRect();
+          return {
+            matches: document.querySelectorAll('[data-testid="add-to-chat-button"]').length,
+            shown: quote.style.display !== 'none' && visible(quote),
+            inView: inView(quote),
+            label: quote.getAttribute('aria-label') ?? '',
+            text: squash(quote),
+            touch: quote.dataset.touch ?? '',
+            rect: [r.left, r.top, r.width, r.height].map(Math.round),
+          };
+        })()
+      : null,
+    quoteAffordances: [...document.querySelectorAll('button, [role="button"], [role="menuitem"]')]
+      .filter((b) => visible(b) && /اقتباس|اقتبس|أضف إلى المحادثة|add to chat|\bquote/i.test(`${b.getAttribute('aria-label') ?? ''} ${squash(b)}`))
+      .map((b) => ({ testid: b.getAttribute('data-testid') ?? '', label: (b.getAttribute('aria-label') || squash(b)).slice(0, 80) }))
+      .slice(0, 6),
+    selection: (getSelection()?.toString() ?? '').replace(/\s+/g, ' ').trim().slice(0, 300) || null,
     scrollWidth: document.documentElement.scrollWidth - innerWidth,
   };
   return {
@@ -292,9 +361,11 @@ function collect() {
 
 /**
  * A screenshot, its census entry and its screens.json row. `extraProbes` adds facts the page cannot know; while
- * `ctx.english` is set (the customer chose the English interface) every capture says so.
+ * `ctx.english` is set (the customer chose the English interface) every capture says so. `facts` (an object, or a
+ * function of the capture's probes) is what a section measured at that capture: merged into the census entry's probes
+ * and written to its screens.json row as `probes` too, so the facts can be read without the census.
  */
-async function capture(ctx, slug, { screen, state, caption, fullPage = false, extraProbes }) {
+async function capture(ctx, slug, { screen, state, caption, fullPage = false, extraProbes, facts }) {
   ctx.n += 1;
   const file = lib.shotName(ctx.view, ctx.theme, ctx.n, slug);
   let shotError = null;
@@ -348,8 +419,10 @@ async function capture(ctx, slug, { screen, state, caption, fullPage = false, ex
     ...(raw.error ? { collectError: raw.error } : {}),
     ...(shotError ? { shotError } : {}),
   };
+  const measured = typeof facts === 'function' ? facts(entry.probes) : facts;
+  if (measured) Object.assign(entry.probes, measured);
   entries.push(entry);
-  screens.push({ file, viewport: ctx.view, theme: ctx.theme, screen, state, caption, url: raw.url, ...(shotError ? { shotError } : {}) });
+  screens.push({ file, viewport: ctx.view, theme: ctx.theme, screen, state, caption, url: raw.url, ...(measured ? { probes: measured } : {}), ...(shotError ? { shotError } : {}) });
   return entry;
 }
 
@@ -1115,11 +1188,214 @@ async function routesSection(ctx) {
   });
 }
 
+/**
+ * Runs in the page, on a Living Answer: the range of `sentence` in its Markdown text, with the boxes of its first and
+ * last letters (where a person starts and ends the drag), the text's direction and whether the answer sits inside a
+ * `.message-render` (the only place QuoteButton.tsx offers a quote). `scroll` puts the sentence in the middle of the
+ * view first; `select` makes the range the selection and ends it with a mouseup, as a selection made without a drag
+ * ends. Self-contained: no closure reaches the page.
+ */
+function sentenceRange(root, { sentence, scroll = false, select = false }) {
+  const scope = root.querySelector('.markdown, .prose') ?? root;
+  const nodes = [];
+  let all = '';
+  const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    nodes.push({ node, at: all.length });
+    all += node.textContent;
+  }
+  const start = all.indexOf(sentence);
+  if (start < 0) return null;
+  const end = start + sentence.length;
+  const locate = (offset, closing) => {
+    const hit = nodes.find(({ node, at }) => offset < at + node.textContent.length || (closing && offset === at + node.textContent.length));
+    return [hit.node, offset - hit.at];
+  };
+  const range = document.createRange();
+  range.setStart(...locate(start, false));
+  range.setEnd(...locate(end, true));
+  const letter = (offset) => {
+    const r = document.createRange();
+    r.setStart(...locate(offset, false));
+    r.setEnd(...locate(offset + 1, true));
+    const box = r.getBoundingClientRect();
+    return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+  };
+  const element = range.startContainer.parentElement;
+  if (scroll) element.scrollIntoView({ block: 'center' });
+  if (select) {
+    const selection = getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+  }
+  return { first: letter(start), last: letter(end - 1), direction: getComputedStyle(element).direction, inMessageRender: Boolean(root.closest('.message-render')) };
+}
+
+/**
+ * Typing during an answer, then quoting from it (header): a question the mock streams slowly; once its first words
+ * are on screen a short follow-up typed and sent with Enter, captured at once and a second later with every /api/
+ * request that Enter made (method, path, status, ms after Enter); what became of the follow-up once the answer
+ * finished (screen-pass.lib.cjs duringOutcome); then a sentence of the finished Living Answer selected with the
+ * mouse (a Selection range and a mouseup when the drag does not select exactly that sentence) and whether upstream's
+ * quote button shows. On a desktop the pointer also rests on the send button before Enter (its other ways to send);
+ * a phone has no pointer to rest, so that capture is a desktop one only.
+ */
+async function duringSection(ctx) {
+  const { page } = ctx;
+  const requests = [];
+  let enterAt = 0;
+  const log = (request, status) => {
+    const url = new URL(request.url());
+    if (!url.pathname.startsWith('/api/')) return;
+    requests.push({ method: request.method(), path: url.pathname.replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/g, ':id'), status, ms: Date.now() - enterAt });
+  };
+  const onResponse = (response) => log(response.request(), response.status());
+  const onFailed = (request) => log(request, `failed: ${request.failure()?.errorText ?? ''}`);
+  const sinceEnter = () => requests.map((r) => ({ ...r }));
+  // What the customer has in front of them at a capture, for screens.json too: the composer's during-run state, the
+  // composer hint (screen-reader text) and any toast. Once Enter is pressed, the requests made by the end of the
+  // capture (read after its screenshot, so a refusal the screenshot shows is listed; msAtFacts says when).
+  const seen = (extra = {}, withRequests = false) => (probes) => ({
+    during: {
+      ...extra,
+      ...(withRequests ? { msAtFacts: Date.now() - enterAt, requests: sinceEnter() } : {}),
+      onScreen: probes.duringRun,
+      hint: probes.hint,
+      toast: probes.toast,
+    },
+  });
+  const firstWords = DURING_ANSWER[0].split(' ').slice(0, 2).join(' ');
+  const lastWords = DURING_ANSWER[DURING_ANSWER.length - 1].split(' ').slice(-4).join(' ');
+  // The answer only: the customer's own turn holds the whole text too (it is the question).
+  const answerWith = (text) => page.locator('[data-iqraa-answer], .agent-turn').filter({ hasText: text }).first();
+  await step(ctx, 'during-typing', async () => {
+    const input = await newChat(ctx);
+    await closeSidebarOnPhone(ctx);
+    await input.fill(DURING_QUESTION);
+    await input.press('Enter');
+    // Typed once words are on screen: the start POST has installed the run by then (canControlGeneration), so Enter
+    // takes the during-run path, not the local queue of the first instant before it.
+    await answerWith(firstWords).waitFor({ timeout: 30000 });
+    await input.fill(FOLLOW_UP);
+    await sleep(300);
+    await capture(ctx, 'during-typed', {
+      screen: 'composer',
+      state: 'typing during an answer: follow-up typed',
+      caption: `While the answer is still being written: «${FOLLOW_UP}» typed in the composer, before Enter.`,
+      facts: seen(),
+    });
+    if (!ctx.phone) {
+      const send = page.getByTestId('during-run-send-button').first();
+      if (await send.isVisible().catch(() => false)) {
+        await send.hover();
+        await sleep(600);
+        await capture(ctx, 'during-send-options', {
+          screen: 'composer',
+          state: 'typing during an answer: pointer on send',
+          caption: 'The pointer on the send button while the answer is being written: the other ways to send it shows.',
+          facts: seen(),
+        });
+        await page.mouse.move(VIEWPORTS.desktop.viewport.width / 2, VIEWPORTS.desktop.viewport.height / 3);
+        await sleep(400);
+      }
+    }
+    page.on('response', onResponse);
+    page.on('requestfailed', onFailed);
+    enterAt = Date.now();
+    await input.press('Enter');
+    let at = Date.now() - enterAt;
+    await capture(ctx, 'during-enter', {
+      screen: 'composer',
+      state: 'typing during an answer: Enter pressed',
+      caption: `Enter pressed on «${FOLLOW_UP}» while the answer is being written: the composer, any rail, chip, menu or toast at once (+${at} ms).`,
+      facts: seen({ msAfterEnter: at }, true),
+    });
+    const wait = 1000 - (Date.now() - enterAt);
+    if (wait > 0) await sleep(wait);
+    at = Date.now() - enterAt;
+    await capture(ctx, 'during-enter-1s', {
+      screen: 'composer',
+      state: 'typing during an answer: 1 s after Enter',
+      caption: `The same, a second after Enter (+${at} ms).`,
+      facts: seen({ msAfterEnter: at }, true),
+    });
+  });
+  await step(ctx, 'during-outcome', async () => {
+    await answerWith(lastWords).waitFor({ timeout: 60000 });
+    await answerFinished(ctx);
+    // A follow-up held for the end of the answer is sent then (the queue's drain): time to start, and to finish.
+    await sleep(3000);
+    const turns = await page.evaluate(() => [...document.querySelectorAll('.user-turn')].filter((t) => !t.closest('[data-steer-render]')).length);
+    if (turns > 1) {
+      await page.waitForFunction(() => !document.querySelector('[data-testid="stop-generation-button"]'), null, { timeout: 60000 }).catch(() => undefined);
+      await answerFinished(ctx, 30000);
+    }
+    await answerWith(lastWords).scrollIntoViewIfNeeded().catch(() => undefined);
+    const at = Date.now() - enterAt;
+    await capture(ctx, 'during-after', {
+      screen: 'answer',
+      state: 'typing during an answer: after the answer finished',
+      caption: `The answer finished (+${at} ms after Enter): whether «${FOLLOW_UP}» was sent, queued, refused or left in the box.`,
+      facts: (probes) => {
+        const facts = seen({ msAfterEnter: at }, true)(probes);
+        facts.during.outcome = lib.duringOutcome({ followUp: FOLLOW_UP, ...probes.duringRun, requests: sinceEnter() });
+        return facts;
+      },
+    });
+  });
+  page.off('response', onResponse);
+  page.off('requestfailed', onFailed);
+  await step(ctx, 'during-quote', async () => {
+    const answer = page.locator('[data-iqraa-answer]').filter({ hasText: DURING_SENTENCE }).first();
+    await answer.waitFor({ timeout: 15000 });
+    if (!(await answer.evaluate(sentenceRange, { sentence: DURING_SENTENCE, scroll: true }))) throw new Error('the sentence is not in the answer text');
+    await sleep(600);
+    const box = await answer.evaluate(sentenceRange, { sentence: DURING_SENTENCE });
+    // A person's drag: from the sentence's first letter to its last. Right to left, the first letter's right edge
+    // starts it and the last letter's left edge ends it.
+    const rtl = box.direction === 'rtl';
+    const y = (b) => (b.top + b.bottom) / 2;
+    await page.mouse.move(rtl ? box.first.right - 1 : box.first.left + 1, y(box.first));
+    await page.mouse.down();
+    await page.mouse.move(rtl ? box.last.left + 1 : box.last.right - 1, y(box.last), { steps: 15 });
+    await page.mouse.up();
+    // QuoteButton shows on the mouseup; a selection without one waits 300 ms for it to settle.
+    await sleep(700);
+    const squash = (text) => String(text ?? '').replace(/\s+/g, '');
+    const dragged = await page.evaluate(() => getSelection()?.toString() ?? '');
+    let method = 'mouse drag';
+    if (squash(dragged) !== squash(DURING_SENTENCE)) {
+      await answer.evaluate(sentenceRange, { sentence: DURING_SENTENCE, select: true });
+      method = 'selection range and a mouseup (the drag selected something else)';
+      await sleep(700);
+    }
+    await capture(ctx, 'during-answer-selected', {
+      screen: 'answer',
+      state: 'answer text selected',
+      caption: `A sentence of the finished Living Answer selected (${method}): is upstream's quote button («أضف إلى المحادثة») there?`,
+      facts: (probes) => ({
+        quote: {
+          method,
+          dragSelected: dragged.replace(/\s+/g, ' ').trim().slice(0, 300),
+          sentence: DURING_SENTENCE,
+          selectedSentence: squash(probes.selection) === squash(DURING_SENTENCE),
+          answerInMessageRender: box.inMessageRender,
+          button: probes.quoteButton,
+          buttonShown: Boolean(probes.quoteButton?.shown),
+          affordances: probes.quoteAffordances,
+        },
+      }),
+    });
+    await page.evaluate(() => getSelection()?.removeAllRanges());
+  });
+}
+
 /** «Delete all chats» from the Data tab (its confirm dialog is a screen too), so the next run starts empty. */
 async function cleanupSection(ctx) {
   const { page } = ctx;
   await step(ctx, 'clear-all-chats', async () => {
-    await newChat(ctx); // after the unknown routes: back where the sidebar is
+    await newChat(ctx); // after the unknown routes (or «during»): back where the sidebar is
     const dialog = await openSettings(ctx);
     await dialog.getByRole('tab', { name: /البيانات|data/i }).first().click();
     await sleep(500);
@@ -1462,6 +1738,7 @@ function writeOutputs() {
         if (sections.includes('account')) await accountSection(ctx);
         if (sections.includes('settings')) await settingsSection(ctx);
         if (sections.includes('routes')) await routesSection(ctx);
+        if (sections.includes('during')) await duringSection(ctx);
         if (sections.includes('cleanup')) await cleanupSection(ctx);
         if (sections.includes('more')) await moreSection(ctx);
         await logoutSection(ctx); // every run, a partial one too: no session is left signed in on staging

@@ -410,6 +410,41 @@ function sectionIndexDrift(entries) {
 }
 
 /**
+ * What became of a follow-up typed while an answer was being written and sent with Enter (the «during» section), from
+ * the facts the page showed once the answer had finished (screen-pass.cjs collect, probes.duringRun) and the /api/
+ * requests made since Enter. The first that holds, in this order: a customer turn of its own with the follow-up
+ * («sent as a new message»); the follow-up shown inside the answer as a steer, or in a steer receipt («steered into
+ * the answer»); a steer chip in the thread with it: its delivery unknown when the chip says so, refused when it says
+ * it failed or offers to retry («steer refused, chip left in the chat»), else still «steer pending»; a row of the queue rail («queued»); the composer still holding
+ * it («left in the box»); else «gone». Beside the outcome, the statuses of the requests that steer, queue on the
+ * server and start a turn (packages/data-provider api-endpoints.ts; customer-api.ts CHAT_START_PATH). It judges nothing.
+ */
+function duringOutcome({ followUp, userTurns = [], appliedSteers = [], receipts = [], steers = [], queued = [], composer = '', requests = [] } = {}) {
+  const squash = (text) => String(text ?? '').replace(/\s+/g, '');
+  const words = squash(followUp);
+  const has = (text) => words !== '' && squash(text).includes(words);
+  const statuses = (path) => requests.filter((r) => r.method === 'POST' && path.test(r.path)).map((r) => r.status);
+  const chip = steers.find((s) => has(s.text));
+  let outcome = 'gone';
+  if (userTurns.some(has)) outcome = 'sent as a new message';
+  else if (appliedSteers.some(has) || receipts.some(has)) outcome = 'steered into the answer';
+  else if (chip) {
+    const unknown = /غير معروفة|غير مؤكد|uncertain|unknown|unconfirmed/i.test(chip.text);
+    const refused = /تعذّر|تعذر|failed|could not/i.test(chip.text) || (chip.buttons ?? []).some((b) => /إعادة المحاولة|retry/i.test(b));
+    if (unknown) outcome = 'steer delivery unknown, chip left in the chat';
+    else outcome = refused ? 'steer refused, chip left in the chat' : 'steer pending';
+  } else if (queued.some(has)) outcome = 'queued';
+  else if (has(composer)) outcome = 'left in the box';
+  return {
+    outcome,
+    ...(chip ? { chip } : {}),
+    steerRequests: statuses(/^\/api\/agents\/chat\/steer(?:\/|$)/i),
+    serverQueueRequests: statuses(/^\/api\/agents\/chat\/queued-turns(?:\/|$)/i),
+    turnStarts: statuses(/^\/api\/agents\/chat(?:\/agents)?$/i),
+  };
+}
+
+/**
  * The pass's own findings from the census: English interface text per screen (visible text major, attributes and
  * screen-reader text minor), the name LibreChat, a heading drawn letter by letter, a main container laid out left to
  * right on a right-to-left page, and the sign-in screen without the brand footer.
@@ -521,4 +556,4 @@ function shotName(viewport, theme, n, slug) {
   return `${viewport}-${theme}-${String(n).padStart(2, '0')}-${clean}.png`;
 }
 
-module.exports = { ALLOWED, MOCK, KNOWN_POINTS, arabicInterface, autoFindings, classify, hasLatin, headingJoin, itemOf, knownItems, latinRemainder, mergeFindings, mergeKnown, drawnApart, reclassify, recordDrift, sectionIndexDrift, shotName, zoneOf };
+module.exports = { ALLOWED, MOCK, KNOWN_POINTS, arabicInterface, autoFindings, classify, duringOutcome, hasLatin, headingJoin, itemOf, knownItems, latinRemainder, mergeFindings, mergeKnown, drawnApart, reclassify, recordDrift, sectionIndexDrift, shotName, zoneOf };
