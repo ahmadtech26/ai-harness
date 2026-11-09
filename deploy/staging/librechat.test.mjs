@@ -35,3 +35,10 @@ function topLevelBlock(text, name) {
 test('the interface turns the context gauge and its Compact button off, for everyone (O-90, O-115)', () => {
   assert.equal(topLevelBlock(yaml, 'interface').contextUsage, 'false');
 });
+
+// LibreChat shows the composer's thinking and effort pill, and the Parameters side panel, only when interface.parameters is
+// true (Thinking.tsx, useSideNavLinks.ts). Model specs default it to false, but an explicit true turns both back on for
+// everyone, and the fork's start-up checks do not refuse it; the owner chose to keep them hidden (2026-11-08).
+test('the interface keeps the thinking and effort pill and the Parameters panel off, for everyone', () => {
+  assert.equal(topLevelBlock(yaml, 'interface').parameters, 'false');
+});
