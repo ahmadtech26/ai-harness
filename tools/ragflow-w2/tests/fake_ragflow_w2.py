@@ -9,6 +9,8 @@ v0.27.3 source as read on 2026-11-08 (paths under .hq/scratch/ragflow-src-v0.27.
 - POST /datasets answers with the stored row, keys remapped (dataset_api_service.py:138-144, api_utils.py:639-644);
 - the upload answers one document per «file» part (document_api.py:651-719), with pipeline_id from the
   dataset (file_service.py:664-680) and run "UNSTART";
+- a parse sets each document RUNNING and sets chunk_count to 0 only for a DONE one, so a FAIL document parsed
+  again keeps its count (document_api.py:1630-1633);
 - documents list as {"total", "docs"} with run names (document_api.py:849-852, document_api_service.py:218-234);
 - chunks list as {"total", "chunks", "doc"} (chunk_api.py:640-698); page_size above 100 is refused
   (pagination_utils.py:34-44).
@@ -26,6 +28,11 @@ test that fails without it:
   parse_short          the parse answer counts this many documents fewer
   foreign_docs         this many documents that were not uploaded appear in the dataset
   doc_chunk_count_offset  name -> added to that document's chunk_count in the listing only
+  chunk_count_steps    name -> the chunk_count that document holds on its first listings from the one where it
+                       turns DONE, one per listing; after them it holds its stored count. v0.27.3 marks a
+                       pipeline document DONE before it sets chunk_count (rag/flow/pipeline.py:107-125,
+                       api/db/services/document_service.py:1162-1180,
+                       rag/svr/task_executor_refactor/dataflow_service.py:161-181)
   dataset_offsets      field -> added to the dataset's document_count or chunk_count only
   redirect             path -> answered with HTTP 302 to that path of the fake
 """
@@ -74,7 +81,7 @@ class FakeRagflowW2:
                  fail=None, extra_chunks=None, unstable_paging=None, alter_dsl=False, echo_key_on_dataset=False,
                  tei_model_id=TEI_MODEL_ID, health=None, signup_message='User registration is disabled!',
                  canvas_category=None, store_dataset=None, doc_overrides=None, parse_short=0, foreign_docs=0,
-                 doc_chunk_count_offset=None, dataset_offsets=None, redirect=None):
+                 doc_chunk_count_offset=None, dataset_offsets=None, redirect=None, chunk_count_steps=None):
         self.engine, self.version, self.register_enabled = engine, version, register_enabled
         self.fail = dict(fail or {})              # name -> number of parse rounds that fail
         self.extra_chunks = dict(extra_chunks or {})  # name -> extra invented chunks
@@ -84,6 +91,7 @@ class FakeRagflowW2:
         self.store_dataset, self.doc_overrides = dict(store_dataset or {}), dict(doc_overrides or {})
         self.parse_short, self.foreign_docs = parse_short, foreign_docs
         self.doc_chunk_count_offset = dict(doc_chunk_count_offset or {})
+        self.chunk_count_steps = {k: list(v) for k, v in (chunk_count_steps or {}).items()}
         self.dataset_offsets, self.redirect = dict(dataset_offsets or {}), dict(redirect or {})
         self.requests: list[Recorded] = []
         self.agents, self.datasets, self.docs, self.chunks = {}, {}, {}, {}
@@ -256,7 +264,10 @@ class FakeRagflowW2:
         ids = body.get('document_ids') or []
         for i in ids:
             d = self.docs[i]
-            d.update(run='RUNNING', progress=0.05, polls=1, chunk_count=0)
+            if d['run'] == 'DONE':  # v0.27.3 clears the count of a DONE document only
+                d['chunk_count'] = 0
+            d.update(run='RUNNING', progress=0.05, polls=1)
+            d.pop('late', None)
             d['rounds'] += 1
         return self.ok({'success_count': len(ids) - self.parse_short})
 
@@ -274,10 +285,17 @@ class FakeRagflowW2:
                     d.update(run='FAIL', progress=-1, progress_msg=f'12:00:00 [ERROR]: embedding timed out\n'
                                                                     f'key echoed: {API_KEY}')
                 else:
-                    d.update(run='DONE', progress=1.0, chunk_count=len(self.chunks[d['id']]))
-            view = {k: v for k, v in d.items() if k not in ('data', 'polls', 'rounds')}
-            if d['run'] == 'DONE':
-                view['chunk_count'] += self.doc_chunk_count_offset.get(d['name'], 0)
+                    d.update(run='DONE', progress=1.0, chunk_count=len(self.chunks[d['id']]),
+                             late=list(self.chunk_count_steps.get(d['name'], ())))
+            if d['run'] == 'DONE' and 'late' in d:  # DONE before chunk_count is set (chunk_count_steps)
+                if d['late']:
+                    d['chunk_count'] = d['late'].pop(0)
+                else:
+                    d['chunk_count'] = len(self.chunks[d['id']])
+                    del d['late']
+            view = {k: v for k, v in d.items() if k not in ('data', 'polls', 'rounds', 'late')}
+            if d['run'] == 'DONE' and d['name'] in self.doc_chunk_count_offset:
+                view['chunk_count'] += self.doc_chunk_count_offset[d['name']]
             docs.append(view)
         return self.ok({'total': len(docs), 'docs': docs})
 

@@ -16,6 +16,7 @@ import os
 import re
 import secrets
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -305,6 +306,180 @@ class Polling(Base):
 
         self.assertEqual(code, 1)
         self.assertFalse((self.out / 'chunks.jsonl').exists())
+
+
+class Settling(Base):
+    """v0.27.3 marks a pipeline document DONE before it sets its chunk_count (rf_ingest.unsettled). law-04 holds
+    4 chunks of its own and 382 extra ones: 386, as maritime-commerce.md did in the Elasticsearch run."""
+
+    LAW_04_386 = {'law-04.md': 382}
+
+    def final_counts(self) -> dict:
+        state = json.loads((self.out / 'ingest-state.json').read_text(encoding='utf-8'))
+        return {d['name']: d['chunk_count'] for d in state.get('documents_final') or []}
+
+    @staticmethod
+    def stored_counts(fake) -> dict:
+        return {d['name']: len(fake.chunks[i]) for i, d in fake.docs.items()}
+
+    @staticmethod
+    def parse_rounds(fake) -> list:
+        return [json.loads(r.body)['document_ids'] for r in fake.requests if r.path.endswith('/parse')]
+
+    def test_a_document_done_with_0_chunks_for_one_poll_is_recorded_with_the_386_that_follow(self):
+        with FakeRagflowW2(extra_chunks=self.LAW_04_386, chunk_count_steps={'law-04.md': [0]}) as fake:
+            code, out = self.run_tool(fake)
+
+        self.assertEqual(code, 0, out)
+        self.assertIn('law-04.md: DONE, 0 chunks', out)
+        self.assertEqual(self.final_counts()['law-04.md'], 386)
+        self.assertEqual(self.final_counts(), self.stored_counts(fake))
+        self.assertEqual(len(self.parse_rounds(fake)), 1)  # all DONE, none failed: nothing is parsed again
+
+    def test_the_wait_step_alone_records_the_386_too(self):
+        with FakeRagflowW2(extra_chunks=self.LAW_04_386, chunk_count_steps={'law-04.md': [0]}) as fake:
+            self.run_tool(fake, 'create')
+            code, out = self.run_tool(fake, 'wait')
+
+        self.assertEqual((code, self.final_counts().get('law-04.md')), (0, 386), out)
+
+    def test_0_chunks_read_on_two_polls_is_not_settled(self):
+        with FakeRagflowW2(extra_chunks=self.LAW_04_386, chunk_count_steps={'law-04.md': [0, 0]}) as fake:
+            code, out = self.run_tool(fake)
+
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.final_counts()['law-04.md'], 386)
+
+    def test_a_count_that_rises_100_then_386_then_386_is_recorded_as_386(self):
+        with FakeRagflowW2(extra_chunks=self.LAW_04_386, chunk_count_steps={'law-04.md': [100]}) as fake:
+            code, out = self.run_tool(fake)
+
+        self.assertEqual(code, 0, out)
+        self.assertIn('law-04.md: DONE, 100 chunks', out)
+        self.assertIn('law-04.md: DONE, 386 chunks', out)
+        self.assertEqual(self.final_counts()['law-04.md'], 386)
+
+    def test_the_progress_line_counts_the_settled_documents(self):
+        with FakeRagflowW2(extra_chunks=self.LAW_04_386, chunk_count_steps={'law-04.md': [100]}) as fake:
+            _, out = self.run_tool(fake)
+
+        self.assertRegex(out, r'done 22, failed 0, waiting 0 of 22; chunks so far [\d,]+; settled 0\n')
+        self.assertRegex(out, r'done 22, failed 0, waiting 0 of 22; chunks so far [\d,]+; settled 21\n')
+        self.assertRegex(out, r'done 22, failed 0, waiting 0 of 22; chunks so far [\d,]+; settled 22\n')
+
+    def test_a_document_that_stays_done_with_0_chunks_fails_after_max_wait_naming_it(self):
+        steps = {'law-04.md': [0] * 50, 'law-05.md': list(range(1, 51))}
+        with FakeRagflowW2(extra_chunks=self.LAW_04_386, chunk_count_steps=steps) as fake:
+            code, out = self.run_tool(fake, 'all', '--max-wait', '100')
+
+        failure = out.strip().splitlines()[-1]
+        self.assertEqual(code, 1, out)
+        self.assertRegex(failure, r'^failed: still parsing after 100 s; DONE but not settled: law-04\.md \(0 chunks\), '
+                                  r'law-05\.md \(count still changing: \d+ -> \d+\); run «wait» again to keep waiting$')
+        self.assertFalse(any(p.endswith('/chunks') for _, p in fake.paths()))
+        self.assertNotIn('documents_final', json.loads((self.out / 'ingest-state.json').read_text(encoding='utf-8')))
+
+    def test_documents_done_and_stable_from_the_start_are_recorded_as_before(self):
+        with FakeRagflowW2() as fake:
+            code, out = self.run_tool(fake)
+
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.final_counts(), self.stored_counts(fake))
+        self.assertEqual(len(self.parse_rounds(fake)), 1)
+
+    def test_a_failed_document_is_parsed_again_and_recorded_as_before(self):
+        with FakeRagflowW2(fail={'law-05.md': 1}) as fake:
+            code, out = self.run_tool(fake)
+
+        doc5 = next(i for i, d in fake.docs.items() if d['name'] == 'law-05.md')
+        rounds = self.parse_rounds(fake)
+        self.assertEqual(code, 0, out)
+        self.assertEqual((len(rounds[0]), rounds[1:]), (22, [[doc5]]))
+        self.assertEqual(self.final_counts(), self.stored_counts(fake))
+
+    def test_a_chunk_count_that_is_not_a_number_is_waited_out_not_a_crash(self):
+        with FakeRagflowW2(chunk_count_steps={'law-04.md': ['n/a']}) as fake:
+            code, out = self.run_tool(fake)
+
+        self.assertEqual(code, 0, out)
+        self.assertIn('law-04.md: DONE, n/a chunks', out)
+        self.assertEqual(self.final_counts(), self.stored_counts(fake))
+
+    def test_a_document_still_settling_is_not_parsed_again_with_a_failed_one(self):
+        with FakeRagflowW2(fail={'law-05.md': 1}, extra_chunks=self.LAW_04_386,
+                           chunk_count_steps={'law-04.md': [0]}) as fake:
+            code, out = self.run_tool(fake)
+
+        doc5 = next(i for i, d in fake.docs.items() if d['name'] == 'law-05.md')
+        rounds = self.parse_rounds(fake)
+        self.assertEqual(code, 0, out)
+        self.assertEqual((len(rounds[0]), rounds[1:]), (22, [[doc5]]))
+        self.assertEqual(self.final_counts()['law-04.md'], 386)
+
+
+class SettledRule(unittest.TestCase):
+    def test_done_with_a_whole_count_above_0_read_the_same_on_the_previous_poll_is_settled(self):
+        for count in (386, 1):
+            with self.subTest(count=count):
+                self.assertIsNone(rf_ingest.unsettled(('DONE', count), ('DONE', count)))
+
+    def test_anything_else_is_not_settled(self):
+        for before, now in ((None, ('DONE', 386)), (('RUNNING', 386), ('DONE', 386)), (('FAIL', 386), ('DONE', 386)),
+                            (('DONE', 100), ('DONE', 386)), (('DONE', 400), ('DONE', 386)),
+                            (('DONE', 386), ('DONE', 0)), (('DONE', 0), ('DONE', 0)),
+                            (('DONE', None), ('DONE', None)), (('DONE', True), ('DONE', True)),
+                            (('DONE', 386.0), ('DONE', 386.0)), (('DONE', '386'), ('DONE', '386')),
+                            (('DONE', -1), ('DONE', -1)), (('RUNNING', 386), ('RUNNING', 386)),
+                            (('DONE', 386.0), ('DONE', 386)), (('DONE', True), ('DONE', 1))):
+            with self.subTest(before=before, now=now):
+                self.assertIsNotNone(rf_ingest.unsettled(before, now))
+
+    def test_the_reason_names_0_chunks_or_a_changing_count(self):
+        self.assertEqual(rf_ingest.unsettled(('DONE', 0), ('DONE', 0)), '0 chunks')
+        self.assertEqual(rf_ingest.unsettled(('DONE', 100), ('DONE', 386)), 'count still changing: 100 -> 386')
+
+
+class ScriptedListing:
+    """Answers each document listing with the next of `polls` ({document_id: (run, chunk_count)}), for runs of
+    wait() that the fake cannot produce."""
+
+    def __init__(self, polls):
+        self.polls, self.listings = list(polls), 0
+
+    def redact(self, text):
+        return str(text)
+
+    def call(self, method, path, **_):
+        listing = self.polls[min(self.listings, len(self.polls) - 1)]
+        self.listings += 1
+        docs = [{'id': i, 'run': run, 'chunk_count': count, 'progress': 1.0, 'progress_msg': ''}
+                for i, (run, count) in listing.items()]
+        return {'data': {'total': len(docs), 'docs': docs}}
+
+
+class PreviousPoll(unittest.TestCase):
+    """unsettled() is given each document's read on the poll just before, whatever its run was then."""
+
+    def test_a_document_back_to_done_with_its_old_count_settles_only_on_the_next_poll(self):
+        a, b = 'a' * 32, 'b' * 32
+        client = ScriptedListing([
+            {a: ('DONE', 1), b: ('DONE', 4)},
+            {a: ('DONE', 2), b: ('DONE', 4)},     # b settled; a still rising
+            {a: ('DONE', 10), b: ('RUNNING', 0)},  # b parsed again by another client (its count reset to 0)
+            {a: ('DONE', 10), b: ('DONE', 4)},     # a settled; b back to DONE, read once
+            {a: ('DONE', 10), b: ('DONE', 4)}])
+        ticks = iter(range(10 ** 6))
+        args = types.SimpleNamespace(poll=30.0, max_wait=10 ** 6, max_reparse=0)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            (out / rf_ingest.STATE).write_text(json.dumps({
+                'dataset_id': 'd' * 32, 'parse_rounds': [{'at': 'x', 'document_ids': [a, b]}],
+                'files': [{'name': 'law-a.md', 'document_id': a}, {'name': 'law-b.md', 'document_id': b}]}),
+                encoding='utf-8')
+
+            rf_ingest.wait(client, args, out, lambda line: None, '', sleep=lambda s: None, clock=lambda: next(ticks))
+
+        self.assertEqual(client.listings, 5)
 
 
 class Refusals(Base):

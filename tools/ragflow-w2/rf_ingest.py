@@ -604,6 +604,28 @@ def last_line(text, client: Client) -> str:
     return client.redact(lines[-1]) if lines else ''
 
 
+def unsettled(before: tuple | None, current: tuple) -> str | None:
+    """Why a document read as (run, chunk_count) `current`, after `before` on the previous poll (None: not read), is
+    not settled yet; None when it is: its run is DONE, its chunk_count a whole number above 0, and the previous poll
+    read the same run and count. DONE alone is not enough. With a pipeline canvas, v0.27.3 sets the task to 1.0 when the
+    Tokenizer finishes (rag/flow/pipeline.py:107-125), _sync_progress then marks the document DONE
+    (api/db/services/document_service.py:1162-1180), and chunk_count is raised only after the insert into the store
+    (rag/svr/task_executor_refactor/dataflow_service.py:161-181). Seen live: «maritime-commerce.md: DONE, 0 chunks»,
+    then 386 chunks 30 s later. A document parsed again after FAIL keeps its old count (v0.27.3 clears only a DONE
+    one's, api/apps/restful_apis/document_api.py:1630-1633), so a stale count above 0 can settle; dump's checks
+    against the chunk listing then refuse it, unless the store really holds that many."""
+    run, count = current
+    if run != DONE_RUN:
+        return f'run {run}'
+    if not (_whole(count) and count > 0):
+        return f'{count!r} chunks'
+    if before is None or before[0] != run:
+        return 'DONE since the last poll only'
+    if not _whole(before[1]) or before[1] != count:
+        return f'count still changing: {before[1]!r} -> {count}'
+    return None
+
+
 def wait(client: Client, args, out: Path, log, key: str, *, sleep=time.sleep, clock=time.monotonic) -> dict:
     state = load_state(out)
     if state.get('parsed'):
@@ -612,23 +634,27 @@ def wait(client: Client, args, out: Path, log, key: str, *, sleep=time.sleep, cl
     if not state.get('parse_rounds'):
         raise Refused('the state records no parse round: «create» stopped before parsing')
     ours = {f['document_id']: f['name'] for f in state['files']}
-    started, seen = clock(), {}
+    started, seen, previous = clock(), {}, {}  # seen: what was logged; previous: (run, chunk_count) at the last poll
     while True:
         docs = {d.get('id'): d for d in list_documents(client, state['dataset_id'])}
         if set(docs) != set(ours):
             raise Failed(f'the dataset holds {len(docs)} document(s), not the {len(ours)} uploaded')
         done = [i for i, d in docs.items() if d.get('run') == DONE_RUN]
         failed = [i for i, d in docs.items() if d.get('run') in FAIL_RUNS or d.get('progress') == -1]
+        read = {i: (d.get('run'), d.get('chunk_count')) for i, d in docs.items()}
         for i in done + failed:
-            now_state = (docs[i].get('run'), docs[i].get('chunk_count'))
-            if seen.get(i) != now_state:
-                seen[i] = now_state
+            if seen.get(i) != read[i]:
+                seen[i] = read[i]
                 tail = '' if i in done else f': {last_line(docs[i].get("progress_msg"), client)}'
                 log(f'  {ours[i]}: {docs[i].get("run")}, {docs[i].get("chunk_count")} chunks{tail}')
-        chunks = sum(int(d.get('chunk_count') or 0) for d in docs.values())
+        why = {i: unsettled(previous.get(i), read[i]) for i in done}  # None: settled
+        previous = read
+        settled = [i for i in done if why[i] is None]
+        chunks = sum(count for _, count in read.values() if _whole(count))  # a count that is no number is not added
         log(f'[{datetime.now(timezone.utc).strftime("%H:%M:%S")}] done {len(done)}, failed {len(failed)}, '
-            f'waiting {len(docs) - len(done) - len(failed)} of {len(docs)}; chunks so far {chunks:,}')
-        if len(done) == len(docs):
+            f'waiting {len(docs) - len(done) - len(failed)} of {len(docs)}; chunks so far {chunks:,}; '
+            f'settled {len(settled)}')
+        if len(settled) == len(docs):
             state['parsed'] = True
             state['parsed_at'] = now()
             state['documents_final'] = [{'name': ours[i], 'document_id': i, 'chunk_count': docs[i].get('chunk_count')}
@@ -636,13 +662,15 @@ def wait(client: Client, args, out: Path, log, key: str, *, sleep=time.sleep, cl
             write_json(out / STATE, state, key)
             log('parse done for every document')
             return state
-        if len(done) + len(failed) == len(docs):
+        if failed and len(done) + len(failed) == len(docs):  # every document stopped; DONE ones may still settle
             if len(state['parse_rounds']) - 1 >= args.max_reparse:
                 raise Failed(f'{len(failed)} document(s) still failed after {args.max_reparse} re-parse round(s)')
             start_parse(client, state, sorted(failed, key=ours.get), out, log, key)
-            seen = {i: s for i, s in seen.items() if i not in failed}
+            seen = {i: s for i, s in seen.items() if i not in failed}  # previous needs no reset: it holds their FAIL
         if clock() - started > args.max_wait:
-            raise Failed(f'still parsing after {args.max_wait:.0f} s; run «wait» again to keep waiting')
+            stuck = ', '.join(f'{ours[i]} ({why[i]})' for i in sorted(done, key=ours.get) if why[i] is not None)
+            raise Failed(f'still parsing after {args.max_wait:.0f} s; '
+                         + (f'DONE but not settled: {stuck}; ' if stuck else '') + 'run «wait» again to keep waiting')
         sleep(args.poll)
 
 
@@ -761,7 +789,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser('preflight', parents=[common], help='check the stack and print what it finds')
     sub.add_parser('create', parents=[common, inputs, patching, output],
                    help='import, create, upload and start the parse')
-    sub.add_parser('wait', parents=[common, output, waiting], help='poll until every document is parsed')
+    sub.add_parser('wait', parents=[common, output, waiting], help='poll until every document is parsed and settled')
     sub.add_parser('dump', parents=[common, patching, output, dumping],
                    help='dump every chunk and write the W2 manifest')
     sub.add_parser('all', parents=[common, inputs, patching, output, waiting, dumping], help='create, wait and dump')

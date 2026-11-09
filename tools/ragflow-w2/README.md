@@ -324,8 +324,9 @@ file, `config` exits 1 naming each missing value).
 **Isolation.**
 
 - **Names.** Every container is `ragbench-rf-*`. The one network is `ragbench-rf-net`. The base file creates no
-  named volume. Teardown matches the prefix `^ragbench-rf-` only. The existing volume `ragbench-cargo` has no
-  compose labels and does not match.
+  named volume. Teardown is `down` on the compose project `ragbench-rf` (compose.yaml:38), then sweeps that
+  match the prefix `^ragbench-rf-` only. The existing volume `ragbench-cargo` has no compose labels and does
+  not match.
 - **No egress.** `ragbench-rf-net` is `internal: true`. Docker drops all traffic between an internal network and
   any other network. No service joins a second network, and upstream's `extra_hosts: host.docker.internal` is
   dropped. `net_check.py` proves it at run time from the server's namespace and from the TEI network, with a
@@ -359,6 +360,9 @@ file, `config` exits 1 naming each missing value).
     `.hq/scratch/w2-run/secrets/` (gitignored, mounted nowhere).
   - It reaches es01, mysql, minio, redis and the server as `env_file`. TEI, tei-probe and the runner get none of
     it.
+  - Render `docker compose config` with the real secrets file only into a pipe, never to a file: compose copies
+    `env_file` values into the rendered `environment`. (The prepare stage once wrote it to a file and deleted it:
+    `.hq/scratch/w2-run/state/prepare-2.json`, `notes[1]`.)
   - Nothing reads a file named `.env`.
 - **The API key.** `make_key.py` creates it over HTTP inside the server. It is piped into the runner's tmpfs
   (`/run/rf/key`, mode 0700), so it never touches the host disk. It dies with the runner and with MySQL's
@@ -482,10 +486,32 @@ follows no redirect, and only loopback http (and `ragbench-rf-tei` for TEI's `/i
   - uploads the 22 files in one multipart request, one `file` part each, and checks the names, the sizes and
     the pipeline id of the 22 documents created;
   - starts the parse with `POST /datasets/<id>/documents/parse`.
-- **`wait`** polls the document list (every 30 s by default). It prints one progress line per poll, and one
-  line when a document finishes or fails, with the last line of its progress message, redacted and cut at 200
-  characters. When every document has stopped, the failed ones alone are parsed again, at most twice. It
-  blocks until all 22 are `DONE`, or fails after `--max-wait` (12 h by default; run it again to keep waiting).
+- **`wait`** polls the document list (every 30 s by default). It prints one progress line per poll, ending
+  `settled <n>`, and one line each time a finished or failed document's run or chunk count changes; for a
+  failure, that line ends with the last line of its progress message, redacted and cut at 200 characters. When
+  every document has stopped and some failed, the failed ones alone are parsed again, at most twice.
+  - **It blocks until all 22 have settled** (`unsettled()`): the run is `DONE`, `chunk_count` is a whole
+    number above 0, and the previous poll read the same run and count. `DONE` alone is not enough. With a
+    pipeline canvas, v0.27.3 sets the task to 1.0 when the Tokenizer finishes (rag/flow/pipeline.py:107-125),
+    `_sync_progress` then marks the document `DONE` (api/db/services/document_service.py:1162-1180), and
+    `chunk_count` is raised only after the insert into the store
+    (rag/svr/task_executor_refactor/dataflow_service.py:161-181). The Elasticsearch run saw
+    «maritime-commerce.md: DONE, 0 chunks», then 386 chunks 30 s later. The earlier rule (every document
+    `DONE`) could record 0 for the last document (a pipeline document has one task, whose count is raised once,
+    by all its chunks: dataflow_service.py:179), and `dump` would then refuse, or write a manifest one law
+    short. A document settles one poll after the first read of its final count: two polls after `DONE` in the
+    0, then 386 case.
+  - It fails after `--max-wait` (12 h by default; run it again to keep waiting), naming each document that is
+    `DONE` but not settled, and why: `<count> chunks` (0, none, negative or not a whole number),
+    `count still changing: 100 -> 386`, or `DONE since the last poll only`.
+  - A document that stays `DONE` with 0 chunks can never settle, so it holds `wait` for the whole `--max-wait`.
+    v0.27.3 leaves such a document at 0 when the pipeline's output is empty (dataflow_service.py:127-131 and
+    :140-142 return before the count) or when the count update fails (:178-181 log it, and :183 still sets the
+    task to 1.0). If the progress lines read `done 22 … settled 21` for many polls, look at that document in the
+    server log and stop `wait` by hand.
+  - Settling needs a second poll and the timeout is checked after every poll, so `--max-wait 0`, or one shorter
+    than the first listing takes, fails even on a finished dataset (the earlier rule returned at the first poll).
+  - `all` runs the same `wait()` as the `wait` step (`main()`), so the rule holds on both paths.
 - **`dump`** lists every chunk of every document, in pages of 100 (the REST maximum). It keeps each chunk id
   once, and needs the unique count to equal the listing's total, the document's `chunk_count` and the count at
   the end of the parse; a listing that does not add up is listed again, up to 3 times. It then checks the
@@ -626,7 +652,7 @@ It compares `predicted-chunks.jsonl` with `chunks.jsonl`, per law and in total.
 
 The tests run with the same command as the generator's tests above. Nothing here contacts another host.
 
-- **`tests/test_rf_ingest.py`** (62 tests) runs rf_ingest.py against `tests/fake_ragflow_w2.py`, a local fake of
+- **`tests/test_rf_ingest.py`** (76 tests) runs rf_ingest.py against `tests/fake_ragflow_w2.py`, a local fake of
   the v0.27.3 routes, whose shapes are cited in its docstring. The fake has one setting per answer that
   rf_ingest.py checks, so each check has a test in which that answer is wrong.
   - **Routes.** The routes and their order. The canvas imported as it is, as a dataflow canvas. The dataset
@@ -638,6 +664,18 @@ The tests run with the same command as the generator's tests above. Nothing here
   - **Polling.** Only a failed document parsed again. Giving up after two rounds, with no manifest. Progress
     lines. `wait` and `dump` re-run from the state file. An unstable listing listed again, and one that never
     adds up writing nothing.
+  - **Settling** (the fake's `chunk_count_steps`: a document `DONE` before its count is set). A document `DONE`
+    with 0 chunks for one poll, then 386, is recorded as 386, through `all` and through the `wait` step; 0 read
+    on two polls is not settled; a count rising 100, 386, 386 is recorded as 386; the progress line counts the
+    settled ones (0, 21, 22). A document that stays `DONE` with 0 chunks, beside one whose count keeps rising,
+    fails after `--max-wait` naming both and why, with no chunk listed. As before: all `DONE` and stable from
+    the start, and a failure parsed again alone; a document still settling is not parsed again with a failed
+    one. A `chunk_count` that is not a number (`"n/a"`) for one poll is waited out, not a crash.
+    `unsettled()` itself: only `DONE` with a whole count above 0 (386, and 1), read the same on the previous
+    poll, settles (not after `RUNNING` or `FAIL` with the same count, not a count falling 400 to 386, not 386 or
+    1 after `386.0` or `True`, not `True`, `386.0`, `"386"`, 0, -1 or none). A document that leaves `DONE`
+    (another client parses it again) and comes back with its old count settles only on the poll after: a
+    scripted listing (`PreviousPoll`), since the fake has no such read.
   - **Refusals.** 21 files; an unlisted `.md`; changed bytes; another canvas; a component outside the chain;
     the chain out of order; another `file_shape`; a file name that is not a slug; a file without its title
     line; a used out folder; an out folder not named after the engine; another engine; a TEI revision that is
@@ -703,7 +741,9 @@ The tests run with the same command as the generator's tests above. Nothing here
     that is not the approved patch (the fixture's sha256), or one whose wait is 600.
 
 On 2026-11-08 these 132 tests, and the whole folder's suite with the generator's tests (176), passed on the
-host (Python 3.11.9, the Git Bash command above).
+host (Python 3.11.9, the Git Bash command above). On 2026-11-09, after the settle fix (`wait` above), these
+144 and the folder's 188 passed the same way (`.hq/scratch/w2-stage4/waitfix/suites-2.txt`). After the stage-4
+review's fixes, these 146 and the folder's 190 passed (`.hq/scratch/w2-stage4/fix1/suites.txt`).
 
 **What the tests catch, measured with a list chosen by a reviewer, not by the builder.** An earlier version of
 this section reported «21 of 21 mutations killed». That was true of a list the builder chose, and it did not
@@ -732,6 +772,24 @@ the folder per mutation, never the worktree), measures it instead:
   survivor of its first run, the diff's line numbers, killed after its check was made independent:
   `mutate-new-2.txt`). A mistyped `APPROVED` is caught only by the test on the real v0.27.3 file, which these
   copies skip; that test ran in the real suite.
+- **The settle fix, 2026-11-09.** A list chosen by the builder, not a reviewer, so it shows that each part of
+  the rule has a test, not how much the suite covers: `.hq/scratch/w2-stage4/waitfix/mutate.py`, 13 mutations
+  of rf_ingest.py's settle rule, one copy of the folder each, run against all of `tests/test_rf_ingest.py`.
+  All 13 are killed (`mutate.txt`): the `> 0` check dropped or made `>= 0`; `True` taken as a whole number; the
+  stability check dropped, or reduced to the count alone, or to the run alone; `previous` updated before it is
+  compared; the old rule (every document `DONE`); the re-parse without its `failed` guard, or extended to the
+  documents still settling; the progress line counting `DONE`; the timeout message without its list; a reason
+  swapped. Comparing the count without the run is caught only by the `unsettled()` tests: the fake has no
+  `RUNNING` read that already holds the final count. The tests' run before the fix: `red.txt` (6 failures,
+  14 errors, the `as before` tests passing); after it: `green.txt`.
+- **The stage-4 review, 2026-11-09.** The reviewer's list (`.hq/scratch/w2-stage4/review1-code/mutate_review.py`,
+  14 mutations, two of them controls) killed 5. Three survivors touched the settle rule: a falling count taken
+  as stable, a count of 1 not settled, and `previous` kept for `DONE` documents only. New tests kill them. The
+  same list with three mutations of this stage's changes added (`.hq/scratch/w2-stage4/fix1/mutate_fix1.py`)
+  kills 11 of 17 (`mutate.txt`). The 6 survivors: the re-parse waiting until the others settle (acceptable
+  either way); a reason's exact text; and four checks older than the fix, with no test yet: the timeout at
+  `>=`, `sleep(0)`, the `seen` reset after a re-parse, and `dump` taking any count that is not none. The tests'
+  run before this stage's code changes: `fix1/red.txt` (2 failures, 1 error); after them: `fix1/green.txt`.
 
 Each of these files is outside the repository.
 
@@ -1113,6 +1171,8 @@ Check:
   shows those two lines and no other.
 - The pins file names `$RUN/patch` (a path with a space needs no quotes there; checked with `docker compose
   config`). From here on the server cannot start without it.
+- That render holds the real secrets: send it only into a pipe, never to a file, because compose copies
+  `env_file` values into the rendered `environment` («## The sealed stack», «Secrets»).
 
 ### E. One run (first Elasticsearch, then Infinity on a fresh stack)
 
@@ -1139,6 +1199,9 @@ Check: repeat `ps` until `ragbench-rf-server` is `running healthy` (its start pe
 - `up -d` recreates a container only when its own service definition changed. On 2026-11-08, after the TEI-wait
   change to compose.yaml, `docker compose config --hash` of tei, es01, mysql, minio and redis equalled the
   running containers' `com.docker.compose.config-hash` labels, so the TEI that is already warm is kept.
+- `config --hash`, `config --services` and `config --quiet` print no values. A full render (`config`,
+  `config --format json`) made with the real secrets file holds its values, so send it only into a pipe, never
+  to a file: compose copies `env_file` values into the rendered `environment`.
 
 **E2. Isolation checks.**
 
@@ -1217,6 +1280,15 @@ docker exec ragbench-rf-server /ragflow/.venv/bin/python -B /w2/check_tei_wait.p
 Check: exit 0, and the last line is `wrote <n> chunks to chunks.jsonl and w2-manifest.json …`. The log holds
 `TEI-wait patch: rag/llm/embedding_model.py lines [1247, 1253], wait 900 s, patched sha256 90f3a20d…`. The check
 after the ingest ends `TEI WAIT LOADED` again: the mounted bytes did not change during it.
+- `all` runs straight through. Its `wait` returns only when every document has settled (rf_ingest.py above:
+  `DONE`, a chunk count above 0, the same on two polls), so the last progress line before `parse done for every
+  document` ends `settled 22`. The manual stop is no longer needed.
+- The two runs of 2026-11-08 predate this fix and waited for the server by hand. Elasticsearch stopped `all`
+  with SIGTERM between two polls, then ran `wait` and `dump` once the server log held 22 «handle_task done»
+  lines (`.hq/scratch/w2-run/state/run-es.json`, `steps.e5_interrupt_all`). Infinity ran `create`, the same log
+  watch, then `wait` and `dump` (`run-infinity.json`). Both waited with `--max-reparse 0`, a recorded deviation
+  (`run-es.json`, `deviations_from_runbook`): the default 2 parses a failed document again on its own. This
+  runbook has no command that counts those lines, and none is added: the settle rule is the check.
 
 **E6. The gate: ALL MATCH before any query.**
 
@@ -1317,7 +1389,8 @@ grep -x ragbench-cargo "$RUN/state/after-volumes.txt"
 Check:
 - Every «gone» list is empty, and so is every «of ours left» list. `ragbench-cargo` is still listed.
 - Other sessions may add things meanwhile, so the test is that nothing pre-existing went missing, not that the
-  lists are equal. If a «gone» line appears, it was not ours (every command above matches `^ragbench-rf-`), and
+  lists are equal. If a «gone» line appears, it was not ours (`down` is scoped by the compose project
+  `ragbench-rf`, and every other command above matches `^ragbench-rf-`), and
   `docker events --since <start> --filter event=destroy` shows who removed it.
 - Never run `docker system prune`, `docker volume prune`, `docker network prune`, or any cleanup matching
   `ragbench` without `-rf-`.
