@@ -1,7 +1,8 @@
 """score_w1.py: the mapping rule, the candidate restriction, the budget, the scopes, the bootstrap, the self-check.
 
 Most tests use small invented Arabic fixtures. The tests marked «real data» load our library and the recorded
-arms; they need the bench folder (.hq/scratch/rag-bench) and p3-evidence/eval-final.json."""
+arms; they need p3-evidence/eval-final.json, the split, and every arm's and the strata's source (the durable
+p3-evidence copies, else the bench folder .hq/scratch/rag-bench)."""
 
 import contextlib
 import dataclasses
@@ -36,7 +37,7 @@ TEXTS = {
     EMPTY: '—',  # no token
 }
 MAPPER = s.Mapper(TEXTS)
-REAL_DATA = s.BENCH.is_dir() and s.BASELINE.is_file()
+REAL_DATA = s.BASELINE.is_file() and s.SPLIT.is_file() and not s.missing_sources()
 
 
 def maps(text: str) -> tuple:
@@ -194,7 +195,7 @@ class CandidateRestrictionTests(unittest.TestCase):
             mapped += len(full)
         self.assertGreater(mapped, checked)  # the corpus is not trivial: chunks do map articles
 
-    @unittest.skipUnless(REAL_DATA, 'real data: the bench folder or eval-final.json is missing')
+    @unittest.skipUnless(REAL_DATA, 'real data: eval-final.json, the split or a source is missing')
     def test_the_index_maps_exactly_what_a_full_scan_maps_on_our_library(self):
         context = real_context()
         keys = sorted(context.texts)
@@ -531,7 +532,7 @@ class SentTextTests(unittest.TestCase):
         self.assertEqual(('query', 'question'), (query['field'], question['field']))
 
 
-@unittest.skipUnless(REAL_DATA, 'real data: the bench folder or eval-final.json is missing')
+@unittest.skipUnless(REAL_DATA, 'real data: eval-final.json, the split or a source is missing')
 class RealDataTests(unittest.TestCase):
     UNDER_HALF = ['civil-code-01', 'civil-code-02', 'civil-code-memo-03', 'majalla-01', 'majalla-03', 'penal-code-02',
                   'penal-code-07', 'penal-code-08', 'civil-procedure-01', 'civil-procedure-03', 'criminal-procedure-02',
@@ -637,9 +638,28 @@ def w2_manifest(**changes) -> dict:
              'ragflow_version': 'v0.27.3', 'ragflow_image_digest': 'sha256:' + '1' * 64,
              'dataset_id': W2_DATASET, 'language': 'English', 'document_count': 22, 'chunk_count': 6600,
              'predicted_chunk_count': 6600, 'all_match': True, 'canvas_sha256': s.DECIDING['canvas_sha256'],
-             'upload_manifest_sha256': '3' * 64, 'file_shape': 'slug-title-served-v1', 'embedding_batch_size': 4}
+             'upload_manifest_sha256': '3' * 64, 'file_shape': 'slug-title-served-v1', 'embedding_batch_size': 4,
+             'max_concurrent_tasks': 1, 'tei_wait_patch': tei_wait_patch()}
     value.update(changes)
     return value
+
+
+TEI_WAIT_DIFF = ('--- a/rag/llm/embedding_model.py\n+++ b/rag/llm/embedding_model.py\n@@ -1244,13 +1244,13 @@\n'
+                 '     def encode(self, texts: list):\n'
+                 '-        response = requests.post(url, json={"inputs": texts}, timeout=30)\n'
+                 '+        response = requests.post(url, json={"inputs": texts}, timeout=900)\n'
+                 ' \n'
+                 '     def encode_queries(self, text: str):\n'
+                 '-        response = requests.post(url, json={"inputs": text}, timeout=30)\n'
+                 '+        response = requests.post(url, json={"inputs": text}, timeout=900)\n')
+
+
+def tei_wait_patch(**changes) -> dict:
+    """The manifest's tei_wait_patch, as rf_ingest.py writes it from patch_tei_wait.py's patch.json and diff: the
+    approved patch."""
+    return {'file': 'rag/llm/embedding_model.py', 'image_sha256': s.W2_TEI_WAIT_APPROVED['image_sha256'],
+            'patched_sha256': s.W2_TEI_WAIT_APPROVED['patched_sha256'], 'changed_lines': [1247, 1253], 'wait_s': 900,
+            'diff': TEI_WAIT_DIFF, **changes}
 
 
 def own_chunk(rank: int, **changes) -> dict:
@@ -839,7 +859,42 @@ class OwnRunGateTests(OwnRunCase):
                   'a canvas sha that is not hex': (w2_manifest(canvas_sha256='G' * 64), '"canvas_sha256"'),
                   'a short upload manifest sha': (w2_manifest(upload_manifest_sha256='3' * 63),
                                                   '"upload_manifest_sha256"'),
-                  'a batch size of 0': (w2_manifest(embedding_batch_size=0), '"embedding_batch_size"')}
+                  'a batch size of 0': (w2_manifest(embedding_batch_size=0), '"embedding_batch_size"'),
+                  'a stage-2 manifest without the TEI-wait fields': (
+                      {k: v for k, v in w2_manifest().items() if k not in ('tei_wait_patch', 'max_concurrent_tasks')},
+                      'missing keys: max_concurrent_tasks, tei_wait_patch'),
+                  'a concurrency of 0': (w2_manifest(max_concurrent_tasks=0), '"max_concurrent_tasks"'),
+                  'a concurrency given as text': (w2_manifest(max_concurrent_tasks='1'), '"max_concurrent_tasks"'),
+                  'the whole patch.json, anchors included': (
+                      w2_manifest(tei_wait_patch={**tei_wait_patch(), 'anchors': []}), '"tei_wait_patch" must hold'),
+                  'a patch of another file': (w2_manifest(tei_wait_patch=tei_wait_patch(file='rag/llm/chat_model.py')),
+                                              '"tei_wait_patch.file"'),
+                  'the shipped wait': (w2_manifest(tei_wait_patch=tei_wait_patch(wait_s=30)), '"tei_wait_patch.wait_s"'),
+                  'a wait given as text': (w2_manifest(tei_wait_patch=tei_wait_patch(wait_s='900')),
+                                           '"tei_wait_patch.wait_s"'),
+                  'a patched sha that is not hex': (w2_manifest(tei_wait_patch=tei_wait_patch(patched_sha256='Z' * 64)),
+                                                    '"tei_wait_patch.patched_sha256"'),
+                  'an image sha with a newline': (
+                      w2_manifest(tei_wait_patch=tei_wait_patch(image_sha256='4' * 64 + '\n')),
+                      '"tei_wait_patch.image_sha256"'),
+                  'a patch that changed nothing': (
+                      w2_manifest(tei_wait_patch=tei_wait_patch(patched_sha256=s.W2_TEI_WAIT_APPROVED['image_sha256'])),
+                      'nothing was changed'),
+                  'one changed line': (w2_manifest(tei_wait_patch=tei_wait_patch(changed_lines=[1247])),
+                                       '"tei_wait_patch.changed_lines"'),
+                  'a patch without its diff': (
+                      w2_manifest(tei_wait_patch={k: v for k, v in tei_wait_patch().items() if k != 'diff'}),
+                      '"tei_wait_patch" must hold'),
+                  'a diff of another file': (
+                      w2_manifest(tei_wait_patch=tei_wait_patch(diff=TEI_WAIT_DIFF.replace('embedding_model', 'chat_model'))),
+                      '"tei_wait_patch.diff" must be the unified diff'),
+                  'a diff that is not text': (w2_manifest(tei_wait_patch=tei_wait_patch(diff=None)),
+                                              '"tei_wait_patch.diff" must be the unified diff'),
+                  'a diff of another wait than the record\'s': (w2_manifest(tei_wait_patch=tei_wait_patch(wait_s=600)),
+                                                                '"tei_wait_patch.diff" must change only'),
+                  'a diff that changes a third line': (
+                      w2_manifest(tei_wait_patch=tei_wait_patch(diff=TEI_WAIT_DIFF + '-    x = 1\n+    x = 2\n')),
+                      '"tei_wait_patch.diff" must change only')}
         for name, (manifest, message) in broken.items():
             with self.subTest(name):
                 self.run.write(self.run.own_header(), [own_line()], manifest=manifest)
@@ -1021,16 +1076,34 @@ class SplitTests(unittest.TestCase):
             with self.assertRaisesRegex(Refused, 'neither the durable copy .* nor the bench\'s'):
                 s.resolve_split(None, Path(tmp) / 'bench')
 
-    def test_without_the_bench_folder_the_command_refuses_naming_the_bench_only_files(self):
-        # A0q's rows and the strata's query terms have no durable copy (README, «The bench folder is still needed»).
+    def test_without_the_durable_copies_or_the_bench_folder_the_command_refuses_naming_each_file(self):
         err = io.StringIO()
         with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stderr(err), \
-                contextlib.redirect_stdout(io.StringIO()):
+                contextlib.redirect_stdout(io.StringIO()), mock.patch.dict(s.DURABLE, clear=True):
             code = s.main(['--self-check', '--bench', str(Path(tmp) / 'bench')])
 
         self.assertEqual(2, code)
-        self.assertRegex(err.getvalue(), r'^refused: missing: .*bench/results/perf/pg-rows-question\.jsonl, '
-                                         r'.*bench/data/eval\.jsonl\.')
+        self.assertRegex(err.getvalue(), r'^refused: missing: .*bench/results/rows-round2\.jsonl, '
+                                         r'.*bench/results/perf/pg-rows-question\.jsonl, .*bench/data/eval\.jsonl\.')
+
+    def test_without_the_bench_folder_every_source_has_its_durable_copy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = s.missing_sources(Path(tmp) / 'bench')
+
+        self.assertEqual([], missing)
+
+    def test_the_strata_terms_prefer_the_durable_copy_and_warn_when_it_is_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            durable, bench = Path(tmp) / 'evidence', Path(tmp) / 'bench'
+            durable.mkdir()
+            (durable / 'rag-bench-eval.jsonl').write_text('', encoding='utf-8')
+
+            found = s.strata_source(bench, durable)
+            missing = s.strata_source(bench, Path(tmp) / 'nowhere')
+
+        self.assertEqual((durable / 'rag-bench-eval.jsonl', True, None), found)
+        self.assertEqual((bench / 'data/eval.jsonl', False), missing[:2])
+        self.assertIn('data/eval.jsonl: the durable copy', missing[2])
 
     def test_arm_sources_prefer_the_durable_copy_and_warn_when_it_is_missing(self):
         t_b2 = next(spec for spec in s.ARMS if spec.name == 'T-B2')
@@ -1039,15 +1112,19 @@ class SplitTests(unittest.TestCase):
             durable, bench = Path(tmp) / 'evidence', Path(tmp) / 'bench'
             durable.mkdir()
             (durable / 'rag-bench-rows-round2.jsonl').write_text('', encoding='utf-8')
+            (durable / 'rag-bench-pg-rows-question.jsonl').write_text('', encoding='utf-8')
 
             found = s.arm_source(t_b2, bench, s.BASELINE, durable)
             missing = s.arm_source(t_b2, bench, s.BASELINE, Path(tmp) / 'nowhere')
-            bench_only = s.arm_source(a0q, bench, s.BASELINE, durable)
+            a0q_found = s.arm_source(a0q, bench, s.BASELINE, durable)
+            a0q_missing = s.arm_source(a0q, bench, s.BASELINE, Path(tmp) / 'nowhere')
 
         self.assertEqual((durable / 'rag-bench-rows-round2.jsonl', True, None), found)
         self.assertEqual((bench / 'results/rows-round2.jsonl', False), missing[:2])
         self.assertIn('the durable copy', missing[2])
-        self.assertEqual((bench / 'results/perf/pg-rows-question.jsonl', False, None), bench_only)
+        self.assertEqual((durable / 'rag-bench-pg-rows-question.jsonl', True, None), a0q_found)
+        self.assertEqual((bench / 'results/perf/pg-rows-question.jsonl', False), a0q_missing[:2])
+        self.assertIn('results/perf/pg-rows-question.jsonl: the durable copy', a0q_missing[2])
 
     def test_t_b2_s_source_for_the_deciding_gate_is_the_file_arm_source_picks(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1273,7 +1350,7 @@ class W2DecisionTests(unittest.TestCase):
 def own_context(items: list, ranked: dict, halves: dict) -> s.Context:
     sources = {'arms': {'T-B2': {'path': 'p3/rows.jsonl', 'sha256': s.T_B2_ROWS_SHA256, 'durable': True}},
                'split': {'path': 'p3/split.json', 'sha256': s.SPLIT_SHA256, 'pinned': True},
-               'strata_terms': {'path': 'bench/eval.jsonl', 'sha256': '0' * 64, 'durable': False}}
+               'strata_terms': {'path': 'p3/eval.jsonl', 'sha256': '0' * 64, 'durable': True}}
     return s.Context(DECISION_TEXTS, items, 'set', 'corpus', [arm('T-B2', 'query', ranked)],
                      {i.id: {'stratum': 'half'} for i in items}, DECISION_MAPPER, {k[0] for k in DECISION_TEXTS},
                      halves, sources, [])
@@ -1283,13 +1360,14 @@ class OwnRunScoringTests(OwnRunCase):
     ITEMS = B_ITEMS[:4]  # lease-law-01 to -04
     HALVES = {'lease-law-01': 'A', 'lease-law-02': 'A', 'lease-law-03': 'B', 'lease-law-04': 'B'}
 
-    def scored(self, fallback: dict | None = None, embedding_model: str | None = None) -> tuple:
+    def scored(self, fallback: dict | None = None, embedding_model: str | None = None,
+               manifest: dict | None = None) -> tuple:
         rows = [own_line(item.id, 'query', item.query, chunks=[own_chunk(1, content=TEXTS[LEASE])])
                 for item in self.ITEMS]
         head = self.run.own_header()
         if embedding_model is not None:
             head['datasets'][0]['embedding_model'] = embedding_model
-        self.run.write(head, rows, manifest=w2_manifest())
+        self.run.write(head, rows, manifest=w2_manifest() if manifest is None else manifest)
         run, results = self.run.open()
         if fallback is not None:
             (self.run.folder / 'w2-fallback-v3.json').write_text(json.dumps(fallback), encoding='utf-8')
@@ -1330,8 +1408,30 @@ class OwnRunScoringTests(OwnRunCase):
         self.assertTrue(text.startswith('# W2 score\n'))
         self.assertIn(f'| dataset id | {W2_DATASET} |', text)
         self.assertIn('## Deciding reading (pre-registered', text)
+        self.assertNotIn('scratch bench', text)  # every source in this fixture is a durable copy
         self.assertIn('## Exploratory (reported, never deciding)', text)
         self.assertIsNone(re.search(r'\b(his|he)\b', text), 'an own run is ours: no wording about Walid\'s corpus')
+
+    def test_the_what_was_run_header_prints_the_tei_wait_patch_and_the_concurrency(self):
+        report, _ = self.scored()
+        text = s.markdown(report)
+
+        self.assertEqual((report['w2_manifest']['tei_wait_patch'], report['w2_manifest']['max_concurrent_tasks']),
+                         (tei_wait_patch(), 1))
+        self.assertIn('| max concurrent tasks | 1 |', text)
+        self.assertIn('| TEI wait patch | `rag/llm/embedding_model.py` lines 1247, 1253: TEI wait 900 s, not 30 '
+                      f'(image file {s.W2_TEI_WAIT_APPROVED["image_sha256"]}, '
+                      f'patched {s.W2_TEI_WAIT_APPROVED["patched_sha256"]}) |', text)
+        self.assertEqual(TEI_WAIT_DIFF, report['w2_manifest']['tei_wait_patch']['diff'])  # the JSON keeps the diff
+
+    def test_a_tei_wait_patch_other_than_the_approved_one_is_warned_about_and_still_decides(self):
+        report, _ = self.scored(manifest=w2_manifest(tei_wait_patch=tei_wait_patch(image_sha256='4' * 64)))
+
+        self.assertEqual(1, len(report['results']['warnings']), report['results']['warnings'])
+        self.assertIn('the TEI-wait patch is not the approved one (image_sha256 not as approved: image file '
+                      'c2e46e1cb5d1', report['results']['warnings'][0])
+        self.assertTrue(report['w2_decision']['deciding_cell'])
+        self.assertIn('**Warning:** the TEI-wait patch is not the approved one', s.markdown(report))
 
     def test_the_outputs_are_w2_score_files_without_chunk_text(self):
         report, _ = self.scored()
@@ -1402,16 +1502,44 @@ class FallbackFileTests(OwnRunCase):
                     s.load_fallback(path, run, results)
 
 
-@unittest.skipUnless(REAL_DATA, 'real data: the bench folder or eval-final.json is missing')
+@unittest.skipUnless(REAL_DATA, 'real data: eval-final.json, the split or a source is missing')
 class RealDataW2Tests(unittest.TestCase):
     def test_the_arms_and_the_split_are_read_from_the_durable_copies(self):
         sources = real_context().sources
 
         self.assertTrue(sources['arms']['T-B2']['path'].endswith('p3-evidence/rag-bench-rows-round2.jsonl'))
         self.assertTrue(sources['arms']['B4q']['durable'])
+        self.assertTrue(sources['arms']['A0q']['path'].endswith('p3-evidence/rag-bench-pg-rows-question.jsonl'))
+        self.assertEqual((True, 'rag-bench-eval.jsonl'), (sources['strata_terms']['durable'],
+                                                          sources['strata_terms']['path'].rsplit('/', 1)[-1]))
+        self.assertTrue(all(arm['durable'] for arm in sources['arms'].values()))
         self.assertEqual((True, {'A': 40, 'B': 40}), (sources['split']['pinned'],
                                                       dict(Counter(real_context().halves.values()))))
         self.assertEqual([], real_context().warnings)
+
+    def test_a_missing_durable_copy_of_the_strata_terms_is_warned_about_from_the_context_to_the_markdown(self):
+        # The bench's copy is read instead, and the report says so: never a silent fallback.
+        with tempfile.TemporaryDirectory() as tmp:
+            durable, bench = Path(tmp) / 'evidence', Path(tmp) / 'bench'
+            durable.mkdir()
+            for name in set(s.DURABLE.values()) - {'rag-bench-eval.jsonl'}:
+                (durable / name).write_bytes((s.EVIDENCE / name).read_bytes())
+            (bench / 'data').mkdir(parents=True)
+            (bench / 'data' / 'eval.jsonl').write_bytes((s.EVIDENCE / 'rag-bench-eval.jsonl').read_bytes())
+            context = s.load_context(bench, durable=durable)
+            run = OwnRunFolder(Path(tmp))
+            run.write(run.own_header(), real_own_rows(), manifest=w2_manifest())
+
+            report = s.score_own_run(*run.open(), context)
+            text = s.markdown(report)
+
+        self.assertEqual(1, len(context.warnings), context.warnings)
+        warning = context.warnings[0]
+        self.assertTrue(warning.startswith('data/eval.jsonl: the durable copy '), warning)
+        self.assertIn('rag-bench-eval.jsonl is missing; read from the bench folder instead', warning)
+        self.assertEqual([warning], report['source_warnings'])
+        self.assertIn(f'**Warning (sources):** {warning}.', text)
+        self.assertIn(', scratch bench)', text)  # the strata terms' entry in the Sources line
 
     def test_half_b_in_the_split_s_order_gives_back_the_bench_s_published_interval(self):
         # PROOF-rag-bench.md §1: B2 against Postgres, MRR on half B, +0.132 [+0.019, +0.248] (py/report.py

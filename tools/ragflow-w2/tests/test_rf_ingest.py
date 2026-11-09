@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import email.parser
 import email.policy
+import functools
 import hashlib
 import importlib.util
 import io
@@ -29,10 +30,44 @@ _spec.loader.exec_module(rf_ingest)
 ENGINE = 'elasticsearch'
 DIGEST = 'sha256:' + 'ab' * 32
 ENV = {'W2_DOC_ENGINE': ENGINE, 'W2_TEI_MODEL': 'Qwen/Qwen3-Embedding-0.6B', 'W2_TEI_REVISION': 'c' * 40,
-       'W2_EMBEDDING_BATCH_SIZE': '4', 'W2_RAGFLOW_IMAGE': f'infiniflow/ragflow:v0.27.3@{DIGEST}'}
+       'W2_EMBEDDING_BATCH_SIZE': '4', 'W2_MAX_CONCURRENT_TASKS': '1',
+       'W2_RAGFLOW_IMAGE': f'infiniflow/ragflow:v0.27.3@{DIGEST}'}
 CONTRACT_KEYS = {'w2', 'created_at', 'engine', 'embedder', 'ragflow_version', 'ragflow_image_digest', 'dataset_id',
                  'language', 'document_count', 'chunk_count', 'predicted_chunk_count', 'all_match', 'canvas_sha256',
-                 'upload_manifest_sha256', 'file_shape', 'embedding_batch_size'}
+                 'upload_manifest_sha256', 'file_shape', 'embedding_batch_size', 'max_concurrent_tasks',
+                 'tei_wait_patch'}
+_spec = importlib.util.spec_from_file_location('patch_tei_wait', TOOL_DIR / 'patch_tei_wait.py')
+patch_tei_wait = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(patch_tei_wait)
+
+
+@functools.lru_cache(maxsize=None)
+def tei_wait_fixture(wait: int = 900) -> tuple[bytes, str]:
+    """(patched file, diff text) as patch_tei_wait.py writes them, for a small source whose two anchors sit on
+    lines 1247 and 1253, as in v0.27.3."""
+    encode, queries = (anchor for _, anchor in patch_tei_wait.ANCHORS)
+    lines = [f'# filler line {n}' for n in range(1, 1237)] + [
+        'class HuggingFaceEmbed:', *(f'    setting_{n} = None' for n in range(1238, 1246)),
+        '    def encode(self, texts: list):', encode, '        return response', '', '',
+        '', '    def encode_queries(self, text: str):', queries, '        return response', '']
+    with tempfile.TemporaryDirectory() as tmp:
+        source = Path(tmp) / 'embedding_model.py'
+        source.write_bytes('\n'.join(lines).encode('utf-8'))
+        built = patch_tei_wait.build(source, wait)
+    assert built['record']['changed_lines'] == [1247, 1253], built['record']
+    return built['patched'], built['diff'].decode('utf-8')
+
+
+PATCHED, DIFF = tei_wait_fixture()
+
+
+def patch_record(patched: bytes = PATCHED, **changes) -> dict:
+    """patch.json as patch_tei_wait.py writes it, for the file `patched`."""
+    record = {'file': 'rag/llm/embedding_model.py', 'image_sha256': 'd' * 64,
+              'patched_sha256': hashlib.sha256(patched).hexdigest(), 'changed_lines': [1247, 1253], 'wait_s': 900,
+              'anchors': [{'method': 'encode', 'line': 1247, 'before': '...', 'after': '...'}]}
+    record.update(changes)
+    return record
 
 
 def canvas_dsl() -> dict:
@@ -73,6 +108,14 @@ class Base(unittest.TestCase):
         self.write_manifest()
         self.key_file = root / 'key'
         self.key_file.write_text(API_KEY + '\n', encoding='utf-8')
+        self.patch_dir = root / 'patch'
+        self.patch_dir.mkdir()
+        self.write_patch()
+
+    def write_patch(self, patched: bytes = PATCHED, diff: str = DIFF, **changes):
+        (self.patch_dir / 'embedding_model.py').write_bytes(patched)
+        (self.patch_dir / 'embedding_model.diff').write_bytes(diff.encode('utf-8'))
+        (self.patch_dir / 'patch.json').write_text(json.dumps(patch_record(patched, **changes)), encoding='utf-8')
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -88,6 +131,8 @@ class Base(unittest.TestCase):
                 '--api-key-file', str(self.key_file)]
         if step in ('create', 'all'):
             argv += ['--canvas', str(self.canvas), '--in-dir', str(self.in_dir), '--upload-manifest', str(self.manifest)]
+        if step in ('create', 'dump', 'all'):
+            argv += ['--tei-wait-patch', str(self.patch_dir / 'patch.json')]
         if step != 'preflight':
             argv += ['--out', str(self.out)]
         out = io.StringIO()
@@ -196,6 +241,18 @@ class Results(Base):
                           m['dataset_id'], m['language'], m['ragflow_version']),
                          (ENGINE, {'name': 'Qwen/Qwen3-Embedding-0.6B', 'revision': 'c' * 40, 'via': 'builtin-tei'},
                           DIGEST, 4, next(iter(fake.datasets)), 'English', 'v0.27.3'))
+
+    def test_the_manifest_records_the_tei_wait_patch_and_the_concurrency(self):
+        with FakeRagflowW2() as fake:
+            code, out = self.run_tool(fake, env=dict(ENV, W2_MAX_CONCURRENT_TASKS='2'))
+
+        self.assertEqual(code, 0, out)
+        m = json.loads((self.out / 'w2-manifest.json').read_text(encoding='utf-8'))
+        record = patch_record()
+        self.assertEqual(m['tei_wait_patch'], {**{k: record[k] for k in ('file', 'image_sha256', 'patched_sha256',
+                                                                           'changed_lines', 'wait_s')}, 'diff': DIFF})
+        self.assertEqual(list(m['tei_wait_patch']), list(rf_ingest.TEI_WAIT_KEYS))
+        self.assertEqual(m['max_concurrent_tasks'], 2)
 
 
 class Polling(Base):
@@ -572,6 +629,102 @@ class TheKey(Base):
             code, _ = self.run_tool(fake)
 
         self.refused_before_sending(fake, code)
+
+
+class TeiWaitPatch(Base):
+    def test_a_wait_that_is_not_a_whole_number_above_30_is_refused(self):
+        for wait in ('900', 30, 29, True, 900.0, None):
+            with self.subTest(wait=wait):
+                self.write_patch(wait_s=wait)
+                with FakeRagflowW2() as fake:
+                    code, out = self.run_tool(fake)
+
+                self.refused_before_sending(fake, code)
+                self.assertIn('wait_s must be a whole number above 30', out)
+
+    def test_a_sha_that_is_not_64_hex_is_refused(self):
+        for name, value in (('image_sha256', 'D' * 64), ('image_sha256', 'd' * 63), ('patched_sha256', 'x' * 64),
+                            ('patched_sha256', 12)):
+            with self.subTest(name=name, value=value):
+                self.write_patch(**{name: value})
+                with FakeRagflowW2() as fake:
+                    code, out = self.run_tool(fake)
+
+                self.refused_before_sending(fake, code)
+                self.assertIn(f'{name} must be 64 lower-case hex characters', out)
+
+    def test_a_record_that_does_not_describe_the_file_beside_it_is_refused(self):
+        self.write_patch()
+        (self.patch_dir / 'embedding_model.py').write_bytes(PATCHED + b'# changed after patching\n')
+        with FakeRagflowW2() as fake:
+            code, out = self.run_tool(fake)
+
+        self.refused_before_sending(fake, code)
+        self.assertIn('does not have its patched_sha256', out)
+
+    def test_a_record_of_another_file_or_of_no_change_is_refused(self):
+        for changes, words in (({'file': 'rag/llm/chat_model.py'}, 'file must be'),
+                               ({'image_sha256': hashlib.sha256(PATCHED).hexdigest()}, 'nothing was changed'),
+                               ({'changed_lines': [1247]}, 'changed_lines must be two'),
+                               ({'changed_lines': [1253, 1247]}, 'changed_lines must be two line numbers, in order')):
+            with self.subTest(words):
+                self.write_patch(**changes)
+                with FakeRagflowW2() as fake:
+                    code, out = self.run_tool(fake)
+
+                self.refused_before_sending(fake, code)
+                self.assertIn(words, out)
+
+    def test_a_diff_that_is_missing_or_not_the_diff_of_the_change_is_refused(self):
+        moved = re.sub(r'^@@ -(\d+)', lambda m: f'@@ -{int(m.group(1)) + 1}', DIFF, count=1, flags=re.M)
+        extra = DIFF.replace('\n+', '\n+# an extra added line\n+', 1)
+        cases = {'no diff': None,
+                 'another file named': DIFF.replace('a/rag/llm/embedding_model.py', 'a/rag/llm/chat_model.py', 1),
+                 'the diff of another wait': tei_wait_fixture(600)[1],
+                 'the hunk moved by a line': moved,
+                 'other text on the changed lines': DIFF.replace('"inputs": texts', '"inputs": items'),
+                 'one more added line': extra,
+                 'a blank row inside the hunk': DIFF.replace('\n-', '\n\n-', 1),
+                 'CRLF line ends': DIFF.replace('\n', '\r\n')}
+        for name, diff in cases.items():
+            with self.subTest(name):
+                self.write_patch()
+                if diff is None:
+                    (self.patch_dir / 'embedding_model.diff').unlink()
+                else:
+                    (self.patch_dir / 'embedding_model.diff').write_bytes(diff.encode('utf-8'))
+                with FakeRagflowW2() as fake:
+                    code, out = self.run_tool(fake)
+
+                self.refused_before_sending(fake, code)
+                self.assertIn('embedding_model.diff beside patch.json', out)
+
+    def test_a_concurrency_that_is_not_a_number_from_1_is_refused(self):
+        for value in ('', '0', 'one'):
+            with self.subTest(value=value), FakeRagflowW2() as fake:
+                code, _ = self.run_tool(fake, env=dict(ENV, W2_MAX_CONCURRENT_TASKS=value))
+
+                self.refused_before_sending(fake, code)
+
+    def test_the_patch_is_required_by_create_and_all(self):
+        for step in ('create', 'all'):
+            with self.subTest(step), self.assertRaises(SystemExit), mock.patch('sys.stderr', io.StringIO()):
+                rf_ingest.main([step, '--engine', ENGINE, '--canvas', str(self.canvas), '--in-dir', str(self.in_dir),
+                                '--upload-manifest', str(self.manifest), '--out', str(self.out)],
+                               stdout=io.StringIO(), environ=dict(ENV))
+
+    def test_a_dump_with_another_patch_than_create_recorded_writes_no_manifest(self):
+        with FakeRagflowW2() as fake:
+            self.run_tool(fake, 'create')
+            self.run_tool(fake, 'wait')
+            self.write_patch(*tei_wait_fixture(600), wait_s=600)
+            code, out = self.run_tool(fake, 'dump')
+
+        self.assertEqual(code, 2, out)
+        self.assertIn('differs from the patch «create» recorded', out)
+        self.assertFalse((self.out / 'w2-manifest.json').exists())
+        state = json.loads((self.out / 'ingest-state.json').read_text(encoding='utf-8'))
+        self.assertEqual(state['tei_wait_patch']['wait_s'], 900)
 
 
 if __name__ == '__main__':

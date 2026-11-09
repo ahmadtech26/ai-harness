@@ -17,7 +17,11 @@
 #     driver is `local`, 5 files of 20 MB; `docker logs` reads rotated files with either driver, and only
 #     the span of one query arm must survive until the runbook saves it);
 #   - a runner (python:3.12-slim) shares the server's network namespace: http://127.0.0.1:9380 is the API,
-#     the key lives only in its tmpfs, and it reaches nothing the server cannot.
+#     the key lives only in its tmpfs, and it reaches nothing the server cannot;
+#   - the server imports a copy of rag/llm/embedding_model.py whose two TEI waits are 900 s, not 30 (owner,
+#     2026-11-08 later; README.md, «## TEI wait patch»): patch_tei_wait.py's file, mounted read-only over the
+#     module, and checked in the server's own Python by check_tei_wait.py. ENABLE_TIMEOUT_ASSERTION is set
+#     nowhere, so the @timeout wrappers keep enforcing no limit (common/connection_utils.py:30-60).
 #
 # Interpolation variables (shell or --env-file; none has a secret value):
 #   RF_WS                    workspace root, "D:/Iqraa Law" (Git Bash with MSYS_NO_PATHCONV=1)
@@ -25,7 +29,10 @@
 #   RF_DOC_ENGINE            elasticsearch (profile es) or infinity (profile infinity): exactly one per stack
 #   RF_TEI_MODEL             default Qwen/Qwen3-Embedding-0.6B, the deciding embedder (owner, 2026-11-08)
 #   RF_TEI_REVISION          the Hugging Face commit the model files were fetched at (40 hex)
-#   RF_EMBEDDING_BATCH_SIZE  from the prepare step's probe (tei_probe.py time)
+#   RF_EMBEDDING_BATCH_SIZE  1, written into the pins file by the prepare step (owner, 2026-11-08 later)
+#   RF_TEI_WAIT_DIR          the folder patch_tei_wait.py wrote (embedding_model.py, .diff, patch.json), written
+#                            into the pins file by the prepare step; the server cannot start without it
+#   RF_MAX_CONCURRENT_TASKS  default 1 (owner, 2026-11-08 later); the server and the runner read the same one
 #   RF_PIN_*                 image digests, "sha256:<64 hex>", from the prepare step
 
 name: ragbench-rf
@@ -230,9 +237,26 @@ services:
       # (common/log_utils.py:50-70): the doc-store clients log whole queries and answers at DEBUG
       # (rag/utils/es_conn.py:342, :353), so they stay at INFO, as do the HTTP clients.
       - LOG_LEVELS=root=DEBUG,ragflow.es_conn=INFO,ragflow.infinity_conn=INFO,elastic_transport=INFO,elasticsearch=INFO,urllib3=INFO,httpx=INFO,httpcore=INFO,peewee=WARNING,pdfminer=WARNING
-      - EMBEDDING_BATCH_SIZE=${RF_EMBEDDING_BATCH_SIZE:?run the prepare step (tei_probe.py time)}  # settings.py:517
+      - EMBEDDING_BATCH_SIZE=${RF_EMBEDDING_BATCH_SIZE:?run the prepare step (batch size)}  # settings.py:517
       - MAX_CONCURRENT_CHUNK_BUILDERS=1  # one embedding batch at a time, as the probe timed (task_executor_limiter.py:21-26)
-    volumes:  # read-only inputs for predict_chunks.py and make_key.py; the server writes nothing to the host
+      # One document at a time, so TEI never merges two long requests into one slow batch (task_executor_limiter.py:20,
+      # default 5; owner, 2026-11-08 later). The runner records the same variable in the W2 manifest.
+      - MAX_CONCURRENT_TASKS=${RF_MAX_CONCURRENT_TASKS:-1}
+    volumes:  # read-only inputs for predict_chunks.py, make_key.py and check_tei_wait.py; the server writes nothing to the host
+      # The TEI-wait patch, over the module the image imports: WORKDIR and PYTHONPATH are /ragflow (Dockerfile:275,
+      # :282; `docker image inspect` of the pin), and the code is COPY rag rag (Dockerfile:303), so the module
+      # rag.llm.embedding_model is /ragflow/rag/llm/embedding_model.py. The image ships no .pyc under /ragflow and
+      # sets PYTHONDONTWRITEBYTECODE=1, so no cached byte code can stand in for this file (README, «## TEI wait patch»).
+      - type: bind
+        source: ${RF_TEI_WAIT_DIR:?run the prepare step (patch_tei_wait.py)}/embedding_model.py
+        target: /ragflow/rag/llm/embedding_model.py
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind  # patch.json, for check_tei_wait.py
+        source: ${RF_TEI_WAIT_DIR:?run the prepare step (patch_tei_wait.py)}
+        target: /patch
+        read_only: true
+        bind: { create_host_path: false }
       - type: bind
         source: ${RF_WS:?set RF_WS}/AI Harness-w1/tools/ragflow-w2
         target: /w2
@@ -290,7 +314,8 @@ services:
       - W2_DOC_ENGINE=${RF_DOC_ENGINE:?set RF_DOC_ENGINE}
       - W2_TEI_MODEL=${RF_TEI_MODEL:-Qwen/Qwen3-Embedding-0.6B}
       - W2_TEI_REVISION=${RF_TEI_REVISION:?run the prepare step (model revision)}
-      - W2_EMBEDDING_BATCH_SIZE=${RF_EMBEDDING_BATCH_SIZE:?run the prepare step (tei_probe.py time)}
+      - W2_EMBEDDING_BATCH_SIZE=${RF_EMBEDDING_BATCH_SIZE:?run the prepare step (batch size)}
+      - W2_MAX_CONCURRENT_TASKS=${RF_MAX_CONCURRENT_TASKS:-1}
       - W2_RAGFLOW_IMAGE=infiniflow/ragflow:v0.27.3@${RF_PIN_RAGFLOW:?run the prepare step (pins)}
     volumes:
       - type: bind
@@ -316,6 +341,11 @@ services:
       - type: bind
         source: ${RF_WS:?set RF_WS}/.hq/scratch/w2-run/canvas
         target: /canvas
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind  # patch.json and the patched file, for rf_ingest.py --tei-wait-patch (the W2 manifest)
+        source: ${RF_TEI_WAIT_DIR:?run the prepare step (patch_tei_wait.py)}
+        target: /patch
         read_only: true
         bind: { create_host_path: false }
       - type: bind

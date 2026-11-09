@@ -7,8 +7,10 @@ http://127.0.0.1:9380 and nothing is published. The API key is read from the run
 
   python3 -I -B /w2/rf_ingest.py preflight --engine elasticsearch
   python3 -I -B /w2/rf_ingest.py all --engine elasticsearch --canvas /canvas/indexing-pipeline.json \
-      --in-dir /in --upload-manifest /in/upload-manifest.json --out /out/elasticsearch
-  (or the steps one by one: create, wait, dump; wait and dump can be run again after an interruption)
+      --in-dir /in --upload-manifest /in/upload-manifest.json --tei-wait-patch /patch/patch.json \
+      --out /out/elasticsearch
+  (or the steps one by one: create, wait, dump; wait and dump can be run again after an interruption;
+  create, dump and all take --tei-wait-patch)
 
 What it sends (paths after http://127.0.0.1:9380; v0.27.3 source, .hq/scratch/ragflow-src-v0.27.3/x/):
   GET  /api/v1/system/version     no key    system_api.py:44-63
@@ -46,7 +48,13 @@ Writes into --out (which must be named after the engine): ingest-state.json (ids
 rounds), chunks.jsonl (every stored chunk, one per line) and w2-manifest.json (the W2 contract,
 with all_match false: only w2_check.py sets it). Facts the runner cannot observe come from the
 environment compose.yaml gives it: W2_DOC_ENGINE, W2_TEI_MODEL, W2_TEI_REVISION,
-W2_EMBEDDING_BATCH_SIZE, W2_RAGFLOW_IMAGE.
+W2_EMBEDDING_BATCH_SIZE, W2_MAX_CONCURRENT_TASKS, W2_RAGFLOW_IMAGE. The TEI-wait patch comes from
+--tei-wait-patch, patch_tei_wait.py's patch.json in the folder compose.yaml mounts at /patch for the runner
+and, over the module, for the server (README, «## TEI wait patch»): its five contract fields and the text of
+embedding_model.diff beside it go into the manifest as tei_wait_patch (six keys; the spec puts the diff and both
+sha256 there), after the patched file beside it is checked against patched_sha256 and the diff against the
+changed lines of that file. create records them in the state file, and dump refuses a patch that differs from
+that record.
 
 Exit codes: 0 done, 1 a check failed or the server refused (state kept), 2 refused before sending.
 Standard library only; Python 3.9 or later.
@@ -80,6 +88,16 @@ CANVAS_CHAIN = ('File', 'Parser', 'TitleChunker', 'Tokenizer')
 SLUG_MD = re.compile(r'[a-z0-9][a-z0-9-]*\.md')
 HEX32 = re.compile(r'[0-9a-f]{32}')
 KEY_SHAPE = re.compile(r'ragflow-[A-Za-z0-9_-]{20,}')
+HEX64 = re.compile(r'[0-9a-f]{64}')
+TEI_WAIT_FILE = 'rag/llm/embedding_model.py'   # patch_tei_wait.py FILE
+TEI_WAIT_PATCHED = 'embedding_model.py'        # the patched file, beside patch.json
+TEI_WAIT_DIFF = 'embedding_model.diff'          # its unified diff, beside patch.json (patch_tei_wait.py OUT_DIFF)
+TEI_WAIT_SHIPPED = 30                           # v0.27.3's wait (rag/llm/embedding_model.py:1247, :1253)
+TEI_WAIT_RECORD_KEYS = ('file', 'image_sha256', 'patched_sha256', 'changed_lines', 'wait_s')  # from patch.json
+# The manifest's tei_wait_patch: those five and the diff text (spec, «The change»: «Its diff and both sha256 go in
+# the W2 manifest»).
+TEI_WAIT_KEYS = TEI_WAIT_RECORD_KEYS + ('diff',)
+HUNK = re.compile(r'@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@')
 DONE_RUN, FAIL_RUNS = 'DONE', ('FAIL', 'CANCEL')  # TaskStatus names (common/constants.py:106-112), mapped by
                                                   # document_api_service.py:218-234
 STATE, CHUNKS, MANIFEST = 'ingest-state.json', 'chunks.jsonl', 'w2-manifest.json'
@@ -225,20 +243,111 @@ def tei_get(url: str, *, timeout: float = 30.0) -> dict:
 
 def run_facts(engine: str, environ=os.environ) -> dict:
     facts = {k: environ.get(k, '') for k in
-             ('W2_DOC_ENGINE', 'W2_TEI_MODEL', 'W2_TEI_REVISION', 'W2_EMBEDDING_BATCH_SIZE', 'W2_RAGFLOW_IMAGE')}
+             ('W2_DOC_ENGINE', 'W2_TEI_MODEL', 'W2_TEI_REVISION', 'W2_EMBEDDING_BATCH_SIZE',
+              'W2_MAX_CONCURRENT_TASKS', 'W2_RAGFLOW_IMAGE')}
     if facts['W2_DOC_ENGINE'] != engine:
         raise Refused(f'--engine {engine} differs from W2_DOC_ENGINE {facts["W2_DOC_ENGINE"]!r} '
                       '(the engine compose.yaml started)')
     if not facts['W2_TEI_MODEL'] or not re.fullmatch(r'[0-9a-f]{40}', facts['W2_TEI_REVISION']):
         raise Refused('W2_TEI_MODEL and W2_TEI_REVISION (a 40-hex commit) must be set by compose.yaml')
     if not facts['W2_EMBEDDING_BATCH_SIZE'].isdigit() or not 1 <= int(facts['W2_EMBEDDING_BATCH_SIZE']) <= 64:
-        raise Refused('W2_EMBEDDING_BATCH_SIZE must be a number from 1 to 64 (the prepare probe sets it)')
+        raise Refused('W2_EMBEDDING_BATCH_SIZE must be a number from 1 to 64 (the prepare step sets it)')
+    if not facts['W2_MAX_CONCURRENT_TASKS'].isdigit() or not 1 <= int(facts['W2_MAX_CONCURRENT_TASKS']) <= 64:
+        raise Refused('W2_MAX_CONCURRENT_TASKS must be a number from 1 to 64 (compose.yaml sets it from '
+                      'RF_MAX_CONCURRENT_TASKS, as for the server)')
     digest = re.search(r'@(sha256:[0-9a-f]{64})$', facts['W2_RAGFLOW_IMAGE'])
     if not facts['W2_RAGFLOW_IMAGE'].startswith('infiniflow/ragflow:') or not digest:
         raise Refused('W2_RAGFLOW_IMAGE must be infiniflow/ragflow:<tag>@sha256:<digest>')
     return {'engine': engine, 'model': facts['W2_TEI_MODEL'], 'revision': facts['W2_TEI_REVISION'],
-            'batch_size': int(facts['W2_EMBEDDING_BATCH_SIZE']), 'image': facts['W2_RAGFLOW_IMAGE'],
+            'batch_size': int(facts['W2_EMBEDDING_BATCH_SIZE']),
+            'max_concurrent_tasks': int(facts['W2_MAX_CONCURRENT_TASKS']), 'image': facts['W2_RAGFLOW_IMAGE'],
             'image_digest': digest.group(1)}
+
+
+def _whole(value) -> bool:
+    return type(value) is int
+
+
+def tei_wait_diff_problem(diff: str, patched: list[str], lines: list[int], wait: int) -> str | None:
+    """Why `diff` is not patch_tei_wait.py's diff of this change; None when it is. It must name a/ and b/
+    rag/llm/embedding_model.py, and its only removed and added lines are `lines` (1-based, the same in the old
+    and the new file, since no line is added), each `timeout=30)` becoming `timeout=<wait>)`, each added line
+    equal to the patched file's line of that number."""
+    rows = diff.split('\n')
+    if rows[:2] != [f'--- a/{TEI_WAIT_FILE}', f'+++ b/{TEI_WAIT_FILE}']:
+        return f'it does not name a/{TEI_WAIT_FILE} and b/{TEI_WAIT_FILE}'
+    removed, added, old, new = [], [], None, None
+    for at, row in enumerate(rows[2:], 3):
+        hunk = HUNK.fullmatch(row)
+        if hunk:
+            old, new = int(hunk.group(1)), int(hunk.group(2))
+        elif row == '' and at == len(rows):
+            pass  # after the last line end
+        elif old is None or row[:1] not in (' ', '-', '+'):
+            return f'its line {at} is neither a hunk header nor a context, removed or added line'
+        elif row[0] == '-':
+            removed.append((old, row[1:]))
+            old += 1
+        elif row[0] == '+':
+            added.append((new, row[1:]))
+            new += 1
+        else:
+            old, new = old + 1, new + 1
+    if [n for n, _ in removed] != lines or [n for n, _ in added] != lines:
+        return (f'it removes lines {[n for n, _ in removed]} and adds lines {[n for n, _ in added]}, not exactly '
+                f'the changed lines {lines}')
+    shipped, raised = f'timeout={TEI_WAIT_SHIPPED})', f'timeout={wait})'
+    for (_, before), (n, after) in zip(removed, added):  # n: the added line's number, in the patched file
+        if not (before.endswith(shipped) and after.endswith(raised)
+                and before[:-len(shipped)] == after[:-len(raised)]):
+            return f'line {n} does not change only timeout={TEI_WAIT_SHIPPED} to timeout={wait}'
+        if n > len(patched) or patched[n - 1] != after:
+            return f'its line {n} is not the patched file\'s line {n}'
+    return None
+
+
+def read_tei_wait_patch(path: Path) -> dict:
+    """The five contract fields of patch_tei_wait.py's patch.json, checked, and the diff beside it; the patched
+    file beside it must have the recorded patched_sha256 (it is the folder the server mounts the module from),
+    and the diff must change exactly the recorded lines of that file (tei_wait_diff_problem)."""
+    try:
+        record = json.loads(path.read_bytes().decode('utf-8'))
+    except (OSError, UnicodeDecodeError, ValueError):
+        raise Refused(f'the TEI-wait patch record {path} cannot be read as JSON') from None
+    if not isinstance(record, dict) or not all(k in record for k in TEI_WAIT_RECORD_KEYS):
+        raise Refused(f'{path.name} must hold {", ".join(TEI_WAIT_RECORD_KEYS)} (patch_tei_wait.py writes it)')
+    if record['file'] != TEI_WAIT_FILE:
+        raise Refused(f'{path.name}: file must be {TEI_WAIT_FILE}')
+    if not _whole(record['wait_s']) or record['wait_s'] <= TEI_WAIT_SHIPPED:
+        raise Refused(f'{path.name}: wait_s must be a whole number above {TEI_WAIT_SHIPPED}')
+    for name in ('image_sha256', 'patched_sha256'):
+        if not isinstance(record[name], str) or not HEX64.fullmatch(record[name]):
+            raise Refused(f'{path.name}: {name} must be 64 lower-case hex characters')
+    if record['image_sha256'] == record['patched_sha256']:
+        raise Refused(f'{path.name}: the patched file has the image file\'s sha256, so nothing was changed')
+    lines = record['changed_lines']
+    if not (isinstance(lines, list) and len(lines) == 2 and all(_whole(n) and n > 0 for n in lines)
+            and lines[0] < lines[1]):
+        raise Refused(f'{path.name}: changed_lines must be two line numbers, in order')
+    try:
+        patched = (path.parent / TEI_WAIT_PATCHED).read_bytes()
+    except OSError:
+        raise Refused(f'no {TEI_WAIT_PATCHED} beside {path.name}: the record must sit with the file it '
+                      'describes') from None
+    if sha256_bytes(patched) != record['patched_sha256']:
+        raise Refused(f'the {TEI_WAIT_PATCHED} beside {path.name} does not have its patched_sha256')
+    try:
+        diff = (path.parent / TEI_WAIT_DIFF).read_bytes().decode('utf-8')
+        patched_lines = patched.decode('utf-8').split('\n')
+    except OSError:
+        raise Refused(f'no {TEI_WAIT_DIFF} beside {path.name}: the record must sit with the diff of its '
+                      'change') from None
+    except UnicodeDecodeError:
+        raise Refused(f'the {TEI_WAIT_DIFF} or {TEI_WAIT_PATCHED} beside {path.name} is not UTF-8') from None
+    problem = tei_wait_diff_problem(diff, patched_lines, lines, record['wait_s'])
+    if problem:
+        raise Refused(f'the {TEI_WAIT_DIFF} beside {path.name} is not the diff of its change: {problem}')
+    return {**{k: record[k] for k in TEI_WAIT_RECORD_KEYS}, 'diff': diff}
 
 
 # Inputs ------------------------------------------------------------------------------------------
@@ -396,7 +505,7 @@ def preflight(client: Client, facts: dict, tei_url: str, log, *, require_empty: 
                                                         'max_input_length': info.get('max_input_length')}}
 
 
-def create(client: Client, args, facts: dict, out: Path, log, key: str) -> dict:
+def create(client: Client, args, facts: dict, out: Path, log, key: str, patch: dict) -> dict:
     for name in (STATE, CHUNKS, MANIFEST):
         if (out / name).exists() or (out / (name + '.partial')).exists():
             raise Refused(f'{out / name} already exists: this folder already holds a run')
@@ -407,8 +516,11 @@ def create(client: Client, args, facts: dict, out: Path, log, key: str) -> dict:
         log(f'  {line}')
     log(f'upload set: {len(files)} files, {sum(f["bytes"] for f in files):,} bytes; '
         f'manifest sha256 {upload_manifest_sha}')
+    log(f'TEI-wait patch: {patch["file"]} lines {patch["changed_lines"]}, wait {patch["wait_s"]} s, '
+        f'patched sha256 {patch["patched_sha256"]}')
     state = {'w2_ingest': 1, 'created_at': now(), 'engine': facts['engine'], 'canvas_sha256': canvas_sha,
-             'upload_manifest_sha256': upload_manifest_sha, 'files': files, 'parse_rounds': [], 'parsed': False}
+             'upload_manifest_sha256': upload_manifest_sha, 'files': files, 'parse_rounds': [], 'parsed': False,
+             'tei_wait_patch': patch}
     state.update(preflight(client, facts, args.tei_url, log, require_empty=True))
 
     title = f'w2-indexing-{facts["engine"]}'
@@ -554,10 +666,13 @@ def dump_document(client: Client, dataset_id: str, document_id: str) -> tuple[li
         page += 1
 
 
-def dump(client: Client, args, facts: dict, out: Path, log, key: str) -> dict:
+def dump(client: Client, args, facts: dict, out: Path, log, key: str, patch: dict) -> dict:
     state = load_state(out)
     if not state.get('parsed'):
         raise Refused('the state does not record a finished parse: run «wait» first')
+    if state.get('tei_wait_patch') != patch:
+        raise Refused('--tei-wait-patch differs from the patch «create» recorded in the state file: the server '
+                      'that parsed this dataset ran another patch, or none')
     for name in (CHUNKS, MANIFEST):
         if (out / name).exists():
             raise Refused(f'{out / name} already exists')
@@ -607,6 +722,7 @@ def dump(client: Client, args, facts: dict, out: Path, log, key: str) -> dict:
         'chunk_count': ds['chunk_count'], 'predicted_chunk_count': None, 'all_match': False,
         'canvas_sha256': state['canvas_sha256'], 'upload_manifest_sha256': state['upload_manifest_sha256'],
         'file_shape': FILE_SHAPE, 'embedding_batch_size': facts['batch_size'],
+        'max_concurrent_tasks': facts['max_concurrent_tasks'], 'tei_wait_patch': patch,
     }
     write_json(out / MANIFEST, manifest, key)
     log(f'wrote {len(rows):,} chunks to {CHUNKS} and {MANIFEST} (all_match false until w2_check.py)')
@@ -639,11 +755,16 @@ def build_parser() -> argparse.ArgumentParser:
                          help='re-parse rounds for failed documents only (default: %(default)s)')
     dumping = argparse.ArgumentParser(add_help=False)
     dumping.add_argument('--dump-attempts', type=int, default=3)
+    patching = argparse.ArgumentParser(add_help=False)
+    patching.add_argument('--tei-wait-patch', required=True, type=Path,
+                          help="patch_tei_wait.py's patch.json, beside the patched file (/patch/patch.json)")
     sub.add_parser('preflight', parents=[common], help='check the stack and print what it finds')
-    sub.add_parser('create', parents=[common, inputs, output], help='import, create, upload and start the parse')
+    sub.add_parser('create', parents=[common, inputs, patching, output],
+                   help='import, create, upload and start the parse')
     sub.add_parser('wait', parents=[common, output, waiting], help='poll until every document is parsed')
-    sub.add_parser('dump', parents=[common, output, dumping], help='dump every chunk and write the W2 manifest')
-    sub.add_parser('all', parents=[common, inputs, output, waiting, dumping], help='create, wait and dump')
+    sub.add_parser('dump', parents=[common, patching, output, dumping],
+                   help='dump every chunk and write the W2 manifest')
+    sub.add_parser('all', parents=[common, inputs, patching, output, waiting, dumping], help='create, wait and dump')
     return ap
 
 
@@ -662,6 +783,7 @@ def main(argv: list[str] | None = None, *, stdout=None, environ=None, sleep=time
         args.tei_url = tei_url
         key = read_key(args.api_key_file)
         facts = run_facts(args.engine, environ)
+        patch = read_tei_wait_patch(args.tei_wait_patch) if getattr(args, 'tei_wait_patch', None) else None
         client = Client(base, key, timeout=args.timeout)
         out = getattr(args, 'out', None)
         if out is not None:
@@ -670,11 +792,11 @@ def main(argv: list[str] | None = None, *, stdout=None, environ=None, sleep=time
         if args.step == 'preflight':
             preflight(client, facts, tei_url, log, require_empty=False)
         if args.step in ('create', 'all'):
-            create(client, args, facts, out, log, key)
+            create(client, args, facts, out, log, key, patch)
         if args.step in ('wait', 'all'):
             wait(client, args, out, log, key, sleep=sleep, clock=clock)
         if args.step in ('dump', 'all'):
-            dump(client, args, facts, out, log, key)
+            dump(client, args, facts, out, log, key, patch)
     except Refused as refusal:
         log(f'refused: {refusal}')
         return REFUSED

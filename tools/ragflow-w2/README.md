@@ -3,8 +3,9 @@
 The W2 tools: a throwaway, pinned RAGFlow v0.27.3 on this machine, holding our served articles, indexed by Walid's
 indexing-pipeline canvas, and queried with `../ragflow-w1/run_w1.py`. The rules are in
 `.hq/docs/specs/spec-rag-system.md`, block «Owner decision 2026-11-08: W2 first, run here, with a pre-registered
-rule». Each tool has its own section below. Everything that runs on the host or in the runner uses the Python
-standard library only.
+rule», with its later bullets (the interval details; raising RAGFlow's wait on the embedder, «## TEI wait patch»).
+Each tool has its own section below. Everything that runs on the host or in the runner uses the Python standard
+library only.
 
 ## make_w2_corpus.py
 
@@ -387,11 +388,16 @@ file, `config` exits 1 naming each missing value).
     names the model and that `/embed` returns one vector.
   - The server `depends_on` it with `service_completed_successfully`. The other stores keep upstream's own
     health checks (docker-compose-base.yml:31-35, :96-100, :271-275, :317-321, :337-341).
-- **Embedding batch size.**
-  - `EMBEDDING_BATCH_SIZE` (common/settings.py:517) is required from the first boot. It comes from the prepare
-    probe (`tei_probe.py time`).
+- **Embedding batch size, concurrency and the TEI wait** (owner, 2026-11-08 later; «## TEI wait patch» below).
+  - `EMBEDDING_BATCH_SIZE` (common/settings.py:517) is required from the first boot. It is 1, the owner's value,
+    written into the pins file by P7. (The probe, `tei_probe.py time`, found no batch size that fits RAGFlow's
+    30 s wait; its timings are the record the TEI-wait section cites.)
+  - `MAX_CONCURRENT_TASKS` is `${RF_MAX_CONCURRENT_TASKS:-1}`: one document at a time
+    (rag/svr/task_executor_limiter.py:20, default 5). The runner records the same variable in the manifest.
   - `MAX_CONCURRENT_CHUNK_BUILDERS=1` keeps one embedding batch at a time in flight, as the probe timed it
     (rag/svr/task_executor_limiter.py:21-26).
+  - The server imports a copy of `rag/llm/embedding_model.py` whose two TEI waits are 900 s, mounted read-only
+    over the module from `RF_TEI_WAIT_DIR` (`:?`-guarded). `ENABLE_TIMEOUT_ASSERTION` is set nowhere.
   - TEI never gets more than 16 texts per call, whatever the setting: `BuiltinEmbed.encode` splits at 16
     (embedding_model.py:245-255).
 - **DEBUG logging, kept whole.**
@@ -411,9 +417,11 @@ file, `config` exits 1 naming each missing value).
     `init: true`, with tmpfs `/tmp` and `/run/rf`.
   - Mounts: `/w2` (these tools, read-only), `/w1` (`../ragflow-w1`, read-only, for `run_w1.py`), `/pkg`
     (`.hq/docs/specs/w1-for-walid`, read-only, for the queries), `/in` (the upload set, read-only), `/canvas`
-    (the canvas copy, read-only) and `/out` (run outputs, the only writable mount).
-  - The server gets `/w2`, `/in` and `/canvas` read-only, for `predict_chunks.py` and `make_key.py`. It
-    writes nothing to the host.
+    (the canvas copy, read-only), `/patch` (the TEI-wait patch folder, read-only, for `rf_ingest.py`) and `/out`
+    (run outputs, the only writable mount).
+  - The server gets `/w2`, `/in` and `/canvas` read-only, for `predict_chunks.py` and `make_key.py`; the
+    patched `embedding_model.py` read-only over `/ragflow/rag/llm/embedding_model.py`, and `/patch` read-only,
+    for `check_tei_wait.py`. It writes nothing to the host.
   - Every bind sets `create_host_path: false`, so a missing folder stops `up` rather than appearing empty.
 - **Caps.** es01 8g and 4 CPUs, Infinity 10g and 4 CPUs, the server 12g and 6 CPUs, TEI 12 CPUs. The machine
   has 24 CPUs and 64 GB (`docker info`).
@@ -429,7 +437,7 @@ file, `config` exits 1 naming each missing value).
 | MAJOR: the dense-only fallback is not recorded | closed, with limits | DEBUG logging kept whole, `timed_run.py` stamps, and `fallback_items.py`, whose limits are stated in its docstring and below |
 | MAJOR: the threshold mostly mutes the dense leg | carried | a known limit, written into the spec amendment. It is the report's to state |
 | MAJOR: no held-out-half reading | handed on | half B is the scorer step's |
-| MAJOR: embedding timeouts; batch size left as a fallback | closed, with a limit | the batch size comes from a timed probe and is required at first boot. Only failed documents are re-parsed, at most twice, through `/documents/parse`. The 30-second, no-retry client timeout itself remains RAGFlow's |
+| MAJOR: embedding timeouts; batch size left as a fallback | closed, with a limit | the batch size is required at first boot (1, the owner's value, after the timed probe found none that fits). Only failed documents are re-parsed, at most twice, through `/documents/parse`. The 30-second wait on the two TEI calls is raised to 900 s by the owner's decision, in a mounted copy checked in the server (`## TEI wait patch`); that a call is never retried remains RAGFlow's |
 | MAJOR: TEI health check relies on curl; egress tests pass for the wrong reason | closed | `tei-probe` in Python. `net_check.py` checks every egress block after a positive control and does not count «refused» as blocked. Besides `host.docker.internal`, whose «no address» proves little, P7 and E2 block the network's own gateway |
 | MINOR: corpus step 5 cannot run | closed | `predict_chunks.py` runs by `docker exec` with `/ragflow/.venv/bin/python` and `/ragflow` on `sys.path` |
 | MINOR: a naive dataset could be queried by mistake | closed | `rf_ingest.py` creates exactly one dataset, pipeline-bound, on a stack it checks holds none; the manifest records its id |
@@ -458,6 +466,8 @@ follows no redirect, and only loopback http (and `ragbench-rf-tei` for TEI's `/i
   - TEI's `/info` names `W2_TEI_MODEL`;
   - and it counts the datasets.
 - **`create`**:
+  - checks the TEI-wait record (`--tei-wait-patch`, required on `create`, `dump` and `all`; «## TEI wait patch»)
+    and that the patched file beside it has the recorded sha256, and keeps the record in the state file;
   - checks the inputs. The canvas must be exactly File → Parser → TitleChunker → Tokenizer. The upload set must
     be exactly the 22 `<slug>.md` files `upload-manifest.json` lists, byte for byte (sha256), with
     `file_shape` `slug-title-served-v1`, made against the same canvas (`canvas.sha256`), each starting
@@ -506,6 +516,8 @@ follows no redirect, and only loopback http (and `ragbench-rf-tei` for TEI's `/i
 | `canvas_sha256`, `upload_manifest_sha256` | the sha256 of the bytes read |
 | `file_shape` | `slug-title-served-v1`, checked against the upload manifest |
 | `embedding_batch_size` | `W2_EMBEDDING_BATCH_SIZE`, the value the server was started with |
+| `max_concurrent_tasks` | `W2_MAX_CONCURRENT_TASKS`, from the same `RF_MAX_CONCURRENT_TASKS` as the server's `MAX_CONCURRENT_TASKS` |
+| `tei_wait_patch` | `{file, image_sha256, patched_sha256, changed_lines, wait_s, diff}`: the first five from `--tei-wait-patch` (patch_tei_wait.py's patch.json, without its `anchors`), and `diff` the text of `embedding_model.diff` beside it (the spec, «The change»: «Its diff and both sha256 go in the W2 manifest»). `wait_s` must be a whole number above 30, both sha256 64 lower-case hex and different, two changed lines in ascending order, the file `rag/llm/embedding_model.py`, and the patched file beside the record must have `patched_sha256`. The diff must name `a/` and `b/rag/llm/embedding_model.py` and remove and add exactly the changed lines, each `timeout=30)` becoming `timeout=<wait_s>)`, each added line equal to the patched file's line of that number. `dump` refuses a patch other than the one `create` kept |
 
 ### predict_chunks.py (runs in the server container)
 
@@ -577,7 +589,9 @@ It compares `predicted-chunks.jsonl` with `chunks.jsonl`, per law and in total.
   - `time` is the prepare probe. It takes the 16 longest article blocks of the upload set, about one chunk
     each, and times `/embed` for batches of 16, 8, 4, 2 and 1, twice each. It prints
     `EMBEDDING_BATCH_SIZE=<largest batch whose slowest call is under 15 s>`. The 15 s is half of RAGFlow's
-    30-second client timeout, which has no retry.
+    30-second client timeout, which has no retry. On this machine it found none (one text alone takes 38 s),
+    and the owner set the batch size to 1 and the wait to 900 s instead («## TEI wait patch»).
+- **`patch_tei_wait.py`** and **`check_tei_wait.py`** make and check the TEI-wait patch: «## TEI wait patch».
 - **`net_check.py`** takes `--reach` targets (the positive control, which must connect) and `--block` targets
   (which must not).
   - Only a name that does not resolve, an unreachable network or host, or a timeout count as blocked.
@@ -612,7 +626,7 @@ It compares `predicted-chunks.jsonl` with `chunks.jsonl`, per law and in total.
 
 The tests run with the same command as the generator's tests above. Nothing here contacts another host.
 
-- **`tests/test_rf_ingest.py`** (53 tests) runs rf_ingest.py against `tests/fake_ragflow_w2.py`, a local fake of
+- **`tests/test_rf_ingest.py`** (62 tests) runs rf_ingest.py against `tests/fake_ragflow_w2.py`, a local fake of
   the v0.27.3 routes, whose shapes are cited in its docstring. The fake has one setting per answer that
   rf_ingest.py checks, so each check has a test in which that answer is wrong.
   - **Routes.** The routes and their order. The canvas imported as it is, as a dataflow canvas. The dataset
@@ -636,6 +650,16 @@ The tests run with the same command as the generator's tests above. Nothing here
     dataset; a document `chunk_count` other than its listing; a count that changes between `wait` and `dump`;
     a dataset `document_count` or `chunk_count` other than the dump; a redirect, refused and not followed; a
     proxy named in the environment, not used.
+  - **The TEI-wait record.** The fixture is patch_tei_wait.py's own output (`build`) for a small source whose
+    anchors sit on lines 1247 and 1253, so the producer and this reader are tested together. The manifest's
+    `tei_wait_patch` (the five fields and the diff text, in the contract's key order) and
+    `max_concurrent_tasks`. Refused before sending: a `wait_s` of `"900"`, 30, 29, `true`, 900.0 or none; a
+    sha256 in capitals, of 63 characters, not hex or a number; a patched file beside the record that differs
+    from it; another file, a record whose two sha256 are equal, one changed line, changed lines out of order
+    (`[1253, 1247]`); a diff that is missing, names another file, is the diff of another wait, has its hunk moved
+    by a line, adds one more line, has a blank row inside the hunk, or has CRLF line ends; a concurrency that is
+    empty, 0 or not a number; `create` and `all` without `--tei-wait-patch`. And a `dump` with another patch
+    (made with a wait of 600) than `create` kept writes no manifest.
   - **The key.** The key in no output and no file, even when the server echoes it: in a failure message, in a
     stored dataset name written to the state file, and in a TEI answer that is logged. A key file holding
     anything else is refused.
@@ -655,8 +679,30 @@ The tests run with the same command as the generator's tests above. Nothing here
   - **`timed_run.py`.** It stamps each line and keeps the exit code, and refuses an existing log.
 - **`tests/test_probes.py`** (7 tests). `tei_probe.py`'s batch choice and article blocks. `net_check.py`:
   connected; refused counts as not blocked; an unresolvable name is blocked; no positive control is refused.
+- **`tests/test_tei_wait.py`** (32 tests) uses an invented `embedding_model.py` shaped like v0.27.3's, with a
+  `timeout=30` line in a class before and after `HuggingFaceEmbed`, and the v0.27.3 source tree copy when it
+  is there.
+  - **`patch_tei_wait.py`.** Only the two anchor lines change, and only their number (the decoys stay); the
+    record, the diff, another `--wait`, `--replace`; `changed_lines` ascending when `encode_queries` comes before
+    `encode`; on the real file, lines 1247 and 1253 only, six `timeout=30` lines left, and the record's two
+    sha256 and wait equal to check_tei_wait.py's `APPROVED`. Refused: an anchor not found, found twice, outside the class, under the other
+    method; CR line ends; not UTF-8; another sha256 than `--expect-sha256`; a wait of 30 or 5; a method that
+    would still hold 30; a non-empty `--out`, and foreign entries even with `--replace`; the source inside
+    `--out`. The second pass refuses another changed line, a change beyond the number, another number and a
+    line fewer.
+  - **`check_tei_wait.py`.** The code-constant logic on small classes: both at 900 pass; 30 is named for each
+    method; one method left at 30 is caught alone; a float 30 counts; a missing method is named. Then its
+    `main` in a child Python, on a fake `/ragflow` and a fake `/proc` (each run passes the fixture's own sha256
+    as the expected ones): the patched module passes; a stale unchecked-hash `.pyc` of the shipped file, which
+    the import system uses without reading the source, is caught; an import that resolves to another file
+    holding the patched bytes (the fixture's `rag/llm/__init__.py` sets `__path__` elsewhere), so that only
+    the module-origin check can fail, is caught with exactly that one `BAD` line; the shipped file in place of
+    the patched one is caught; `ENABLE_TIMEOUT_ASSERTION` in the container or in a task executor's environment
+    is caught; a task executor at the default concurrency, a batch size of 16, and no task executor are caught;
+    bad input: a `wait_s` of `"900"`, 30 or `true`, a record of another file, and, with the defaults, a record
+    that is not the approved patch (the fixture's sha256), or one whose wait is 600.
 
-On 2026-11-08 these 91 tests, and the whole folder's suite with the generator's tests (135), passed on the
+On 2026-11-08 these 132 tests, and the whole folder's suite with the generator's tests (176), passed on the
 host (Python 3.11.9, the Git Bash command above).
 
 **What the tests catch, measured with a list chosen by a reviewer, not by the builder.** An earlier version of
@@ -676,6 +722,16 @@ the folder per mutation, never the worktree), measures it instead:
 - Three more, in `.hq/scratch/w2-fix-stack/mutate_extra.py` (`extra.txt`): the review's no-proxy and
   no-redirect mutation split in two, each half killed by its own test; and w2_check.py accepting an ingest
   state without a file list, killed.
+- **The TEI-wait stage, 2026-11-08.** The stage-3 review's list (`.hq/scratch/w2-review-stage3/mutate_review.py`,
+  17 entries with two controls, across this folder and score_w1.py) left 5 survivors
+  (`mutate-review.txt`): the module-origin check and the file-name check of check_tei_wait.py, rf_ingest.py's
+  changed-lines order, and the scorer's strata-terms warning and its printing. After the fixes, the same list
+  kills all 5 (`.hq/scratch/w2-fix-stage3/mutate-review-after.txt`); one entry no longer applies, since the
+  line it mutated was rewritten to add the diff. A second list for the checks the fixes added
+  (`.hq/scratch/w2-fix-stage3/mutate_new.py`, 12 mutations) kills all 12 (`mutate-new.txt`, with the one
+  survivor of its first run, the diff's line numbers, killed after its check was made independent:
+  `mutate-new-2.txt`). A mistyped `APPROVED` is caught only by the test on the real v0.27.3 file, which these
+  copies skip; that test ran in the real suite.
 
 Each of these files is outside the repository.
 
@@ -692,6 +748,152 @@ alone and with each override file.
   text (task_executor.py:919-951).
 - **The probe's timing is one moment's.** The ingest also embeds each file name once per document
   (tokenizer.py:93-97). Other load on the machine can slow TEI after the probe.
+
+## TEI wait patch
+
+The spec's block «Owner decision 2026-11-08 (later): raise RAGFlow's wait on the embedder; run both engines» lets
+the server run with one changed file. This section says why, what changes, what cannot, and how the run checks
+it. RAGFlow claims cite the v0.27.3 source in `.hq/scratch/ragflow-src-v0.27.3/x/`.
+
+### Why
+
+Measured on this machine in the prepare step (`.hq/scratch/w2-run/state/probe.json`; in `.hq/scratch/w2-run/logs/`,
+`prepare-p7-tei-clean.txt`, `main-trial-cpu20.txt` and `main-trial-mkl22.txt`), one call at a time:
+
+- The pinned TEI (`cpu-1.8`, candle on CPU; its ONNX backend refused, since the revision has no `onnx/model.onnx`)
+  embeds the longest article block, in customs (1,868 Qwen tokens), in 38.05 to 38.89 s with its 12-CPU cap.
+  Capped at 20 CPUs it took 35.48 and 36.24 s, at 22 CPUs 36.38 and 36.55 s: its maths library uses the Docker
+  VM's 12 cores whatever the cap (spec).
+- That is about 20.5 ms per Qwen token, close to linear, so batching gains nothing: 2 texts took 73.86 and
+  79.43 s, 4 texts 140.71 s.
+- So a text above about 1,460 tokens needs more than 30 s. Of the 6,592 article blocks, 5 are above it:
+  companies 1, customs 1, income-tax 3.
+- RAGFlow v0.27.3 gives each TEI call 30 s and does not retry: `requests.post(..., timeout=30)` in
+  `HuggingFaceEmbed.encode` (rag/llm/embedding_model.py:1247) and `encode_queries` (:1253). The built-in TEI
+  embedder hands every call to that class (BuiltinEmbed, embedding_model.py:240, :251, :258). So those three
+  laws could never be parsed, a re-parse would fail the same way, and `w2_check.py` could never print ALL MATCH.
+
+### What changes
+
+- **One file, two numbers.** `patch_tei_wait.py` changes `timeout=30)` to `timeout=900)` at the end of those two
+  lines, and nothing else.
+  - It finds them by their exact full text as they stand in v0.27.3, and refuses when either is not found
+    exactly once, sits outside `class HuggingFaceEmbed` or under the other method, or when the file has a CR
+    byte or is not UTF-8.
+  - A second, independent pass compares both texts line by line: the result must differ only on those two
+    lines, and only in that number. Then it compiles the result, and the two methods' own constants must hold
+    900 and no 30. It writes `embedding_model.py`, `embedding_model.diff` and `patch.json` (`file`,
+    `image_sha256`, `patched_sha256`, `changed_lines`, `wait_s`, `anchors`); `--out` follows
+    `make_w2_corpus.py`'s rule (not empty only with `--replace`, never a foreign entry).
+  - The other six `timeout=30` lines in the file (614, 900, 986, 1140, 1461, 1481) belong to other providers and
+    stay as they are.
+- **The source is the image's own file.** P9 copies `/ragflow/rag/llm/embedding_model.py` out of the pinned
+  image. Read in the image on 2026-11-08, its sha256 is
+  `c2e46e1cb5d128122a48b8283d135b81321441655dbd9c22c9ecd8035a6c0536`, the same as the source tree copy's; P9 checks
+  it and passes it as `--expect-sha256`. The dry run on the source tree copy changed lines 1247 and 1253 only
+  (64,482 bytes in, 64,484 out) and wrote patched sha256
+  `90f3a20d0bfab00175670c90c93e410592029bbf7b75b7aadfe944f71c74acab` (`.hq/scratch/w2-run/state/tei-wait-dryrun/`).
+- **Mounted, not rebuilt.** `compose.yaml` mounts the patched file read-only over
+  `/ragflow/rag/llm/embedding_model.py`, from `RF_TEI_WAIT_DIR`, which has a `:?` guard. Without it,
+  `docker compose config` exits 1 naming it, for the server and the runner, with either profile; with it, both
+  profiles render (`.hq/scratch/w2-run/logs/build-tei-wait-compose.txt`).
+  - That path is the module the server imports. The image's working directory and `PYTHONPATH` are `/ragflow`
+    (Dockerfile:275, :282; `docker image inspect` of the pin: `WorkingDir=/ragflow`, `PYTHONPATH=/ragflow/`), its
+    code is `COPY rag rag` (Dockerfile:303), and `rag/llm/__init__.py` imports `rag.llm.embedding_model` when
+    the server starts (:168-170, `importlib.import_module` for each entry of `MODULE_MAPPING`).
+  - The same folder is mounted read-only at `/patch` in the server, for the check, and in the runner, for the
+    manifest.
+- **No byte code can stand in for the file.** Checked in the pinned image on 2026-11-08 with a read-only,
+  network-less, throwaway container (`.hq/scratch/w2-run/logs/build-tei-wait-dryrun.txt`):
+  - no `__pycache__` folder and no `.pyc` under `/ragflow` outside `.venv`, and no `embedding_model*.pyc`
+    anywhere on the root file system;
+  - `PYTHONDONTWRITEBYTECODE=1` in the image's environment, so the server writes none;
+  - Python 3.13.11, `sys.pycache_prefix` unset, hash-based `.pyc` checks at their default.
+  With no `.pyc` to read, the import system compiles the mounted source. A `.pyc` that appeared later would be
+  caught by the check below.
+- **Two operational settings, not retrieval settings.**
+  - `MAX_CONCURRENT_TASKS=1` (rag/svr/task_executor_limiter.py:20, default 5): one document at a time, so TEI never
+    merges two long requests into one slow batch. It comes from `RF_MAX_CONCURRENT_TASKS` (default 1), which
+    the runner reads too.
+  - `EMBEDDING_BATCH_SIZE=1` (common/settings.py:517), so no call pads short texts to a long one's length.
+    `RF_EMBEDDING_BATCH_SIZE` stays required, and P7 writes 1.
+  - `MAX_CONCURRENT_CHUNK_BUILDERS=1` stays: one embedding call in flight (task_executor_limiter.py:21, :26).
+- **`ENABLE_TIMEOUT_ASSERTION` stays unset.** Every `@timeout` wrapper on the ingest path is
+  `common.connection_utils.timeout`, which enforces its limit only when that variable is set
+  (common/connection_utils.py:30-100: the gate at :52 for functions, at :70 for coroutines).
+  - Which path runs. The task executor reads `TE_RUN_MODE`, default `"0"` (rag/svr/task_executor.py:1806), and
+    `"0"` runs `TaskManager.run_refactored_task` (:1820); only another value runs the legacy `do_handle_task`
+    (:1812, :1824). Nothing here sets `TE_RUN_MODE`: not compose.yaml, and not the image, whose environment is
+    `PATH`, `PYTHONDONTWRITEBYTECODE`, `VIRTUAL_ENV` and `PYTHONPATH` (`build-tei-wait-dryrun.txt`, «image
+    config»). So the refactored path runs.
+  - Its wrappers: rag/svr/task_executor_refactor/task_handler.py:199 (3 h, on `handle`), chunk_service.py:143
+    (80 min, `build_chunks`) and :246 (60 s, the MinIO upload), dataflow_service.py:245 (60 s, `_embed_chunks`),
+    each importing that `timeout` (task_handler.py:52, chunk_service.py:41, dataflow_service.py:42). The
+    pipeline's own: rag/flow/base.py:58 (`COMPONENT_EXEC_TIMEOUT`, 10 min, on `_invoke`) and
+    rag/flow/tokenizer/tokenizer.py:99 (60 s, `batch_encode`), importing it at base.py:23 and tokenizer.py:26.
+    The legacy path's wrappers (task_executor.py:328, :434, :772, :886, :1097, :1448) are the same `timeout`
+    (:69).
+  - The one wait on the path that the variable does not gate: rag/flow/base.py:46,
+    `await asyncio.wait_for(self._invoke(**kwargs), timeout=self._param.timeout)`, run for every component of
+    the canvas (File, Parser, TitleChunker and Tokenizer are all `ProcessBase`: file.py:31, parser.py:332,
+    title_chunker.py:22, tokenizer.py:52). Its default is 100,000,000 s (base.py:29, `ProcessParamBase`), and the canvas copy (sha256
+    `3f0fcb62…588d`) sets no `timeout` anywhere (`grep -c timeout` on it prints 0), so it never fires here.
+  - The variable is set nowhere: not in compose.yaml (a comment names it), not in the image's environment (above),
+    not by docker/entrypoint.sh, and not in the secrets file, whose 12 names `prepare.json` records (p2_secrets;
+    the file was not opened). `check_tei_wait.py` checks it in the container and in every running task executor
+    and API server.
+- **What it decides.** Nothing: no chunk, vector or score. TEI computes the same vector whether RAGFlow waits 30
+  or 900 s; only whether RAGFlow is still waiting for it changes. Both engines run the same patch.
+
+### What cannot change
+
+- A call that needs more than 900 s still fails, and is still not retried. The longest measured takes about 39 s.
+- The file name is embedded once per document, outside the limiter (tokenizer.py:95), before the chunk batches.
+  With one task at a time it does not overlap another document's calls.
+- The patch cannot be applied to another RAGFlow version: the anchors, and P9's `--expect-sha256`, are v0.27.3's.
+
+### How it is checked
+
+- **`rf_ingest.py --tei-wait-patch /patch/patch.json`**, required on `create`, `dump` and `all`, checks the
+  record (a whole `wait_s` above 30, two 64-hex sha256 that differ, two changed lines in ascending order, the
+  file name), that the patched file beside it has `patched_sha256`, and that `embedding_model.diff` beside it is
+  the diff of that change: it names `a/` and `b/rag/llm/embedding_model.py`, and removes and adds exactly the
+  changed lines, each `timeout=30)` becoming `timeout=<wait_s>)`, each added line equal to the patched file's
+  line. It writes `tei_wait_patch` (the five fields and `diff`, the diff's text: the spec puts «its diff and both
+  sha256» in the manifest), `embedding_batch_size` and `max_concurrent_tasks` into the W2 manifest. `dump`
+  refuses a patch other than the one `create` kept in the state file.
+- **`check_tei_wait.py`** runs in the server's own Python (E2, and again after E5):
+  `docker exec ragbench-rf-server /ragflow/.venv/bin/python -B /w2/check_tei_wait.py --patch /patch/patch.json
+  --max-concurrent-tasks 1 --embedding-batch-size 1`. It first checks that patch.json is the approved patch:
+  `image_sha256` `c2e46e1c…0536` (the image's file), `patched_sha256` `90f3a20d…acab` (P9's output from those
+  bytes, the dry run's) and `wait_s` 900, its `APPROVED`, which `--expect-image-sha256`, `--expect-patched-sha256`
+  and `--expect-wait` override only for tests. Any other record exits 2 before anything is imported, so a patch
+  made from an edited file (P9 without `--expect-sha256`) cannot pass E2. Then it imports
+  `rag.llm.embedding_model` and checks:
+  - the module file is `/ragflow/rag/llm/embedding_model.py`, read from source, with no `.pyc` where the import
+    system would look for one;
+  - its sha256 is `patched_sha256`;
+  - the loaded `HuggingFaceEmbed.encode` and `encode_queries` are the code compiled from that file now, and their
+    own constants hold 900 and no 30;
+  - the container's environment, and that of every running task executor and API server
+    (`/proc/<pid>/environ`), have no `ENABLE_TIMEOUT_ASSERTION` and the given `MAX_CONCURRENT_TASKS` and
+    `EMBEDDING_BATCH_SIZE`; and a task executor is running.
+  It ends `TEI WAIT LOADED: …` (exit 0) or `TEI WAIT NOT SHOWN: …` (exit 1); bad input exits 2.
+- **The dry run**, 2026-11-08, in the pinned image with the dry-run file mounted (`build-tei-wait-dryrun.txt`):
+  every line `ok`, `encode`'s constants `[900]`, `encode_queries`' `[900, 0]`. The one `BAD` line was «no task
+  executor is running», as expected in a one-shot container. The control, without the mount, printed the
+  image's sha256 and the constants `[30]` and `[30, 0]`, and failed. That run predates the approved-patch check;
+  the dry-run record is the approved pair (`image_sha256` `c2e46e1c…`, `patched_sha256` `90f3a20d…`, 900), and
+  `tests/test_tei_wait.py` checks that patching the source tree copy gives exactly `APPROVED`.
+- **`score_w1.py --own-run`** requires the three fields (`tei_wait_patch` with its six keys, the diff's header,
+  and only the changed lines changed from 30 to the wait) and prints them in its «W2 manifest» table, the diff in
+  the JSON report only. A patch other than the approved one gets a warning, not a deciding gap: the patch is
+  operational, and E2 has already refused it.
+
+What the check cannot prove: it imports the module afresh, in a new process; it cannot read the code inside the
+server processes already running. The bridge is the mount: read-only, made when the container was created,
+before any process in it started, and holding the bytes whose sha256 the check reads. Running it again after
+the ingest shows those bytes did not change during it.
 
 ## Runbook
 
@@ -788,13 +990,14 @@ moved tag or a misread: stop and look. TEI's digest had not been read before, so
 ### P4. Pull by digest (prepare-time egress)
 
 ```bash
-RF_DOC_ENGINE=elasticsearch RF_EMBEDDING_BATCH_SIZE=probe-pending \
+RF_DOC_ENGINE=elasticsearch RF_EMBEDDING_BATCH_SIZE=probe-pending RF_TEI_WAIT_DIR=patch-pending \
   bash "$HEAVY" docker compose "${CF[@]}" --profile es --profile infinity pull
 docker images --digests | grep -E 'ragflow|elasticsearch|infinity|mysql|silo|valkey|text-embeddings|python'
 ```
 
-Check: each digest printed equals its pin. (`probe-pending` only satisfies interpolation here. The server is
-never started before P8 writes the real batch size, and `rf_ingest.py` refuses anything but a number.)
+Check: each digest printed equals its pin. (`probe-pending` and `patch-pending` only satisfy interpolation
+here. The server is never started before P7 writes the batch size and P9 the patch folder into the pins file;
+`rf_ingest.py` refuses a batch size that is not a number, and a bind source that does not exist stops `up`.)
 
 ### P5. The embedding model at its pinned revision
 
@@ -835,6 +1038,7 @@ Check:
 
 ```bash
 export RF_DOC_ENGINE=elasticsearch
+export RF_TEI_WAIT_DIR=patch-pending   # interpolation only, until P9; `unset RF_TEI_WAIT_DIR` there
 RF_EMBEDDING_BATCH_SIZE=probe-pending bash "$HEAVY" docker compose "${CF[@]}" --profile es up -d tei
 RF_EMBEDDING_BATCH_SIZE=probe-pending docker compose "${CF[@]}" --profile es run --rm --no-deps --name ragbench-rf-tei-wait tei-probe
 # the network's own gateway (the host side of the bridge), and a port another container publishes (read only)
@@ -848,8 +1052,8 @@ RF_EMBEDDING_BATCH_SIZE=probe-pending docker compose "${CF[@]}" --profile es run
 docker inspect ragbench-rf-tei --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
 RF_EMBEDDING_BATCH_SIZE=probe-pending bash "$HEAVY" docker compose "${CF[@]}" --profile es run --rm --no-deps --name ragbench-rf-tei-time tei-probe \
   python3 -I -B /w2/tei_probe.py --url http://ragbench-rf-tei:80 time --in-dir /in | tee "$RUN/state/tei-probe.txt"
-N=$(sed -n 's/^EMBEDDING_BATCH_SIZE=\([0-9][0-9]*\)$/\1/p' "$RUN/state/tei-probe.txt")
-[ -n "$N" ] && echo "RF_EMBEDDING_BATCH_SIZE=$N" >> "$PINS" && echo "batch size $N"
+# The batch size is the owner's (2026-11-08 later), not the probe's: 1. The probe's timings stay as the record.
+grep -q '^RF_EMBEDDING_BATCH_SIZE=' "$PINS" || echo "RF_EMBEDDING_BATCH_SIZE=1" >> "$PINS"; grep '^RF_EMBEDDING_BATCH_SIZE=' "$PINS"
 ```
 
 Check:
@@ -866,13 +1070,15 @@ Check:
     the Docker VM», and whether to go on with that narrower claim is the owner's decision.
   - `host.docker.internal: no address` proves only that the name does not resolve here, not that the host's
     address is out of reach.
-- `batch size N` is printed. The same N serves the Infinity stack: it is the same TEI, model and machine.
+- The pins file holds `RF_EMBEDDING_BATCH_SIZE=1`, the owner's value. On this machine `tei_probe.py time` exits 1
+  («no batch size stays under 15.0 s»): one long text alone takes 38 s (`state/probe.json`), which is why P9
+  exists. The same 1 serves the Infinity stack.
 
 **P8. Only if the wait times out (the model too slow through the Windows share).** Copy the model into a
 throwaway volume, check the copy, and use the override from then on:
 
 ```bash
-docker compose "${CF[@]}" --profile es rm -sf tei
+RF_EMBEDDING_BATCH_SIZE=probe-pending docker compose "${CF[@]}" --profile es rm -sf tei   # RF_TEI_WAIT_DIR as P7 set it
 docker volume create ragbench-rf-tei-models
 docker run --rm --name ragbench-rf-tei-copy --network none --mount type=volume,source=ragbench-rf-tei-models,target=/m \
   --mount "type=bind,source=$RUN/models,target=/src,readonly" "python:3.12-slim@$(sed -n 's/^RF_PIN_PYTHON=//p' "$PINS")" cp -a /src/. /m/
@@ -883,6 +1089,31 @@ CF+=(-f "$T/compose.tei-volume.yaml")      # and add this line to P0 for every l
 
 Then repeat P7 from `up -d tei`.
 
+### P9. The TEI-wait patch (owner, 2026-11-08 later; «## TEI wait patch»)
+
+```bash
+unset RF_TEI_WAIT_DIR                      # P7's placeholder; from here on the pins file names the real folder
+SRC="$RUN/patch-src"; mkdir -p "$SRC"
+[ -e "$SRC/embedding_model.py" ] && echo "STOP: $SRC/embedding_model.py exists; look at it, or remove it, first"
+docker create --name ragbench-rf-patch-src "infiniflow/ragflow@$(sed -n 's/^RF_PIN_RAGFLOW=//p' "$PINS")" >/dev/null
+docker cp ragbench-rf-patch-src:/ragflow/rag/llm/embedding_model.py "$SRC/embedding_model.py"
+docker rm ragbench-rf-patch-src
+printf '%s  %s\n' c2e46e1cb5d128122a48b8283d135b81321441655dbd9c22c9ecd8035a6c0536 "$SRC/embedding_model.py" | sha256sum -c -
+python -I -B "$T/patch_tei_wait.py" --source "$SRC/embedding_model.py" --out "$RUN/patch" \
+  --expect-sha256 c2e46e1cb5d128122a48b8283d135b81321441655dbd9c22c9ecd8035a6c0536
+cat "$RUN/patch/embedding_model.diff"
+grep -q '^RF_TEI_WAIT_DIR=' "$PINS" || echo "RF_TEI_WAIT_DIR=$RUN/patch" >> "$PINS"; grep '^RF_TEI_WAIT_DIR=' "$PINS"
+```
+
+Check:
+- `docker create` starts nothing (it only makes a container to copy from), and `docker rm` removes it.
+- `sha256sum` prints `OK`: the image's file is the one read in the image on 2026-11-08.
+- The tool prints lines 1247 and 1253, each `timeout=30 -> timeout=900`, and the patched sha256
+  `90f3a20d0bfab00175670c90c93e410592029bbf7b75b7aadfe944f71c74acab`, the dry run's on the same bytes. The diff
+  shows those two lines and no other.
+- The pins file names `$RUN/patch` (a path with a space needs no quotes there; checked with `docker compose
+  config`). From here on the server cannot start without it.
+
 ### E. One run (first Elasticsearch, then Infinity on a fresh stack)
 
 Set the engine, then run E1 to E8:
@@ -891,6 +1122,9 @@ Set the engine, then run E1 to E8:
 ENG=elasticsearch PROF=es STORE=ragbench-rf-es01:9200          # the Infinity run: ENG=infinity PROF=infinity STORE=ragbench-rf-infinity:23817
 export RF_DOC_ENGINE=$ENG; O="$RUN/out/$ENG"
 grep -q '^RF_EMBEDDING_BATCH_SIZE=[0-9][0-9]*$' "$PINS" || echo "STOP: no batch size in the pins file"
+grep -q '^RF_TEI_WAIT_DIR=' "$PINS" && [ -s "$(sed -n 's/^RF_TEI_WAIT_DIR=//p' "$PINS")/patch.json" ] \
+  || echo "STOP: no TEI-wait patch in the pins file (P9)"
+[ -z "${RF_TEI_WAIT_DIR:-}" ] || echo "STOP: RF_TEI_WAIT_DIR is set in this shell and overrides the pins file: unset it"
 ```
 
 **E1. Start the stack.**
@@ -902,13 +1136,20 @@ docker compose "${CF[@]}" --profile "$PROF" ps -a --format '{{.Name}} {{.State}}
 
 Check: repeat `ps` until `ragbench-rf-server` is `running healthy` (its start period is 300 s). `tei-probe` has
 `exited`, with exit 0 (`docker inspect -f '{{.State.ExitCode}}' ragbench-rf-tei-probe`).
+- `up -d` recreates a container only when its own service definition changed. On 2026-11-08, after the TEI-wait
+  change to compose.yaml, `docker compose config --hash` of tei, es01, mysql, minio and redis equalled the
+  running containers' `com.docker.compose.config-hash` labels, so the TEI that is already warm is kept.
 
 **E2. Isolation checks.**
 
 ```bash
 docker network inspect ragbench-rf-net --format '{{.Internal}}'                     # true
 docker ps --format '{{.Names}} {{.Ports}}' | grep '^ragbench-rf-' | grep -- '->'   # prints nothing
-docker exec ragbench-rf-server printenv DOC_ENGINE TEI_MODEL API_PROXY_SCHEME REGISTER_ENABLED EMBEDDING_BATCH_SIZE
+docker exec ragbench-rf-server printenv DOC_ENGINE TEI_MODEL API_PROXY_SCHEME REGISTER_ENABLED EMBEDDING_BATCH_SIZE MAX_CONCURRENT_TASKS
+docker inspect ragbench-rf-server --format '{{range .Mounts}}{{if eq .Destination "/ragflow/rag/llm/embedding_model.py"}}{{.Source}} rw={{.RW}}{{end}}{{end}}'
+docker exec ragbench-rf-server /ragflow/.venv/bin/python -B /w2/check_tei_wait.py --patch /patch/patch.json \
+  --max-concurrent-tasks 1 --embedding-batch-size "$(sed -n 's/^RF_EMBEDDING_BATCH_SIZE=//p' "$PINS")" \
+  2> "$RUN/logs/tei-wait-check-$ENG.stderr.txt" | tee "$RUN/logs/tei-wait-check-$ENG.txt"
 docker inspect ragbench-rf-server --format '{{.HostConfig.LogConfig.Type}} {{.HostConfig.LogConfig.Config}}'
 GW=$(docker network inspect ragbench-rf-net --format '{{range .IPAM.Config}}{{.Gateway}} {{end}}' | awk '{print $1}')
 PUB=$(docker ps --format '{{.Ports}}' | tr ',' '\n' | sed -n 's/^ *0\.0\.0\.0:\([0-9][0-9]*\)->.*/\1/p' | head -1)
@@ -921,9 +1162,14 @@ docker logs ragbench-rf-server 2>&1 | grep -c 'Super user initialized'          
 docker logs ragbench-rf-server 2>&1 | grep -m1 'log levels:'                       # root DEBUG (log_utils.py:72-73)
 ```
 
-Check: `printenv` gives the engine, `Qwen/Qwen3-Embedding-0.6B`, `python`, `0` and N. The log driver line is
+Check: `printenv` gives the engine, `Qwen/Qwen3-Embedding-0.6B`, `python`, `0`, `1` and `1`. The log driver line is
 `json-file map[max-file:20 max-size:100m]`. Every `net_check` line is `ok`, the gateway lines included (a
 gateway `FAIL` means what P7 says: stop and report).
+- The mount line names `$RUN/patch/embedding_model.py` with `rw=false`.
+- `check_tei_wait.py` exits 0, every line `ok` (the first ends `: the approved patch`; a record of any other
+  source or wait exits 2 there), ending `TEI WAIT LOADED: HuggingFaceEmbed.encode and
+  encode_queries wait 900 s; MAX_CONCURRENT_TASKS 1, EMBEDDING_BATCH_SIZE 1; ENABLE_TIMEOUT_ASSERTION unset`.
+  Anything else: stop. The server is not running the patched wait, and no document must be parsed on it.
 
 **E3. The API key, into the runner's tmpfs only.**
 
@@ -960,11 +1206,17 @@ Check:
 ```bash
 bash "$HEAVY" docker exec ragbench-rf-runner python3 -I -B /w2/rf_ingest.py all --engine "$ENG" \
   --canvas /canvas/indexing-pipeline.json --in-dir /in --upload-manifest /in/upload-manifest.json \
-  --out "/out/$ENG" | tee "$RUN/logs/ingest-$ENG.txt"
-# after an interruption: ... rf_ingest.py wait --engine "$ENG" --out "/out/$ENG", then ... dump ... the same way
+  --tei-wait-patch /patch/patch.json --out "/out/$ENG" | tee "$RUN/logs/ingest-$ENG.txt"
+# after an interruption: ... rf_ingest.py wait --engine "$ENG" --out "/out/$ENG", then ... dump ... the same way,
+# dump with --tei-wait-patch /patch/patch.json
+docker exec ragbench-rf-server /ragflow/.venv/bin/python -B /w2/check_tei_wait.py --patch /patch/patch.json \
+  --max-concurrent-tasks 1 --embedding-batch-size "$(sed -n 's/^RF_EMBEDDING_BATCH_SIZE=//p' "$PINS")" \
+  2> "$RUN/logs/tei-wait-check-$ENG-after.stderr.txt" | tee "$RUN/logs/tei-wait-check-$ENG-after.txt"
 ```
 
-Check: exit 0, and the last line is `wrote <n> chunks to chunks.jsonl and w2-manifest.json …`.
+Check: exit 0, and the last line is `wrote <n> chunks to chunks.jsonl and w2-manifest.json …`. The log holds
+`TEI-wait patch: rag/llm/embedding_model.py lines [1247, 1253], wait 900 s, patched sha256 90f3a20d…`. The check
+after the ingest ends `TEI WAIT LOADED` again: the mounted bytes did not change during it.
 
 **E6. The gate: ALL MATCH before any query.**
 
@@ -973,8 +1225,13 @@ python -I -B "$T/w2_check.py" --predicted "$O/predicted-chunks.jsonl" --dumped "
   --manifest "$O/w2-manifest.json" --ingest-state "$O/ingest-state.json"
 ```
 
+```bash
+python -I -c "import json,sys; m=json.load(open(sys.argv[1],encoding='utf-8')); p=json.load(open(sys.argv[2],encoding='utf-8')); d=open(sys.argv[3],encoding='utf-8',newline='').read(); t=m['tei_wait_patch']; print({k:v for k,v in t.items() if k!='diff'}=={k:p[k] for k in t if k!='diff'}, t['diff']==d, t['wait_s'], m['embedding_batch_size'], m['max_concurrent_tasks'])" "$O/w2-manifest.json" "$RUN/patch/patch.json" "$RUN/patch/embedding_model.diff"
+```
+
 Check: `ALL MATCH`, exit 0, and the manifest now says `"all_match": true`. Anything else: stop. No query runs on
-a dataset that does not match.
+a dataset that does not match. The second command prints `True True 900 1 1`: the manifest records the patch the
+server ran (patch.json's five fields, and the diff byte for byte), the batch size and the concurrency.
 
 **E7. The two arms: v3 (FINAL REVIEW v3, run_w1's defaults) and rt (vector weight 0.4, Retrieval TEST).**
 
@@ -1006,20 +1263,40 @@ Check:
   and `fallback_items.py`'s exit 0 is the proof: it finds a logged retrieval call inside the span of every
   answered request, and rotation would have dropped the earliest of those first.
 
-**E8. Tear the stack down before the next one** (keeps `ragbench-rf-tei-models` if P8 made it):
+**E8. Tear the stack down before the next one, except TEI** (and `ragbench-rf-tei-models` if P8 made it). The
+owner's later decision has one TEI container serve both engines, since it holds no state; removing it would cost
+the Infinity run the 27-minute warmup again (about 33 GB at its peak).
 
 ```bash
-docker compose "${CF[@]}" --profile es --profile infinity down --volumes --remove-orphans --timeout 30
-docker ps -a --format '{{.Names}}' | grep -E '^ragbench-rf-' | xargs -r docker rm -f
-docker network ls --format '{{.Name}}' | grep -E '^ragbench-rf-' | xargs -r docker network rm
+TEI0=$(docker inspect -f '{{.Id}} {{.State.StartedAt}}' ragbench-rf-tei); echo "TEI before: $TEI0"
+SVC=$(docker compose "${CF[@]}" --profile es --profile infinity config --services | grep -vx tei); echo $SVC
+[ -n "$SVC" ] && docker compose "${CF[@]}" --profile es --profile infinity rm --stop --force --volumes $SVC
+docker ps -a --format '{{.Names}}' | grep -E '^ragbench-rf-' | grep -vx ragbench-rf-tei | xargs -r docker rm -f
 docker volume ls --format '{{.Name}}' | grep -E '^ragbench-rf-' | grep -vx ragbench-rf-tei-models | xargs -r docker volume rm
+docker ps -a --format '{{.Names}} {{.State}}' | grep -E '^ragbench-rf-'                # ragbench-rf-tei running, alone
+[ "$(docker inspect -f '{{.Id}} {{.State.StartedAt}}' ragbench-rf-tei)" = "$TEI0" ] && echo "TEI kept, not restarted"
 ```
 
-Then the Infinity run: set `ENG=infinity PROF=infinity STORE=ragbench-rf-infinity:23817`, start TEI again
-(`up -d` in E1 starts it), and do E1 to E8. Every store is fresh, so the account, the key, the dataset and the
-ingest are all redone. P7's batch size is reused.
+Check:
+- The service list has every service but `tei` (es01, infinity, mysql, minio, redis, tei-probe, ragflow,
+  runner; `config --services` reads them from compose.yaml, so the list cannot drift from it). `rm --stop
+  --force --volumes` stops and removes those containers and their anonymous volumes. The store volumes of
+  `compose.store-volumes.yaml`, if that file was used, go with the `volume rm` line.
+- Only `ragbench-rf-tei` is left, `running`, and the last line prints `TEI kept, not restarted`: same
+  container id, same start time.
+- `ragbench-rf-net` stays, since TEI is on it; it holds no state. F removes it at the end.
+
+Then the Infinity run: set `ENG=infinity PROF=infinity STORE=ragbench-rf-infinity:23817` and do E1 to E8. `up -d`
+in E1 creates the removed services and keeps the warm TEI, whose service definition does not depend on the
+engine (no `RF_DOC_ENGINE` in it), so its config hash is unchanged. Every store is fresh, so the account, the
+key, the dataset and the ingest are all redone. P7's batch size and P9's patch are reused. After the Infinity
+run's E8, F removes TEI and the network.
 
 ### F. Final teardown, and the check that nothing that existed before is gone
+
+`down` interpolates the whole file. After P7 and P9 the pins file holds `RF_EMBEDDING_BATCH_SIZE` and
+`RF_TEI_WAIT_DIR`; before them, prefix it with `RF_EMBEDDING_BATCH_SIZE=probe-pending RF_TEI_WAIT_DIR=patch-pending`,
+as in P4.
 
 ```bash
 docker compose "${CF[@]}" --profile es --profile infinity down --volumes --remove-orphans --timeout 30

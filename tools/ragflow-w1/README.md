@@ -631,7 +631,7 @@ stops. The recomputed figures on 2026-11-08, all equal to the record:
 | query | A0, Postgres today | `.hq/docs/audits/librechat-platform/p3-evidence/eval-final.json` | 0.5625 | 0.6375 | 0.4874 |
 | query | T-B2 `r2\|b2\|t0.5\|h1.0` | `p3-evidence/rag-bench-rows-round2.jsonl` | 0.7229 | 0.7875 | 0.5498 |
 | query | T-B3d `r2\|b3d\|l2.0\|w16` | `p3-evidence/rag-bench-rows-round2.jsonl` | 0.7063 | 0.7625 | 0.5740 |
-| question | A0q `pgrust:question:gold` | bench `results/perf/pg-rows-question.jsonl` | 0.4604 | 0.5250 | 0.3707 |
+| question | A0q `pgrust:question:gold` | `p3-evidence/rag-bench-pg-rows-question.jsonl` | 0.4604 | 0.5250 | 0.3707 |
 | question | B1q `r2\|q:question` | `p3-evidence/rag-bench-rows-round2.jsonl` | 0.6937 | 0.7625 | 0.5987 |
 | question | T-B2q `r4\|q:question\|r2\|b2\|t0.5\|h1.0` | `p3-evidence/rag-bench-rows-round4.jsonl` | 0.6750 | 0.7375 | 0.6005 |
 | question | T-B3dq `r4\|q:question\|r2\|b3d\|l2.0\|w16` | `p3-evidence/rag-bench-rows-round4.jsonl` | 0.6875 | 0.7500 | 0.6206 |
@@ -641,14 +641,24 @@ The recorded figures are `results/score-all.json[cfg]['all']['overall']`, and `e
 A0. «Our best arm» on a field is the arm with the highest recorded all-80 recall@5: T-B2 on the query field,
 B4q on the question field. The report reads decision rule (c) against every arm and names the best one.
 
-**Where the arms are read from.** `rows-round2.jsonl` and `rows-round4.jsonl` are read from their durable copies
-in `.hq/docs/audits/librechat-platform/p3-evidence/` (`rag-bench-rows-round2.jsonl`, sha256 `7bccbab94956…`;
-`rag-bench-rows-round4.jsonl`, `89f61a4ceaf1…`; copied 2026-11-08, byte-identical to the bench files). If a copy
-is missing, the bench file is read, with a warning on the terminal and in the report. A0q's
-`results/perf/pg-rows-question.jsonl` and the strata's `data/eval.jsonl` have no durable copy and are read from
-the bench. If one of them, or any other source file, is missing, scoring is refused before any source is read,
-and the refusal names each missing file (before, it crashed with a traceback). The report records each source's path
-and sha256 (`sources` in the JSON, «Sources» in the markdown), and marks the bench ones «scratch bench». The
+**Where the arms are read from.** Every bench file the scorer reads has a durable copy in
+`.hq/docs/audits/librechat-platform/p3-evidence/`, byte-identical to the bench file (`DURABLE` in `score_w1.py`):
+
+| bench file | durable copy | sha256 | copied |
+|---|---|---|---|
+| `results/rows-round2.jsonl` | `rag-bench-rows-round2.jsonl` | `7bccbab94956…` | 2026-11-08 |
+| `results/rows-round4.jsonl` | `rag-bench-rows-round4.jsonl` | `89f61a4ceaf1…` | 2026-11-08 |
+| `results/perf/pg-rows-question.jsonl` (A0q) | `rag-bench-pg-rows-question.jsonl` | `6e72dd666cef…` | 2026-11-08, later |
+| `data/eval.jsonl` (the strata's query terms) | `rag-bench-eval.jsonl` | `d9538dd041b7…` | 2026-11-08, later |
+
+The last two were copied with `cp` and checked with `sha256sum -c` against the values the known limit below
+recorded (`6e72dd666cef13e8ce965049dcfa0c7748bd4cb71d6c8e5557cbbe65c4be2901`,
+`d9538dd041b7b8e9e4ec45c9c4b4f16db9cf4723db832e4ec4eab74e3a60024b`): both `OK`, and `cmp` found them
+byte-identical. Each file is read from its copy when that is present. If a copy is missing, the bench file is
+read, with a warning on the terminal and in the report (`bench_source`, for the arms and the strata alike). If
+a file is missing from both, scoring is refused before any source is read, and the refusal names each missing
+file (before, it crashed with a traceback). The report records each source's path and sha256 (`sources` in
+the JSON, «Sources» in the markdown), and marks any read from the bench «scratch bench». The
 re-scored-equals-recorded check runs on whichever file is read.
 
 **Halves** (`split.json`). The bench split T-B2's settings were tuned on: half A, 40 items, and the held-out
@@ -664,7 +674,8 @@ are not: with the split loaded, its scopes now resample in the split's key order
 **Strata** (spec «Definitions», «The miss pattern»). They are defined on the `query` field and used for both
 fields. An item's stratum is the share of its query terms that prefix-match its best single expected article.
 The terms are the recorded `legal_search.db.query_terms(query)` in the bench's `data/eval.jsonl`, written by
-`py/export_corpus.py:40`. They are used because `db.py` needs psycopg. The bench row must match the eval set's
+`py/export_corpus.py:40`, read from its durable copy `p3-evidence/rag-bench-eval.jsonl` (else from the bench,
+with a warning). They are used because `db.py` needs psycopg. The bench row must match the eval set's
 query and expected articles. The derivation reproduces the spec's table: 17 under half, 49 half or more, 14
 all, with Postgres reaching 4, 35 and 12. The scorer stops if it does not.
 - The 17 under-half items: civil-code-01, civil-code-02, civil-code-memo-03, majalla-01, majalla-03,
@@ -831,6 +842,20 @@ refusals name the key.
 | `canvas_sha256`, `upload_manifest_sha256` | 64 lower-case hex characters |
 | `file_shape` | `slug-title-served-v1` |
 | `embedding_batch_size` | a whole number, 1 or more |
+| `max_concurrent_tasks` | a whole number, 1 or more (`MAX_CONCURRENT_TASKS`, the server's documents at a time) |
+| `tei_wait_patch` | exactly `file`, `image_sha256`, `patched_sha256`, `changed_lines`, `wait_s` and `diff`: the file `rag/llm/embedding_model.py`; both sha256 64 lower-case hex and different; two line numbers; `wait_s` a whole number above 30; `diff` the unified diff text (the spec, «The change»: «Its diff and both sha256 go in the W2 manifest»), naming `a/` and `b/rag/llm/embedding_model.py`, with as many removed and added lines as changed lines, each removed one ending `timeout=30)` and each added one `timeout=<wait_s>)` (`tools/ragflow-w2`, README «## TEI wait patch»; rf_ingest.py checks the diff against the patched file itself) |
+
+The last two, and `embedding_batch_size`, are operational settings the owner set for this machine (spec, «Owner
+decision 2026-11-08 (later)»). They are printed in the report's «W2 manifest» table (the diff in the JSON only),
+the «what was run» header, and decide nothing: none of them is a gap for the deciding reading. A `tei_wait_patch`
+other than the owner's approved one (`W2_TEI_WAIT_APPROVED`: image file `c2e46e1c…0536`, patched file
+`90f3a20d…acab`, lines 1247 and 1253, 900 s) is warned about in the report and on the terminal, still not a gap:
+the server-side check (`check_tei_wait.py`, runbook E2) refuses such a patch before any document is parsed.
+
+W1 reports are unchanged by these fields. Their figures are also unchanged by the durable copies («Where the
+arms are read from»: byte-identical files), but their text is not, in one place: the Sources line and the JSON
+`sources` now name the `p3-evidence/` copies for A0q and the strata's terms, with `durable` true, and those two
+entries no longer carry «, scratch bench».
 
 **The gate.** `--own-run` refuses, before it scores anything:
 - a results file that does not resolve under `.hq/scratch/w2-run/out/` (a link that points elsewhere included),
@@ -967,8 +992,8 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     to another folder;
   - the screening gate: pending, flagged, a flagged screen recorded clear afterwards, the history, a changed
     file, a cleared pair copied out of quarantine, and a manifest edited to declare client data.
-- **`tests/test_score_w1.py`**, 127 tests: 59 for W1 (the 57 from before W2, and 2 added in the third review)
-  and 68 for W2. The W1 ones cover:
+- **`tests/test_score_w1.py`**, 132 tests: 59 for W1 (the 57 from before W2, and 2 added in the third review)
+  and 73 for W2. The W1 ones cover:
   - the bit-parallel LCS, over the whole chunk and over every stretch, against the dynamic programme;
   - the mapping-rule cases above;
   - the candidate restriction against full scans;
@@ -984,13 +1009,14 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     zero in exact arithmetic not read as above or below zero;
   - the sent-text check, with a two-field file.
 
-  The real-data tests need `.hq/scratch/rag-bench` and `eval-final.json`. They check that the strata are the
+  The real-data tests need `eval-final.json`, the split, and every source: the durable copies in
+  `p3-evidence/` (else `.hq/scratch/rag-bench`). They check that the strata are the
   spec's 17, that the A0 self-check gives back 0.5625, the null control at 1,200 characters, that a scored file
   writes no chunk text, that civil-code 107 lacking leaves civil-code-01 out of the held scopes, and one rule (c)
   interval pinned in split order: W1 (A0's own text) minus T-B2 on all 80, -0.2896 [-0.3875, -0.1896]. In the
   eval set's order the same differences give [-0.3937, -0.1875].
 
-  The 68 W2 tests cover:
+  The 73 W2 tests cover:
   - the own-run gate: our file beside its manifest accepted; refused for a Walid-shaped file with no manifest,
     the same file beside our manifest, a file outside `out/`, a file one folder below `out/<engine>/`, a link
     under another name, a dataset id other than the manifest's, a second dataset beside ours, a manifest whose
@@ -999,19 +1025,24 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     accepted), settings that differ from v3 only in `similarity_threshold`, `top_k` or an added `rerank_id`, a
     server version other than the manifest's, a URL in a chunk (the screens still
     run), a manifest not beside the results or naming another engine, a file not named for an arm, a chunk from a
-    document named like Walid's, and 16 manifests that break the contract, one per check (`w2`, `created_at`,
-    the image digest, the batch size, both hashes, the revision, `v0.27.30` among them); a registry without
-    the manifest's 22 laws; and every registry slug's `<slug>.md` accepted;
+    document named like Walid's, and 32 manifests that break the contract, one per check (`w2`, `created_at`,
+    the image digest, the batch size, both hashes, the revision, `v0.27.30` among them; and for the TEI-wait
+    fields: a stage-2 manifest without them, a concurrency of 0 or as text, the whole `patch.json` with its
+    `anchors`, a patch of another file, the shipped wait of 30, a wait as text, a patched sha256 that is not
+    hex, an image sha256 ending in a newline, a patch that changed nothing, one changed line, a patch without
+    its diff, a diff of another file, a diff that is not text, a diff of another wait than the record's, a diff
+    that changes a third line); a registry
+    without the manifest's 22 laws; and every registry slug's `<slug>.md` accepted;
   - the arm settings against `run_w1.py`'s own parser;
   - the options: W2 options without `--own-run`, `--own-run` without a manifest or with `--laws-held`; and
     `--w2-decide` refused before the library loads, through `main`, for an Infinity file, a `--split` with
     another sha256, and a header whose server-reported embedder is not Qwen3;
   - the split: each item's half, in the file's key order; only the bench split recorded as pinned; refused for
     an id outside the set, a missing id, a third half and unequal halves; the durable copy first, the bench's
-    with a warning, and a refusal when neither exists; arm sources from the durable copy, the bench's with a
-    warning, and A0q's bench-only file with none; T-B2's source for the `--w2-decide` gate (the durable copy,
-    the bench's, or none); and, with no bench folder, a refusal through `main` (exit 2) that names both
-    bench-only files;
+    with a warning, and a refusal when neither exists; arm sources (T-B2 and A0q) from the durable copy, the
+    bench's with a warning; the strata's terms the same way; T-B2's source for the `--w2-decide` gate (the
+    durable copy, the bench's, or none); with no bench folder, every source found in its durable copy; and,
+    with neither, a refusal through `main` (exit 2) that names each bench file;
   - the half scopes, with and without a split, and each scope handed to the bootstrap in the split's order;
   - the deciding reading on 40 half-B items: a win, a loss (noted as behind, below zero) and a tie (noted as not
     detectable); three more items not shown and four a win; half A ignored; T-B2 through the rule, not by its
@@ -1021,14 +1052,19 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
     canvas, arm, field, split, T-B2's rows not durable, another sha or missing); the server's embedding model
     (another model, a longer name, another provider, none) as gaps, an opaque tenant-model id as none; the
     printed «not shown» line;
-  - own-run scoring on a fixture: every law held, nothing lacking, no warning; a server embedder other than the
-    manifest's warned about and not deciding; an opaque tenant-model id warned about and still deciding; the
+  - own-run scoring on a fixture: every law held, nothing lacking, no warning; the «W2 manifest» table printing
+    the TEI-wait patch and the concurrency (the diff kept in the JSON), and no «scratch bench» when every source
+    is durable; a TEI-wait patch other than the approved one warned about and still deciding; a server
+    embedder other than the manifest's warned about and not deciding; an opaque tenant-model id warned about and still deciding; the
     report's «own run (W2)», the manifest's fields and no wording about his corpus; `w2-score.*` with no chunk
     text; the fallback sensitivity emptying its items and leaving the deciding reading alone; in a two-field
     file, question ids in the fallback emptying only the question field's items;
   - the fallback file: read per field; refused for another arm, a field the file lacks, an id with no chunks and
     an id given twice;
-  - real data: the arms and the split from the durable copies, with no warning; half B in the split's order gives
+  - real data: every arm (A0q included), the strata's terms and the split from the durable copies, with no
+    warning; with the strata's durable copy missing, the bench's read and the warning carried end to end
+    (`load_context`, the report's `source_warnings`, the markdown's «Warning (sources)» and «scratch bench»);
+    half B in the split's order gives
     back PROOF-rag-bench.md's +0.132 [+0.019, +0.248]; a W1 report's held items of each half (9 and 7 of 16);
     T-B2's own top-5 text as an own run, which ties T-B2 on half B and reads «not shown» with all 22 laws held;
     and `--w2-decide` end to end through `main`, the deciding reading printed before «Exploratory».
@@ -1083,10 +1119,10 @@ cd "/d/Iqraa Law/AI Harness-w1/tools/ragflow-w1" && python -B -X utf8 -m unittes
   passes intake. URLs, `localhost` and IP addresses are refused.
 - **The question-field arms are recorded rows, not A1q.** A1q (spec Part 1) has not run. When it does, it
   replaces them as «our best arm» on that field.
-- **The bench folder is still needed.** T-B2, T-B3d, B1q, T-B2q, T-B3dq, B4q and the split are read from their
-  durable copies in `p3-evidence/`. A0q's rows and the strata's recorded query terms (`data/eval.jsonl`) have
-  none, and are read from `.hq/scratch/rag-bench` at each run. Each source's path and sha256 is recorded in the
-  report. If the bench folder goes, the scorer cannot score: it refuses, naming the missing files. Copying the
-  two into `p3-evidence/` and adding them to `DURABLE` would close this. Their sha256 on 2026-11-08:
-  `results/perf/pg-rows-question.jsonl` `6e72dd666cef13e8ce965049dcfa0c7748bd4cb71d6c8e5557cbbe65c4be2901`,
-  `data/eval.jsonl` `d9538dd041b7b8e9e4ec45c9c4b4f16db9cf4723db832e4ec4eab74e3a60024b`.
+- **The bench folder is a fallback only.** Since 2026-11-08 (later) every arm's rows, the strata's recorded query
+  terms and the split are read from their durable copies in `p3-evidence/` («Where the arms are read from»):
+  A0q's `results/perf/pg-rows-question.jsonl` (`6e72dd666cef13e8ce965049dcfa0c7748bd4cb71d6c8e5557cbbe65c4be2901`)
+  and `data/eval.jsonl` (`d9538dd041b7b8e9e4ec45c9c4b4f16db9cf4723db832e4ec4eab74e3a60024b`) were the last two, and
+  closed this limit. The scorer scores without `.hq/scratch/rag-bench` (a test checks that every source is
+  found with no bench folder). It reads the bench only for a copy that is missing, with a warning. What remains:
+  the copies are as good as the bench files they were taken from, which were not regenerated.

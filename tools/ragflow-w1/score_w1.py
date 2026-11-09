@@ -54,12 +54,15 @@ EVALSET = HARNESS / 'content' / 'eval' / 'retrieval-v1.jsonl'
 BENCH = WORKSPACE / '.hq' / 'scratch' / 'rag-bench'
 EVIDENCE = WORKSPACE / '.hq' / 'docs' / 'audits' / 'librechat-platform' / 'p3-evidence'  # tracked, durable
 BASELINE = EVIDENCE / 'eval-final.json'
-# The bench files with a durable copy in p3-evidence (copied 2026-11-08, byte-identical). The rest stay bench-only.
+# The bench files with a durable copy in p3-evidence (copied 2026-11-08, byte-identical; README, «Where the arms are
+# read from»). Each is read from its copy when present, else from the bench with a warning (bench_source).
 DURABLE = {'results/rows-round2.jsonl': 'rag-bench-rows-round2.jsonl',
-           'results/rows-round4.jsonl': 'rag-bench-rows-round4.jsonl'}
+           'results/rows-round4.jsonl': 'rag-bench-rows-round4.jsonl',
+           'results/perf/pg-rows-question.jsonl': 'rag-bench-pg-rows-question.jsonl',
+           'data/eval.jsonl': 'rag-bench-eval.jsonl'}
 SPLIT = EVIDENCE / 'rag-bench-split.json'
 SPLIT_IN_BENCH = 'data/split.json'
-STRATA_TERMS = 'data/eval.jsonl'  # in the bench: derive_strata's recorded query terms, no durable copy
+STRATA_TERMS = 'data/eval.jsonl'  # in the bench: derive_strata's recorded query terms (a durable copy in DURABLE)
 # The bench's split (T-B2 was tuned on half A), as copied to p3-evidence; the W2 deciding reading uses only it.
 SPLIT_SHA256 = '6e7909beedf20c4d79aad0038b58a64c665718b5fb552416689e4e77445cd1a4'
 # T-B2's ranked lists: rows-round2.jsonl as copied to p3-evidence (README, «Where the arms are read from»). The
@@ -75,8 +78,19 @@ W2_MANIFEST = 'w2-manifest.json'
 W2_MANIFEST_KEYS = frozenset({'w2', 'created_at', 'engine', 'embedder', 'ragflow_version', 'ragflow_image_digest',
                               'dataset_id', 'language', 'document_count', 'chunk_count', 'predicted_chunk_count',
                               'all_match', 'canvas_sha256', 'upload_manifest_sha256', 'file_shape',
-                              'embedding_batch_size'})
+                              'embedding_batch_size', 'max_concurrent_tasks', 'tei_wait_patch'})
 W2_EMBEDDER_KEYS = frozenset({'name', 'revision', 'via'})
+# The TEI-wait patch the server ran (spec, «Owner decision 2026-11-08 (later)»; tools/ragflow-w2/patch_tei_wait.py).
+# Operational, not a retrieval setting: recorded and printed, never a deciding gap. «diff» is the unified diff text
+# (the spec: «Its diff and both sha256 go in the W2 manifest»); rf_ingest.py checks it against the patched file.
+W2_TEI_WAIT_KEYS = frozenset({'file', 'image_sha256', 'patched_sha256', 'changed_lines', 'wait_s', 'diff'})
+W2_TEI_WAIT_FILE = 'rag/llm/embedding_model.py'
+W2_TEI_WAIT_SHIPPED = 30  # v0.27.3's wait (rag/llm/embedding_model.py:1247, :1253)
+# The owner's approved change (tools/ragflow-w2/README.md, «## TEI wait patch»; check_tei_wait.py APPROVED, which
+# refuses any other before a parse). Another one is warned about, not a deciding gap.
+W2_TEI_WAIT_APPROVED = {'image_sha256': 'c2e46e1cb5d128122a48b8283d135b81321441655dbd9c22c9ecd8035a6c0536',
+                        'patched_sha256': '90f3a20d0bfab00175670c90c93e410592029bbf7b75b7aadfe944f71c74acab',
+                        'changed_lines': [1247, 1253], 'wait_s': 900}
 W2_ENGINES = ('elasticsearch', 'infinity')
 W2_VIA = 'builtin-tei'
 W2_FILE_SHAPE = 'slug-title-served-v1'
@@ -472,18 +486,28 @@ def where(path: Path) -> str:
         return path.as_posix()
 
 
-def arm_source(spec: ArmSpec, bench: Path, baseline: Path, durable: Path | None) -> tuple:
-    """(path, durable, warning) for an arm's source: the p3-evidence copy when the file has one and it is
-    present; else the bench file, with a warning when a durable copy was expected."""
-    if spec.source == 'baseline':
-        return baseline, True, None
-    name = DURABLE.get(spec.source)
+def bench_source(relative: str, bench: Path, durable: Path | None) -> tuple:
+    """(path, durable, warning) for a bench file: its p3-evidence copy when DURABLE names one and it is present;
+    else the bench file, with a warning when a durable copy was expected."""
+    name = DURABLE.get(relative)
     if name and durable is not None and (Path(durable) / name).is_file():
         return Path(durable) / name, True, None
-    path = Path(bench) / spec.source
-    warning = (f'{spec.source}: the durable copy {where(Path(durable) / name) if durable is not None else name} is '
+    path = Path(bench) / relative
+    warning = (f'{relative}: the durable copy {where(Path(durable) / name) if durable is not None else name} is '
                f'missing; read from the bench folder instead ({where(path)})') if name else None
     return path, False, warning
+
+
+def arm_source(spec: ArmSpec, bench: Path, baseline: Path, durable: Path | None) -> tuple:
+    """(path, durable, warning) for an arm's source: eval-final.json for A0, else bench_source."""
+    if spec.source == 'baseline':
+        return baseline, True, None
+    return bench_source(spec.source, bench, durable)
+
+
+def strata_source(bench: Path, durable: Path | None) -> tuple:
+    """(path, durable, warning) for the strata's recorded query terms (bench_source of data/eval.jsonl)."""
+    return bench_source(STRATA_TERMS, bench, durable)
 
 
 def load_arms(items: list, bench: Path = BENCH, baseline: Path = BASELINE, names=None,
@@ -565,12 +589,13 @@ def term_share(terms: list, text: str) -> float:
     return sum(1 for term in terms if any(word.startswith(term) for word in words)) / len(terms)
 
 
-def derive_strata(items: list, texts: dict, bench: Path = BENCH) -> dict:
+def derive_strata(items: list, texts: dict, terms: Path) -> dict:
     """Spec «The miss pattern»: an item's stratum is the share of its `query` terms that prefix-match its best single
     expected article. The terms are the recorded legal_search.db.query_terms(query) in the bench's data/eval.jsonl
-    (written by py/export_corpus.py:40), since db.py needs psycopg. Checked against the spec's counts."""
+    (written by py/export_corpus.py:40), since db.py needs psycopg: `terms` is that file or its durable copy
+    (strata_source). Checked against the spec's counts."""
     recorded = {}
-    with open(Path(bench) / STRATA_TERMS, encoding='utf-8') as handle:
+    with open(terms, encoding='utf-8') as handle:
         for line in handle:
             row = json.loads(line)
             recorded[row['id']] = row
@@ -810,8 +835,8 @@ class Context:
 
 def missing_sources(bench: Path = BENCH, baseline: Path = BASELINE, durable: Path | None = EVIDENCE) -> list:
     """The files load_context would read that are not there: each arm's source (arm_source) and the strata's
-    recorded query terms, as the reports print paths."""
-    paths = [arm_source(spec, bench, baseline, durable)[0] for spec in ARMS] + [Path(bench) / STRATA_TERMS]
+    recorded query terms (strata_source), as the reports print paths."""
+    paths = [arm_source(spec, bench, baseline, durable)[0] for spec in ARMS] + [strata_source(bench, durable)[0]]
     return list(dict.fromkeys(where(path) for path in paths if not Path(path).is_file()))
 
 
@@ -819,9 +844,9 @@ def load_context(bench: Path = BENCH, baseline: Path = BASELINE, evalset: Path =
                  durable: Path | None = EVIDENCE) -> Context:
     missing = missing_sources(bench, baseline, durable)
     if missing:
-        raise Refused(f'missing: {", ".join(missing)}. A0q\'s rows and the strata\'s query terms have no durable copy '
-                      'and are read from the scratch bench folder at each run (a known limit: README, «The bench '
-                      'folder is still needed»). Restore the bench folder or pass --bench')
+        raise Refused(f'missing: {", ".join(missing)}. Each source is read from its durable copy in p3-evidence when '
+                      'that is present, else from the scratch bench folder (README, «Where the arms are read from»). '
+                      'Restore the copies or the bench folder, or pass --bench')
     texts = library_texts()
     items, set_sha = load_evalset(evalset)
     corpus_sha = corpus_sha256(texts)
@@ -830,13 +855,13 @@ def load_context(bench: Path = BENCH, baseline: Path = BASELINE, evalset: Path =
         raise ValueError('the eval set or the corpus differs from the one the recorded arms were run on')
     split_path, split_warning = resolve_split(split, bench)
     arms = load_arms(items, bench, baseline, durable=durable)
-    terms = Path(bench) / STRATA_TERMS
+    terms, terms_durable, terms_warning = strata_source(bench, durable)
     sources = {'arms': {arm.spec.name: {'path': arm.source_path, 'sha256': arm.source_sha256, 'durable': arm.durable}
                         for arm in arms},
                'split': split_source(split_path),
-               'strata_terms': {'path': where(terms), 'sha256': sha256_file(terms), 'durable': False}}
-    warnings = list(dict.fromkeys(w for w in (*(arm.warning for arm in arms), split_warning) if w))
-    return Context(texts, items, set_sha, corpus_sha, arms, derive_strata(items, texts, bench), Mapper(texts),
+               'strata_terms': {'path': where(terms), 'sha256': sha256_file(terms), 'durable': terms_durable}}
+    warnings = list(dict.fromkeys(w for w in (*(arm.warning for arm in arms), split_warning, terms_warning) if w))
+    return Context(texts, items, set_sha, corpus_sha, arms, derive_strata(items, texts, terms), Mapper(texts),
                    {key[0] for key in texts}, load_split(split_path, items), sources, warnings)
 
 
@@ -911,7 +936,43 @@ def load_w2_manifest(path: Path) -> dict:
     _need(m['file_shape'] == W2_FILE_SHAPE, f'"file_shape" must be {W2_FILE_SHAPE}, the shape pinned with the rule')
     _need(_whole(m['embedding_batch_size']) and m['embedding_batch_size'] >= 1,
           '"embedding_batch_size" must be a whole number, 1 or more')
+    _need(_whole(m['max_concurrent_tasks']) and m['max_concurrent_tasks'] >= 1,
+          '"max_concurrent_tasks" must be a whole number, 1 or more')
+    patch = m['tei_wait_patch']
+    _need(isinstance(patch, dict) and set(patch) == W2_TEI_WAIT_KEYS,
+          f'"tei_wait_patch" must hold exactly {", ".join(sorted(W2_TEI_WAIT_KEYS))}')
+    _need(patch['file'] == W2_TEI_WAIT_FILE, f'"tei_wait_patch.file" must be {W2_TEI_WAIT_FILE}')
+    for name in ('image_sha256', 'patched_sha256'):
+        _need(isinstance(patch[name], str) and _HEX64.fullmatch(patch[name]) is not None,
+              f'"tei_wait_patch.{name}" must be 64 lower-case hex characters')
+    _need(patch['image_sha256'] != patch['patched_sha256'],
+          '"tei_wait_patch": the patched file has the image file\'s sha256, so nothing was changed')
+    lines = patch['changed_lines']
+    _need(isinstance(lines, list) and len(lines) == 2 and all(_whole(n) and n > 0 for n in lines),
+          '"tei_wait_patch.changed_lines" must be two line numbers')
+    _need(_whole(patch['wait_s']) and patch['wait_s'] > W2_TEI_WAIT_SHIPPED,
+          f'"tei_wait_patch.wait_s" must be a whole number above {W2_TEI_WAIT_SHIPPED}')
+    rows = patch['diff'].split('\n') if isinstance(patch['diff'], str) else []
+    _need(rows[:2] == [f'--- a/{W2_TEI_WAIT_FILE}', f'+++ b/{W2_TEI_WAIT_FILE}'],
+          f'"tei_wait_patch.diff" must be the unified diff of {W2_TEI_WAIT_FILE} (a/ and b/)')
+    removed, added = [r for r in rows[2:] if r.startswith('-')], [r for r in rows[2:] if r.startswith('+')]
+    _need(len(removed) == len(added) == len(lines)
+          and all(r.endswith(f'timeout={W2_TEI_WAIT_SHIPPED})') for r in removed)
+          and all(r.endswith(f'timeout={patch["wait_s"]})') for r in added),
+          f'"tei_wait_patch.diff" must change only its changed lines, each timeout={W2_TEI_WAIT_SHIPPED} to the wait')
     return manifest
+
+
+def tei_wait_warning(patch: dict) -> str | None:
+    """A warning when the manifest's TEI-wait patch is not the owner's approved one (W2_TEI_WAIT_APPROVED)."""
+    off = [k for k, v in W2_TEI_WAIT_APPROVED.items() if patch[k] != v]
+    if not off:
+        return None
+    a = W2_TEI_WAIT_APPROVED
+    return (f'the TEI-wait patch is not the approved one ({", ".join(off)} not as approved: image file '
+            f'{a["image_sha256"][:12]}, patched file {a["patched_sha256"][:12]}, lines {a["changed_lines"]}, '
+            f'{a["wait_s"]} s); it is operational, so no deciding gap, and check_tei_wait.py refuses such a patch '
+            'before any parse')
 
 
 def registry_slugs(registry: Path = REGISTRY) -> set:
@@ -1243,6 +1304,7 @@ def score_own_run(own: OwnRun, results, context: Context, fallback: dict | None 
                            'embedder']}.get(kind, [])
     if kind == 'name' and name != m['embedder']['name']:
         warnings.append(f'the header\'s embedding model does not name the manifest\'s embedder {m["embedder"]["name"]}')
+    warnings += [w for w in (tei_wait_warning(m['tei_wait_patch']),) if w]
     split_sha = context.sources.get('split', {}).get('sha256', '')
     report = {
         'w1_score': 1, 'w2': 1,
@@ -1498,7 +1560,8 @@ def _source_lines(report: dict) -> list:
         sizes = ', '.join(f'{half} {n}' for half, n in report['halves']['sizes'].items())
         parts.append(f'split `{split["path"]}` ({split["sha256"][:12]}'
                      f'{"" if split["pinned"] else ", not the pinned split"}; halves {sizes})')
-        parts.append(f'strata terms `{terms["path"]}` ({terms["sha256"][:12]}, scratch bench)')
+        parts.append(f'strata terms `{terms["path"]}` ({terms["sha256"][:12]}'
+                     f'{"" if terms.get("durable") else ", scratch bench"})')
         out.append('Sources: ' + '; '.join(parts) + '.')
     out += [f'**Warning (sources):** {warning}.' for warning in report.get('source_warnings', [])]
     return out
@@ -1527,6 +1590,11 @@ def _w1_head(report: dict) -> list:
     return out
 
 
+def _tei_wait_text(patch: dict) -> str:
+    return (f'`{patch["file"]}` lines {", ".join(map(str, patch["changed_lines"]))}: TEI wait {patch["wait_s"]} s, '
+            f'not {W2_TEI_WAIT_SHIPPED} (image file {patch["image_sha256"]}, patched {patch["patched_sha256"]})')
+
+
 def _own_head(report: dict) -> list:
     results, held, m = report['results'], report['laws_held'], report['w2_manifest']
     e = m['embedder']
@@ -1536,6 +1604,8 @@ def _own_head(report: dict) -> list:
             ('chunks', f'{m["chunk_count"]} (predicted {m["predicted_chunk_count"]}, all match: {m["all_match"]})'),
             ('canvas sha256', m['canvas_sha256']), ('upload manifest sha256', m['upload_manifest_sha256']),
             ('file shape', m['file_shape']), ('embedding batch size', m['embedding_batch_size']),
+            ('max concurrent tasks', m['max_concurrent_tasks']),
+            ('TEI wait patch', _tei_wait_text(m['tei_wait_patch'])),
             ('created at', m['created_at']), ('manifest', f'`{m["path"]}` ({m["sha256"][:12]})')]
     out = ['# W2 score', '',
            '**Own run (W2).** Our served articles, one generated file per law, in our own throwaway RAGFlow, queried '
