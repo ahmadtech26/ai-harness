@@ -24,6 +24,7 @@ legal-search = "legal_search.server:main"
 legal-search-ingest = "legal_search.ingest:main"
 legal-search-eval = "legal_search.evaluate:main"
 legal-search-timing = "legal_search.timing:main"
+legal-search-contract = "legal_search.contract:main"
 
 # uv's own backend (R2 n=35): uv builds with the copy bundled in its executable while it satisfies this range, so
 # no build backend is fetched from PyPI and run at image build. The module is src/legal_search (its default).
