@@ -2,13 +2,17 @@
 
     legal-search-eval check                                        # the set against the corpus (no database)
     legal-search-eval run --label <label> [--reset] [--use-law-filter] [--config name=value ...]
+                          [--field query|question] [--queries <side file>]
     legal-search-eval compare <incumbent label> <candidate label>  # deltas and the keep rule (REQ-EVL-004)
     legal-search-eval targets <label> --recall5 X --law-floor Y --mrr Z   # the agreed targets (REQ-EVL-003)
 
 Paths default to the test stack's mounts (/content, /corpus, /evidence). `run` ingests the registry with
 legal-search's own ingest and calls db.search directly: no caps, no MCP, no retrieval log, DEPTH results per
 item. It writes eval-<label>.json and eval-<label>.md, and exits 1 when the memorandum data check fails. The
-same corpus, set and code give the same numbers.
+same corpus, set and code give the same numbers. `--field question` searches each item's question instead of its
+query (REQ-RAG-032). `--queries` takes each item's query and law from a JSONL side file of {id, query, law} rows,
+one per item (recorded queries, O-94), and the run records the file's sha256; it does not combine with
+`--field question`.
 """
 
 import argparse
@@ -19,6 +23,7 @@ import os
 import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Literal, get_args
 
 from psycopg import AsyncConnection
 
@@ -35,6 +40,8 @@ CORPUS_TABLES = 'memorandum_links, memorandum_notes, articles, laws'
 RESET_FLAG = 'LEGAL_SEARCH_EVAL_RESET'
 
 ERRORS = (EvalSetError, IngestError, RegistryError, CorrectionError, MemorandumError, OSError)
+
+Field = Literal['query', 'question']  # the item text `run` searches
 
 
 @dataclass(frozen=True)
@@ -94,11 +101,23 @@ def _settings(run: dict) -> str:
     return ', '.join(parts) or 'defaults'
 
 
-async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filter: bool = False, reset: bool = False, config: SearchConfig = DEFAULT) -> dict:
-    """Ingest the registry, search every item (DEPTH results, no caps) and return the report."""
+async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filter: bool = False, reset: bool = False,
+                   config: SearchConfig = DEFAULT, field: Field = 'query', queries: Path | None = None) -> dict:
+    """Ingest the registry, search every item (DEPTH results, no caps) and return the report. Each item searches its
+    `field`, or, with a `queries` side file, its row's query; the law (the item's, or the row's) applies only with
+    use_law_filter."""
+    if field not in get_args(Field):
+        raise EvalError(f'field must be one of {", ".join(get_args(Field))}, not {field!r}')
+    if queries is not None and field != 'query':
+        raise EvalError(f'field {field!r} does not apply with a side file: its rows give each item its query')
     evalset, prepared, problems = check_sources(sources, with_coverage=False)
     if problems:
         raise EvalError('the evaluation set fails its checks:\n' + '\n'.join(problems))
+    if queries is None:
+        inputs, queries_sha256 = [(item, getattr(item, field), item.law) for item in evalset.items], None
+    else:
+        rows, queries_sha256 = _side_file(queries, evalset.items)
+        inputs = [(item, *rows[item.id]) for item in evalset.items]
     keys = frozenset((a.law_slug, a.number, a.suffix) for articles in prepared.articles.values() for a in articles)
     if reset:
         await _reset(conninfo)
@@ -107,13 +126,14 @@ async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filte
     await ingest(conninfo, sources.registry, sources.corrections, sources.corpus)
     async with await AsyncConnection.connect(conninfo, autocommit=True) as conn:
         await _require_only_the_registry(conn, keys, complete=True)
-        results = [await _score(conn, item, use_law_filter, config) for item in evalset.items]
+        results = [await _score(conn, item, text, law if use_law_filter else None, config) for item, text, law in inputs]
         memorandum = await memorandum_check(conn, evalset.items)
         corpus_sha256 = await corpus_digest(conn)
     return {
         'run': {
             'label': label, 'set': evalset.name, 'set_review': evalset.review_status, 'set_sha256': evalset.sha256,
             'corpus_sha256': corpus_sha256, 'use_law_filter': use_law_filter, 'depth': DEPTH, 'config': asdict(config),
+            'field': field, 'queries_sha256': queries_sha256,
         },
         'metrics': summarise([scored for scored, _ in results]),
         'memorandum': memorandum,
@@ -122,13 +142,56 @@ async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filte
     }
 
 
-async def _score(conn: AsyncConnection, item: Item, use_law_filter: bool, config: SearchConfig) -> tuple[Scored, dict]:
-    law = item.law if use_law_filter else None
-    found = await db.search(conn, item.query, DEPTH, law=law, config=config)
+def _side_file(path: Path, items: tuple[Item, ...]) -> tuple[dict[str, tuple[str, str | None]], str]:
+    """Each id's (query, law) from the side file's {id, query, law} rows, and the sha256 of the file's bytes.
+
+    Every item needs exactly one row; rows for ids outside the set are ignored. A row is a JSON object with a string
+    id, a string query (an empty one is a recorded call that searches nothing, as db.search returns [] for it) and a
+    law that is a slug string, null or absent, read as tools.search_law reads it: stripped, and blank means none. Lines
+    split on '\\n' only, as parse_evalset's do, so a query may hold U+2028. Every problem is reported, with its line,
+    in one EvalError raised before run_eval resets or ingests anything."""
+    data = path.read_bytes()
+    rows: dict[str, tuple[str, str | None]] = {}
+    twice: dict[str, None] = {}  # ids named more than once, each once, in file order
+    problems: list[str] = []
+    for number, line in enumerate(data.decode('utf-8').replace('\r\n', '\n').split('\n'), 1):
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as error:
+            problems.append(f'line {number}: not JSON ({error.msg})')
+            continue
+        shape = _side_row_problems(row)
+        if shape:
+            problems.extend(f'line {number}: {problem}' for problem in shape)
+            continue
+        if row['id'] in rows:
+            twice[row['id']] = None
+        rows[row['id']] = (row['query'], (row.get('law') or '').strip() or None)
+    wanted = {item.id for item in items}
+    problems += [f'no row for item {item.id}' for item in items if item.id not in rows]
+    problems += [f'more than one row for item {item_id}' for item_id in twice if item_id in wanted]
+    if problems:
+        raise EvalError(f'side file {path}: ' + '; '.join(problems))
+    return rows, hashlib.sha256(data).hexdigest()
+
+
+def _side_row_problems(row: object) -> list[str]:
+    if not isinstance(row, dict):
+        return ['must be a JSON object']
+    problems = [f'{key} must be a string' for key in ('id', 'query') if not isinstance(row.get(key), str)]
+    if not isinstance(row.get('law'), str | None):
+        problems.append('law must be a slug string or null')
+    return problems
+
+
+async def _score(conn: AsyncConnection, item: Item, text: str, law: str | None, config: SearchConfig) -> tuple[Scored, dict]:
+    found = await db.search(conn, text, DEPTH, law=law, config=config)
     ranked = tuple((article.law_slug, article.number, article.suffix) for article in found)
     scored = Scored(item.scored_law, frozenset(expected.key for expected in item.expected), ranked)
     row = {
-        'id': item.id, 'law': item.scored_law, 'query': item.query, 'law_filter': law,
+        'id': item.id, 'law': item.scored_law, 'query': text, 'law_filter': law,
         'expected': [list(expected.key) for expected in item.expected], 'ranked': [list(key) for key in ranked],
     }
     row.update({name: round(value, PRECISION) for name, value in item_metrics(scored).items()})
@@ -268,6 +331,8 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument('--use-law-filter', action='store_true', help="pass each item's law to search")
     run.add_argument('--reset', action='store_true', help=f'drop the corpus tables first (only where {RESET_FLAG}=1)')
     run.add_argument('--config', action='append', default=[], metavar='NAME=VALUE', help='override a SearchConfig field')
+    run.add_argument('--field', choices=get_args(Field), default='query', help='the item text to search')
+    run.add_argument('--queries', type=Path, metavar='PATH', help='a JSONL side file of {id, query, law} rows, one per item, searched instead')
     compare_command = commands.add_parser('compare', help='compare two runs in --out and apply the keep rule')
     compare_command.add_argument('incumbent', type=_label)
     compare_command.add_argument('candidate', type=_label)
@@ -293,7 +358,8 @@ def main() -> None:
             _check(_sources(args))
         elif args.command == 'run':
             report = asyncio.run(run_eval(db.database_url(), _sources(args), args.label,
-                                          use_law_filter=args.use_law_filter, reset=args.reset, config=with_overrides(DEFAULT, args.config)))
+                                          use_law_filter=args.use_law_filter, reset=args.reset, config=with_overrides(DEFAULT, args.config),
+                                          field=args.field, queries=args.queries))
             json_path, md_path = write_report(report, args.out)
             overall = report['metrics']['overall']
             print(f'wrote {json_path.name} and {md_path.name}: recall@5 {overall["recall@5"]:.4f}, recall@10 '
