@@ -18,7 +18,7 @@ from dataclasses import dataclass
 
 from psycopg import AsyncConnection
 
-from legal_search import db
+from legal_search import db, spans
 from legal_search import guard as sweep
 from legal_search.caps import Caps, allowed
 from legal_search.citation import format_articles, format_memorandum
@@ -105,16 +105,22 @@ async def search_law(conn: AsyncConnection, caps: Caps, caller: Caller, query: s
             await _record(conn, caller, attempt, query, decision, 'served')
             return fixed
     # The candidates are what this call would serve under the normal caps; the guard decides on them.
-    candidates = await db.search(conn, query, await _budget(conn, caps, caller, limit), law=law)
+    # The spans time the whole-call splits (REQ-RAG-021); they record nothing unless a timing collector is set.
+    async with spans.span('budget'):
+        budget = await _budget(conn, caps, caller, limit)
+    async with spans.span('search'):
+        candidates = await db.search(conn, query, budget, law=law)
     attempt = Attempt('search_law', law, keys=frozenset(article_key(f.law_slug, f.number, f.suffix) for f in candidates))
-    decision = await sweep.decide(conn, guard, caps, caller.user, attempt)
+    async with spans.span('guard'):
+        decision = await sweep.decide(conn, guard, caps, caller.user, attempt)
     candidate_ids = [article.id for article in candidates]
     remaining = await _budget(conn, decision.caps, caller, limit)
     if remaining == 0:
         return await _refuse(conn, caller, attempt, query, decision, candidate_ids)
     found = candidates[:remaining]
-    await _record(conn, caller, attempt, query, decision, 'served', [article.id for article in found],
-                  candidate_ids=candidate_ids if len(found) < len(candidates) else None)
+    async with spans.span('log'):
+        await _record(conn, caller, attempt, query, decision, 'served', [article.id for article in found],
+                      candidate_ids=candidate_ids if len(found) < len(candidates) else None)
     return format_articles(found) or NOT_FOUND_SEARCH
 
 

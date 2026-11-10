@@ -5,14 +5,20 @@ Every request must carry the shared secret (`X-Iqraa-Secret`); tool calls must c
 (`X-Iqraa-User`, `X-Iqraa-Message`, `X-Iqraa-Conversation`), which LibreChat fills from `requestHeaders`
 placeholders. Each tool call reads the guard settings (thresholds and caps, cached for at most 30 s), is
 decided by the sweep guard, capped, and written to the retrieval log.
+
+Only the timing stack (compose.timing.yaml) sets LEGAL_SEARCH_TIMING_SPANS=1: each search_law call then appends one
+line of its spans to LEGAL_SEARCH_TIMING_FILE (REQ-RAG-021). No deploy file sets either.
 """
 
 import asyncio
 import hmac
+import json
+import logging
 import os
 import re
+import time
 from collections.abc import Awaitable, Callable
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from typing import Annotated, TypeVar
 
 import anyio
@@ -24,7 +30,7 @@ from psycopg_pool import AsyncConnectionPool
 from pydantic import Field
 from starlette.routing import Mount
 
-from legal_search import admin, db, tools
+from legal_search import admin, db, spans, tools
 from legal_search import guard as sweep
 from legal_search.caps import Caps
 from legal_search.guard_settings import GuardSettings, SettingsCache, ensure_settings, validate
@@ -42,6 +48,10 @@ ArticleNumber = Annotated[int, Field(ge=1, le=MAX_ARTICLE_NUMBER)]
 # The fork's PLAIN_ID (routes.ts): LibreChat's user and message ids are plain. A placeholder LibreChat does not
 # know arrives as its own text ("{{...}}"), one identity that would merge every customer (R3 n=12).
 PLAIN_ID = re.compile('[A-Za-z0-9_-]+')
+# The timing stack's switch and span file (Task 1.5); compose.contract.test.mjs keeps them out of staging.
+TIMING_SPANS = 'LEGAL_SEARCH_TIMING_SPANS'
+TIMING_FILE = 'LEGAL_SEARCH_TIMING_FILE'
+LOGGER = logging.getLogger('legal_search.server')
 
 
 def read_secret() -> str:
@@ -94,20 +104,24 @@ async def serialised(pool: AsyncConnectionPool, locks: UserLocks, user: str,
     connection, so one user's parallel step cannot hold the whole pool; the advisory lock, the first statement of the
     call's outer transaction, keeps a second process in line too. Alerts go out only after that transaction commits.
     With a `deadline` (seconds), a call still running then is cancelled with TimeoutError: its transaction rolls back
-    and its connection goes back to the pool (R3 n=13); None sets no deadline."""
+    and its connection goes back to the pool (R3 n=13); None sets no deadline.
+    The waits for the user's lock and for a pool connection are timed as the spans lock_wait and pool_wait."""
     with anyio.fail_after(deadline):
-        async with locks.hold(user):
-            async with pool.connection() as conn:
-                pending: list = []
-                token = sweep.DEFERRED.set(pending)
-                try:
-                    async with conn.transaction():
-                        await conn.execute('SELECT pg_advisory_xact_lock(hashtext(%s))', (user,))
-                        result = await body(conn)
-                finally:
-                    sweep.DEFERRED.reset(token)
-                sweep.raise_alerts(pending)
-                return result
+        async with AsyncExitStack() as held:  # released in reverse: the connection, then the user's lock
+            async with spans.span('lock_wait'):
+                await held.enter_async_context(locks.hold(user))
+            async with spans.span('pool_wait'):
+                conn = await held.enter_async_context(pool.connection())
+            pending: list = []
+            token = sweep.DEFERRED.set(pending)
+            try:
+                async with conn.transaction():
+                    await conn.execute('SELECT pg_advisory_xact_lock(hashtext(%s))', (user,))
+                    result = await body(conn)
+            finally:
+                sweep.DEFERRED.reset(token)
+            sweep.raise_alerts(pending)
+            return result
 
 
 def _positive_env(name: str) -> int | None:
@@ -133,6 +147,34 @@ def connection_kwargs() -> dict:
     if options:
         kwargs['options'] = ' '.join(options)
     return kwargs
+
+
+def timing_file_from_env() -> str | None:
+    """The file a timing stack's server appends one span line per search_law call to: LEGAL_SEARCH_TIMING_FILE,
+    read only when LEGAL_SEARCH_TIMING_SPANS=1 (then required). None when the switch is unset or 0: no spans are
+    collected. Any other value stops the server, as a malformed number does in _positive_env."""
+    switch = os.environ.get(TIMING_SPANS, '').strip()
+    if switch in ('', '0'):
+        return None
+    if switch != '1':
+        raise RuntimeError(f'{TIMING_SPANS} must be 0 or 1, got {switch!r}')
+    path = os.environ.get(TIMING_FILE, '').strip()
+    if not path:
+        raise RuntimeError(f'{TIMING_FILE} is required when {TIMING_SPANS}=1')
+    return path
+
+
+def append_timing_line(path: str, message: str | None, got: list[spans.Span], server_ms: float) -> None:
+    """One call's line: its message id, its spans and its server time. Ids and times only, never query text.
+    It runs in the tool's `finally`, after server_ms is taken (so its cost lands in the driver's transport): a write
+    that fails is logged, without the message id, and never replaces the tool's answer; the driver then counts the
+    call as unjoined and fails the run."""
+    line = json.dumps({'message': message, 'spans': [[name, ms] for name, ms in got], 'server_ms': server_ms})
+    try:
+        with open(path, 'a', encoding='utf-8') as handle:
+            handle.write(line + '\n')
+    except OSError as error:
+        LOGGER.warning('timing span line not written to %s: %s', path, type(error).__name__)
 
 
 def tool_deadline_from_env() -> float | None:
@@ -183,7 +225,7 @@ class SecretGuard:
 
 
 def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts: list[str],
-                 deadline: float | None = None, max_query: int | None = None) -> FastMCP:
+                 deadline: float | None = None, max_query: int | None = None, timing_file: str | None = None) -> FastMCP:
     # The SDK only auto-protects localhost binds; name the service's own hosts so rebinding protection
     # stays on behind a service name. Server-to-server callers send no Origin, so none is allowed.
     security = TransportSecuritySettings(
@@ -210,10 +252,18 @@ def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts:
         who = caller(ctx)
 
         async def body(conn: AsyncConnection) -> str:
-            settings = await cache.get(conn)
+            async with spans.span('guard_settings'):
+                settings = await cache.get(conn)
             return await tools.search_law(conn, settings.caps, who, query, limit, law, guard=settings, max_query=max_query)
 
-        return await serialised(pool, locks, who.user, body, deadline)
+        if timing_file is None:
+            return await serialised(pool, locks, who.user, body, deadline)
+        with spans.collect() as got:  # the timing stack only: this call's spans, from before the lock wait
+            started = time.perf_counter()
+            try:
+                return await serialised(pool, locks, who.user, body, deadline)
+            finally:
+                append_timing_line(timing_file, who.message, got, (time.perf_counter() - started) * 1000.0)
 
     @mcp.tool()
     async def get_article(number: ArticleNumber, ctx: Context, suffix: str = '', law: str = 'civil-code') -> str:
@@ -242,13 +292,14 @@ def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts:
 
 
 def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts: list[str],
-              deadline: float | None = None, max_query: int | None = None) -> SecretGuard:
+              deadline: float | None = None, max_query: int | None = None, timing_file: str | None = None) -> SecretGuard:
     """The ASGI app behind the secret guard; the pool opens with the app. `caps` (the environment's) seed the
     guard settings on first start only; afterwards the database row is authoritative. `deadline`: seconds a tool
-    call may run; `max_query`: the longest search_law query searched, in characters (None: no limit for either)."""
+    call may run; `max_query`: the longest search_law query searched, in characters (None: no limit for either).
+    `timing_file`: where each search_law call appends its span line (the timing stack only; None: no spans)."""
     defaults = validate(GuardSettings(per_answer=caps.per_answer, daily=caps.daily, max_results=caps.max_results).as_dict())
     cache = SettingsCache()
-    inner = build_server(pool, cache, allowed_hosts, deadline, max_query).streamable_http_app()
+    inner = build_server(pool, cache, allowed_hosts, deadline, max_query, timing_file).streamable_http_app()
     # The staff admin API shares the app, the pool, the settings cache and SecretGuard.
     inner.router.routes.append(Mount('/admin', routes=admin.routes(pool, cache)))
     inner_lifespan = inner.router.lifespan_context
@@ -273,7 +324,7 @@ def main() -> None:
     pool = AsyncConnectionPool(db.database_url(), min_size=1, max_size=10, open=False, timeout=POOL_TIMEOUT,
                                kwargs=connection_kwargs())
     app = build_app(pool, caps_from_env(), read_secret(), allowed_hosts_from_env(), tool_deadline_from_env(),
-                    _positive_env('LEGAL_SEARCH_MAX_QUERY_CHARS'))
+                    _positive_env('LEGAL_SEARCH_MAX_QUERY_CHARS'), timing_file_from_env())
     uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', '8000')), log_level='info')
 
 
