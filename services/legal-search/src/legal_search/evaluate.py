@@ -12,7 +12,8 @@ item. It writes eval-<label>.json and eval-<label>.md, and exits 1 when the memo
 same corpus, set and code give the same numbers. `--field question` searches each item's question instead of its
 query (REQ-RAG-032). `--queries` takes each item's query and law from a JSONL side file of {id, query, law} rows,
 one per item (recorded queries, O-94), and the run records the file's sha256; it does not combine with
-`--field question`.
+`--field question`. Beside `corpus_sha256` the run records `index_sha256` (the keys and the index-only columns,
+INDEX_COLUMNS), and every search is strict: an evaluation never scores a fallback.
 """
 
 import argparse
@@ -25,7 +26,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, get_args
 
-from psycopg import AsyncConnection
+from psycopg import AsyncConnection, sql
+from psycopg.abc import Query
 
 from legal_search import db
 from legal_search.corrections import CorrectionError, load_corrections
@@ -38,6 +40,10 @@ from legal_search.search_config import DEFAULT, SearchConfig, with_overrides
 
 CORPUS_TABLES = 'memorandum_links, memorandum_notes, articles, laws'
 RESET_FLAG = 'LEGAL_SEARCH_EVAL_RESET'
+# Index-only columns: articles columns the search index reads that corpus_digest (the keys and norm) does not cover.
+# index_digest hashes them with each article's key. The BM25 engine scores law_title under title_weight, as the
+# bench's title field does; Task 3.4 adds 'heading'.
+INDEX_COLUMNS: tuple[str, ...] = ('law_title',)
 
 ERRORS = (EvalSetError, IngestError, RegistryError, CorrectionError, MemorandumError, OSError)
 
@@ -126,14 +132,16 @@ async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filte
     await ingest(conninfo, sources.registry, sources.corrections, sources.corpus)
     async with await AsyncConnection.connect(conninfo, autocommit=True) as conn:
         await _require_only_the_registry(conn, keys, complete=True)
+        # Before scoring, which writes nothing: a bad INDEX_COLUMNS entry stops the run before its first search.
+        corpus_sha256 = await corpus_digest(conn)
+        index_sha256 = await index_digest(conn)
         results = [await _score(conn, item, text, law if use_law_filter else None, config) for item, text, law in inputs]
         memorandum = await memorandum_check(conn, evalset.items)
-        corpus_sha256 = await corpus_digest(conn)
     return {
         'run': {
             'label': label, 'set': evalset.name, 'set_review': evalset.review_status, 'set_sha256': evalset.sha256,
-            'corpus_sha256': corpus_sha256, 'use_law_filter': use_law_filter, 'depth': DEPTH, 'config': asdict(config),
-            'field': field, 'queries_sha256': queries_sha256,
+            'corpus_sha256': corpus_sha256, 'index_sha256': index_sha256, 'use_law_filter': use_law_filter, 'depth': DEPTH,
+            'config': asdict(config), 'field': field, 'queries_sha256': queries_sha256,
         },
         'metrics': summarise([scored for scored, _ in results]),
         'memorandum': memorandum,
@@ -187,7 +195,7 @@ def _side_row_problems(row: object) -> list[str]:
 
 
 async def _score(conn: AsyncConnection, item: Item, text: str, law: str | None, config: SearchConfig) -> tuple[Scored, dict]:
-    found = await db.search(conn, text, DEPTH, law=law, config=config)
+    found = await db.search(conn, text, DEPTH, law=law, config=config, strict=True)  # never score a fallback
     ranked = tuple((article.law_slug, article.number, article.suffix) for article in found)
     scored = Scored(item.scored_law, frozenset(expected.key for expected in item.expected), ranked)
     row = {
@@ -215,7 +223,20 @@ async def memorandum_check(conn: AsyncConnection, items: tuple[Item, ...]) -> di
 
 async def corpus_digest(conn: AsyncConnection) -> str:
     """sha256 over every article's key and normalised text: two runs compare only on the same corpus."""
-    cur = await conn.execute('SELECT law_slug, number, suffix, norm FROM articles ORDER BY law_slug, number, suffix')
+    return await _digest(conn, 'SELECT law_slug, number, suffix, norm FROM articles ORDER BY law_slug, number, suffix')
+
+
+async def index_digest(conn: AsyncConnection) -> str:
+    """sha256 over every article's key and its INDEX_COLUMNS, in key order as corpus_digest: two runs whose index-only
+    content differs (a law title, a heading) are told apart, though their corpus_sha256 is the same. compare does not
+    check it."""
+    columns = sql.SQL(', ').join(sql.Identifier(name) for name in ('law_slug', 'number', 'suffix', *INDEX_COLUMNS))
+    return await _digest(conn, sql.SQL('SELECT {} FROM articles ORDER BY law_slug, number, suffix').format(columns))
+
+
+async def _digest(conn: AsyncConnection, query: Query) -> str:
+    """sha256 over the query's rows, each as its JSON list: the one encoding both digests use."""
+    cur = await conn.execute(query)
     digest = hashlib.sha256()
     for row in await cur.fetchall():
         digest.update(json.dumps(list(row), ensure_ascii=False).encode('utf-8'))

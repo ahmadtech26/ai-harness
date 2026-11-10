@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from psycopg import AsyncConnection
+from psycopg.errors import UndefinedColumn
 
 from legal_search import db
 from legal_search import evaluate
@@ -326,3 +327,69 @@ async def test_run_refuses_a_field_it_would_not_search(conn, tmp_path: Path, fie
 
     with pytest.raises(EvalError, match='^field '):
         await run_eval(os.environ['DATABASE_URL'], sources, 'side', field=field, queries=side if with_side_file else None)
+
+
+async def test_run_records_an_index_digest_over_the_index_only_columns(conn, tmp_path: Path, monkeypatch):
+    first = await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 'a')
+    assert first['run']['index_sha256'] == await evaluate.index_digest(conn)
+    monkeypatch.setattr(evaluate, 'INDEX_COLUMNS', ('label',))  # stands in for `heading` until Task 3.4
+    before = await evaluate.index_digest(conn)                   # both digests over the same columns
+    corpus_before = await evaluate.corpus_digest(conn)
+    await conn.execute("UPDATE articles SET label = label || ' x' WHERE number = 1")
+    assert await evaluate.index_digest(conn) != before
+    assert await evaluate.corpus_digest(conn) == corpus_before   # an index-only change leaves the corpus digest alone
+
+
+async def test_evaluation_searches_are_strict(conn, tmp_path: Path, monkeypatch):
+    seen = []
+    real_search = db.search
+
+    async def spy(connection, query, limit, law=None, config=DEFAULT, **kwargs):
+        seen.append(kwargs.get('strict'))
+        return await real_search(connection, query, limit, law=law, config=config, **kwargs)
+
+    monkeypatch.setattr(db, 'search', spy)
+    await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 's')
+    assert set(seen) == {True}
+
+
+async def test_index_digest_follows_the_law_title_and_corpus_digest_does_not(conn, tmp_path: Path):
+    # The BM25 engine scores law_title under title_weight (the bench's title field); corpus_digest hashes only the
+    # keys and norm, so the default INDEX_COLUMNS must cover it.
+    run = await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 't')
+
+    await conn.execute("UPDATE articles SET law_title = law_title || ' x' WHERE number = 1")
+
+    assert await evaluate.index_digest(conn) != run['run']['index_sha256']
+    assert await corpus_digest(conn) == run['run']['corpus_sha256']
+
+
+async def test_index_digest_ignores_row_order_and_follows_the_keys(conn, tmp_path: Path):
+    await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 'k')
+    before = await evaluate.index_digest(conn)
+
+    # An UPDATE that changes nothing still writes new row versions, so the table's physical order changes.
+    await conn.execute('UPDATE articles SET label = label WHERE number = 1')
+    assert await evaluate.index_digest(conn) == before
+
+    await conn.execute("UPDATE articles SET number = 99 WHERE law_slug = 'civil-code' AND number = 4")
+    assert await evaluate.index_digest(conn) != before
+
+
+async def test_a_bad_index_column_fails_the_run_before_any_search(conn, tmp_path: Path, monkeypatch):
+    # Both digests are taken before scoring: nothing writes to the corpus while it is scored, and a column the schema
+    # lacks stops the run at once instead of after every item has been searched.
+    seen = []
+    real_search = db.search
+
+    async def spy(connection, query, limit, law=None, config=DEFAULT, **kwargs):
+        seen.append(query)
+        return await real_search(connection, query, limit, law=law, config=config, **kwargs)
+
+    monkeypatch.setattr(db, 'search', spy)
+    monkeypatch.setattr(evaluate, 'INDEX_COLUMNS', ('no_such_column',))
+
+    with pytest.raises(UndefinedColumn):
+        await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 'bad')
+
+    assert seen == []

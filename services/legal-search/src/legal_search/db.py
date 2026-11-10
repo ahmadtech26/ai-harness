@@ -286,8 +286,11 @@ def _found(row: dict) -> Found:
 
 
 async def search(conn: AsyncConnection, query: str, limit: int, law: str | None = None,
-                 config: SearchConfig = DEFAULT) -> list[Found]:
-    """Ranked keyword search, optionally within one law; ties break on number, law and suffix (deterministic)."""
+                 config: SearchConfig = DEFAULT, *, strict: bool = False) -> list[Found]:
+    """Ranked keyword search, optionally within one law; ties break on number, law and suffix (deterministic).
+
+    `strict` is the evaluation mode (legal-search-eval passes True): a ranker that falls back to this SQL path at
+    runtime must never fall back under it (spec REQ-RAG-025). This SQL path is not a fallback, so it ignores it."""
     tsquery = build_tsquery(query, config)
     if tsquery is None or limit <= 0:
         return []
