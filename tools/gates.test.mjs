@@ -130,7 +130,7 @@ test('with no step named, every gate runs in order, each command as the release 
     `${EVAL} run --rm --build eval check`,
     `${EVAL} run --rm --build eval run --label release --reset`,
     `${EVAL} run --rm --entrypoint python -v ${tools}:/tools:ro -v ${win(`${run.tree}/deploy/release`)}:/baseline:ro eval /tools/release_eval.py check --report /evidence/eval-release.json --baseline /baseline/eval-baseline.json`,
-    `${EVAL} run --rm --entrypoint python -v ${tools}:/tools:ro -w /tools eval -B -m unittest test_release_eval`,
+    `${EVAL} run --rm --entrypoint python -v ${tools}:/tools:ro -w /tools eval -B -m unittest test_release_eval test_recall_compare`,
     `${EVAL} down -v`,
     'node --test content/a.test.mjs deploy/staging/b.test.mjs tools/c.test.mjs',
     // One stack-booting file at a time: run together they exhaust Docker's network address pools.
