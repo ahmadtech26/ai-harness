@@ -13,6 +13,19 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 
+# The library limits the specialist is told (owner, 2026-11-11 about 18:10Z: «Keep 8, tell the model»). They MUST equal
+# legal-search's live guard_settings, which staff change without a restart (read 2026-11-11: per_answer 8,
+# max_results 5, daily 300). When staff change per_answer or max_results, change it here, rebuild, recompose and
+# re-apply the instructions, or the model plans with a budget it does not have. The daily cap is not stated: a
+# throttled account gets throttle_daily_cap instead, and the tool answers both with one message (tools.py CAP_REACHED).
+PER_ANSWER = 8  # guard_settings.per_answer: texts (articles and memorandum notes) one answer may receive in all
+PER_SEARCH = 5  # guard_settings.max_results: the most one search_law call returns, whatever its limit
+THREE_SEARCH_LIMIT = 3  # the limit= the model passes to each of three planned searches, so the third still gets texts
+THIRD_SEARCH_SHARE = min(THREE_SEARCH_LIMIT, PER_ANSWER - 2 * THREE_SEARCH_LIMIT)  # 2 today: 3+3+2
+if THIRD_SEARCH_SHARE < 1 or THREE_SEARCH_LIMIT > PER_SEARCH:
+    raise SystemExit('FAIL: three searches of THREE_SEARCH_LIMIT no longer fit PER_ANSWER and PER_SEARCH')
+PLANNED_SPLIT = f'{THREE_SEARCH_LIMIT}+{THREE_SEARCH_LIMIT}+{THIRD_SEARCH_SHARE}'
+
 LIBRARY_TOOLS_AR_V11 = (
     'استخدام المكتبة القانونية\n'
     '- قبل الاستشهاد بأي مادة استدعِ search_law بعبارة بحث عربية دقيقة، أو get_article إذا عرفت رقم المادة؛ وانقل النص حرفيًا كما أعادته الأداة.\n'
@@ -43,8 +56,18 @@ LIBRARY_TOOLS_AR = (
     # Owner, 2026-11-11, after the stakeholder demo: «Broad questions must be narrowed, otherwise the answer won't be
     # accurate anyway». Each answer gets a fixed number of texts, so a broad question spread its searches thin and
     # the gaps were filled from memory (.hq/docs/audits/librechat-platform/demo-usage/failures-2026-11-11.md).
-    '- لكل إجابة عدد محدود من النصوص، فخطّط للبحث قبل أن تبدأ: إذا كان السؤال واسعًا يجمع مسائل أو تشريعات عدة، فحدّد المسألة الحاسمة وابحث عنها أولًا، أو اطلب من المستخدم أن يضيّق سؤاله، ولا توزّع البحث على كل الجوانب. ابحث بالمصطلح القانوني الذي يستعمله نص التشريع نفسه لا بوصف عام للمسألة، ومرّر law كلما عُرف التشريع.\n'
-    '- إذا أعادت الأداة أنه تم بلوغ الحد المسموح من النصوص فلا تحاول الالتفاف على الحد، ولا تسدّ النقص من الذاكرة أو بعبارة مثل «اجتهاد مستقر»: أجب بما تدعمه النصوص المسترجعة في المحادثة وحدها، واذكر صراحةً النقاط التي بقيت دون نص مسترجع، واقترح على المستخدم أن يسأل عن كل منها في سؤال مستقل، فلكل سؤال جديد حدّه الخاص.'
+    # Owner, about 18:10Z: «Keep 8, tell the model»: the numbers above, and three planned searches at limit 3. At the
+    # limit the one run under the earlier wording named no gap and stated a rule of law from memory (Fable 5.2 review).
+    # Conditional analysis stays allowed (rule 5 of the quality rules is the owner's), but without a figure from memory.
+    f'- لكل إجابة رصيد لا يتجاوز {PER_ANSWER} من نصوص المكتبة في مجموعها: يعيد البحث الواحد بـ search_law ما لا يزيد على {PER_SEARCH} منها ويُحتسب بعدد ما أعاده، وتُحتسب المادة التي تعيدها get_article نصًا واحدًا، وكذلك كل ملاحظة تعيدها get_memorandum. '
+    'فخطّط لعمليات البحث قبل أول استدعاء: إذا كان السؤال واسعًا يجمع مسائل أو تشريعات عدة، فحدّد المسألة الحاسمة وابحث عنها أولًا، أو اطلب من المستخدم أن يضيّق سؤاله، ولا توزّع البحث على كل الجوانب. '
+    f'وإذا خطّطت لثلاث عمليات بحث فمرّر limit={THREE_SEARCH_LIMIT} في كل منها ليتسع الرصيد للثالثة ({PLANNED_SPLIT})، واحسب من هذه العمليات أي صياغة ثانية تجرّبها. '
+    'ابحث بالمصطلح القانوني الذي يستعمله نص التشريع نفسه لا بوصف عام للمسألة، ومرّر law كلما عُرف التشريع.\n'
+    '- إذا أعادت الأداة أنه تم بلوغ الحد المسموح من النصوص فلا تستدعِ أدوات المكتبة بعدها في هذه الإجابة، ولا تحاول الالتفاف على الحد. '
+    'أجب بما تدعمه النصوص المسترجعة في المحادثة وحدها، واذكر للمستخدم صراحةً، بموضوعها لا بأرقام مواد، النقاط التي بقيت دون نص مسترجع. '
+    'ولا تسدّ النقص من الذاكرة أو بعبارة مثل «اجتهاد مستقر»: لا تذكر لهذه النقاط، ولو في تحليل مشروط، مقدارًا أو مدةً أو ميعادًا أو محكمةً مختصة، ولا أن الأمر متروك لتقدير المحكمة، ما لم يرد ذلك في نص مسترجع. '
+    'واقترح على المستخدم أن يسأل عن كل نقطة منها في سؤال مستقل، فلكل إجابة رصيدها. '
+    'لكن الرسالة نفسها تصدر عند بلوغ الحد اليومي للحساب: فإذا جاءت قبل أن تستنفد الإجابة رصيدها، فقد بلغ الحساب حده اليومي ولا يفيد تقسيم السؤال، فأخبر المستخدم بذلك.'
 )
 
 LIBRARY_TOOLS_EN = (
@@ -52,7 +75,18 @@ LIBRARY_TOOLS_EN = (
     '(search_law and get_article take law="<slug>"; get_article defaults to civil-code) and the Civil Code explanatory '
     'memorandum (get_memorandum, paged). The Majalla (majalla) applies only where it does not conflict with the Civil '
     'Code (art. 1448): never cite it over the Civil Code. Judgments and other legislation are not loaded yet: say so '
-    'rather than citing them from memory, and pass on the verification status each result carries.'
+    'rather than citing them from memory, and pass on the verification status each result carries.\n'
+    # The Arabic library section's two budget bullets, for a model that reasons in English (Fable 5.2 review).
+    f'- Each answer may receive at most {PER_ANSWER} library texts in all: one search_law call returns at most {PER_SEARCH} '
+    'and counts what it returns; an article from get_article counts one, and so does each get_memorandum note. Plan the '
+    f'searches before the first call; when you plan three, pass limit={THREE_SEARCH_LIMIT} to each so the third still '
+    f'fits ({PLANNED_SPLIT}), and count any second phrasing among them. When a tool says the limit is reached, make no '
+    'further library call in that answer; answer from the retrieved texts only; name, by subject and not by article '
+    'number, each point left without a retrieved text; state for it no amount, period, deadline or competent court '
+    "from memory, nor that it is left to the court's discretion, not even in a conditional analysis; and suggest asking "
+    'each point separately. The same message marks '
+    "the account's daily limit: if it comes before the answer has used its budget, splitting the question will not "
+    'help, so say so.'
 )
 
 EDITIONS = {
