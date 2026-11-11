@@ -28,10 +28,14 @@ def stem(word: str) -> str:
     return word
 
 
+def folded_words(text: str) -> list[str]:
+    """The words of `text` after folding, before any prefix is stripped (the BM25 analysers stem them their own way)."""
+    return _NON_WORD.sub(' ', fold(text)).split()
+
+
 def tokens(text: str) -> list[str]:
     """Normalised search tokens of `text`."""
-    cleaned = _NON_WORD.sub(' ', fold(text))
-    return [stem(word) for word in cleaned.split() if word]
+    return [stem(word) for word in folded_words(text)]
 
 
 def normalize(text: str) -> str:
