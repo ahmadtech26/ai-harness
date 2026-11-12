@@ -34,10 +34,21 @@ LIBRARY_TOOLS_AR_V11 = (
     '- إذا أعادت الأداة أنه تم بلوغ الحد المسموح من النصوص فاعتمد على ما استرجعته سابقًا في المحادثة ولا تحاول الالتفاف على الحد.'
 )
 
+# The language of the model's reasoning (owner, 2026-11-12 ~16:2xZ, after a live expert answer reasoned mostly in
+# English on screen: «the thinking must be explicitly in arabic language only»). It heads the library section so it
+# sits before the planning and budget rules it applies to; LIBRARY_TOOLS_EN repeats it first.
+REASONING_LANGUAGE_AR = (
+    'لغة التفكير\n'
+    '- فكّر بالعربية وحدها: اكتب تفكيرك الداخلي كله، من فهم السؤال وتخطيط البحث إلى تحليل النصوص المسترجعة وبناء الإجابة، '
+    'باللغة العربية الفصحى، ولا تفكّر بالإنجليزية ولا بأي لغة أخرى في أي مرحلة. لا يُستثنى إلا رموز التشريعات (مثل penal-code) '
+    'وأسماء الأدوات وقيم وسائطها، فتبقى كما هي. والإجابة نفسها بالعربية.\n\n'
+)
+
 # These bullets say what the library tools return (the 22 statutes of corpus v1 and the Civil Code memorandum,
 # today). Update them, rebuild the edition and re-release the specialist whenever legal-search's content changes.
 LIBRARY_TOOLS_AR = (
-    'استخدام المكتبة القانونية\n'
+    REASONING_LANGUAGE_AR
+    + 'استخدام المكتبة القانونية\n'
     '- قبل الاستشهاد بأي مادة استدعِ search_law بعبارة بحث عربية دقيقة، أو get_article إذا عرفت رقم المادة؛ وانقل النص حرفيًا كما أعادته الأداة.\n'
     '- انقل حالة التحقق كما وردت في نتيجة الأداة؛ فإذا ذُكر أن النص لم يُتحقق بعد من مطابقته للجريدة الرسمية فاذكر ذلك ولا تصفه بأنه النص النافذ المعتمد. وانقل رقم القانون وسنته وبيانات الجريدة الرسمية وآخر تعديل كما وردت في النتيجة فقط، ومعها تنبيه «بيانات النشر لم يُتحقق منها بعد» إن ورد.\n'
     '- التشريعات المحمّلة في المكتبة ورموزها: القانون المدني الأردني (civil-code)، مجلة الأحكام العدلية (majalla)، '
@@ -71,6 +82,11 @@ LIBRARY_TOOLS_AR = (
 )
 
 LIBRARY_TOOLS_EN = (
+    # The Arabic «لغة التفكير» bullet, first, for a model that would otherwise reason in English.
+    '- Reasoning language: think in Arabic only. Write all of your internal reasoning (understanding the question, '
+    'planning the searches, analysing the retrieved texts, building the answer) in Modern Standard Arabic, never in '
+    'English or any other language; only law slugs (e.g. penal-code), tool names and argument values stay as they are. '
+    'The answer is in Arabic.\n'
     '- The legal-library tools return the 22 Jordanian statutes named, with their slugs, in the Arabic library section '
     '(search_law and get_article take law="<slug>"; get_article defaults to civil-code) and the Civil Code explanatory '
     'memorandum (get_memorandum, paged). The Majalla (majalla) applies only where it does not conflict with the Civil '
