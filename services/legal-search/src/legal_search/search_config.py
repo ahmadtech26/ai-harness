@@ -1,7 +1,12 @@
 """Search tuning settings (plan-phase3-retrieval-eval). Every field's default is what db.search does in
 production; the evaluation runner overrides fields with --config name=value to measure a candidate, and a kept
-candidate becomes the new default (P3-results tuning log)."""
+candidate becomes the new default (P3-results tuning log).
 
+The server runs DEFAULT unless LEGAL_SEARCH_SEARCH_CONFIG names overrides (search_config_from_env). Only the timing
+stack sets it (recall plan Task 3.9); no deploy file does (deploy/staging/compose.contract.test.mjs). A kept candidate
+becomes DEFAULT in code, so the release gate, which evaluates DEFAULT, measures what ships."""
+
+import os
 from dataclasses import dataclass, fields, replace
 
 
@@ -53,6 +58,19 @@ def validate(config: SearchConfig) -> None:
 
 
 DEFAULT = SearchConfig()
+
+# The server's overrides of DEFAULT: comma-separated name=value items (ranker=bm25,heading_weight=1.0).
+SEARCH_CONFIG = 'LEGAL_SEARCH_SEARCH_CONFIG'
+
+
+def search_config_from_env() -> SearchConfig:
+    """DEFAULT with the overrides LEGAL_SEARCH_SEARCH_CONFIG names (blanks around an item ignored); DEFAULT itself when
+    the variable is unset or blank. An unknown setting or a value the config refuses raises ValueError, which stops
+    the server before it starts."""
+    raw = os.environ.get(SEARCH_CONFIG, '').strip()
+    if not raw:
+        return DEFAULT
+    return with_overrides(DEFAULT, [item.strip() for item in raw.split(',')])
 
 
 def with_overrides(base, items: list[str]):

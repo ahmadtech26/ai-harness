@@ -12,7 +12,9 @@ any flag change are written in one transaction; alerts follow it.
 savepoint, and an alert would go out before the real commit.
 
 `caps` are the normal caps. `guard` is the current guard settings (server.py passes `caps=guard.caps` from
-the same snapshot); without `guard` no flag is consulted and nothing is detected."""
+the same snapshot); without `guard` no flag is consulted and nothing is detected. `config` is the search config
+search_law ranks with: the server's own (search_config.search_config_from_env), DEFAULT unless the timing stack
+sets one."""
 
 from dataclasses import dataclass
 
@@ -25,6 +27,7 @@ from legal_search.citation import format_articles, format_memorandum
 from legal_search.detector import article_key
 from legal_search.events import Attempt
 from legal_search.guard_settings import GuardSettings
+from legal_search.search_config import DEFAULT, SearchConfig
 
 CAP_REACHED = 'تم بلوغ الحد المسموح من النصوص لهذه الإجابة أو لهذا اليوم. يُرجى الاعتماد على ما سبق استرجاعه.'
 NOT_FOUND_SEARCH = 'لم يُعثر على مواد مطابقة في المصادر المحمّلة.'
@@ -84,7 +87,8 @@ async def _unknown_law(conn: AsyncConnection, law: str) -> str | None:
 
 
 async def search_law(conn: AsyncConnection, caps: Caps, caller: Caller, query: str, limit: int = 5,
-                     law: str | None = None, guard: GuardSettings | None = None, max_query: int | None = None) -> str:
+                     law: str | None = None, guard: GuardSettings | None = None, max_query: int | None = None,
+                     config: SearchConfig = DEFAULT) -> str:
     law = (law or '').strip() or None  # models often send "" for an optional argument (plan A)
     # A query above `max_query` characters is not searched, and only its first `max_query` are stored (R2 n=19);
     # None sets no bound (the owner sets it with the retrieval eval).
@@ -109,7 +113,7 @@ async def search_law(conn: AsyncConnection, caps: Caps, caller: Caller, query: s
     async with spans.span('budget'):
         budget = await _budget(conn, caps, caller, limit)
     async with spans.span('search'):
-        candidates = await db.search(conn, query, budget, law=law)
+        candidates = await db.search(conn, query, budget, law=law, config=config)
     attempt = Attempt('search_law', law, keys=frozenset(article_key(f.law_slug, f.number, f.suffix) for f in candidates))
     async with spans.span('guard'):
         decision = await sweep.decide(conn, guard, caps, caller.user, attempt)

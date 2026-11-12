@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pytest
 
 from legal_search import db
-from legal_search.search_config import DEFAULT, SearchConfig, with_overrides
+from legal_search.search_config import DEFAULT, SEARCH_CONFIG, SearchConfig, search_config_from_env, with_overrides
 
 
 @dataclass(frozen=True)
@@ -84,3 +84,22 @@ def test_a_config_built_directly_is_validated():
         SearchConfig(ranker='tantivy')
     with pytest.raises(ValueError, match='^heading_weight applies only with ranker=bm25$'):
         SearchConfig(heading_weight=1.0)
+
+
+def test_search_config_from_env_reads_overrides_and_defaults_when_unset(monkeypatch):
+    # Recall plan Task 3.2: only the timing stack sets the variable; unset, the server runs DEFAULT, as today.
+    monkeypatch.delenv(SEARCH_CONFIG, raising=False)
+    unset = search_config_from_env()
+    monkeypatch.setenv(SEARCH_CONFIG, 'ranker=bm25, heading_weight=1.0')
+
+    configured = search_config_from_env()
+
+    assert unset is DEFAULT
+    assert configured == with_overrides(DEFAULT, ['ranker=bm25', 'heading_weight=1.0'])
+
+
+def test_search_config_from_env_refuses_an_unknown_setting(monkeypatch):
+    monkeypatch.setenv(SEARCH_CONFIG, 'ranker=bm25,heading=1.0')
+
+    with pytest.raises(ValueError, match="^unknown setting 'heading=1.0'"):
+        search_config_from_env()

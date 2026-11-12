@@ -6,7 +6,9 @@ import pytest
 from psycopg_pool import AsyncConnectionPool
 from starlette.testclient import TestClient
 
+from legal_search import db
 from legal_search.caps import Caps
+from legal_search.search_config import SearchConfig
 from legal_search.server import build_app
 import psycopg
 
@@ -17,9 +19,9 @@ from tests.pg import TABLES
 pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
 
 
-def _app(secret: str):
+def _app(secret: str, **options):
     pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=2, open=False, kwargs={'autocommit': True})
-    return build_app(pool, Caps(per_answer=8, daily=300, max_results=5), secret, ['legal-search:*'])
+    return build_app(pool, Caps(per_answer=8, daily=300, max_results=5), secret, ['legal-search:*'], **options)
 
 
 def _initialize(client: TestClient, secret: str, host: str):
@@ -339,3 +341,96 @@ def test_a_literal_identity_placeholder_is_refused_and_logs_nothing():
             logged = conn.execute('SELECT count(*) FROM retrieval_log').fetchone()[0]
 
     assert logged == 0
+
+
+# Recall plan Task 3.2: the server runs the search config it is given (main reads LEGAL_SEARCH_SEARCH_CONFIG; only the
+# timing stack sets it), and a server that ranks with the keyword engine builds its index before it serves.
+# Not DEFAULT, and a Postgres one: what this server is given reaches the search, with no keyword index to build.
+OWN_CONFIG = SearchConfig(synonyms=False)
+# A keyword engine config whose index key (analyser guardlight) is not DEFAULT's: a warm-up of any other config's
+# index leaves this one cold.
+GUARDLIGHT = SearchConfig(ranker='bm25', analyser='guardlight')
+
+
+def test_the_server_passes_its_search_config_to_search_law(monkeypatch):
+    _fresh_tables()
+    secret = secrets.token_hex(16)
+    seen = []
+
+    async def spy(*args, **kwargs):
+        seen.append(kwargs.get('config'))
+        return []
+
+    monkeypatch.setattr(db, 'search', spy)
+
+    with TestClient(_app(secret, config=OWN_CONFIG)) as client:
+        tool_text(client, 'u-cfg', 'search_law', {'query': 'العربون'}, {'x-iqraa-secret': secret})
+
+    assert seen == [OWN_CONFIG]
+
+
+async def test_a_bm25_server_builds_its_keyword_index_before_it_serves(monkeypatch, alert_caplog):
+    # Without the warm-up the first search finds a cold index: it falls back to Postgres with an alert.
+    from psycopg import AsyncConnection
+
+    from legal_search import bm25
+    from legal_search.corpus import Article
+    from legal_search.registry import Law
+    from tests.pg import fresh
+
+    async with await AsyncConnection.connect(os.environ['DATABASE_URL'], autocommit=True) as conn:
+        await fresh(conn)  # it clears keyword_engine.CACHE too
+        await db.upsert_laws(conn, [Law(slug='civil-code', title='القانون المدني الأردني', folder='c')])
+        await db.upsert_articles(conn, [
+            Article('civil-code', 'x', 1, '', 'يحق للمشتري العدول عن العقد بترك العربون.', 's', 'c.md'),
+            Article('civil-code', 'x', 2, '', 'تنعقد الكفالة بإيجاب الكفيل وحده.', 's', 'c.md'),
+        ])
+    pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=2, open=False,
+                               kwargs={'autocommit': True})
+    guard = build_app(pool, Caps(per_answer=8, daily=300, max_results=5), secrets.token_hex(16), ['legal-search:*'],
+                      config=GUARDLIGHT)
+    inner = guard.app
+    searched = []
+    real = bm25.Index.search
+    monkeypatch.setattr(bm25.Index, 'search', lambda self, *a, **k: searched.append(1) or real(self, *a, **k))
+
+    async with inner.router.lifespan_context(inner):
+        async with pool.connection() as conn:
+            found = await db.search(conn, 'العربون', 5, config=GUARDLIGHT)
+
+    assert searched and [f.number for f in found] == [1]
+    assert not any('keyword_engine_fallback' in r.message for r in alert_caplog.records)
+
+
+async def test_a_bm25_server_whose_keyword_index_cannot_be_built_does_not_start(monkeypatch):
+    # Serving anyway would answer every search from the Postgres fallback under a bm25 config: the timing stack would
+    # time Postgres and record the engine.
+    from legal_search import keyword_engine
+
+    def broken(*args):
+        raise RuntimeError('boom')
+
+    keyword_engine.CACHE.clear()  # an index a previous test built at this version would be served without a build
+    monkeypatch.setattr(keyword_engine, 'build', broken)
+    inner = _app(secrets.token_hex(16), config=GUARDLIGHT).app
+
+    with pytest.raises(RuntimeError, match='^boom$'):
+        async with inner.router.lifespan_context(inner):
+            pass
+
+
+def test_a_postgres_server_builds_no_keyword_index(monkeypatch):
+    # With LEGAL_SEARCH_SEARCH_CONFIG unset the server runs DEFAULT and starts as it did before the engine existed.
+    from legal_search import keyword_engine
+
+    warmed = []
+
+    async def spy(*args, **kwargs):
+        warmed.append(1)
+
+    monkeypatch.setattr(keyword_engine.CACHE, 'ensure', spy)
+
+    with TestClient(_app(secrets.token_hex(16))):
+        pass
+
+    assert warmed == []
