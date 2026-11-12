@@ -1,7 +1,7 @@
 {
   "name": "عقل — المستشار القانوني",
   "description": "تحليل القضايا ومراجعة العقود واحتساب رسوم المحاكم، مع الاستشهاد بنصوص المكتبة القانونية الأردنية.",
-  "instructionsFile": "../prompts/aqel-v1.2-librechat.md",
+  "instructionsFile": "../prompts/aqel-v1.3-librechat.md",
   "provider": null,
   "model": null,
   "model_parameters": {
