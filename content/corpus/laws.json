@@ -600,7 +600,27 @@
         "status": "draft"
       },
       "sources": {
-        "title": "https://jordan-lawyer.com"
+        "title": "https://jordan-lawyer.com",
+        "note": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=5081&LegislationType=3&isMod=false",
+        "gazette.issue": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
+        "gazette.date": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
+        "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1820&LegislationType=3&isMod=true",
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1820&LegislationType=3&isMod=true",
+        "amendment.gazette_issue": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935",
+        "amendment.gazette_date": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935"
+      },
+      "note": "الجدول الملحق بنظام رسوم المحاكم رقم (43) لسنة 2005 (صادر بمقتضى المادة (20) من قانون تشكيل المحاكم النظامية رقم (17) لسنة 2001)",
+      "gazette": {
+        "issue": 4711,
+        "date": "2005-06-16",
+        "source_url": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711"
+      },
+      "amendment": {
+        "law": 108,
+        "year": 2008,
+        "gazette_issue": 4935,
+        "gazette_date": "2008-11-02",
+        "source_url": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935"
       }
     },
     {
