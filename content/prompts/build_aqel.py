@@ -595,6 +595,44 @@ EDITIONS['1.4'] = {
 }
 
 
+# The reasoning sequence of D10 (handoff 2026-11-12, section 5), after the «لغة التفكير» block, with its English
+# twin after the reasoning-language bullet. One change from the handoff's planned text: its visible plan line names the
+# law by «<رمز التشريع>», but 1.3 tells the model never to show a slug to the user («ولا تذكر هذه الرموز للمستخدم»),
+# so the visible line names the law by its Arabic name; the owner chooses.
+REASONING_SEQUENCE_AR = (
+    'تسلسل التفكير\n'
+    '- رتّب تفكيرك الداخلي، بالعربية، تحت هذه العناوين وبهذا الترتيب: «الفهم»، «المسائل»، «خطة البحث»، «الجلب»، '
+    '«التحقق من الاستشهادات»، «الجواب». في «الفهم» الوقائع والمطلوب، وفي «المسائل» المسائل القانونية والتكييفات '
+    'المحتملة، وفي «خطة البحث» الاستدعاءات ضمن رصيد الإجابة، وفي «الجلب» ما أعادته الأدوات فعلًا، وفي «التحقق من '
+    'الاستشهادات» مطابقة كل استشهاد لنص مسترجع، وفي «الجواب» بناء الإجابة.\n'
+    '- قبل أول استدعاء لأدوات المكتبة اكتب في الإجابة كتلة قصيرة ظاهرة عنوانها «خطة البحث:»، سطرًا لكل استدعاء مخطط '
+    'بإحدى الصيغتين: «- بحث: <اسم التشريع> | limit=<عدد> | <مصطلح النص التشريعي>» أو «- جلب: <اسم التشريع> | '
+    '<موضوع المادة بكلمات قليلة>». لا تكتب في الخطة رقم مادة ولا حكمًا من الذاكرة. وإذا احتجت إلى استدعاء لم تخطط له '
+    'فاكتب قبله سطرًا يبدأ بـ«تعديل الخطة:» وفيه سببه.\n\n'
+)
+REASONING_SEQUENCE_EN = (
+    '- Reasoning sequence: order your internal reasoning, in Arabic, under these headings in this order: «الفهم», '
+    '«المسائل», «خطة البحث», «الجلب», «التحقق من الاستشهادات», «الجواب». Before the first library call, write in the '
+    'answer a short visible block headed «خطة البحث:», one line per planned call: «- بحث: <اسم التشريع> | '
+    'limit=<عدد> | <مصطلح النص التشريعي>» or «- جلب: <اسم التشريع> | <موضوع المادة بكلمات قليلة>»; never an article '
+    'number or a rule from memory in the plan; before any unplanned call, write a line starting «تعديل الخطة:» with '
+    'its reason.\n'
+)
+
+# Droppable on its own: the distilled checks above do not depend on these lines.
+EDITIONS['1.4']['replacements'] += [
+    (
+        'والإجابة نفسها بالعربية.\n\nاستخدام المكتبة القانونية\n',
+        f'والإجابة نفسها بالعربية.\n\n{REASONING_SEQUENCE_AR}استخدام المكتبة القانونية\n',
+    ),
+    (
+        'The answer is in Arabic.\n- The legal-library tools return',
+        f'The answer is in Arabic.\n{REASONING_SEQUENCE_EN}- The legal-library tools return',
+    ),
+]
+EDITIONS['1.4']['leftovers'].append('رمز التشريع>')
+
+
 def build(version: str) -> int:
     edition = EDITIONS[version]
     source = HERE / f'aqel-v{edition.get("source", version)}-source.txt'

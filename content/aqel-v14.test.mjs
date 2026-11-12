@@ -78,3 +78,21 @@ test('every statutory term the distilled checks tell the model to search is in t
     assert.ok(civil.includes(term), `${term} is not in the Civil Code text`);
   }
 });
+
+// D10 (handoff 2026-11-12, section 5): a separate, droppable addition to 1.4.
+test('1.4 adds the D10 reasoning sequence after the reasoning-language block, in both languages', () => {
+  const headings = '«الفهم»، «المسائل»، «خطة البحث»، «الجلب»، «التحقق من الاستشهادات»، «الجواب»';
+  const reasoning = arabic.indexOf('لغة التفكير\n- فكّر بالعربية وحدها');
+  const sequence = arabic.indexOf('تسلسل التفكير\n');
+  assert.ok(reasoning > 0 && sequence > reasoning && sequence < arabic.indexOf('\nاستخدام المكتبة القانونية\n'));
+  assert.ok(arabic.includes(headings));
+  assert.ok(arabic.includes('«خطة البحث:»') && arabic.includes('«تعديل الخطة:»'));
+  assert.ok(english.includes('- Reasoning sequence:') && english.includes('«تعديل الخطة:»'));
+  assert.ok(english.indexOf('- Reasoning language:') < english.indexOf('- Reasoning sequence:'));
+});
+
+test('the visible plan names a law by its name, never by the slug 1.3 keeps from the user', () => {
+  assert.ok(!edition.includes('رمز التشريع>'));
+  assert.ok(arabic.includes('«- بحث: <اسم التشريع> | limit=<عدد> | <مصطلح النص التشريعي>»'));
+  assert.ok(arabic.includes('ولا تذكر هذه الرموز للمستخدم'));
+});
