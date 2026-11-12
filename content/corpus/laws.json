@@ -519,7 +519,8 @@
         "law": 12,
         "year": 2019,
         "gazette_issue": 5572,
-        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true"
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
+        "gazette_date": "2019-05-01"
       },
       "review": {
         "status": "draft"
@@ -532,7 +533,8 @@
         "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false",
         "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
         "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
-        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true"
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/5572"
       }
     },
     {
