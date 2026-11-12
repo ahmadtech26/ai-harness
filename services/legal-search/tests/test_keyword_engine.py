@@ -225,6 +225,22 @@ async def test_a_fallback_episode_raises_one_alert_until_the_engine_serves_again
     assert fallbacks(alert_caplog) == 2
 
 
+async def test_a_failed_rebuild_raises_an_alert_while_the_stale_index_is_served(conn, monkeypatch, alert_caplog):
+    # A stale index is served until its rebuild is swapped in: a rebuild that fails in the build thread must say so,
+    # or a bm25 server would go on serving an outdated corpus without an alert line (final review, Chunk 3).
+    monkeypatch.setattr(keyword_engine.CACHE, 'max_age', 0)
+    await keyword_engine.CACHE.ensure(conn, BM25)                                     # built at this version
+    await db.upsert_articles(conn, [Article('civil-code', CIVIL, 999, '', 'السفتجة ورقة.', 's', 'b.md')])
+    monkeypatch.setattr(keyword_engine, 'build', boom)
+    calls = spy(monkeypatch)
+
+    found = await db.search(conn, 'العربون', 5, config=BM25)                          # the stale index serves it
+    await asyncio.wrap_future(keyword_engine._BUILDER.submit(lambda: None))          # the one build thread is done
+
+    assert calls and [f.number for f in found] == [107] and fallbacks(alert_caplog) == 0
+    assert sum('keyword_engine_build_failed' in record.message for record in alert_caplog.records) == 1
+
+
 # (c) A bound on the input: at most MAX_TERMS distinct terms, the first ones in the query.
 
 _TODAY = Today()
@@ -298,3 +314,13 @@ async def test_the_stoplist_setting_decides_whether_stopwords_reach_the_index(co
     await db.search(conn, 'ما حكم العربون', 5, config=with_overrides(BM25, [f'stoplist={stoplist}']), strict=True)
 
     assert calls == [reached]
+
+
+# The heading field (Task 3.4): the index reads the heading stored with each article.
+
+async def test_a_word_only_in_the_stored_heading_finds_its_article_under_heading_weight(conn):
+    await db.upsert_articles(conn, ARTICLES[2:], {('civil-code', 465, ''): 'السفتجة'})   # in no article's text
+
+    found = await db.search(conn, 'السفتجة', 5, config=with_overrides(BM25, ['heading_weight=1.0']), strict=True)
+
+    assert [f.number for f in found] == [465]

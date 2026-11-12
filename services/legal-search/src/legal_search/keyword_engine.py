@@ -11,7 +11,8 @@ derived only from Postgres and rebuilt when the articles change, with today's Po
                 EngineUnavailable and never falls back.
     otherwise   a cold index falls back to the Postgres search while it builds, a stale one is served until its
                 rebuild is swapped in, and an engine error falls back; each fallback episode raises one
-                keyword_engine_fallback alert.
+                keyword_engine_fallback alert, and each build that fails in the build thread one
+                keyword_engine_build_failed alert (a failed load fails at its caller instead).
 
 bm25.Index.search trusts its caller (a repeated term doubles its score, a one-letter one reaches thousands of words)
 and never reads Settings.stoplist, so the query terms come only from Analyser.query_terms, with the stoplist applied
@@ -43,8 +44,8 @@ from legal_search.search_config import SearchConfig
 MAX_TERMS = 48
 
 # ORDER BY id: the candidate cut keeps the first loaded of documents tied at its edge (bm25.Index.search), so the load
-# order must not change across restarts or row rewrites. The heading column arrives with Task 3.4.
-LOAD = "SELECT id, law_slug, number, suffix, law_title, text, '' AS heading FROM articles ORDER BY id"
+# order must not change across restarts or row rewrites. heading is the stored heading field (Task 3.4).
+LOAD = 'SELECT id, law_slug, number, suffix, law_title, text, heading FROM articles ORDER BY id'
 
 Key = tuple[str, frozenset[str]]
 Version = tuple[datetime, int] | None
@@ -176,6 +177,9 @@ class EngineCache:
         try:
             built = build(key, version, rows)
         except BaseException as error:
+            # The line a failed build needs: a stale index stays served meanwhile and nobody awaits a rebuild a
+            # runtime search started, so without it a bm25 server would serve an outdated corpus with no alert.
+            alert('keyword_engine_build_failed', reason=type(error).__name__, analyser=key[0], flags=sorted(key[1]))
             self._settle(generation, key, future, error=error)
             return
         self._settle(generation, key, future, built=built)

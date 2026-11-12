@@ -332,7 +332,7 @@ async def test_run_refuses_a_field_it_would_not_search(conn, tmp_path: Path, fie
 async def test_run_records_an_index_digest_over_the_index_only_columns(conn, tmp_path: Path, monkeypatch):
     first = await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 'a')
     assert first['run']['index_sha256'] == await evaluate.index_digest(conn)
-    monkeypatch.setattr(evaluate, 'INDEX_COLUMNS', ('label',))  # stands in for `heading` until Task 3.4
+    monkeypatch.setattr(evaluate, 'INDEX_COLUMNS', ('label',))  # any column: the mechanism, apart from the defaults
     before = await evaluate.index_digest(conn)                   # both digests over the same columns
     corpus_before = await evaluate.corpus_digest(conn)
     await conn.execute("UPDATE articles SET label = label || ' x' WHERE number = 1")
@@ -359,6 +359,16 @@ async def test_index_digest_follows_the_law_title_and_corpus_digest_does_not(con
     run = await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 't')
 
     await conn.execute("UPDATE articles SET law_title = law_title || ' x' WHERE number = 1")
+
+    assert await evaluate.index_digest(conn) != run['run']['index_sha256']
+    assert await corpus_digest(conn) == run['run']['corpus_sha256']
+
+
+async def test_index_digest_follows_the_heading_and_corpus_digest_does_not(conn, tmp_path: Path):
+    # The BM25 engine scores the stored heading under heading_weight (Task 3.4); it is not in the served text or norm.
+    run = await run_eval(os.environ['DATABASE_URL'], _world(tmp_path), 'h')
+
+    await conn.execute("UPDATE articles SET heading = heading || ' x' WHERE number = 1")
 
     assert await evaluate.index_digest(conn) != run['run']['index_sha256']
     assert await corpus_digest(conn) == run['run']['corpus_sha256']

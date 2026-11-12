@@ -42,8 +42,9 @@ CORPUS_TABLES = 'memorandum_links, memorandum_notes, articles, laws'
 RESET_FLAG = 'LEGAL_SEARCH_EVAL_RESET'
 # Index-only columns: articles columns the search index reads that corpus_digest (the keys and norm) does not cover.
 # index_digest hashes them with each article's key. The BM25 engine scores law_title under title_weight, as the
-# bench's title field does; Task 3.4 adds 'heading'.
-INDEX_COLUMNS: tuple[str, ...] = ('law_title',)
+# bench's title field does, and the stored heading under heading_weight (Task 3.4). heading_origin is not here: the
+# index never reads it.
+INDEX_COLUMNS: tuple[str, ...] = ('law_title', 'heading')
 
 ERRORS = (EvalSetError, IngestError, RegistryError, CorrectionError, MemorandumError, OSError)
 

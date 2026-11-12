@@ -50,6 +50,10 @@ CREATE TABLE IF NOT EXISTS articles (
   UNIQUE (law_slug, number, suffix)
 );
 CREATE INDEX IF NOT EXISTS articles_tsv ON articles USING GIN (tsv);
+-- The keyword engine's heading field (recall plan Task 3.4): index-only, never served. heading_origin says where it
+-- came from: 'site', headings.extract over the text as published; '' never derived.
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS heading TEXT NOT NULL DEFAULT '';
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS heading_origin TEXT NOT NULL DEFAULT '';
 -- The keyword engine's corpus version (keyword_engine): every write to articles bumps it, and an index built from
 -- another (created, version) pair is rebuilt. created tells a recreated table from the old one, whose counter it restarts.
 CREATE TABLE IF NOT EXISTS index_state (
@@ -221,29 +225,43 @@ async def upsert_laws(conn: AsyncConnection, laws: list[Law]) -> int:
 _BUMP_INDEX_VERSION = 'UPDATE index_state SET version = version + 1 WHERE id = 1'
 
 
-async def upsert_articles(conn: AsyncConnection, articles: list[Article]) -> int:
+_UPSERT_ARTICLE = """
+INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, source, shard)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+ON CONFLICT (law_slug, number, suffix) DO UPDATE SET
+  law_title = EXCLUDED.law_title, label = EXCLUDED.label, text = EXCLUDED.text,
+  norm = EXCLUDED.norm, source = EXCLUDED.source, shard = EXCLUDED.shard
+"""
+_UPSERT_ARTICLE_AND_HEADING = """
+INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, source, shard, heading, heading_origin)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+ON CONFLICT (law_slug, number, suffix) DO UPDATE SET
+  law_title = EXCLUDED.law_title, label = EXCLUDED.label, text = EXCLUDED.text,
+  norm = EXCLUDED.norm, source = EXCLUDED.source, shard = EXCLUDED.shard,
+  heading = EXCLUDED.heading, heading_origin = EXCLUDED.heading_origin
+"""
+HEADING_FROM_SITE = 'site'  # heading_origin of a heading headings.extract read from the text as published
+
+
+async def upsert_articles(conn: AsyncConnection, articles: list[Article],
+                          headings: dict[tuple[str, int, str], str] | None = None) -> int:
+    """Insert or update the articles by (law, number, suffix). With `headings` (headings.extract's, by that key), each
+    article's heading is stored too, with heading_origin 'site'; a key missing from it raises KeyError before anything
+    is written. Without it the stored heading and origin are kept: a heading is derived from the text as published, and
+    a later write of the text (an O-42 clean-up, review 2026-11-11 (f)) neither re-derives nor clears it."""
+    rows = [
+        (article.law_slug, article.law_title, article.number, article.suffix, article.label, article.text,
+         normalize(article.text), article.source, article.shard)
+        for article in articles
+    ]
+    statement = _UPSERT_ARTICLE
+    if headings is not None:
+        statement = _UPSERT_ARTICLE_AND_HEADING
+        rows = [(*row, headings[(article.law_slug, article.number, article.suffix)], HEADING_FROM_SITE)
+                for row, article in zip(rows, articles)]
     async with conn.cursor() as cur:
-        for article in articles:
-            await cur.execute(
-                """
-                INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, source, shard)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (law_slug, number, suffix) DO UPDATE SET
-                  law_title = EXCLUDED.law_title, label = EXCLUDED.label, text = EXCLUDED.text,
-                  norm = EXCLUDED.norm, source = EXCLUDED.source, shard = EXCLUDED.shard
-                """,
-                (
-                    article.law_slug,
-                    article.law_title,
-                    article.number,
-                    article.suffix,
-                    article.label,
-                    article.text,
-                    normalize(article.text),
-                    article.source,
-                    article.shard,
-                ),
-            )
+        for row in rows:
+            await cur.execute(statement, row)
         if articles:
             await cur.execute(_BUMP_INDEX_VERSION)
     return len(articles)
