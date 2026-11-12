@@ -83,7 +83,8 @@ class Settings:
 
 
 class _Field:
-    """One indexed field: term frequencies, quantised lengths, document frequencies and a sorted vocabulary."""
+    """One indexed field: term frequencies, quantised lengths, document frequencies and a sorted vocabulary, and a
+    memo of each term's BM25 score per document, filled on a term's first use (review 2026-11-11 (b)1)."""
 
     def __init__(self, token_lists: list[tuple[str, ...]]) -> None:
         self.tf = [Counter(tokens) for tokens in token_lists]
@@ -96,6 +97,7 @@ class _Field:
             for term in counts:
                 self.postings.setdefault(term, []).append(doc)
         self.vocab = sorted(self.df)
+        self.memo: dict[str, list[float]] = {}
 
     def expansions(self, term: str, mode: str) -> list[str]:
         """The field's terms a query term reaches: itself only ('exact'), or every term it prefixes, in order."""
@@ -113,6 +115,16 @@ class _Field:
         if not tf:
             return 0.0
         return idf(self.df[term], n) * (1 + K1) * tf / (tf + K1 * (1 - B + B * self.norm[doc] / self.avg))
+
+    def scores(self, term: str, n: int) -> list[float]:
+        """bm25(term, doc, n) for each doc of postings[term], in that order: computed once, then read from the memo.
+        The scores carry no boost or weight, and n is the index's document count, the same on every call. A whole
+        list is stored at once, so concurrent searches fill it idempotently: a reader meets the list or nothing."""
+        found = self.memo.get(term)
+        if found is None:
+            found = [self.bm25(term, doc, n) for doc in self.postings[term]]
+            self.memo[term] = found
+        return found
 
 
 class Index:
@@ -145,8 +157,8 @@ class Index:
         scores: dict[int, float] = {}
         for expansion in expansions:
             boost = 1.0 if expansion == term else settings.prefix_weight
-            for doc in field.postings[expansion]:
-                score = boost * field.bm25(expansion, doc, self.n)
+            for doc, plain in zip(field.postings[expansion], field.scores(expansion, self.n)):
+                score = boost * plain
                 if settings.prefix_mode == 'dismax':
                     scores[doc] = max(scores.get(doc, 0.0), score)
                 else:

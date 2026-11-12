@@ -3,7 +3,7 @@ explanatory memorandum, and the retrieval log."""
 
 import os
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 
 from psycopg import AsyncConnection
 from psycopg.rows import dict_row
@@ -50,6 +50,14 @@ CREATE TABLE IF NOT EXISTS articles (
   UNIQUE (law_slug, number, suffix)
 );
 CREATE INDEX IF NOT EXISTS articles_tsv ON articles USING GIN (tsv);
+-- The keyword engine's corpus version (keyword_engine): every write to articles bumps it, and an index built from
+-- another (created, version) pair is rebuilt. created tells a recreated table from the old one, whose counter it restarts.
+CREATE TABLE IF NOT EXISTS index_state (
+  id SMALLINT PRIMARY KEY CHECK (id = 1),
+  version BIGINT NOT NULL,
+  created TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);
+INSERT INTO index_state (id, version) VALUES (1, 0) ON CONFLICT DO NOTHING;
 CREATE TABLE IF NOT EXISTS memorandum_notes (
   note_no INT PRIMARY KEY,
   text TEXT NOT NULL,
@@ -209,6 +217,10 @@ async def upsert_laws(conn: AsyncConnection, laws: list[Law]) -> int:
     return len(laws)
 
 
+# Every write to articles runs it once, after the write (keyword_engine rebuilds an index read before it).
+_BUMP_INDEX_VERSION = 'UPDATE index_state SET version = version + 1 WHERE id = 1'
+
+
 async def upsert_articles(conn: AsyncConnection, articles: list[Article]) -> int:
     async with conn.cursor() as cur:
         for article in articles:
@@ -232,6 +244,8 @@ async def upsert_articles(conn: AsyncConnection, articles: list[Article]) -> int
                     article.shard,
                 ),
             )
+        if articles:
+            await cur.execute(_BUMP_INDEX_VERSION)
     return len(articles)
 
 
@@ -246,7 +260,16 @@ async def prune_articles(conn: AsyncConnection, law_slug: str, keep: set[tuple[i
         """,
         (law_slug, [number for number, _ in ordered], [suffix for _, suffix in ordered]),
     )
+    if cur.rowcount:
+        await conn.execute(_BUMP_INDEX_VERSION)
     return cur.rowcount
+
+
+async def index_version(conn: AsyncConnection) -> tuple[datetime, int] | None:
+    """index_state's (created, version): the corpus version the keyword engine's index is built from and compared to."""
+    cur = await conn.execute('SELECT created, version FROM index_state WHERE id = 1')
+    row = await cur.fetchone()
+    return (row[0], row[1]) if row else None
 
 
 # Every result joins its law's registry row; LEFT JOIN so an article never disappears for want of one.
@@ -288,9 +311,32 @@ def _found(row: dict) -> Found:
 async def search(conn: AsyncConnection, query: str, limit: int, law: str | None = None,
                  config: SearchConfig = DEFAULT, *, strict: bool = False) -> list[Found]:
     """Ranked keyword search, optionally within one law; ties break on number, law and suffix (deterministic).
+    config.ranker picks the ranking: 'pg' is today's Postgres search (_pg_search), 'bm25' the in-process keyword
+    engine (keyword_engine.search), whose results are these rows too, read back by id.
 
-    `strict` is the evaluation mode (legal-search-eval passes True): a ranker that falls back to this SQL path at
-    runtime must never fall back under it (spec REQ-RAG-025). This SQL path is not a fallback, so it ignores it."""
+    `strict` is the evaluation mode (legal-search-eval passes True): the engine, which falls back to the Postgres
+    search at runtime, never falls back under it (spec REQ-RAG-025). The Postgres search is not a fallback, so it
+    ignores it."""
+    if config.ranker == 'bm25':
+        from legal_search import keyword_engine  # here, not at the top: keyword_engine imports this module
+
+        return await keyword_engine.search(conn, query, limit, law, config, strict)
+    return await _pg_search(conn, query, limit, law, config)
+
+
+async def found_by_ids(conn: AsyncConnection, ids: list[int]) -> list[Found]:
+    """The articles with these ids, in the order of `ids`; an id no longer stored is left out."""
+    if not ids:
+        return []
+    async with conn.cursor(row_factory=dict_row) as cur:
+        await cur.execute(_SELECT + ' WHERE a.id = ANY(%s)', (list(ids),))
+        by_id = {row['id']: _found(row) for row in await cur.fetchall()}
+    return [by_id[article_id] for article_id in ids if article_id in by_id]
+
+
+async def _pg_search(conn: AsyncConnection, query: str, limit: int, law: str | None,
+                     config: SearchConfig) -> list[Found]:
+    """Today's search: ts_rank_cd over the stored tsvector (the 'pg' ranker, and the keyword engine's fallback)."""
     tsquery = build_tsquery(query, config)
     if tsquery is None or limit <= 0:
         return []

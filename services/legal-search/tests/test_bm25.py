@@ -417,3 +417,37 @@ def test_results_stop_at_the_requested_depth():
     ranked = index.search(['بيع'], [], BASE, None, 1)
 
     assert ids(ranked) == [1]
+
+
+# The per-term score memo (review 2026-11-11 (b)1): each field keeps a term's BM25 score per document once computed,
+# whatever boost, field weight, mode or law filter a later search applies on top.
+
+class _Forgetful(dict):
+    """A memo store that never keeps a score: every lookup computes it afresh, as the index did before the memo."""
+
+    def __setitem__(self, key, value):
+        pass
+
+
+MEMO_DOCS = [doc(1, ['عقد', 'عقده', 'بيع'], heading=['عقد'], title=['مدني']),
+             doc(2, ['عقده', 'بيع', 'بيع'], heading=['بيع'], title=['مدني']),
+             doc(3, ['بيع', 'ايجار', 'عقد'], heading=['عقده'], title=['عمل'], law='labour'),
+             doc(4, ['عقد', 'ايجار', 'ايجار', 'حشو'], title=['عقد'], law='penal-code')]
+MEMO_SEARCHES = [
+    (['عقد'], [], BASE, None, 10),                                    # «عقده» reached as a prefix, at weight 0.5
+    (['عقده'], [], BASE, None, 10),                                   # then as the exact term, at weight 1
+    (['عقد', 'بيع'], [], settings(title_weight=0.5, heading_weight=1.0), None, 10),   # one term in three fields
+    (['عقد', 'ايجار'], [], settings(prefix_mode='sum', title_weight=0.5), 'penal-code', 10),
+]
+
+
+def test_the_score_memo_returns_the_unmemoised_lists_twice_in_a_row():
+    unmemoised, memoised = Index.build(MEMO_DOCS), Index.build(MEMO_DOCS)
+    for field in unmemoised.fields.values():
+        field.memo = _Forgetful()
+    expected = [unmemoised.search(*search) for search in MEMO_SEARCHES]
+
+    first = [memoised.search(*search) for search in MEMO_SEARCHES]
+    second = [memoised.search(*search) for search in MEMO_SEARCHES]
+
+    assert memoised.fields['body'].memo and first == expected and second == expected     # bit for bit, not isclose

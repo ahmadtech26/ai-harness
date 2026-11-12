@@ -5,6 +5,7 @@ from psycopg import AsyncConnection
 
 from legal_search import db
 from legal_search.corpus import Article
+from legal_search.search_config import DEFAULT, with_overrides
 from tests.pg import fresh
 
 pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
@@ -34,8 +35,12 @@ async def test_hamza_in_the_query_does_not_matter(conn):
     assert [a.label for a in await db.search(conn, 'أصبح العقد باتاً', 5)][0] == 'المادة 107'
 
 
-async def test_function_words_alone_find_nothing(conn):
-    assert await db.search(conn, 'ما هو في من على', 5) == []
+@pytest.mark.parametrize('ranker', ['pg', 'bm25'])
+async def test_function_words_alone_find_nothing(conn, ranker):
+    # strict: the BM25 engine never falls back to the Postgres search, which would find nothing as well (Task 3.1)
+    config = with_overrides(DEFAULT, [f'ranker={ranker}'])
+
+    assert await db.search(conn, 'ما هو في من على', 5, config=config, strict=True) == []
 
 
 async def test_respects_the_limit(conn):

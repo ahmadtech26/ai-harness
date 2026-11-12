@@ -2,14 +2,15 @@
 
 from psycopg import AsyncConnection
 
-from legal_search import db
+from legal_search import db, keyword_engine
 
 TABLES = (
     'sweep_flags, guard_watermarks, guard_settings_history, guard_settings, '
-    'memorandum_links, memorandum_notes, articles, laws, retrieval_log'
+    'memorandum_links, memorandum_notes, articles, laws, retrieval_log, index_state'
 )
 
 
 async def fresh(conn: AsyncConnection) -> None:
     await conn.execute(f'DROP TABLE IF EXISTS {TABLES} CASCADE')
     await db.create_schema(conn)
+    keyword_engine.CACHE.clear()
