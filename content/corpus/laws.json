@@ -137,7 +137,8 @@
       "amendment": {
         "law": 35,
         "year": 1983,
-        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
+        "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true",
+        "gazette_issue": 3194
       },
       "review": {
         "status": "draft"
@@ -149,7 +150,8 @@
         "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
         "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
         "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true",
-        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
       }
     },
     {
