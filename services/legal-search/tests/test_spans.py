@@ -13,14 +13,16 @@ import pytest
 from psycopg import AsyncConnection
 from psycopg_pool import AsyncConnectionPool
 
-from legal_search import db, server, spans, timing, tools
+from legal_search import db, keyword_engine, server, spans, timing, tools
 from legal_search.caps import Caps
 from legal_search.corpus import Article
 from legal_search.registry import Law
+from legal_search.search_config import DEFAULT, with_overrides
 from legal_search.timing import percentiles
 from tests.pg import TABLES, fresh
 
 needs_pg = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
+BM25 = with_overrides(DEFAULT, ['ranker=bm25'])
 
 # The fixture of test_tools.py's search tests.
 CAPS = Caps(per_answer=8, daily=300, max_results=5)
@@ -78,6 +80,55 @@ async def test_search_law_output_is_unchanged_by_spans(conn):
 
     assert plain.startswith('[1] ') and timed == plain
     assert [name for name, _ in got] == ['budget', 'search', 'guard', 'log']
+
+
+# The engine-alone figure (review 2026-11-11 (b)2): with ranker=bm25, search holds the wait for an engine turn
+# (engine_wait) and bm25.Index.search alone (engine).
+
+@needs_pg
+async def test_a_bm25_call_times_the_engine_inside_its_search_span(conn):
+    await keyword_engine.CACHE.ensure(conn, BM25)   # built: the engine serves, not the cold fallback
+    plain = await tools.search_law(conn, CAPS, tools.Caller('u1', 'm-plain', 'c1'), 'يعاقب', 5, config=BM25)
+
+    with spans.collect() as got:
+        timed = await tools.search_law(conn, CAPS, tools.Caller('u1', 'm-timed', 'c1'), 'يعاقب', 5, config=BM25)
+
+    took = dict(got)
+    assert plain.startswith('[1] ') and timed == plain
+    assert [name for name, _ in got] == ['budget', 'engine_wait', 'engine', 'search', 'guard', 'log']
+    assert took['engine_wait'] + took['engine'] <= took['search']
+
+
+async def test_an_untimed_engine_search_reads_no_clock(monkeypatch):
+    def no_clock() -> float:
+        raise AssertionError('an engine search read the clock with no collector set')
+
+    monkeypatch.setattr(keyword_engine, 'time', SimpleNamespace(perf_counter=no_clock))
+
+    assert await keyword_engine.Searches(1).run(sorted, [3, 1, 2]) == [1, 2, 3]
+
+
+async def test_engine_wait_runs_to_the_start_of_the_search_and_engine_from_there_to_its_end(monkeypatch):
+    # It fails if engine is timed from the request for a turn, so that it holds the wait, or a span is in seconds.
+    readings = iter([1.0, 1.5, 3.75])                # asked on the loop; started and ended in the worker thread
+    monkeypatch.setattr(keyword_engine, 'time', SimpleNamespace(perf_counter=lambda: next(readings)))
+
+    with spans.collect() as got:
+        result = await keyword_engine.Searches(1).run(sorted, [3, 1, 2])
+
+    assert result == [1, 2, 3] and got == [('engine_wait', 500.0), ('engine', 2250.0)]
+
+
+def test_the_engine_spans_are_reported_and_never_subtracted_from_other_twice(tmp_path):
+    path = tmp_path / 'calls.jsonl'
+    path.write_text(json.dumps({'message': 'a', 'spans': [['budget', 2.0], ['engine_wait', 3.0], ['engine', 12.0],
+                                                          ['search', 20.0], ['log', 4.0]], 'server_ms': 30.0}) + '\n',
+                    encoding='utf-8')
+
+    level = timing.tally([timing.Call('a', 40.0, 'served')], timing.read_span_lines(path))
+
+    assert (level['spans_ms']['engine_wait'], level['spans_ms']['engine']) == (percentiles([3.0]), percentiles([12.0]))
+    assert level['spans_ms']['other'] == percentiles([4.0])  # 30 less 2 + 20 + 4: the engine's spans are inside search
 
 
 def test_timing_percentiles_are_nearest_rank():

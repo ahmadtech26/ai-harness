@@ -10,7 +10,7 @@ import threading
 import pytest
 from psycopg import AsyncConnection
 
-from legal_search import bm25, db, keyword_engine
+from legal_search import bm25, db, keyword_engine, server
 from legal_search.analysis import Today
 from legal_search.corpus import Article
 from legal_search.search_config import DEFAULT, with_overrides
@@ -267,6 +267,77 @@ async def test_at_most_max_terms_distinct_terms_reach_the_index_the_first_ones(c
 
     assert len(WORDS) == 200 and [len(terms) for terms in calls] == [CAP, CAP]
     assert capped == alone and {901, 902} <= {f.number for f in capped}
+
+
+# (b)4 A bound on the engine searches running at once: Index.search holds the GIL, so threads add no throughput.
+
+async def test_concurrent_engine_searches_never_run_more_than_the_bound_at_once(conn, monkeypatch):
+    queries = ['العقد', 'العربون', 'العقد العربون', 'البيع', 'العدول', 'مال'] * 2
+    serial = [await db.search(conn, query, 5, config=BM25, strict=True) for query in queries]   # and the index is built
+    bound, real = 2, bm25.Index.search
+    seen = threading.Condition()
+    entered = inside = most = 0
+    turn = threading.Semaphore(0)                    # the test lets one held search out at a time
+
+    def held(self, *args, **kwargs):
+        nonlocal entered, inside, most
+        with seen:
+            entered, inside = entered + 1, inside + 1
+            most = max(most, inside)
+            seen.notify_all()
+        turn.acquire(timeout=30)
+        with seen:
+            inside -= 1
+        return real(self, *args, **kwargs)
+
+    def until_entered(count: int) -> bool:
+        with seen:
+            return seen.wait_for(lambda: entered >= count, timeout=30)
+
+    monkeypatch.setattr(keyword_engine, 'SEARCHES', keyword_engine.Searches(bound))
+    monkeypatch.setattr(bm25.Index, 'search', held)
+
+    running = asyncio.gather(*(db.search(conn, query, 5, config=BM25, strict=True) for query in queries))
+    for released in range(len(queries)):
+        # Every search has asked for its turn by now: without the bound, all of them would be held inside at once.
+        assert await asyncio.to_thread(until_entered, min(released + bound, len(queries)))
+        turn.release()
+    concurrent = await running
+
+    assert most == bound and concurrent == serial
+
+
+async def test_a_search_cancelled_while_it_waits_for_a_turn_never_runs():
+    # It fails if the turn is taken in the worker thread (a semaphore around an unbounded pool) or the wait is
+    # shielded: the cancelled caller's search would then still run, delaying every search queued behind it.
+    searches, inside, release, ran = keyword_engine.Searches(1), threading.Event(), threading.Event(), []
+
+    def first() -> None:
+        inside.set()
+        release.wait(30)
+        ran.append('first')
+
+    try:
+        held = asyncio.create_task(searches.run(first))
+        queued = asyncio.create_task(searches.run(ran.append, 'queued'))
+        await asyncio.to_thread(inside.wait, 30)       # both have asked for a turn, and the first holds the only one
+        queued.cancel()                                # as a tool deadline would
+        with pytest.raises(asyncio.CancelledError):
+            await queued
+    finally:
+        release.set()
+    await held
+    await searches.run(ran.append, 'after')            # turns go in arrival order: 'queued' would have run before it
+
+    assert ran == ['first', 'after']
+
+
+def test_the_engine_runs_one_search_at_a_time_unless_the_setting_says_otherwise(monkeypatch):
+    monkeypatch.delenv(server.ENGINE_SEARCHES, raising=False)
+    unset = server.engine_searches_from_env()
+    monkeypatch.setenv(server.ENGINE_SEARCHES, '3')
+
+    assert (unset, server.engine_searches_from_env()) == (1, 3)
 
 
 # (d) Depth, and the order of the load.

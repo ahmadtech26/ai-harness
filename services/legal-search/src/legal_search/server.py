@@ -11,7 +11,8 @@ line of its spans to LEGAL_SEARCH_TIMING_FILE (REQ-RAG-021). No deploy file sets
 
 search_law ranks with the server's search config: DEFAULT, or the overrides LEGAL_SEARCH_SEARCH_CONFIG names, which
 only the timing stack sets (recall plan Tasks 3.2 and 3.9; search_config.search_config_from_env). A server whose
-config ranks with the keyword engine (ranker=bm25) builds that config's index before it serves.
+config ranks with the keyword engine (ranker=bm25) builds that config's index before it serves. Its searches run
+one at a time (keyword_engine.DEFAULT_SEARCHES) unless LEGAL_SEARCH_ENGINE_SEARCHES allows more; no deploy file sets it.
 """
 
 import asyncio
@@ -56,6 +57,8 @@ PLAIN_ID = re.compile('[A-Za-z0-9_-]+')
 # The timing stack's switch and span file (Task 1.5); compose.contract.test.mjs keeps them out of staging.
 TIMING_SPANS = 'LEGAL_SEARCH_TIMING_SPANS'
 TIMING_FILE = 'LEGAL_SEARCH_TIMING_FILE'
+# The keyword-engine searches that may run at once (review 2026-11-11 (b)4).
+ENGINE_SEARCHES = 'LEGAL_SEARCH_ENGINE_SEARCHES'
 LOGGER = logging.getLogger('legal_search.server')
 
 
@@ -186,6 +189,12 @@ def tool_deadline_from_env() -> float | None:
     """Seconds a tool call may run (LEGAL_SEARCH_TOOL_DEADLINE_SECONDS); None when unset (R3 n=13)."""
     seconds = _positive_env('LEGAL_SEARCH_TOOL_DEADLINE_SECONDS')
     return None if seconds is None else float(seconds)
+
+
+def engine_searches_from_env() -> int:
+    """The keyword-engine searches that may run at once: LEGAL_SEARCH_ENGINE_SEARCHES, a positive whole number, or
+    keyword_engine.DEFAULT_SEARCHES (1) when it is unset; the reasons for 1 are at that constant."""
+    return _positive_env(ENGINE_SEARCHES) or keyword_engine.DEFAULT_SEARCHES
 
 
 def caps_from_env() -> Caps:
@@ -334,6 +343,7 @@ def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts:
 
 
 def main() -> None:
+    keyword_engine.SEARCHES = keyword_engine.Searches(engine_searches_from_env())
     pool = AsyncConnectionPool(db.database_url(), min_size=1, max_size=10, open=False, timeout=POOL_TIMEOUT,
                                kwargs=connection_kwargs())
     app = build_app(pool, caps_from_env(), read_secret(), allowed_hosts_from_env(), tool_deadline_from_env(),

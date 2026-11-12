@@ -17,19 +17,25 @@ derived only from Postgres and rebuilt when the articles change, with today's Po
 bm25.Index.search trusts its caller (a repeated term doubles its score, a one-letter one reaches thousands of words)
 and never reads Settings.stoplist, so the query terms come only from Analyser.query_terms, with the stoplist applied
 here, and at most MAX_TERMS of them (review 2026-11-11 (c), (e)).
+
+Index.search runs in SEARCHES, at most DEFAULT_SEARCHES of them at once unless LEGAL_SEARCH_ENGINE_SEARCHES says
+otherwise (server.engine_searches_from_env; review 2026-11-11 (b)4). With a timing collector set, each search adds
+the spans engine_wait (its wait for a turn) and engine (Index.search alone), both inside tools.search_law's search.
 """
 
 import asyncio
 import math
 import threading
 import time
+from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, fields
 from datetime import datetime
+from typing import TypeVar
 
 from psycopg import AsyncConnection
 
-from legal_search import bm25, db
+from legal_search import bm25, db, spans
 from legal_search.alerts import alert
 from legal_search.analysis import Analyser, Lexicon, analyser_of
 from legal_search.metrics import DEPTH
@@ -43,12 +49,25 @@ from legal_search.search_config import SearchConfig
 # 300-character input cap would still allow 630 ms and 1.9 s.
 MAX_TERMS = 48
 
+# The engine searches that may run at once (review 2026-11-11 (b)4). Index.search is pure Python and holds the GIL, so
+# threads add no throughput; they slow every search and the event loop, which runs the rest of every call. In the
+# service's container (python:3.12 under the 2-CPU quota; fable52 lens-c-engine fit_container.out.txt, digest
+# :944-945, :960), 1, 2, 4 and 8 threads give 35.1, 33.7, 29.6 and 31.0 question-length searches a second, at a
+# per-search p99 of 64, 119, 330 and 674 ms, and the loop's tick lateness p99 is 0.4 ms with no search running, then
+# 15, 125 and 247 ms with 1, 4 and 8 (the skeptic's rerun: 0.43, 9.9, 97, 220). Before this bound only the pool's
+# max_size 10 and the per-user lock held them (digest :954). One at a time keeps the best throughput measured and the
+# loop at the one-search lateness. A short search may then wait behind a long one, which MAX_TERMS bounds (the 48
+# costliest two-letter words on a first search: 412 ms on the host under T-B2, 856 ms with proximity), while every
+# logged query costs at most 24.1 ms, or 35.2 ms with proximity (digest :978). More throughput needs processes ((b)3).
+DEFAULT_SEARCHES = 1
+
 # ORDER BY id: the candidate cut keeps the first loaded of documents tied at its edge (bm25.Index.search), so the load
 # order must not change across restarts or row rewrites. heading is the stored heading field (Task 3.4).
 LOAD = 'SELECT id, law_slug, number, suffix, law_title, text, heading FROM articles ORDER BY id'
 
 Key = tuple[str, frozenset[str]]
 Version = tuple[datetime, int] | None
+T = TypeVar('T')
 
 # Builds run one at a time, off the event loop and outside any request: a build started by a search that falls back
 # outlives that search's connection and event loop.
@@ -214,6 +233,40 @@ class EngineCache:
 CACHE = EngineCache()
 
 
+class Searches:
+    """At most `bound` engine searches running at once, each in one of `bound` worker threads of their own; the others
+    wait for a turn in arrival order, off the event loop. A caller cancelled while it waits (a tool deadline) leaves the
+    queue and its search never runs; one already running finishes, as no thread can be stopped.
+
+    With a timing collector set, `run` adds two spans: engine_wait, from the request for a turn to the start of the
+    search in its thread (the queue and the hand-off to the thread), and engine, the search alone, timed in its thread.
+    With none, it reads no clock."""
+
+    def __init__(self, bound: int) -> None:
+        self.bound = bound
+        self._pool = ThreadPoolExecutor(max_workers=bound, thread_name_prefix='keyword-engine-search')
+
+    async def run(self, search: Callable[..., T], *args) -> T:
+        loop = asyncio.get_running_loop()
+        if spans.current() is None:
+            return await loop.run_in_executor(self._pool, search, *args)
+        asked = time.perf_counter()
+        result, started, ended = await loop.run_in_executor(self._pool, _clocked, search, args)
+        spans.add('engine_wait', (started - asked) * 1000.0)
+        spans.add('engine', (ended - started) * 1000.0)
+        return result
+
+
+def _clocked(search: Callable[..., T], args: tuple) -> tuple[T, float, float]:
+    started = time.perf_counter()
+    result = search(*args)
+    return result, started, time.perf_counter()
+
+
+# The server replaces it with LEGAL_SEARCH_ENGINE_SEARCHES's bound when that is set (server.main).
+SEARCHES = Searches(DEFAULT_SEARCHES)
+
+
 async def search(conn: AsyncConnection, query: str, limit: int, law: str | None, config: SearchConfig,
                  strict: bool) -> list[db.Found]:
     """db.search with ranker='bm25': the engine's best max(limit, DEPTH) ids, read back from Postgres in the engine's
@@ -244,7 +297,7 @@ async def search(conn: AsyncConnection, query: str, limit: int, law: str | None,
         CACHE.served()
         return []
     try:
-        ranked = await asyncio.to_thread(built.index.search, terms, members, settings, law, depth)
+        ranked = await SEARCHES.run(built.index.search, terms, members, settings, law, depth)
     except Exception as error:
         if strict:
             raise EngineUnavailable(f'the keyword engine failed ({type(error).__name__})') from error

@@ -8,6 +8,9 @@ Spans go to the collector of the current context. With no collector set, `span` 
 clock: the shipping server pays the context-variable read and the async context manager's setup (a few
 microseconds per span, seven per search_law call). Only the timing stack's server sets a collector (server.py,
 LEGAL_SEARCH_TIMING_SPANS=1).
+
+A span timed where the collector cannot be read, such as a worker thread, is handed over with `add` (the keyword
+engine's engine_wait and engine, inside search: keyword_engine.Searches).
 """
 
 import time
@@ -33,6 +36,13 @@ def collect() -> Iterator[list[Span]]:
         yield got
     finally:
         _COLLECTOR.reset(token)
+
+
+def add(name: str, ms: float) -> None:
+    """Records a span timed elsewhere as `name` when a collector is set; does nothing otherwise."""
+    got = _COLLECTOR.get()
+    if got is not None:
+        got.append((name, ms))
 
 
 @asynccontextmanager

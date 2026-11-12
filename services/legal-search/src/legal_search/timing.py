@@ -27,7 +27,10 @@ Every response is checked: an article list or the not-found text is a timed sear
 suspension refusal, another fixed reply, a tool or protocol error) is counted apart, and the run fails unless that
 count is 0. The server's span lines (`--spans`) are joined by message id: lock wait, pool wait, guard-settings
 load, budget, search, guard, log, `other` (the server total less those spans), and transport (client total less
-server total). The report is written before any failure exits.
+server total). With ranker=bm25 the lines also hold two spans inside search: engine_wait (the wait for an engine
+turn) and engine (bm25.Index.search alone: the engine-alone figure Task 3.9 reports beside the whole call, review
+2026-11-11 (b)2); they are reported and not subtracted again for `other`. The report is written before any failure
+exits.
 
 `--field fused` joins each item's query and question: a two-form stand-in for REQ-RAG-021's «2-to-3-form fused
 queries», labelled as such in the report.
@@ -65,10 +68,19 @@ SPLITS_NOTE = {
     'transport': ('client total less server_ms; server_ms starts inside the search_law tool, so transport also holds '
                   "the secret check, the MCP SDK's per-request session and JSON-RPC handling, argument validation, the "
                   'caller identity read and the span-line append, besides the network'),
-    'other': ('server_ms less its spans: BEGIN, the advisory lock statement, the suspension check, the second budget '
-              'read, formatting the answer, the COMMIT of the outer transaction and the alert hand-off'),
+    'other': ('server_ms less its spans (engine_wait and engine sit inside search, and are not subtracted twice): '
+              'BEGIN, the advisory lock statement, the suspension check, the second budget read, formatting the '
+              'answer, the COMMIT of the outer transaction and the alert hand-off'),
     'budget': "the first of the call's two budget reads only (two statements); the second is in other",
     'log': "the log row and the guard's flag change (_record, a savepoint); the outer transaction's COMMIT is in other",
+    'engine_wait': ('ranker=bm25 only, inside search: from the request for an engine turn to the start of the search in '
+                    'its worker thread (the wait behind the searches allowed at once, LEGAL_SEARCH_ENGINE_SEARCHES, '
+                    'default 1, and the hand-off to the thread)'),
+    'engine': ('ranker=bm25 only, inside search: bm25.Index.search alone, timed in its worker thread (the engine-alone '
+               'figure). It is wall time, so it also holds the turns the event loop takes on the GIL meanwhile. search '
+               'less engine_wait and engine holds the index version check, the query analysis, the hand-back to the '
+               'event loop and the read-back of the ranked rows by id. A call that fell back to Postgres, or whose '
+               'query kept no terms, has neither engine span'),
 }
 # The caps and every detector threshold, raised so that no timed call is refused or throttled (each pair stays
 # suspected < proven, and throttle_daily_cap < daily, as guard_settings.validate requires). max_results stays the
@@ -85,6 +97,9 @@ RAISED = {
     'suspected_cap_days': 1_000_000,
 }
 SPAN_NAMES = ('lock_wait', 'pool_wait', 'guard_settings', 'budget', 'search', 'guard', 'log')
+# Spans timed inside another (keyword_engine.Searches, inside search): reported, but `other` leaves them out, as the
+# outer span already holds their time. A ranker='pg' line has none.
+INNER_SPANS = ('engine_wait', 'engine')
 TIMED = ('served', 'not_found')
 # Seeded rows: search_law calls that served 5 articles each, spread over the look-back less an hour of margin.
 HEAVY_SPAN_SECONDS = 8 * 86_400 - 3_600
@@ -175,7 +190,8 @@ class Call:
 
 def tally(calls: list[Call], lines: dict[str, dict] | None = None) -> dict:
     """Counts and client percentiles over the timed searches only; with the server's span lines (by message id),
-    the server total, each span, `other` (the server total less its spans) and transport (client less server)."""
+    the server total, each span, `other` (the server total less its spans, INNER_SPANS left out) and transport
+    (client less server)."""
     timed = [call for call in calls if call.outcome in TIMED]
     out = {
         'calls': len(calls),
@@ -197,7 +213,8 @@ def tally(calls: list[Call], lines: dict[str, dict] | None = None) -> dict:
             **{name: percentiles([sum(ms for got, ms in line['spans'] if got == name)
                                   for _, line in joined if any(got == name for got, _ in line['spans'])])
                for name in names},
-            'other': percentiles([line['server_ms'] - sum(ms for _, ms in line['spans']) for _, line in joined]),
+            'other': percentiles([line['server_ms'] - sum(ms for got, ms in line['spans'] if got not in INNER_SPANS)
+                                  for _, line in joined]),
         },
     })
     return out
@@ -381,7 +398,8 @@ def render(report: dict) -> str:
         parts = [f"client {cell(run['client_ms'])}"]
         if 'server_ms' in run:
             parts += [f"server {cell(run['server_ms'])}", f"transport {cell(run['transport_ms'])}"]
-            parts += [f'{span} {cell(spans_ms.get(span))}' for span in (*SPAN_NAMES, 'other')]
+            inner = [span for span in INNER_SPANS if spans_ms.get(span, {}).get('n')]  # ranker=bm25 runs only
+            parts += [f'{span} {cell(spans_ms.get(span))}' for span in (*SPAN_NAMES, *inner, 'other')]
         rows.append(f"{name}: timed {run['timed']} (not found {run['not_found']}), refused {run['refused']}; " + ', '.join(parts))
     return '\n'.join(rows)
 
