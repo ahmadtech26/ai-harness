@@ -2,7 +2,7 @@
 name: jordanian-civil-issue-map
 description: Issue checklists for civil and commercial disputes and contracts under Jordanian law (contract, harm, proof, obligations, sale, lease, work and insurance contracts, property, securities) — what to ask, what to distinguish, and which statutory terms to search in the legal library. Use when analysing such a dispute or reviewing such a contract.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   owner: iqraa-legal-content
   requires:
     tools: [search_law, get_article]
@@ -21,21 +21,22 @@ metadata:
 
 ## خطوات العمل
 1. **حدّد الباب** وافتح ملف المراجع الخاص به:
-   - العقد عامة (التكييف، الانعقاد، مراتب العقد، الآثار، الانحلال): `references/contracts.md`
-   - الفعل الضار والفعل النافع: `references/harm-and-enrichment.md`
-   - الإثبات: `references/proof.md`
-   - التنفيذ والتعويض، وحماية الضمان العام، وأوصاف الالتزام، والحوالة، والانقضاء وعدم سماع الدعوى: `references/obligations.md`
-   - البيع والمقايضة والهبة والشركة والقرض والصلح: `references/sale-and-property-contracts.md`
-   - الإيجار والعارية: `references/lease.md`
-   - المقاولة والوكالة والوديعة والحراسة وعقد العمل والتأمين: `references/work-and-insurance.md`
-   - الملكية وأسباب كسبها: `references/property.md`
-   - الكفالة والرهن وحقوق الامتياز: `references/securities.md`
+   - العقد عامة (التكييف، الانعقاد، مراتب العقد، الآثار، الانحلال): `skills/jordanian-civil-issue-map/references/contracts.md`
+   - الفعل الضار والفعل النافع: `skills/jordanian-civil-issue-map/references/harm-and-enrichment.md`
+   - الإثبات: `skills/jordanian-civil-issue-map/references/proof.md`
+   - التنفيذ والتعويض، وحماية الضمان العام، وأوصاف الالتزام، والحوالة، والانقضاء وعدم سماع الدعوى: `skills/jordanian-civil-issue-map/references/obligations.md`
+   - البيع والمقايضة والهبة والشركة والقرض والصلح: `skills/jordanian-civil-issue-map/references/sale-and-property-contracts.md`
+   - الإيجار والعارية: `skills/jordanian-civil-issue-map/references/lease.md`
+   - المقاولة والوكالة والوديعة والحراسة وعقد العمل والتأمين: `skills/jordanian-civil-issue-map/references/work-and-insurance.md`
+   - الملكية وأسباب كسبها: `skills/jordanian-civil-issue-map/references/property.md`
+   - الكفالة والرهن وحقوق الامتياز: `skills/jordanian-civil-issue-map/references/securities.md`
 2. **اختر المسائل** التي تثيرها الوقائع فعلًا من سطور الملف، ورتّبها، وحدّد المسألة الحاسمة. لا تعالج كل سطر، ولا تطرح على المستخدم إلا الأسئلة التي يتوقف عليها الجواب.
-3. **خطّط البحث ضمن رصيد الإجابة**: في آخر كل سطر رمز التشريع ومصطلح بحث يرد في نصه. ابدأ بالمسألة الحاسمة، ومرّر law، والتزم بحدود البحث في التعليمات العامة؛ وإذا كثرت المسائل فاقترح على المستخدم تقسيم السؤال.
+3. **خطّط البحث ضمن رصيد الإجابة**: في آخر كل سطر رمز التشريع ومصطلحات بحث ترد في نصه (ورمز تشريع ثانٍ ومصطلحه إن احتاجت المسألة قانونين). ابدأ بالمسألة الحاسمة، ومرّر law، والتزم بحدود البحث في التعليمات العامة؛ وإذا كثرت المسائل فاقترح على المستخدم تقسيم السؤال.
 4. **طبّق النص المسترجع وحده**: انقل النص كما أعادته الأداة مع حالة التحقق، وطبّقه على الوقائع. وما لم يُسترجع نصه فاذكره بموضوعه دون حكم.
-5. **انتبه للفروق**: كثير من السطور يحذّر من قاعدة شائعة في الشروح المصرية. لا تقدّم تلك القاعدة على أنها أردنية، ولا تقل إن النص الأردني يخالفها إلا بعد استرجاعه.
+5. **لا تفترض قاعدة من الذاكرة**: بعض السطور يحذّر من قاعدة شائعة لا تجد لها نصًا مسترجعًا؛ لا تذكرها ولا تبنِ عليها، وابنِ على ما يعيده النص وحده.
 
 ## ضوابط
+- لا تذكر في الإجابة القانون المصري أو شروحه، ولا تقارن بهما.
 - لا تذكر للمستخدم رموز التشريعات ولا المعرّفات الواردة في تعليقات الملفات.
 - إذا توقفت المسألة على تشريع غير محمّل في المكتبة (تسجيل الأراضي، الأحوال الشخصية والمواريث، الإعسار) فصرّح بذلك ولا تسدّ النقص من الذاكرة.
 - اتبع صيغة الإجابة المحددة في التعليمات العامة للمنصة.
