@@ -634,7 +634,7 @@
     {
      "corpus": "",
      "lob": "تطبيق قواعد واحكام الاثبات",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «8») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -649,7 +649,7 @@
      "corpus": "",
      "lob": "مصادر الحقوق الشخصيه الفصل الاول العقد الفصل الثاني التصرف الانفرادي الوعد الفصل الثالث الفعل الضار الفصل الرابع الفعل النافع الفصل الخامس القانون الباب الثاني اثار الحق الفصل الاول احكام عامه الفصل الثاني وسايل التنفيذ الفصل الثالث التصرفات المشروطه بالتعليق والاجل الفصل الرابع تعدد المحل الفصل الخامس تعدد طرفي التصرف الفصل السادس انقضا الحقوق",
      "site_agrees_with": "corpus",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "او",
@@ -1437,7 +1437,7 @@
      "corpus": "",
      "lob": "عقود التمليك الفصل الاول عقد البيع الفصل الثاني عقد الهبه الفصل الثالث عقد الشركه الفصل الرابع عقد القرض الفصل الخامس عقد الصلح الباب الثاني عقود المنفعه الفصل الاول الاجازه ايجار الاراضي الزراعيه المزراعه المساقاه المغارسه ايجار الوقف الفصل الثاني الاعاره الباب الثالث عقود العمل الفصل الاول عقد المقاوله الفصل الثاني عقد العمل الفصل الثالث عقد الوكاله الفصل الرابع عقد الايداع الفصل الخامس عقد الحراسه الباب الرابع عقود الفرر الفصل الاول الرهان والمقامره الفصل الثاني المرتب مدي الحياه الفصل الثالث عقد التامين الباب الخامس عقود التوثيقات الشخصيه الفصل الاول الكفاله الفصل الثاني الحواله الباب الاول عقود التمليك الفصل الاول البيع",
      "site_agrees_with": "corpus",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     }
    ]
   },
@@ -2010,7 +2010,7 @@
     {
      "corpus": "ينفق",
      "lob": "يتفق",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «74») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -3129,7 +3129,7 @@
      "corpus": "",
      "lob": "الرهن التاميني الفلصل الاول انشا الرهن التاميني الفصل الثاني اثار الرهن التاميني الفصل الثالث القضا الرهن التاميني الباب الثاني التوثيق العيني بنص القانون حقو الامتياز الفصل الاول احكام عامه الفصل الثاني انواع الحقوق الممتازه الفصل الثالث احكام ختاميه",
      "site_agrees_with": "corpus",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     }
    ]
   },
@@ -3391,7 +3391,7 @@
      "corpus": "",
      "lob": "حقوق الامتياز الفصل الاول احكام عامه",
      "site_agrees_with": "corpus",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     }
    ]
   },
@@ -3791,8 +3791,8 @@
     {
      "corpus": "انظر مقال عن الاختصاص الدولي الجزايي للمحاكم الاردنيه",
      "lob": "الصلاحيه الشخصيه",
-     "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "site_agrees_with": "neither (on the January page under «9») (corrected 2026-11-13)",
+     "kind": "website residue"
     }
    ]
   },
@@ -4051,7 +4051,7 @@
      "corpus": "انظر شرح الماده اسقاط دعوي الحق العام باسقاط الحق الشخصي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "website residue"
     }
    ]
   },
@@ -4295,7 +4295,7 @@
      "corpus": "",
      "lob": "الاعفا من العقوبه والاسباب المخففه والمشدده لها الفصل الاول في الاعذار الاعذار المحله",
      "site_agrees_with": "corpus",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     }
    ]
   },
@@ -4725,7 +4725,7 @@
     {
      "corpus": "",
      "lob": "الرشوه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "both (on the January page under «169») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -4753,7 +4753,7 @@
     {
      "corpus": "",
      "lob": "الاختلاس واستثمار الوظيفه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "both (on the January page under «173») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -4947,7 +4947,7 @@
    "article": 208,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "site differs from both (LOB 0.78, corpus 0.79)"
+   "site": "site has corpus text (January «208» also holds 209; compared on 208's own part, the site has the corpus text word for word, LOB 0.98; the first verdict, «differs from both (LOB 0.78, corpus 0.79)», compared the merged text) (corrected 2026-11-13)"
   },
   {
    "slug": "penal-code",
@@ -4958,7 +4958,7 @@
     {
      "corpus": "",
      "lob": "اختلاف الجرايم والافترا",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «208») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -4986,7 +4986,7 @@
     {
      "corpus": "",
      "lob": "شهاده الزور",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "both (on the January page under «213») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5014,7 +5014,7 @@
     {
      "corpus": "",
      "lob": "اليمين الكاذبه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "both (on the January page under «220») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5028,7 +5028,7 @@
     {
      "corpus": "الجنحيه",
      "lob": "الجنحي",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «224») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5063,7 +5063,7 @@
     {
      "corpus": "",
      "lob": "في تقليد ختم الدوله والعلامات الرسميه والبنكنوت والطوابع",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «235») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5091,13 +5091,13 @@
     {
      "corpus": "",
      "lob": "التزوير في الاوراق الخاصه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «270») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "و263",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «270») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5320,7 +5320,7 @@
      "corpus": "ايذا الاشخاص انظر مقال عن الايذا البسيط والايذا البليغ",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "trailing caption"
+     "kind": "website residue"
     }
    ]
   },
@@ -5444,7 +5444,7 @@
     {
      "corpus": "",
      "lob": "التهديد",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "both (on the January page under «348 مكرر») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5472,7 +5472,7 @@
     {
      "corpus": "فعه",
      "lob": "فعله",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «378») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5634,67 +5634,67 @@
     {
      "corpus": "",
      "lob": "الاحتيال",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "both (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "او ابرا",
      "lob": "اوابرا",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "باستعمال",
      "lob": "باستعال",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "لا حقيقه",
      "lob": "لاحقيقه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "بتسديد",
      "lob": "تسديد",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "او الايهام",
      "lob": "اوالايهام",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "غير",
      "lob": "غر",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "",
      "lob": "او",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "",
      "lob": "او",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "صفه غير",
      "lob": "صفهغير",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "وبالغرامه",
      "lob": "بالغرامه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «416») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5708,20 +5708,20 @@
     {
      "corpus": "انظر مقال الشيك المكتبي وفقا لاحدث التعديلات",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "site_agrees_with": "LOB (on the January page under «420») (corrected 2026-11-13)",
+     "kind": "website residue"
     },
     {
      "corpus": "يجيزها القانون",
      "lob": "يجيزهاالقانون",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «420») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "انظر مقال الشيك المكتبي وفقا لاحدث التعديلات",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "site_agrees_with": "neither (on the January page under «420») (corrected 2026-11-13)",
+     "kind": "website residue"
     }
    ]
   },
@@ -5730,7 +5730,7 @@
    "article": 422,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "article not on the site page"
+   "site": "site has corpus text (on the January page under «420», word for word; the live page has it as 422, also word for word the corpus text; LOB differs only by «الإعادة»/«والإعادة») (corrected 2026-11-13)"
   },
   {
    "slug": "penal-code",
@@ -5769,7 +5769,7 @@
     {
      "corpus": "",
      "lob": "العيارات والمكاييل غير القانونيه او المغشوشه والغش في كميه البضاعه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «427») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5921,7 +5921,7 @@
     {
      "corpus": "",
      "lob": "نزع التخوم واغتصاب العقار",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "both (on the January page under «445») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -5949,7 +5949,7 @@
     {
      "corpus": "المضبوطات",
      "lob": "الضبوطات",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «456») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -6029,7 +6029,7 @@
    "article": 467,
    "suffix": "مكرر",
    "class": "missing in corpus",
-   "site": "article not on the site page"
+   "site": "inside 467 on the page, as in the corpus (87 of LOB's 88 words) (corrected 2026-11-13)"
   },
   {
    "slug": "commerce",
@@ -6041,7 +6041,7 @@
      "corpus": "",
      "lob": "التجاره علي وجه عام والتجار والموسسات التجاريه الباب الاول احكام عامه الماده",
      "site_agrees_with": "corpus",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تطبيق القانون المدني",
@@ -6339,7 +6339,7 @@
      "corpus": "الباب الرابع المتجر والعنوان التجاري الفصل الاول المتجر",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تعيين حقوق مستثمر المتجر",
@@ -6359,7 +6359,7 @@
      "corpus": "الفصل الثاني العنوان التجاري",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "عناصر العنوان التجاري",
@@ -6457,7 +6457,7 @@
      "corpus": "الكتاب الثاني العقود التجاريه الباب الاول احكام عامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اثبات تاريخ السند",
@@ -6497,7 +6497,7 @@
      "corpus": "الباب الثاني الرهن التجاري",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اثبات الرهن التجاري",
@@ -6569,7 +6569,7 @@
      "corpus": "الباب الثالث عقد النقل",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "صفه عقد النقل",
@@ -6641,7 +6641,7 @@
      "corpus": "الباب الرابع الوكاله التجاريه والوساطه والسمسره الفصل الاول الوكاله التجاريه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اجر الوكيل",
@@ -6721,7 +6721,7 @@
      "corpus": "الفصل الثاني الوكاله بالعموله",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "ولكن",
@@ -6905,7 +6905,7 @@
      "corpus": "الفصل الثالث السمسره",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اجر السمسار",
@@ -6985,7 +6985,7 @@
      "corpus": "الباب الخامس الحساب الجاري",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "مدي الحساب الجاري",
@@ -7247,7 +7247,7 @@
      "corpus": "الكتاب الرابع الاوراق",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "وتشتمل",
@@ -7273,7 +7273,7 @@
      "corpus": "الباب الاول سند السحب الفصل الاول انشا سند السحب وصيغته",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "حالات السند الخالي من احد البيانات",
@@ -7391,7 +7391,7 @@
      "corpus": "الفصل الثاني مقابل الوفا",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "شروط مقابل الوفا",
@@ -7445,7 +7445,7 @@
      "corpus": "الفصل الثالث تداول سند السحب",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "التظهير الخالي من الشرط",
@@ -7657,7 +7657,7 @@
      "corpus": "الفصل الرابع الضمان الاحتياطي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "كتابه الضمان الاحتياطي",
@@ -7729,7 +7729,7 @@
      "corpus": "الفصل الخامس الاستحقاق",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "السند المستحق لدي الاطلاع",
@@ -7991,7 +7991,7 @@
      "corpus": "الفصل السادس المطالبه والرجوع لعدم القبول او لعدم الوفا",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "",
@@ -8353,7 +8353,7 @@
      "corpus": "الفصل السابع التدخل",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "",
@@ -8567,7 +8567,7 @@
      "corpus": "الفصل الثامن تعدد النسخ والصور",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "يطابق",
@@ -8659,7 +8659,7 @@
      "corpus": "الفصل التاسع التحريف",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "بمقتضي",
@@ -8685,7 +8685,7 @@
      "corpus": "الفصل العاشر التقادم",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "سريان مواعيد التقادم",
@@ -8765,7 +8765,7 @@
      "corpus": "الباب الثاني السند لامر",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "",
@@ -8857,7 +8857,7 @@
      "corpus": "الباب الثالث الشيك الفصل الاول انشاوه وصيغته",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "السند الخالي من البيانات خلو مكان الادا خلو الشيك من البيانات خلو محل الانشا خلو كلمه شيك",
@@ -8989,7 +8989,7 @@
      "corpus": "الفصل الثاني تداول الشيك",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اي",
@@ -9061,7 +9061,7 @@
      "corpus": "الفصل الثالث الضمان الاحتياطي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "المتعلقه",
@@ -9087,7 +9087,7 @@
      "corpus": "الفصل الرابع تقديم الشيك ووفاوه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "مده وفا الشيك داخل الاردن مده وفا الشيك المسحوب خارج المملكه يبدا الميعاد من تاريخ الاصدار",
@@ -9167,7 +9167,7 @@
      "corpus": "الفصل الخامس الشيك المسطر والشيك المقيد في الحساب",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "متوازيين",
@@ -9245,7 +9245,7 @@
      "corpus": "الفصل السادس الرجوع بعدم سبب الوفا",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "مقدم",
@@ -9277,7 +9277,7 @@
      "corpus": "الفصل السابع الاحتجاج",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "سريان احكام سند السحب",
@@ -9387,7 +9387,7 @@
      "corpus": "الفصل الثامن تعدد النسخ",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "سريان احكام سند السحب",
@@ -9407,7 +9407,7 @@
      "corpus": "الفصل التاسع التحريف",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "الشيك المزور",
@@ -9447,7 +9447,7 @@
      "corpus": "الفصل العاشر التقادم",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "بمضي",
@@ -9493,7 +9493,7 @@
      "corpus": "الفصل الحادي عشر احكام عامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "ما له",
@@ -9565,7 +9565,7 @@
      "corpus": "الفصل الرابع ساير الاسناد القابله للانتقال بطريقه التظهير",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "ساير الاسناد القابله للانتقال بالتظهير",
@@ -9585,7 +9585,7 @@
      "corpus": "الباب الخامس القيم المنقوله",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "القيم المنقوله",
@@ -9665,7 +9665,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الصلح الواقي",
@@ -9685,7 +9685,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وفقا",
@@ -9735,7 +9735,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اذا كان",
@@ -9773,7 +9773,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 شهر القرار",
@@ -9793,7 +9793,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اشعار",
@@ -9831,7 +9831,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "المقضيه",
@@ -9857,7 +9857,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اجراات",
@@ -9889,7 +9889,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ولا",
@@ -9915,7 +9915,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "يستهدف",
@@ -9941,7 +9941,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اجتماع الداينين",
@@ -9961,7 +9961,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "الدعوي",
@@ -10011,7 +10011,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الموافقه علي الصلح",
@@ -10031,7 +10031,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "هذه",
@@ -10063,7 +10063,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "من",
@@ -10089,7 +10089,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 دعوه اصحاب العلاقه لاجل تصديق الصلح",
@@ -10109,7 +10109,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "قرار",
@@ -10135,7 +10135,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تقدير اهميه الديون المصرح بها",
@@ -10155,7 +10155,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اعتبار المدين مستحق للاستفاده من الصلح",
@@ -10175,7 +10175,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "المدين",
@@ -10201,7 +10201,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 شهر الاحكام",
@@ -10221,7 +10221,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الاعتراض علي تصديق الصلح",
@@ -10241,7 +10241,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "عشره",
@@ -10267,7 +10267,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 ابطال الصلح",
@@ -10287,7 +10287,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ابتداا",
@@ -10319,7 +10319,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 جواز الاشتراط عدم براه ذمه التاجر",
@@ -10339,7 +10339,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 حاله الافلاس",
@@ -10359,7 +10359,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 شهر الافلاس بحكم المحكمه",
@@ -10379,7 +10379,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "الافلاس",
@@ -10411,7 +10411,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 لايحه الدعوي",
@@ -10431,7 +10431,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 التدابير الاحتياطيه لصيانه حقوق الداينين",
@@ -10451,7 +10451,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 شهر افلاس التاجر",
@@ -10471,7 +10471,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "او الوفاه",
@@ -10497,7 +10497,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "يجوز قبول",
@@ -10523,7 +10523,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الطعن بالاحكام",
@@ -10543,7 +10543,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 جدول التجار المشهر افلاسهم",
@@ -10563,7 +10563,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وفي",
@@ -10589,7 +10589,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تخلي المفلس عن اداره امواله",
@@ -10609,7 +10609,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "التفليسيه",
@@ -10635,7 +10635,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وصناعته",
@@ -10661,7 +10661,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 ايقاف سريان فوايد الديون",
@@ -10681,7 +10681,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 سقوط اجال الديون",
@@ -10701,7 +10701,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "الواقي ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 قواعد شهر الافلاس",
@@ -10721,7 +10721,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 التصرفات الباطله",
@@ -10741,7 +10741,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "نقود او اسناد سحب او",
@@ -10773,7 +10773,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "بعد",
@@ -10799,7 +10799,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اما اذا",
@@ -10825,7 +10825,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "المتخذه",
@@ -10851,7 +10851,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "و334",
@@ -10877,7 +10877,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تعيين مراقب من الداينين",
@@ -10897,7 +10897,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 وكلا التفليسه الذين لا يجوز تعيينهم",
@@ -10917,7 +10917,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اضافه او تبديل وكيل",
@@ -10937,7 +10937,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 عمل الوكلا متحدين",
@@ -10957,7 +10957,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الاعتراض علي اعمال الوكلا",
@@ -10977,7 +10977,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "المنتدب",
@@ -11003,7 +11003,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 عدم قبول القرارات للطعن",
@@ -11023,7 +11023,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تعيين القاضي المنتدب",
@@ -11043,7 +11043,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 صلاحيه مراقبه اعمال التفليسه",
@@ -11063,7 +11063,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 ايداع قرارات القاضي المنتدب",
@@ -11083,7 +11083,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ويجوز للمحكمه",
@@ -11109,7 +11109,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 القاضي المنتدب",
@@ -11129,7 +11129,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "قضا",
@@ -11155,7 +11155,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -11181,7 +11181,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 عدم وضع الاختام",
@@ -11201,7 +11201,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الاشيا التي لا توضع الاختام عليها",
@@ -11221,7 +11221,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "للاستثمار",
@@ -11253,7 +11253,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "تستلزم",
@@ -11279,7 +11279,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "او",
@@ -11305,7 +11305,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اغلاق الدفاتر وايقاف الحسابات",
@@ -11325,7 +11325,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تنظيم الميزانيه من قبل الوكلا",
@@ -11345,7 +11345,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ثم",
@@ -11371,7 +11371,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 شهر افلاس تاجر بعد وفاته",
@@ -11391,7 +11391,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 رفع الاختام",
@@ -11411,7 +11411,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تنظيم قايمه الجرد",
@@ -11431,7 +11431,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اداره موجودات المفلس",
@@ -11451,7 +11451,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وفا",
@@ -11477,7 +11477,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "يعلن النيابه",
@@ -11503,7 +11503,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "لقضا",
@@ -11529,7 +11529,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 التزامات الوكلا",
@@ -11549,7 +11549,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تحصيل الديون",
@@ -11569,7 +11569,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الاذن للوكلا بالبيع",
@@ -11589,7 +11589,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "بعد سماع",
@@ -11615,7 +11615,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ثلاثه ايام",
@@ -11641,7 +11641,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "حال",
@@ -11667,7 +11667,7 @@
      "corpus": "ملغاه",
      "lob": "تثبيت الديون المترتبه علي المفلس الماده",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 التبليغ بالنشر",
@@ -11687,7 +11687,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اسمايهم",
@@ -11725,7 +11725,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "الداين",
@@ -11751,7 +11751,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 ابدا الاعتراضات",
@@ -11771,7 +11771,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ويودعه",
@@ -11803,7 +11803,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "الماده",
@@ -11829,7 +11829,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 قبول الداين في مناقشات التفليسه",
@@ -11849,7 +11849,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تخلف الداينين عن الحضور",
@@ -11869,7 +11869,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "التفليسه",
@@ -11895,7 +11895,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 دعوه الداينين للمفاوضه في عقد الصلح",
@@ -11915,7 +11915,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "صلح",
@@ -11947,7 +11947,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "neither",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تقرير وكلا التفليسه",
@@ -11967,7 +11967,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 شروط الصلح بعد التفليسه",
@@ -11987,7 +11987,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "المثبته",
@@ -12019,7 +12019,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 توقيع عقد الصلح",
@@ -12039,7 +12039,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "عقد الصلح",
@@ -12077,7 +12077,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الصلح الممكن",
@@ -12097,7 +12097,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الاعتراض علي الصلح",
@@ -12117,7 +12117,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "او عقد",
@@ -12155,7 +12155,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "للمحكمه ان",
@@ -12193,7 +12193,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "مساله التصديق",
@@ -12219,7 +12219,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "عقد",
@@ -12251,7 +12251,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وسوا",
@@ -12277,7 +12277,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "المقضيه",
@@ -12315,7 +12315,7 @@
      "corpus": "ملغاه يجوز ان",
      "lob": "يجوزان",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اقساط",
@@ -12347,7 +12347,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 كفاله تنفيذ عقد الصلح",
@@ -12367,7 +12367,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 عدم النص عن المبلغ في عقد الصلح",
@@ -12387,7 +12387,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "عقد الصلح",
@@ -12419,7 +12419,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "الدعوه",
@@ -12445,7 +12445,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 دعوي فسخ عقد الصلح",
@@ -12465,7 +12465,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تعيين القاضي المنتدب ووكيل التفليسه",
@@ -12485,7 +12485,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "عشره",
@@ -12517,7 +12517,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 دعوه الداينين لابدا رايهم في الوكلا",
@@ -12537,7 +12537,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 ابطال التصرفات",
@@ -12557,7 +12557,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "بعد تصديق",
@@ -12583,7 +12583,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "عند التوزيع",
@@ -12615,7 +12615,7 @@
      "corpus": "ملغاه اتحاد الداينين",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ويجب",
@@ -12641,7 +12641,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 تمثيل وكلا التفليسه",
@@ -12661,7 +12661,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 مسووليه الداينين عما يجاوز حصتهم",
@@ -12681,7 +12681,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 استيفا ما لم يوف",
@@ -12701,7 +12701,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "متبعه",
@@ -12727,7 +12727,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وفاقا",
@@ -12753,7 +12753,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 دفتر شروط المزايده",
@@ -12773,7 +12773,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 دعوه الداينين المتحدين للاجتماع",
@@ -12793,7 +12793,7 @@
      "corpus": "ملغاه يدعو القاضي",
      "lob": "يدعوالقاضي",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 توزيع اموال التفليسه",
@@ -12813,7 +12813,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 البيان الشهري عن حاله التفليسه",
@@ -12833,7 +12833,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الوفا مقابل سند",
@@ -12853,7 +12853,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اجتماع انتها التصفيه",
@@ -12873,7 +12873,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 قرار معذره المفلس",
@@ -12893,7 +12893,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 ما لا يعتبر معذورا",
@@ -12913,7 +12913,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 الصلح بتنازل المفلس عن موجوداته",
@@ -12933,7 +12933,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -12965,7 +12965,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -12991,7 +12991,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اصحاب الديون علي عده مدينين",
@@ -13011,7 +13011,7 @@
      "corpus": "ملغاه",
      "lob": "الحقوق الخاصه التي يمكن الاحتجاج بها بمواجهه التفليسه",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -13037,7 +13037,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "تلك",
@@ -13063,7 +13063,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 حق اقامه الدعوي علي شركا المفلس",
@@ -13083,7 +13083,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 استرداد الاموال",
@@ -13103,7 +13103,7 @@
      "corpus": "ملغاه الاسترداد والامتناع عن التسليم",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 رد الاسناد التجاريه",
@@ -13123,7 +13123,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 طلب استرداد البضايع",
@@ -13143,7 +13143,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "كلها او",
@@ -13169,7 +13169,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 استرداد البضايع المرسله للمفلس",
@@ -13189,7 +13189,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "لمشتري",
@@ -13215,7 +13215,7 @@
      "corpus": "ملغاه اذا كان",
      "lob": "اذاكان",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 التمسك بتسليم البضايع",
@@ -13235,7 +13235,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 حق البايع بفسخ البيع",
@@ -13255,7 +13255,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 حقوق الاسترداد المختصه بزوجه المفلس",
@@ -13275,7 +13275,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -13307,7 +13307,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اصحاب الديون المضمونه برهن او امتياز علي منقول",
@@ -13327,7 +13327,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اصحاب الديون المضمونه برهن او امتياز علي منقول",
@@ -13347,7 +13347,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اصحاب الديون المضمونه برهن او تامين علي عقار",
@@ -13367,7 +13367,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -13405,7 +13405,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "او المحقق",
@@ -13431,7 +13431,7 @@
      "corpus": "ملغاه بعد",
      "lob": "يعد",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "التامينات العقاريه",
@@ -13457,7 +13457,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "او تامينا",
@@ -13483,7 +13483,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وجميع",
@@ -13509,7 +13509,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -13541,7 +13541,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 وفا زوجه المفلس ديون زوجها",
@@ -13561,7 +13561,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 خضوع العقارات للتامين الجبري",
@@ -13581,7 +13581,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 حقوق زوجه المفلس",
@@ -13601,7 +13601,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اجراات المحاكمه البسيطه",
@@ -13621,7 +13621,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اوجه اختلاف الاجراات البسيطه عن العاديه",
@@ -13641,7 +13641,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -13673,7 +13673,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "النيابه",
@@ -13699,7 +13699,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "تطالب",
@@ -13725,7 +13725,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "وفاقا",
@@ -13751,7 +13751,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 نفقات دعوي الافلاس",
@@ -13771,7 +13771,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "يقيمها احد",
@@ -13797,7 +13797,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "حاله البراه",
@@ -13823,7 +13823,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "حاله التبريه",
@@ -13855,7 +13855,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "او اي",
@@ -13881,7 +13881,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "الدعوي الجزاييه",
@@ -13913,7 +13913,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "منها خلاصات",
@@ -13939,7 +13939,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اعتباره",
@@ -13965,7 +13965,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "",
@@ -13997,7 +13997,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "اثبت",
@@ -14023,7 +14023,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 ارسال كتاب اعاده الاعتبار للداينين",
@@ -14043,7 +14043,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "المثبته",
@@ -14069,7 +14069,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "يبرا",
@@ -14095,7 +14095,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اجراات اعاده الاعتبار",
@@ -14115,7 +14115,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "بالتحقق",
@@ -14153,7 +14153,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 عدم جواز اعاده الاعتبار",
@@ -14173,7 +14173,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "بسرقه او",
@@ -14199,7 +14199,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 اخضاع الشركات المرخصه للتصفيه",
@@ -14219,7 +14219,7 @@
      "corpus": "ملغاه",
      "lob": "",
      "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "kind": "repeal label"
     },
     {
      "corpus": "ملاحظه تم الغا المواد من الي الماده من قانون التجاره رقم لسنه 1966 بموجب الماده من قانون الاعسار رقم لسنه 2018 صلاحيه اصدار الانظمه",
@@ -14337,7 +14337,7 @@
      "corpus": "الفصل الاول تاسيس شركه التضامن وتسجيلها",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "عنوان شركه التضامن",
@@ -14404,7 +14404,7 @@
      "corpus": "الفصل الثاني",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "واجبات المفوض باداره شركه التضامن",
@@ -14642,7 +14642,7 @@
      "corpus": "الباب الثاني شركه التوصيه البسيطه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "مال الشركه",
@@ -14708,7 +14708,7 @@
      "corpus": "الباب الثالث شركه المحاصه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "الشريك غير الظاهر",
@@ -14728,7 +14728,7 @@
      "corpus": "الباب الرابع الشركه ذات المسووليه المحدوده",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "راس المال",
@@ -15159,7 +15159,7 @@
      "corpus": "الباب السادس الشركات المساهمه العامه الفصل الاول تاسيس الشركه المساهمه العامه وتسجيلها",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "الذمه الماليه",
@@ -15240,7 +15240,7 @@
      "corpus": "الفصل الثالث",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "لا تزيد",
@@ -15318,7 +15318,7 @@
      "corpus": "الفصل الرابع الاسهم العينيه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "",
@@ -15364,7 +15364,7 @@
      "corpus": "الفصل السادس تخفيض راسمال الشركه المساهمه العامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "قرا",
@@ -15416,7 +15416,7 @@
      "corpus": "الفصل السابع اسناد القرض",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اصدار اسناد القرض",
@@ -15523,7 +15523,7 @@
      "corpus": "الفصل الثامن اداره الشركه المساهمه العامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "ولا",
@@ -16060,7 +16060,7 @@
      "corpus": "الفصل التاسع الهييه العامه للشركه المساهمه العامه اجتماع الهييه العامه العادي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "نصاب الاجتماع العادي للهييه العامه",
@@ -16237,7 +16237,7 @@
      "corpus": "الفصل العاشر حسابات الشركه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "السنه الماليه",
@@ -16372,7 +16372,7 @@
      "corpus": "الباب السابع مدققو الحسابات",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "الهييه العامه",
@@ -16483,7 +16483,7 @@
      "corpus": "الباب الثامن الشركه القابضه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "غايات الشركه القابضه",
@@ -16549,7 +16549,7 @@
      "corpus": "الباب التاسع شركه الاستثمار المشترك",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "الشركه",
@@ -16643,7 +16643,7 @@
      "corpus": "الباب العاشر الشركه المعفاه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تسجيل شركه المعفاه",
@@ -16683,7 +16683,7 @@
      "corpus": "الباب الحادي عشر تحول الشركات واندماجها وتملكها",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اجراات تحويل الشركه",
@@ -16776,7 +16776,7 @@
      "corpus": "الفصل الثاني اندماج الشركات",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اي من الشركات الرغبه",
@@ -16888,7 +16888,7 @@
      "corpus": "الباب الثاني عشر الشركات الاجنبيه الفصل الاول الشركات الاجنبيه العامله في المملكه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "طلب تسجيل الشركه",
@@ -16961,7 +16961,7 @@
      "corpus": "الفصل الثاني الشركات الاجنبيه غير العامله في المملكه",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "طلب التسجيل",
@@ -17014,19 +17014,19 @@
     {
      "corpus": "الباب الثالث عشر تصفيه الشركه المساهمه العامه وفسخها الفصل الاول الاحكام العامه للتصفيه",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "site_agrees_with": "LOB (on the January page under «251») (corrected 2026-11-13)",
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "بقرار",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "LOB (on the January page under «251») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "اشراف المصفي علي اعمال الشركه",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "LOB (on the January page under «251») (corrected 2026-11-13)",
      "kind": "trailing caption"
     }
    ]
@@ -17120,7 +17120,7 @@
      "corpus": "الفصل الثاني التصفيه الاختياريه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "انتفا",
@@ -17311,7 +17311,7 @@
      "corpus": "الباب الخامس عشر العقوبات",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "شهادتها",
@@ -17496,7 +17496,7 @@
      "corpus": "الباب الاول تعاريف",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تعريفات عامه",
@@ -17550,7 +17550,7 @@
      "corpus": "الباب الثالث",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "التعريفه",
@@ -17637,7 +17637,7 @@
      "corpus": "الفصل الثاني العناصر المميزه للبضاعه القسم الاول منشا البضاعه المنشا غير التفضيلي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "",
@@ -17683,7 +17683,7 @@
      "corpus": "القسم الثاني القيمه الجمركيه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "حصيلته",
@@ -17793,7 +17793,7 @@
      "corpus": "القسم الثالث النوع",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تقديم البضاعه الي السلطات الجمركيه",
@@ -17813,7 +17813,7 @@
      "corpus": "الباب الرابع دخول وخروج البضايع الفصل الاول تقديم البضاعه الي السلطات الجمركيه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تحده",
@@ -17839,7 +17839,7 @@
      "corpus": "الفصل الثاني المنع والتقييد",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "بسبب",
@@ -17906,7 +17906,7 @@
      "corpus": "الفصل الثالث النقل بحرا",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "متضمنا",
@@ -17970,7 +17970,7 @@
      "corpus": "الفصل الرابع النقل برا",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "وثيقه الشحن",
@@ -17990,7 +17990,7 @@
      "corpus": "الفصل الخامس النقل جوا",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "بيان الحموله",
@@ -18024,7 +18024,7 @@
      "corpus": "الفصل السادس النقل ببريد المراسلات او بالطرود البريديه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تقديم بيان الحموله",
@@ -18044,7 +18044,7 @@
      "corpus": "الفصل السابع التصدير واعاده التصدير",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "التصدير",
@@ -18064,7 +18064,7 @@
      "corpus": "الفصل الثامن احكام مشتركه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "والشروط المتعلقه",
@@ -18090,7 +18090,7 @@
      "corpus": "الباب الخامس مراحل التخليص الجمركي الفصل الاول البيانات الجمركيه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "نظام يصدر وينطبق",
@@ -18149,7 +18149,7 @@
      "corpus": "الفصل الثاني معاينه البضايع",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "مكان المعاينه",
@@ -18216,7 +18216,7 @@
      "corpus": "الفصل الثالث",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "هذا",
@@ -18242,7 +18242,7 @@
      "corpus": "الفصل الرابع احكام خاصه بالمسافرين",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "سحب البضايع",
@@ -18262,7 +18262,7 @@
      "corpus": "الفصل الخامس تاديه الرسوم والضرايب وسحب البضايع",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "سحب البضايع قبل تاديه الرسوم",
@@ -18309,7 +18309,7 @@
      "corpus": "الباب السادس الاوضاع المعلقه للرسوم الفصل الاول احكام عامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "استعمال المواد في غير الاغراض المستورده",
@@ -18329,7 +18329,7 @@
      "corpus": "الفصل الثاني البضايع العابره الترانزيت احكام عامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اجراات عمليات العبور",
@@ -18435,7 +18435,7 @@
      "corpus": "الفصل الثالث المستودعات احكام عامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اقفال المستودعات",
@@ -18615,7 +18615,7 @@
      "corpus": "الفصل الرابع المناطق والاسواق الحره",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "لمنع",
@@ -18746,7 +18746,7 @@
      "corpus": "الفصل السادس الادخال الموقت",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "للمركبات",
@@ -18874,7 +18874,7 @@
      "corpus": "الفصل السابع رد الرسوم والضرايب",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "رد الرسوم والضرايب عن البضايع المعاد وتصديرها",
@@ -18939,7 +18939,7 @@
      "corpus": "الباب الثامن الفصل الاول الاعفاات",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "ما يقرر",
@@ -18983,7 +18983,7 @@
      "corpus": "الفصل الثاني الاعفاات الدبلوماسيه والقنصليه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "التصرف بالمواد المعفاه",
@@ -19023,7 +19023,7 @@
      "corpus": "الفصل الثالث الاعفاات العسكريه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "للدايره وللقوات",
@@ -19079,7 +19079,7 @@
      "corpus": "الفصل الرابع الانتعه الشخصيه والاثاث المنزلي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "",
@@ -19111,7 +19111,7 @@
      "corpus": "الفصل الخامس البضايع المعاده",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "الرسوم",
@@ -19149,7 +19149,7 @@
      "corpus": "الفصل السادس اعفاات مختلفه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "احكام مشتركه",
@@ -19169,7 +19169,7 @@
      "corpus": "الفصل السابع احكام مشتركه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "بدل الخدمات",
@@ -19189,7 +19189,7 @@
      "corpus": "الباب التاسع",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "استيفا البدلات من اصحاب البضايع",
@@ -19216,7 +19216,7 @@
      "corpus": "الباب العاشر",
      "lob": "",
      "site_agrees_with": "LOB (elsewhere on the page)",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "اذن التسليم الخاص",
@@ -19334,7 +19334,7 @@
      "corpus": "الباب الحادي عشر حقوق موظفي الدايره وواجباتهم",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تقديم المساعده لموظفي الجمارك",
@@ -19394,7 +19394,7 @@
      "corpus": "الباب الثاني عشر الفصل الاول النطاق الجمركي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "نقل بضاعه النطاق الجمركي",
@@ -19414,7 +19414,7 @@
      "corpus": "الفصل الثاني التحري عن التهريب",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "الصعود الي السفن",
@@ -19441,7 +19441,7 @@
      "corpus": "الباب الثالث عشر القضايا الجمركيه الفصل الاول محاضر الضبط واجرااتها",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تنظيم محضر الضبط",
@@ -19476,7 +19476,7 @@
    "article": 188,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "site has LOB text"
+   "site": "site has LOB text apart from «الجمارك»: it reads «مدعي عام» where LOB reads «مدعي عام الجمارك» and the corpus «المدعي العام»; on that term it matches neither (corrected 2026-11-13)"
   },
   {
    "slug": "customs",
@@ -19488,13 +19488,14 @@
      "corpus": "الفصل الثاني تدابير احتياطيه القسم الاول الحجز الاحتياطي",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "للنايب العام اصدار قرار بالحجز التحفظي علي الاموال المنقوله وغير المنقوله العايده لاي شخص تطالبه الدايره باي غرامات جمركيه او ضريبيه او رسوم او ضرايب تزيد علي العشره الاف دينار او ارتكب اي فعل يخالف احكام القانون الي حين دفع المبالغ المترتبه علي هذه الافعال او صدور قرار بها وفي حدود المبالغ المطالب بها اذا توافرت لدي الدايره دلايل كافيه بان هذا الشخص قد يقوم بتهريب امواله او التصرف بها بقصد منع التنفيذ عليها باي شكل من الاشكال يكون القرار الصادر بالقا الحجز التحفظي وفقا لاحكام الفقره من هذه الماده قابلا للطعن لدي محكمه الجمارك البداييه خلال خمسه عشر يوما من تاريخ علمه بوقوع الحجز حالات التوقيف الاحتياطي",
      "lob": "",
-     "site_agrees_with": "LOB",
-     "kind": "trailing caption"
+     "site_agrees_with": "corpus (the site has these «للنائب العام» paragraphs; it does not glue the next caption, «حالات التوقيف الاحتياطي») (corrected 2026-11-13)",
+     "kind": "wording",
+     "note": "law 10/2019 (Gazette 5572, 2019-05-01, pp. 2428-2429), arts. 3 and 4, added these paragraphs; LOB lacks that law (corrected 2026-11-13)"
     }
    ]
   },
@@ -19503,7 +19504,7 @@
    "article": 192,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "site has LOB text"
+   "site": "site has LOB text apart from «الجمارك»: it reads «مدعي عام» where LOB reads «مدعي عام الجمارك» and the corpus «المدعي العام»; on that term it matches neither (corrected 2026-11-13)"
   },
   {
    "slug": "customs",
@@ -19515,13 +19516,14 @@
      "corpus": "القسم الثالث منع سفر المخالفين والمسوولين عن التهريب",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "للنايب العام ان يغلق المحل الذي ارتكب اصحابه او اي من المسوولين عن ادارته او اي من العاملين فيه باستخدام الادوات العايده للمحل او توابعه او لاصحابه جرم التهريب الجمركي لبضايع ممنوعه او ممنوعه معينه او محصوره او خاضعه لرسوم باهظه لاكثر من مرتين والي حين اجرا التسويه الصلحيه او تنفيذ الاحكام القضاييه الصادره بخصوصها ويكون القرار قابلا للطعن لدي محكمه الجمارك البداييه خلال خمسه عشر يوما من تاريخ صدوره عدم شمول الغرامات الجمركيه بالعفو العام",
      "lob": "",
-     "site_agrees_with": "LOB",
-     "kind": "trailing caption"
+     "site_agrees_with": "corpus (the site has these «للنائب العام» paragraphs; it does not glue the next caption, «عدم شمول الغرامات الجمركية بالعفو العام») (corrected 2026-11-13)",
+     "kind": "wording",
+     "note": "law 10/2019 (Gazette 5572, 2019-05-01, pp. 2428-2429), arts. 3 and 4, added these paragraphs; LOB lacks that law (corrected 2026-11-13)"
     }
    ]
   },
@@ -19535,7 +19537,7 @@
      "corpus": "الفصل الثالث المخالفات الجمركيه وعقوبتها القسم الاول احكام عامه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "تعدد المخالفات",
@@ -19622,7 +19624,7 @@
      "corpus": "الفصل الرابع القسم الاول التهريب وعقوباته",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "ما يدخل في حكم التهريب",
@@ -19668,7 +19670,7 @@
      "corpus": "القسم الثاني المسووليه الجزاييه",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "عقوبات التهريب",
@@ -19709,7 +19711,7 @@
      "corpus": "القسم الثاني الملاحقه القضاييه بالنسبه لجرايم التهريب",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "التسويه بطريق المصالحه",
@@ -19756,7 +19758,7 @@
      "corpus": "الفصل السادس المسووليه والتضامن",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "مسووليه مستثمروا المحلات",
@@ -19822,7 +19824,7 @@
      "corpus": "الفصل السابع انشا المحاكم الجمركيه واصول المحاكمات لديها",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "و2",
@@ -19960,7 +19962,7 @@
      "corpus": "الفصل الثامن تنفيذ الاحكام وقرارات التحصيل والتغريم",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "العامه",
@@ -20018,7 +20020,7 @@
      "corpus": "الباب الرابع عشر بيع البضايع",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "حاجه",
@@ -20130,7 +20132,7 @@
      "corpus": "الباب الخامس عشر امتياز دايره الجمارك",
      "lob": "",
      "site_agrees_with": "LOB",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     },
     {
      "corpus": "علي كل مصف لاي شركه او تركه او وكيل تفليسه او الاعسار وفق مقتضي الحال او اي شخص مسوول عن اي تصفيه مشابهه او تسويه من اي نوع ان يبلغ المدير خطيا ببد اجراات التصفيه او بشهر الافلاس او الاعسار او اي اجراات اخري حسب مقتضي الحال لبيان المبالغ المستحقه للدايره وتثبيتها وفي حال التخلف عن ذلك يعتبر كل من اوليك الاشخاص مسوولا مسووليه مباشره وشخصيه عن دفع تلك المبالغ وفق احكام هذا القانون علي ان لا يعفي هذا الحكم الورثه من دفع تلك المبالغ من اي اموال منقوله او غير منقوله الت اليهم من التركه التقادم",
@@ -23372,7 +23374,7 @@
     {
      "corpus": "ولد",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «133») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -23462,7 +23464,7 @@
     {
      "corpus": "المحكمه",
      "lob": "المحمكه",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «167») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -23547,7 +23549,7 @@
    "article": 191,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "article not on the site page"
+   "site": "site has corpus text (on the January page under «190»: the corpus's pre-6/2024 text, word for word; the live page has it as 191, also word for word the corpus text; LOB has 6/2024's «غير القابلة للتقدير أو») (corrected 2026-11-13)"
   },
   {
    "slug": "civil-procedure",
@@ -23653,13 +23655,13 @@
     {
      "corpus": "قضي",
      "lob": "مضي",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «212») (corrected 2026-11-13)",
      "kind": "wording"
     },
     {
      "corpus": "متناقضان",
      "lob": "متنافضان",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «212») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -23708,13 +23710,13 @@
     {
      "corpus": "انظر مقال عن السند العادي والاقرار الخطي",
      "lob": "",
-     "site_agrees_with": "article not on the site page",
-     "kind": "wording"
+     "site_agrees_with": "LOB (on the January page under «10») (corrected 2026-11-13)",
+     "kind": "website residue"
     },
     {
      "corpus": "او التوقيع",
      "lob": "اوالتوقيع",
-     "site_agrees_with": "article not on the site page",
+     "site_agrees_with": "corpus (on the January page under «10») (corrected 2026-11-13)",
      "kind": "wording"
     }
    ]
@@ -23800,7 +23802,7 @@
    "article": 75,
    "suffix": "",
    "class": "missing in corpus",
-   "site": "article not on the site page"
+   "site": "on the page as 74, as in the corpus: LOB's 75 is the corpus's 74 (LOB's numbering is one ahead from 21, D9) (corrected 2026-11-13)"
   },
   {
    "slug": "execution",
@@ -25033,7 +25035,7 @@
      "corpus": "",
      "lob": "اصول المحاكمه لدي المحاكم البداييه في القضايا الجناييه الفصل الاول وظايف رييس محكمه الجنايات",
      "site_agrees_with": "corpus",
-     "kind": "wording"
+     "kind": "chapter or part heading"
     }
    ]
   },
@@ -25404,14 +25406,14 @@
    "article": 63,
    "suffix": "مكرر",
    "class": "missing in corpus",
-   "site": "article not on the site page"
+   "site": "inside 63 on the page, as in the corpus (all of LOB's words) (corrected 2026-11-13)"
   },
   {
    "slug": "criminal-procedure",
    "article": 140,
    "suffix": "مكرر",
    "class": "missing in corpus",
-   "site": "article not on the site page"
+   "site": "inside 140 on the page, as in the corpus (all of LOB's words) (corrected 2026-11-13)"
   },
   {
    "slug": "courts-formation",
@@ -25635,7 +25637,7 @@
      "corpus": "للاطلاع علي مقال عن محكمه الجنايات الكبري وعنوانها وقضاتها واحكامها وكل ما يتعلق بها",
      "lob": "",
      "site_agrees_with": "both",
-     "kind": "trailing caption"
+     "kind": "website residue"
     }
    ]
   },
@@ -26567,7 +26569,7 @@
      "corpus": "المصدر موقع محامي الاردن",
      "lob": "",
      "site_agrees_with": "both",
-     "kind": "trailing caption"
+     "kind": "website residue"
     }
    ]
   }
@@ -28677,7 +28679,7 @@
     "changed": []
    }
   },
-  "finding": "no article wording changed between the January copy and the live site; 47 of 48 differences are heading or link words at the edges, the 48th (penal-code 332) a heading placed differently",
+  "finding": "corrected 2026-11-13: of the 48 articles that differ between the January copy and the live site, 34 are articles where the January copy filed live N+1 (penal-code 420 and 456: N+1 and N+2) under N, so «wording unchanged» is not established for them by the article comparison; compared as blocks, January N against live N to N+1, only the heading or link words of N+1 differ. Of the other 14, 12 differ only by heading or link words at an edge, penal-code 332 by a heading placed differently, and execution 77 by a line break. The first finding, «no article wording changed; 47 of 48 differences are heading or link words at the edges», did not see the 34",
   "detail": {
    "civil-procedure": {
     "changed": [
@@ -28688,7 +28690,12 @@
         "january": "المصلحه في الدعوي لا يقبل اي طلب او دفع لا يكون لصاحبه فيه مصلحه قايمه يقرها القانون تكفي المصلحه المحتمله اذا كان الغرض من الطلب الاحتياط لدفع ضرر محدق او الاستيثاق لحق يخشي زوال دليله عند النزاع فيه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "2",
+       "3"
+      ],
+      "note": "the January copy filed live 3 under 2; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "133",
@@ -28697,7 +28704,12 @@
         "january": "رد القاضي يجوز رد القاضي لاحد الاسباب التاليه اذا كان له او لزوجه دعوي مماثله للدعوي التي ينظرها او اذا وجدت لاحدهما خصومه مع احد الخصوم او مع زوجه بعد قيام الدعوي المطروحه علي القاضي ما لم تكن هذه الدعوي قد اقيمت بقصد رده عن نظر الدعوي المطروحه عليه اذا كان لمطلقته التي له منها ولد او لاحد اقاربه او اصهاره علي عمود النسب خصومه قايمه امام القضا مع احد الخصوم في الدعوي او مع زوجه ما لم تكن هذه الخصومه قد اقيمت بعد قيام الدعوي المطروحه علي القاضي بقصد رده اذا كان احد الخصوم يعمل عنده اذا كان قد اعتاد مساكنه احد الخصوم او كان قد تلقي منه هديه قبيل رفع الدعوي او بعدها اذا كان بينه وبين احد الخصوم عداوه او موده يرجح معها عدم استطاعته الحكم بغير ميل",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "133",
+       "134"
+      ],
+      "note": "the January copy filed live 134 under 133; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "135",
@@ -28706,7 +28718,12 @@
         "january": "اجراات رد القاضي يطلب رد القاضي باستدعا يقدم الي رييس محكمه البدايه اذا كان المطلوب رده قاضي صلح او احد قضاه المحكمه البداييه او الي رييس محكمه الاستيناف اذا كان قاضي استيناف او رييس محكمه بدايه او الي رييس محكمه التمييز اذا كان قاضيا فيها او رييسا لمحكمه استيناف ولا يقبل طلب الرد اذا لم يقدم قبل الدخول في الدعوي ان كان المتقدم به المدعي وقبل الدخول في المحاكمه ان كان المتقدم به المدعي عليه ما لم يكن سبب الرد متولدا عن حادث طرا بعد الدخول في الدعوي او المحاكمه فيشترط عنديذ لقبول طلب الرد ان يقدم في اول جلسه تلي هذا الحادث",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "135",
+       "136"
+      ],
+      "note": "the January copy filed live 136 under 135; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "140",
@@ -28715,7 +28732,12 @@
         "january": "المنع من السفر الحجز الاحتياطي انظر مقال الحجز التحفظي للداين طلب توقيع الحجز الاحتياطي سوا قبل اقامه الدعوي او عند تقديمها او اثنا نظرها الي قاضي الامور المستعجله او المحكمه بالاستناد الي ما لديه من المستندات والبينات او بالاستناد الي حكم اجنبي او قرار تحكيم وذلك علي اموال المدين المنقوله وغير المنقوله وامواله الموجوده بحيازه الشخص الثالث لنتيجه الدعوي اذا قررت المحكمه اجابه الطلب بتوقيع لحجز الاحتياطي تكلف الطالب بتامين نقدي او كفاله مصرفيه او عدليه تحدد المحكمه او قاضي الامور المستعجله نوعها ومبلغها ويقدمها كفيل ملي يضمن ما قد يلحق بالمحجوز عليه من عطل وضرر اذا ظهر ان طالب الحجز غير محق في دعواه ويستثني من تقديم التامين او الكفاله الحكومه والموسسات الرسميه والعامه والبلديات والبنوك العامله في المملكه كما يجوز للمحكمه او قاضي الامور المستعجله التحقق من ملاه الكفيل عندما يراد ايقاع حجز علي مال يجب ان يكون مقدار الدين معلوما ومستحق الادا وغير مقيد بشرط واذا كان مقدار الدين غير معلوم تعين المحكمه مقداره بقرارها علي وجه التخمين ولا يجوز ان يحجز من اموال المدين الا بما يفي بمقدار الدين والرسوم والنفقات ما لم يكن المحجوز غير قابل للتجزيه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "140",
+       "141"
+      ],
+      "note": "the January copy filed live 141 under 140; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "160",
@@ -28724,7 +28746,12 @@
         "january": "الحكم بالرسوم والمصاريف تحكم المحكمه عند اصدارها الحكم النهايي في الدعوي برسوم ومصاريف الدعوي والاجراات التي تخللتها للخصم المحكوم له في الدعوي ويجوز لها ان تحكم اثنا المحاكمه بمصاريف اي طلب معين او جلسه معينه في وقت طلبها الي اي فريق من الفرقا دون ان يوثر في ذلك اي قرار قد يصدر فيما بعد بشان المصاريف يحكم برسوم ومصاريف الدعوي المتقابله بالصوره التي يحكم بها في الدعوي الاصليه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "160",
+       "161"
+      ],
+      "note": "the January copy filed live 161 under 160; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "167",
@@ -28733,7 +28760,12 @@
         "january": "تصحيح الخطا في الاحكام تتولي المحكمه تصحيح ما يقع في حكمها من اخطا ماديه بح ته كتابيه او حسابيه وذلك بقرار تصدره من تلقا نفسها او بنا علي طلب احد الخصوم من غير مرافعه ويجري كاتب المحكمه هذا التصحيح علي نسخه الحكم الاصليه ويوقعه هو ورييس الجلسه يجوز الطعن في القرار الصادر بالرفض او القرار الصادر بالتصحيح اذا تجاوزت المحكمه فيه حقها المنصوص عليه في هذا القانون وذلك بطرق الطعن الجايزه في الحكم موضوع الطلب اذا اغفلت المحكمه الحكم في بعض الطلبات الموضوعيه فعليها بنا علي طلب احد الخصوم ان تفصل في الطلبات التي اغفلتها بعد تبليغ الخصم الاخر بذلك ويخضع هذا الحكم لقواعد الطعن التي تسري علي الحكم الاصلي",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "167",
+       "168"
+      ],
+      "note": "the January copy filed live 168 under 167; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "190",
@@ -28742,7 +28774,12 @@
         "january": "الطعن في الاحكام بالتمييز علي الرغم مما ورد في اي قانون اخر يقبل الطعن امام محكمه التمييز في الاحكام الصادره عن محاكم الاستيناف في الدعاوي التي تزيد قيمتها علي عشرين الف دينار وذلك خلال ثلاثين يوما من اليوم التالي لتاريخ صدورها اذا كانت وجاهيه او وجاهيه اعتباريه ومن اليوم التالي لتاريخ تبليغها اذا كانت قد صدرت تدقيقا او بمثابه الوجاهي اما الاحكام الاستينافيه الاخري فلا تقبل الطعن بالتمييز الا باذن من رييس محكمه التمييز او من يفوضه علي طالب الاذن بالتمييز ان يقدم الطلب خلال عشره ايام من اليوم التالي لتاريخ صدور الحكم اذا كان وجاهيا او وجاهيا اعتباريا والا فمن اليوم التالي لتاريخ تبليغه علي طالب الاذن بالتمييز ان يبين في طلبه بالتفصيل النقطه القانونيه المستحدثه او التي علي جانب من التعقيد القانوني وذلك تحت طايله رد الطلب شكلا اذا صدر القرار بالاذن وجب علي مقدم الطلب ان يقدم لايحه الطعن خلال عشره ايام من اليوم التالي لتاريخ تبليغه قرار الاذن او خلال ثلاثين يوما من اليوم التالي لتاريخ صدور قرار الاذن ايهما اسبق ويبقي الاذن قايما حتي صدور الحكم النهايي في الدعوي",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "190",
+       "191"
+      ],
+      "note": "the January copy filed live 191 under 190; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "198",
@@ -28751,7 +28788,8 @@
         "january": "",
         "live": "اسباب الطعن بالتمييز"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      },
      {
       "article": "205",
@@ -28760,7 +28798,12 @@
         "january": "اعتراض الغير لكل شخص لم يكن خصما ولا ممثلا ولا متدخلا في دعوي صدر فيها حكم يعتبر حجه عليه ان يعترض علي هذا الحكم اعتراض الغير يحق للداينين والمدنيين المتضامنين والداينين والمدينين بالتزام غير قابل للتجزيه ان يعترضوا اعتراض الغير علي الحكم الصادر علي داين او مدين اخر اذا كان مبنيا علي غش او حيله تمس حقوقهم بشرط ان يثبتوا هذا الغش او هذه الحيله بجميع طرق الاثبات يحق للوارث ان يستعمل هذا الحق اذا مثله احد الورثه في الدعوي التي لمورثه او عليه وصدور الحكم بغش او حيله",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "205",
+       "206"
+      ],
+      "note": "the January copy filed live 206 under 205; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "212",
@@ -28769,7 +28812,12 @@
         "january": "اعاده المحاكمه يجوز للخصوم ان يطلبوا اعاده المحاكمه في الاحكام التي حازت قوه القضيه المقضيه باحدي الحالات الاتيه اذا وقع من الخصم غش او حيله اثنا رويه الدعوي كان من شانه التاثير في الحكم اذا اقر الخصم بعد الحكم بتزوير الاوراق التي بني عليها او اذا قضي بتزويرها اذا كان الحكم قد بني علي شهاده او شهادات قضي بعد الحكم بانها كاذبه اذا حصل طالب الاعاده بعد صدور الحكم علي اوراق منتجه في الدعوي كان خصمه قد كتمها او حمل الغير علي كتمها او حال دون تقديمها اذا قضي الحكم بشي لم يطلبه الخصوم او باكثر مما طلبوه اذا كان منطوق الحكم مناقضا بعضه لبعض اذا صدر الحكم علي شخص طبيعي او اعتباري لم يكن ممثلا تمثيلا صحيحا في الدعوي وذلك فيما عدا حاله النيابه الاتفاقيه اذا صدر بين الخصوم انفسهم وبذات الصفه والموضوع حكمان متناقضان",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "212",
+       "213"
+      ],
+      "note": "the January copy filed live 213 under 212; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "225",
@@ -28778,7 +28826,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [
@@ -28800,11 +28849,19 @@
      "168": [
       "corpus"
      ],
-     "191": "site differs from both (LOB 0.85, corpus 0.85)",
+     "191": "site has corpus text (word for word, link addresses removed; LOB has 6/2024's «غير القابلة للتقدير أو»); the first figure, «differs from both (0.85)», counted the addresses of the page's links (corrected 2026-11-13)",
      "213": [
       "corpus",
       "corpus"
      ]
+    },
+    "live_only_reasons": {
+     "1": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00); its text is on the January page too, under the link «التسمية وبدء العمل», which carries no article number (corrected 2026-11-13)",
+     "3": "no verdict: the corpus and LOB do not differ in words here (normalisation-only), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "136": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "141": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 0.99) (corrected 2026-11-13)",
+     "161": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "206": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)"
     }
    },
    "civil-code": {
@@ -28816,7 +28873,8 @@
         "january": "",
         "live": "احكام الاعاره"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      },
      {
       "article": "1054",
@@ -28825,7 +28883,8 @@
         "january": "",
         "live": "قسمه المهاياه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      },
      {
       "article": "1449",
@@ -28834,7 +28893,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [],
@@ -28849,7 +28909,12 @@
         "january": "السند العادي والاقرار الخطي من احتج عليه بسند عادي وكان لا يريد ان يعترف به وجب عليه ان ينكر صراحه ما هو منسوب اليه من خط او توقيع او خاتم او بصمه اصبع والا فهو حجه عليه بما فيه اما الوارث او اي خلف اخر فيكتفي منه ان يقرر بانه لا يعلم ان الخط او التوقيع او الختم او البصمه هو لمن تلقي عنه الحق",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "10",
+       "11"
+      ],
+      "note": "the January copy filed live 11 under 10; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "52",
@@ -28858,7 +28923,12 @@
         "january": "اليمين الحاسمه اليمين الحاسمه هي التي يوجهها احد المتداعين لخصمه ليحسم بها النزاع ويجوز للمحكمه من تلقا نفسها ان تفهم الخصم ان من حقه توجيه اليمين في حال عجز احد طرفي الدعوي عن اثبات دعواه او دفعه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "52",
+       "53"
+      ],
+      "note": "the January copy filed live 53 under 52; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "74",
@@ -28867,7 +28937,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [
@@ -28879,6 +28950,9 @@
       "LOB",
       "corpus"
      ]
+    },
+    "live_only_reasons": {
+     "53": "no verdict: the corpus and LOB do not differ in words here (numbering or order differs, scope body), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)"
     }
    },
    "landlords-tenants": {
@@ -28900,7 +28974,12 @@
         "january": "الاختصاص الدولي الجزايي للمحاكم الاردنيه تسري احكام هذا القانون علي كل اردني فاعلا كان او شريكا محرضا او متدخلا ارتكب خارج المملكه جنايه او جنحه يعاقب عليها القانون الاردني كما تسري الاحكام المذكوره علي من ذكر ولو فقد الجنسيه الاردنيه او اكتسبها بعد ارتكاب الجنايه او الجنحه علي الجرايم التي يرتكبها خارج المملكه اي موظف اردني اثنا ممارسته وظيفته او بمناسبه ممارسته اياها علي الجرايم التي يرتكبها خارج المملكه موظفو السلك الخارجي والقناصل الاردنيون ما تمتعوا بالحصانه التي يخولهم اياها القانون الدولي العام علي كل اجنبي مقيم في المملكه الاردنيه الهاشميه فاعلا كان او شريكا محرضا او متدخلا ارتكب خارج المملكه الاردنيه الهاشميه جنايه او جنحه يعاقب عليها القانون الاردني اذا لم يكن استرداده قد طلب او قبل",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "9",
+       "10"
+      ],
+      "note": "the January copy filed live 10 under 9; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "84",
@@ -28909,7 +28988,12 @@
         "january": "الجهل بالقانون لا يعتبر جهل القانون عذرا لمن يرتكب اي جرم",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "84",
+       "85"
+      ],
+      "note": "the January copy filed live 85 under 84; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "96",
@@ -28918,7 +29002,12 @@
         "january": "الاعذار المخففه عندما ينص القانون علي عذر مخفف اذا كان الفعل جنايه توجب الاعدام او الاشغال الموبده او الاعتقال الموبد حولت العقوبه الي الحبس سنه علي الاقل واذا كان الفعل يولف احدي الجنايات الاخري كان الحبس من سته اشهر الي سنتين واذا كان الفعل جنحه فلا تتجاوز العقوبه الحبس سته اشهر او الغرامه خمسه وعشرين دينارا",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "96",
+       "97"
+      ],
+      "note": "the January copy filed live 97 under 96; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "104",
@@ -28927,7 +29016,12 @@
         "january": "الاسباب المشدده والمخففه تسري احكام الاسباب المشدده او المخففه للعقوبه علي الترتيب التالي الاسباب المشدده الماديه الاعذار الاسباب المشدده الشخصيه الاسباب المخففه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "104",
+       "105"
+      ],
+      "note": "the January copy filed live 105 under 104; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "169",
@@ -28936,7 +29030,12 @@
         "january": "الرشوه كل موظف وكل شخص ندب الي خدمه عامه سوا بالانتخاب او بالتعيين وكل شخص كلف بمهمه رسميه كالمحكم والخبير والسنديك طلب او قبل لنفسه او لغيره هديه او وعدا او ايه منفعه اخري ليقوم بعمل حق بحكم وظيفته عوقب بالحبس مده لا تقل عن سنتين وبغرامه تعادل قيمه ما طلب او قبل من نقد او عين",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "169",
+       "170"
+      ],
+      "note": "the January copy filed live 170 under 169; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "173",
@@ -28945,7 +29044,12 @@
         "january": "الاختلاس واستثمار الوظيفه كل موظف عمومي ادخل في ذمته ما وكل اليه بحكم الوظيفه او بموجب تكليف من رييسه امر ادارته او جبايته او حفظه من نقود واشيا اخري للدوله او لاحد الناس عوقب بالاشغال الموقته وبغرامه تعادل قيمه ما اختلس كل من اختلس اموالا تعود لخزاين او صناديق البنوك او موسسات الاقراض المتخصصه او الشركات المساهمه العامه وكان من الاشخاص العاملين فيها كل منهم في الموسسه التي يعمل بها عوقب بالعقوبه المقرره في الفقره السابقه اذا وقع الفعل المبين في الفقرتين السابقتين بتزوير الشيكات او السندات او بدس كتابات غير صحيحه في القيود او الدفاتر او السجلات او بتحريف او حذف او اتلاف الحسابات او الاوراق وغيرها من الصكوك وبصوره عامه بايه حيله ترمي الي منع اكتشاف الاختلاس عوقب الفاعل بالاشغال الموقته مده لا تقل عن خمس سنوات وبغرامه تعادل قيمه ما اختلس يعاقب المتدخل والمحرض بعقوبه الفاعل ذاتها ويحكم برد النقود او الاشيا او بتضمين الفاعل والمتدخل او المحرض قيمتها وما اصابها من ضرر",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "173",
+       "174"
+      ],
+      "note": "the January copy filed live 174 under 173; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "208",
@@ -28954,7 +29058,12 @@
         "january": "اختلاق الجرايم والافترا من اخبر السلطه القضاييه او ايه سلطه يجب عليها ابلاغ السلطه القضاييه عن جريمه يعرف انها لم ترتكب ومن كان سببا في مباشره تحقيق تمهيدي او قضايي باختلاقه ادله ماديه علي جريمه كهذه عوقب بالحبس مده لا تتجاوز سته اشهر او بغرامه لا تزيد علي عشره دنانير او بكلتا هاتين العقوبتين",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "208",
+       "209"
+      ],
+      "note": "the January copy filed live 209 under 208; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "213",
@@ -28963,7 +29072,12 @@
         "january": "شهاده الزور من شهد زورا امام سلطه قضاييه او مامور له او هييه لها صلاحيه استماع الشهود محلفين او انكر الحقيقه او كتم بعض او كل ما يعرفه من وقايع القضيه التي يسال عنها سوا اكان الشخص الذي ادي الشهاده شاهدا مقبول الشهاده ام لم يكن او كانت شهادته قد قبلت في تلك الاجراات ام لم تقبل يعاقب بالحبس من ثلاثه اشهر الي ثلاث سنوات واذا وقع منه هذا الفعل في اثنا تحقيق جنايه او محاكمتها حكم عليه بالاشغال الموقته واذا نجم عن الشهاده الكاذبه حكم بالاعدام او بعقوبه موبده فلا تنقص عقوبه الاشغال عن عشر سنوات وان وقعت الشهاده من دون ان يحلف الشاهد اليمين خفض نصف العقوبه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "213",
+       "214"
+      ],
+      "note": "the January copy filed live 214 under 213; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "220",
@@ -28972,7 +29086,12 @@
         "january": "اليمين الكاذبه من حلف بصفه كونه مدعيا ام مدعي عليه اليمين الكاذبه في دعوي حقوقيه عوقب بالحبس من سته اشهر الي ثلاث سنوات وبالغرامه من خمسه دنانير الي خمسين دينارا ويعفي من العقوبه اذا رجع الي الحقيقه قبل ان يبت في الدعوي التي كانت موضوع اليمين بحكم ولو لم يكن مبرما",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "220",
+       "221"
+      ],
+      "note": "the January copy filed live 221 under 220; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "224",
@@ -28981,7 +29100,12 @@
         "january": "ما يحظر نشره يعاقب بالحبس حتي ثلاثه اشهر من ينشر وثيقه من وثايق التحقيق الجنايي او الجنحيه قبل تلاوتها في جلسه علنيه محاكمات الجلسات السريه المحاكمات في دعوي السب كل محاكمه منعت المحكمه نشرها",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "224",
+       "225"
+      ],
+      "note": "the January copy filed live 225 under 224; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "235",
@@ -28990,7 +29114,12 @@
         "january": "الباب الخامس في الجرايم المخله بالثقه العامه تقليد ختم الدوله من قلد ختم الدوله او امضا جلاله الملك او ختمه او استعمل الختم المقلد وهو علي بينه من الامر عوقب بالاشغال سبع سنوات علي الاقل من استعمل دون حق ختم الدوله او قلد دمغه ختمها عوقب بالاشغال الموقته",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "235",
+       "236"
+      ],
+      "note": "the January copy filed live 236 under 235; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "238",
@@ -28999,7 +29128,12 @@
         "january": "تزوير البنكنوت تشمل كلمه البنكنوت الوارده في هذا القسم اوراق النقد الاردني الصادره بمقتضي قانونه الخاص المستندات الماليه واذونات الخزينه وسندات الدين التي تصدرها الدوله والموسسات العامه سوا اكانت مسجله او لحاملها وشكات المسافرين كل بوليصه بنك اصدرها مصرف في المملكه او اصدرتها ايه شركه مسجله تتعاطي اعمال الصيرفه في المملكه او في ايه جهه من جهات العالم كل ورقه ماليه مهما كان الاسم الذي يطلق عليها اذا كانت تعتبر كنقد قانوني في البلاد الصادره فيها",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "238",
+       "239"
+      ],
+      "note": "the January copy filed live 239 under 238; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "270",
@@ -29008,7 +29142,12 @@
         "january": "التزوير باوراق خاصه من ارتكب التزوير في اوراق خاصه باحدي الوسايل المحدده في المادتين و263 يعاقب بالحبس من سنه الي ثلاث سنوات",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "270",
+       "271"
+      ],
+      "note": "the January copy filed live 271 under 270; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "320",
@@ -29017,7 +29156,12 @@
         "january": "الاجهاض كل امراه اجهضت نفسها بما استعملته من الوسايل او رضيت بان يستعمل لها غيرها هذه الوسايل تعاقب بالحبس من سته اشهر الي ثلاث سنوات",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "320",
+       "321"
+      ],
+      "note": "the January copy filed live 321 under 320; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "332",
@@ -29026,7 +29170,8 @@
         "january": "",
         "live": "ايذا الاشخاص"
        }
-      ]
+      ],
+      "kind": "a heading placed differently (corrected 2026-11-13)"
      },
      {
       "article": "348 مكرر",
@@ -29035,7 +29180,12 @@
         "january": "التهديد من هدد اخر بشهر السلاح عليه عوقب بالحبس مده لا تقل عن سته اشهر واذا كان السلاح ناريا واستعمله الفاعل كانت العقوبه بالحبس مده لا تقل عن سنه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "348 مكرر",
+       "349"
+      ],
+      "note": "the January copy filed live 349 under 348 مكرر; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "416",
@@ -29044,7 +29194,12 @@
         "january": "الفصل الثاني في الاحتيال وساير ضروب الغش الاحتيال كل من حمل الغير علي تسليمه مالا منقولا او غير منقول او اسنادا تتضمن تعهدا او ابرا فاستولي عليها احتيالا باستعمال طرق احتياليه من شانها ايهام المجني عليه بوجود مشروع كاذب او حادث او امر لا حقيقه له او احداث الامل عند المجني عليه بحصول ربح وهمي او بتسديد المبلغ الذي اخذ بطريق الاحتيال او الايهام بوجود سند دين غير صحيح او سند مخالصه مزور بالتصرف في مال منقول او غير منقول وهو يعلم انه ليس له صفه للتصرف به باتخاذ اسم كاذب او صفه غير صحيحه عوقب بالحبس من سته اشهر الي ثلاث سنوات وبالغرامه من مايتي دينار الي خمسمايه دينار يعاقب بالحبس مده لا تقل عن سنتين اذا ارتكب الفعل بحجه تامين وظيفه او عمل في اداره عامه يعاقب بالحبس مده لا تقل عن ثلاث سنوات اذا كان مرتكب الجريمه ممن يتولون اصدار الاسهم او السندات او اي اوراق ماليه اخري متعلقه بشركه او مشروع او موسسه تجاريه او صناعيه تقضي المحكمه بضعف العقوبه في حال تعدد المجني عليهم او اذا استغلت الاعاقه الجسديه او النفسيه او الذهنيه للمجني عليه لارتكاب اي من الجنح المنصوص عليها في هذه الماده يطبق العقاب نفسه علي الشروع في ارتكاب اي من الجنح المنصوص عليها في هذه الماده",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "416",
+       "417"
+      ],
+      "note": "the January copy filed live 417 under 416; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "418",
@@ -29053,7 +29208,8 @@
         "january": "تهريب الاموال",
         "live": ""
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      },
      {
       "article": "420",
@@ -29062,7 +29218,13 @@
         "january": "الشيك المكتبي وفقا لاحدث التعديلات يعاقب بالحبس مده سنه وبغرامه لا تقل عن مايه دينار ولا تزيد علي مايتي دينار كل من اقدم بسو نيه علي ارتكاب احد الافعال التاليه اذا اصدر شيكا وليس له مقابل وفا قايم وقابل للصرف اذا سحب بعد اصدار الشيك كل المقابل لوفايه او بعضه بحيث لا يفي الباقي بقيمته اذا اصدر امرا الي المسحوب عليه بالامتناع عن صرف الشيك في غير الحالات التي يجيزها القانون اذا ظهر لغيره شيكا او اعطاه شيكا مستحق الدفع لحامله وهو يعلم انه ليس له مقابل يفي بكامل قيمته او يعلم انه غير قابل للصرف اذا حرر شيكا او وقع عليه بصوره تمنع صرفه مع مراعاه ما ورد في الفقره من هذه الماده لا يجوز للمحكمه عند اخذها بالاسباب المخففه في اي حاله من الحالات المنصوص عليها في الفقره من هذه الماده تخفيض عقوبه الحبس عن ثلاثه اشهر والغرامه عن خمسين دينارا ولا يجوز استبدال الحبس بالغرامه في هذه الحالات علي الرغم مما ورد في الفقره من هذه الماده وفي حاله استيفا قيمه الشيك او اسقاط المشتكي حقه الشخصي تستوفي غرامه تعادل من قيمه الشيك مهما بلغ عدد المحكوم عليهم علي ان لا تقل عن مايه دينار ولا تزيد علي خمسه الاف دينار حتي بعد صدور الحكم او اكتسابه الدرجه القطعيه لغايات البند من هذه الفقره تحتسب الغرامه في حال تعدد الشيكات علي اساس مجموع قيمتها تسري احكام الفقره من هذه الماده علي الاحكام التي اكتسبت الدرجه القطعيه قبل نفاذ احكام هذا القانون ويصدر القرار بذلك في هذه الحاله من قبل المحكمه التي اصدرت الحكم ينحصر نطاق تطبيق الفقره من هذه الماده بالشيك الذي يتحقق فيه الشرطان التاليان الشيك المكتبي وفقا لاحدث التعديلات ان يكون محررا باستخدام النموذج الصادر من البنك المسحوب عليه ان يكون مقدما الي البنك المسحوب عليه للوفا في التاريخ المبين فيه او خلال سته اشهر تلي ذلك التاريخ تستثني من احكام الفقره من هذه الماده الشيكات المحرره قبل نفاذ احكام هذا القانون مع مراعاه احكام الماده من هذا القانون اذا حرر الشيك من المفوض بالتوقيع عن الشركه فيكون مسوولا جزاييا بصفته فاعلا عن الجريمه المنصوص عليها في هذه الماده متي توافرت اركانها وبغض النظر عن نوع الشركه لا تسري احكام هذه الماده علي الشيكات الصادره بعد ثلاث سنوات من نفاذ احكام هذا القانون المعدل الفصل الثالث في اساه الايتمان والاختلاس اساه الايتمان كل من سلم اليه علي سبيل الامانه او الوكاله ولاجل الابراز والاعاده او لاجل الاستعمال علي صوره معينه او لاجل الحفظ او لاجرا عمل باجر او بدون اجر ما كان لغيره من اموال ونقود واشيا واي سند يتضمن تعهدا او ابرا وبالجمله كل من وجد في يده شي من هذا القبيل فكتمه او بدله او تصرف به تصرف المالك او استهلكه او اقدم علي اي فعل يعد تعديا او امتنع عن تسليمه لمن يلزم تسليمه اليه يعاقب بالحبس من شهرين الي سنتين وبالغرامه من عشره دنانير الي ميه دينار",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "420",
+       "421",
+       "422"
+      ],
+      "note": "the January copy filed live 421, 422 under 420; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "427",
@@ -29071,7 +29233,12 @@
         "january": "العيارات والمكاييل غير القانونيه كل من استعمل او اقتني في مخزنه او دكانه او في عربات البيع او غيرها من الاماكن المعده للتجاره عيارات او مكاييل او غيرها من عدد الوزن والكيل تختلف عن العيارات والمكاييل المعينه في القانون او غير موسومه يعاقب بالحبس حتي اسبوع وبالغرامه حتي خمسه دنانير او باحدي هاتين العقوبتين",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "427",
+       "428"
+      ],
+      "note": "the January copy filed live 428 under 427; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "445",
@@ -29080,7 +29247,12 @@
         "january": "نزع التخوم واغتصاب العقار من اقدم ولو جزييا علي طم حفره او هدم سور من اي المواد بني او علي قطع سياج او نزعه اخضر كان ام يابسا ومن هدم او خرب او نقل ايه علامه تشير الي الحدود بين مختلف الاملاك يعاقب بالحبس مده لا تتجاوز سته اشهر او بغرامه لا تتجاوز عشرين دينارا",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "445",
+       "446"
+      ],
+      "note": "the January copy filed live 446 under 445; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "456",
@@ -29089,7 +29261,13 @@
         "january": "رمي مواد ضاره في المياه العموميه يعاقب بالحبس مده لا تزيد علي سنه وبغرامه لا تزيد علي عشرين دينارا كل من سيل في المياه العموميه الممنوح بها امتياز ام لا او سكب او رمي فيها سوايل او مواد ضاره بالصحه او الراحه العامه او مانعه من حسن الانتفاع بهذه المياه القي اسمده حيوانيه او وضع اقذارا في الاراضي الداخله ضمن النطاق الذي حددته السلطه لحمايه نبع تنتفع منه العامه اجري اي عمل من شانه تلويث النبع او المياه التي يشرب منها الغير تلويث نبع او ما يشرب منه الغير يعاقب بالاشغال مده لا تقل عن سبع سنوات وبغرامه لا تقل عن عشره الاف دينار كل من اقدم علي تلويث نبع او مياه او بير يشرب منه الغير لا يجوز باي حال من الاحوال استعمال الاسباب المخففه التقديريه مهما كان نوعها او وقف تنفيذ العقوبه للمحكمه ان تاخذ بالوقايع الوارده في المضبوطات والتقارير التي ينظمها موظفو الجهات المختصه المسووله عن المياه فيما يتعلق بالافعال المنصوص عليها في هذه الماده وفي المواد من هذا القانون",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "456",
+       "457",
+       "458"
+      ],
+      "note": "the January copy filed live 457, 458 under 456; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "467",
@@ -29098,7 +29276,12 @@
         "january": "الصور والرسوم التي تنال من الكرامه من طبع او باع او عرض نقوشا او صورا او رسوما تعطي عن الاردنيين فكره غير صحيحه من شانها ان تنال من كرامتهم واعتبارهم عوقب بالحبس حتي اسبوع وبالغرامه حتي خمسه دنانير وتصادر تلك النقوش والصور والرسوم",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "467",
+       "468"
+      ],
+      "note": "the January copy filed live 468 under 467; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "476",
@@ -29107,7 +29290,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [
@@ -29185,7 +29369,7 @@
       "corpus",
       "neither"
      ],
-     "422": "site differs from both (LOB 0.85, corpus 0.86)",
+     "422": "site has corpus text (word for word, link addresses removed; LOB differs only by «الإعادة»/«والإعادة»); the first figure, «differs from both (0.85)», counted the addresses of the page's links (corrected 2026-11-13)",
      "428": [
       "corpus"
      ],
@@ -29195,6 +29379,15 @@
      "458": [
       "corpus"
      ]
+    },
+    "live_only_reasons": {
+     "85": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "97": "no verdict: the corpus and LOB do not differ in words here (normalisation-only), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "105": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "239": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "321": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "457": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)",
+     "468": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope formatting), so there is no reading for the site to share; the live text has the corpus's words (similarity 1.00) (corrected 2026-11-13)"
     }
    },
    "companies": {
@@ -29206,7 +29399,12 @@
         "january": "الباب الثالث عشر تصفيه الشركه المساهمه العامه وفسخها الفصل الاول الاحكام العامه للتصفيه التصفيه الاجباريه تصفي الشركه المساهمه العامه اما تصفيه اختياريه من هييتها العامه غير العاديه او تصفيه اجباريه بقرار قطعي من المحكمه ولا تفسخ الشركه الا بعد استكمال اجراات تصفيتها بمقتضي احكام هذا القانون تحدد اجراات التصفيه وتنظيمها وتنفيذها وعمل المصفي بما في ذلك التقارير التي يتوجب عليه تقديمها بموجب نظام خاص يصدر لهذه الغايه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "251",
+       "252"
+      ],
+      "note": "the January copy filed live 252 under 251; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      }
     ],
     "live_only": [
@@ -29244,7 +29442,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [],
@@ -29259,7 +29458,12 @@
         "january": "السند التنفيذي يراعي في تنفيذ السندات المنصوص عليها في الفقرتين وج من الماده من هذا القانون ما يلي للمدين بعد تبليغه الاخطار بالدفع ان يعترض علي مجموع الدين او علي قسم منه خلال خمسه عشر يوما تلي تاريخ التبليغ يثابر علي التنفيذ اذا لم يقدم الاعتراض في الموعد المحدد اذا اقر المدين بالدين او بقسم منه فيدون ذلك في محضر التنفيذ وتقوم الدايره بتنفيذ ما جري الاقرار به اذا اعترض المدين علي الدين كله او قسم منه وثبت عدم صحه هذا الاعتراض امام المحكمه المختصه تقضي المحكمه بالزام المدين بغرامه تعادل خمس قيمه الدين المنازع به تدفع كلها للخزينه ويثابر علي التنفيذ من النقطه التي تم الوصول اليها في جميع الاحوال اذا استوفي الداين دينه كله او بعضه وفق الاجراات المنصوص عليها في هذه الماده فيبقي للمدين الحق باقامه دعوي موضوعيه لاسترداد ما استوفي منه بغير حق اضافه الي ما ورد في الفقره من هذه الماده يراعي في تنفيذ السندات المنصوص عليها في الفقره من الماده من هذا القانون ما يلي يجوز للداين ان يطلب من الدايره تحصيل دينه من الكفلا يكون اعتراض المدين علي الدين اما بادعا تزوير السند الرسمي او الادعا بالوفا كليا او جزييا علي المدين مراجعه المحكمه المختصه لاثبات صحه ادعايه ولا توقف معامله التنفيذ الا اذا اصدرت المحكمه المختصه قرارا بوقفها في حدود ما تم الاعتراض عليه اضافه الي ما ورد في الفقره من هذه الماده يراعي في تنفيذ السندات المنصوص عليها في الفقره من الماده من هذا القانون ما يلي يجوز للداين ان يطلب من الدايره تحصيل دينه من الملتزمين خلال خمسه عشر يوما من تاريخ الاحتجاج بعدم الوفا اذا كان هذا الاحتجاج يتطلبه القانون يكون اعتراض المدين علي الدين اما بانكار التوقيع او بالادعا بالتزوير او بالادعا بالوفا كليا او جزييا او بالادعا بتقادم السند في حاله الادعا بتقادم السند وتبين للرييس من ظاهره تقادمه او انكار التوقيع او الادعا بالتزوير توقف معامله التنفيذ ويكلف الداين بمراجعه المحكمه المختصه لاثبات صحه مطالبته في حاله الادعا بالوفا كليا او جزييا فعلي المدين مراجعه المحكمه المختصه لاثبات الوفا ولا توقف معامله التنفيذ الا اذا اصدرت المحكمه المختصه قرارا بوقفها في حدود ما تم الاعتراض عليه",
         "live": ""
        }
-      ]
+      ],
+      "january_holds": [
+       "6",
+       "7"
+      ],
+      "note": "the January copy filed live 7 under 6; «wording unchanged» is not established; see january_filed_under_previous_number (corrected 2026-11-13)"
      },
      {
       "article": "77",
@@ -29268,13 +29472,17 @@
         "january": "",
         "live": "ترفق بقايمه شروط البيع ما يلي"
        }
-      ]
+      ],
+      "kind": "a line break: the opening words «ترفق بقائمة شروط البيع ما يلي» are on both copies; the January copy puts them on a line of their own, which the comparison read as a heading (corrected 2026-11-13)"
      }
     ],
     "live_only": [
      "7"
     ],
-    "live_only_verdicts": {}
+    "live_only_verdicts": {},
+    "live_only_reasons": {
+     "7": "no verdict: the corpus and LOB do not differ in words here (substantive difference, scope trailing-title), so there is no reading for the site to share; the live text has the corpus's words (similarity 0.99) (corrected 2026-11-13)"
+    }
    },
    "mediation": {
     "changed": [],
@@ -29290,7 +29498,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [],
@@ -29310,7 +29519,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه قانون التنفيذ الاردني وفق احدث التعديلات قانون العقوبات الاردني مع كامل التعديلات قانون التنفيذ الاردني مع التعديلات قانون المخدرات والموثرات العقليه القانون المدني الاردني قانون اصول المحاكمات الجزاييه قانون الملكيه العقاريه الاردني قانون الجرايم الالكترونيه قانون محاكم الصلح جدول رسوم المحاكم قانون العمل الاردني قانون البينات الاردني قانون اصول المحاكمات المدنيه نظام تحديد الصلاحيه المكانيه لمحاكم الصلح والبدايه والاستيناف"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [],
@@ -29330,7 +29540,8 @@
         "january": "",
         "live": "قوانين اردنيه مهمه"
        }
-      ]
+      ],
+      "kind": "heading or link words at an edge (corrected 2026-11-13)"
      }
     ],
     "live_only": [],
@@ -29342,6 +29553,566 @@
     "live_only_verdicts": {}
    }
   },
-  "note": "the owner's export result: the export itself is outside the repository; 14 of the 19 pages were retitled to 2026, the five whose title has no year were not; 2026-03-24 is the pages' last-modified date (corrected 2026-11-13)"
+  "note": "the owner's export result: the export itself is outside the repository; 14 of the 19 pages were retitled to 2026, and 13 of those 14 were last modified on 2026-03-24 (court-fees on 2026-04-21); the five whose title has no year were not retitled (corrected 2026-11-13)",
+  "january_filed_under_previous_number": [
+   {
+    "slug": "civil-procedure",
+    "january_article": "2",
+    "live_articles": [
+     "2",
+     "3"
+    ],
+    "similarity": 0.988,
+    "differences": [
+     {
+      "january": "المصلحه في الدعوي",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "133",
+    "live_articles": [
+     "133",
+     "134"
+    ],
+    "similarity": 0.995,
+    "differences": [
+     {
+      "january": "رد القاضي",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "135",
+    "live_articles": [
+     "135",
+     "136"
+    ],
+    "similarity": 0.991,
+    "differences": [
+     {
+      "january": "اجراات رد القاضي",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "140",
+    "live_articles": [
+     "140",
+     "141"
+    ],
+    "similarity": 0.98,
+    "differences": [
+     {
+      "january": "المنع من السفر الحجز الاحتياطي انظر مقال الحجز التحفظي",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "160",
+    "live_articles": [
+     "160",
+     "161"
+    ],
+    "similarity": 0.987,
+    "differences": [
+     {
+      "january": "الحكم بالرسوم والمصاريف",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "167",
+    "live_articles": [
+     "167",
+     "168"
+    ],
+    "similarity": 0.992,
+    "differences": [
+     {
+      "january": "تصحيح الخطا في الاحكام",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "190",
+    "live_articles": [
+     "190",
+     "191"
+    ],
+    "similarity": 0.99,
+    "differences": [
+     {
+      "january": "الطعن في الاحكام بالتمييز",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "205",
+    "live_articles": [
+     "205",
+     "206"
+    ],
+    "similarity": 0.991,
+    "differences": [
+     {
+      "january": "اعتراض الغير",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "civil-procedure",
+    "january_article": "212",
+    "live_articles": [
+     "212",
+     "213"
+    ],
+    "similarity": 0.994,
+    "differences": [
+     {
+      "january": "اعاده المحاكمه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "evidence",
+    "january_article": "10",
+    "live_articles": [
+     "10",
+     "11"
+    ],
+    "similarity": 0.983,
+    "differences": [
+     {
+      "january": "",
+      "live": "انظر مقال عن"
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "evidence",
+    "january_article": "52",
+    "live_articles": [
+     "52",
+     "53"
+    ],
+    "similarity": 0.981,
+    "differences": [
+     {
+      "january": "اليمين الحاسمه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "9",
+    "live_articles": [
+     "9",
+     "10"
+    ],
+    "similarity": 0.991,
+    "differences": [
+     {
+      "january": "",
+      "live": "انظر مقال عن"
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "84",
+    "live_articles": [
+     "84",
+     "85"
+    ],
+    "similarity": 0.981,
+    "differences": [
+     {
+      "january": "الجهل بالقانون",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "96",
+    "live_articles": [
+     "96",
+     "97"
+    ],
+    "similarity": 0.987,
+    "differences": [
+     {
+      "january": "الاعذار المخففه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "104",
+    "live_articles": [
+     "104",
+     "105"
+    ],
+    "similarity": 0.955,
+    "differences": [
+     {
+      "january": "الاسباب المشدده والمخففه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "169",
+    "live_articles": [
+     "169",
+     "170"
+    ],
+    "similarity": 0.995,
+    "differences": [
+     {
+      "january": "الرشوه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "173",
+    "live_articles": [
+     "173",
+     "174"
+    ],
+    "similarity": 0.993,
+    "differences": [
+     {
+      "january": "الاختلاس واستثمار الوظيفه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "208",
+    "live_articles": [
+     "208",
+     "209"
+    ],
+    "similarity": 0.993,
+    "differences": [
+     {
+      "january": "اختلاق الجرايم والافترا",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "213",
+    "live_articles": [
+     "213",
+     "214"
+    ],
+    "similarity": 0.992,
+    "differences": [
+     {
+      "january": "شهاده الزور",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "220",
+    "live_articles": [
+     "220",
+     "221"
+    ],
+    "similarity": 0.982,
+    "differences": [
+     {
+      "january": "اليمين الكاذبه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "224",
+    "live_articles": [
+     "224",
+     "225"
+    ],
+    "similarity": 0.981,
+    "differences": [
+     {
+      "january": "ما يحظر نشره",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "235",
+    "live_articles": [
+     "235",
+     "236"
+    ],
+    "similarity": 0.917,
+    "differences": [
+     {
+      "january": "الباب الخامس في الجرايم المخله بالثقه العامه تقليد ختم الدوله",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "238",
+    "live_articles": [
+     "238",
+     "239"
+    ],
+    "similarity": 0.989,
+    "differences": [
+     {
+      "january": "تزوير البنكنوت",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "270",
+    "live_articles": [
+     "270",
+     "271"
+    ],
+    "similarity": 0.964,
+    "differences": [
+     {
+      "january": "التزوير باوراق خاصه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "320",
+    "live_articles": [
+     "320",
+     "321"
+    ],
+    "similarity": 0.994,
+    "differences": [
+     {
+      "january": "الاجهاض",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "348 مكرر",
+    "live_articles": [
+     "348 مكرر",
+     "349"
+    ],
+    "similarity": 0.993,
+    "differences": [
+     {
+      "january": "التهديد",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "416",
+    "live_articles": [
+     "416",
+     "417"
+    ],
+    "similarity": 0.987,
+    "differences": [
+     {
+      "january": "الفصل الثاني في الاحتيال وساير ضروب الغش الاحتيال",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "420",
+    "live_articles": [
+     "420",
+     "421",
+     "422"
+    ],
+    "similarity": 0.988,
+    "differences": [
+     {
+      "january": "",
+      "live": "انظر مقال"
+     },
+     {
+      "january": "",
+      "live": "انظر مقال"
+     },
+     {
+      "january": "الفصل الثالث في اساه الايتمان والاختلاس اساه الايتمان",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "427",
+    "live_articles": [
+     "427",
+     "428"
+    ],
+    "similarity": 0.988,
+    "differences": [
+     {
+      "january": "العيارات والمكاييل غير القانونيه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "445",
+    "live_articles": [
+     "445",
+     "446"
+    ],
+    "similarity": 0.977,
+    "differences": [
+     {
+      "january": "نزع التخوم واغتصاب العقار",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "456",
+    "live_articles": [
+     "456",
+     "457",
+     "458"
+    ],
+    "similarity": 0.981,
+    "differences": [
+     {
+      "january": "رمي مواد ضاره في المياه العموميه",
+      "live": ""
+     },
+     {
+      "january": "تلويث نبع او ما يشرب منه الغير",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "penal-code",
+    "january_article": "467",
+    "live_articles": [
+     "467",
+     "468"
+    ],
+    "similarity": 0.986,
+    "differences": [
+     {
+      "january": "الصور والرسوم التي تنال من الكرامه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "companies",
+    "january_article": "251",
+    "live_articles": [
+     "251",
+     "252"
+    ],
+    "similarity": 0.926,
+    "differences": [
+     {
+      "january": "الباب الثالث عشر تصفيه الشركه المساهمه العامه وفسخها الفصل الاول الاحكام العامه للتصفيه التصفيه الاجباريه",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   },
+   {
+    "slug": "execution",
+    "january_article": "6",
+    "live_articles": [
+     "6",
+     "7"
+    ],
+    "similarity": 0.998,
+    "differences": [
+     {
+      "january": "السند التنفيذي",
+      "live": ""
+     }
+    ],
+    "wording_unchanged": "not established: the article-by-article comparison set January N against live N alone"
+   }
+  ]
  }
 }
