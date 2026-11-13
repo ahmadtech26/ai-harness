@@ -2,13 +2,12 @@
 name: legal-document-review
 description: Method for reviewing a contract or legal document the user uploads or pastes, under Jordanian law — clause by clause, with risks, proposed amendments and citations retrieved from the legal library.
 metadata:
-  version: "1.1.0"
+  version: "1.0.0"
   owner: iqraa-legal-content
   requires:
     tools: [search_law, get_article]
   review:
     status: draft
-    note: "1.1.0 adds checklist lines from docs/distillation/2026-11-12-book-principles.md: draft, for lawyer review"
 ---
 
 # مراجعة العقود والمستندات القانونية وفق القانون الأردني
