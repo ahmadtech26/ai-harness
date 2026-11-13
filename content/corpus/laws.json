@@ -144,6 +144,7 @@
       "amendment": {
         "law": 35,
         "year": 1983,
+        "gazette_issue": 3194,
         "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
       },
       "review": {
@@ -156,7 +157,8 @@
         "gazette.issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
         "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1840&LegislationType=2&isMod=false",
         "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true",
-        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
+        "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true",
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=1507&LegislationType=2&isMod=true"
       }
     },
     {
@@ -524,6 +526,7 @@
         "law": 12,
         "year": 2019,
         "gazette_issue": 5572,
+        "gazette_date": "2019-05-01",
         "source_url": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true"
       },
       "review": {
@@ -537,7 +540,8 @@
         "gazette.date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=3235&LegislationType=2&isMod=false",
         "amendment.law": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
         "amendment.year": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
-        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true"
+        "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4362&LegislationType=2&isMod=true",
+        "amendment.gazette_date": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/5572"
       }
     },
     {
