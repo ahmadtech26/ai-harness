@@ -8,15 +8,14 @@
    "sha256": "f5aa77743ca61d453ece182d2a124059ef8c01fe0a56c01952fba9f43820b2fd",
    "articles_on_page": 218,
    "body_ops": {
-    "corpus": 54,
-    "article not on the site page": 4,
-    "neither": 3,
-    "LOB": 1
+    "LOB / wording": 1,
+    "corpus / wording": 58,
+    "neither / wording": 3
    },
    "amend_missing": {
-    "amendment not applied / site has corpus text": 2,
-    "amendment not applied / article not on the site page": 1
-   }
+    "amendment not applied / site has corpus text": 3
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "civil-code": {
    "page": "jordanian-law/references/docs/markdown/قانون-مدني/doc-0098_القانون-المدني-الأردني-حتى-2025.md",
@@ -25,13 +24,15 @@
    "sha256": "81286e8cf4573768bef400abb36f485bd9c8c8bb64fde59319697eb4bba62c78",
    "articles_on_page": 1441,
    "body_ops": {
-    "corpus": 234,
-    "both": 13,
-    "article not on the site page": 2
+    "both / trailing caption": 1,
+    "both / wording": 12,
+    "corpus / chapter or part heading": 4,
+    "corpus / wording": 232
    },
    "amend_missing": {
     "missing in corpus / site differs from both": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "evidence": {
    "page": "jordanian-law/references/docs/markdown/قانون-عمل/doc-1609_قانون-البينات-الأردني-حتى-2025.md",
@@ -40,13 +41,14 @@
    "sha256": "f80c6f62a9c289726ccb6f43d5459d59ec7cf2ac810e94f9439e1fde193cbbbb",
    "articles_on_page": 71,
    "body_ops": {
-    "article not on the site page": 2,
-    "corpus": 6
+    "LOB / website residue": 1,
+    "corpus / wording": 7
    },
    "amend_missing": {
     "amendment not applied / site has corpus text": 1,
-    "missing in corpus / article not on the site page": 1
-   }
+    "missing in corpus / site has corpus text": 1
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "landlords-tenants": {
    "page": "jordanian-law/references/docs/markdown/قانون-عمل/doc-0353_قانون-المالكين-والمستأجرين-حتى-2025.md",
@@ -55,13 +57,15 @@
    "sha256": "7c0bea410d47b0e4e5ea1ea7be041c9d5ed28fa2fb3fcc421c9cd89773af1999",
    "articles_on_page": 22,
    "body_ops": {
-    "LOB": 15,
-    "corpus": 3,
-    "neither": 1
+    "LOB / trailing caption": 9,
+    "LOB / wording": 6,
+    "corpus / wording": 3,
+    "neither / wording": 1
    },
    "amend_missing": {
     "amendment not applied / site has corpus text": 2
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "commerce": {
    "page": "jordanian-law/references/docs/markdown/قانون-عمل/doc-1627_قانون-التجارة-الأردني-حتى-2025.md",
@@ -70,15 +74,22 @@
    "sha256": "ee3b4ef1dbf720d735d113015e0a5533bc26db2924726907fb00a102f52760e5",
    "articles_on_page": 392,
    "body_ops": {
-    "corpus": 55,
-    "LOB": 322,
-    "neither": 152,
-    "corpus (elsewhere on the page)": 1,
-    "LOB (elsewhere on the page)": 148,
-    "both": 1,
-    "article not on the site page": 239
+    "LOB / chapter or part heading": 34,
+    "LOB / repeal label": 89,
+    "LOB / trailing caption": 210,
+    "LOB / wording": 137,
+    "article not on the site page / repeal label": 86,
+    "article not on the site page / trailing caption": 84,
+    "article not on the site page / wording": 69,
+    "both / wording": 1,
+    "corpus / chapter or part heading": 1,
+    "corpus / wording": 55,
+    "neither / repeal label": 12,
+    "neither / trailing caption": 44,
+    "neither / wording": 96
    },
-   "amend_missing": {}
+   "amend_missing": {},
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "penal-code": {
    "page": "jordanian-law/references/docs/markdown/قانون-جنائي/doc-0432_قانون-العقوبات-الأردني-مع-كامل-التعديلات-حتى-2025.md",
@@ -87,17 +98,19 @@
    "sha256": "554b8515909e38ddaf8472803fb55806d66dd563e2c6aad7d9e911c11f0d4b6e",
    "articles_on_page": 462,
    "body_ops": {
-    "corpus": 147,
-    "article not on the site page": 29,
-    "LOB": 2,
-    "both": 4
+    "LOB / website residue": 3,
+    "both / trailing caption": 3,
+    "both / wording": 8,
+    "corpus / chapter or part heading": 1,
+    "corpus / wording": 165,
+    "neither / website residue": 2
    },
    "amend_missing": {
-    "amendment not applied / site has corpus text": 17,
-    "amendment not applied / site differs from both": 2,
-    "amendment not applied / article not on the site page": 1,
-    "missing in corpus / article not on the site page": 1
-   }
+    "amendment not applied / site differs from both": 1,
+    "amendment not applied / site has corpus text": 19,
+    "missing in corpus / site has corpus text": 1
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "companies": {
    "page": "jordanian-law/references/docs/markdown/قانون-شركات/doc-1607_قانون-الشركات-الأردني-حتى-2025.md",
@@ -106,18 +119,22 @@
    "sha256": "294f783d38647ceac0921a21528088ce9c8d029597b22fdf8c0e1ccbf6a8ff4d",
    "articles_on_page": 308,
    "body_ops": {
-    "LOB": 239,
-    "corpus": 60,
-    "both": 4,
-    "article not on the site page": 5,
-    "neither": 6,
-    "LOB (elsewhere on the page)": 3
+    "LOB / chapter or part heading": 24,
+    "LOB / trailing caption": 109,
+    "LOB / wording": 112,
+    "article not on the site page / trailing caption": 1,
+    "article not on the site page / wording": 1,
+    "both / trailing caption": 3,
+    "both / wording": 1,
+    "corpus / wording": 60,
+    "neither / wording": 6
    },
    "amend_missing": {
     "amendment not applied / site differs from both": 9,
     "amendment not applied / site has LOB text": 39,
     "amendment not applied / site has corpus text": 3
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "customs": {
    "page": "jordanian-law/references/docs/markdown/تجارة-دولية/doc-1608_قانون-الجمارك-الأردني.md",
@@ -126,17 +143,19 @@
    "sha256": "f9f15e34953c3428bb932d02c78879707ba9b76b3fea21658a005c5a0fc9609d",
    "articles_on_page": 253,
    "body_ops": {
-    "LOB": 198,
-    "LOB (elsewhere on the page)": 5,
-    "corpus (elsewhere on the page)": 1,
-    "corpus": 59,
-    "both": 1,
-    "neither": 7
+    "LOB / chapter or part heading": 48,
+    "LOB / trailing caption": 97,
+    "LOB / wording": 56,
+    "both / wording": 1,
+    "corpus / wording": 62,
+    "neither / wording": 7
    },
    "amend_missing": {
-    "amendment not applied / site has corpus text": 23,
-    "amendment not applied / site has LOB text": 7
-   }
+    "amendment not applied / site differs from both": 3,
+    "amendment not applied / site has LOB text": 5,
+    "amendment not applied / site has corpus text": 22
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "income-tax": {
    "page": "jordanian-law/references/docs/markdown/قانون-مدني/doc-0490_قانون-ضريبة-الدخل-وتعديلاته-حتى-2025.md",
@@ -145,15 +164,17 @@
    "sha256": "5e0209acbd52499441eaf9892d3efa242a4ef881abb9cb5a5ac4ac199e15a8ed",
    "articles_on_page": 82,
    "body_ops": {
-    "LOB": 92,
-    "LOB (elsewhere on the page)": 2,
-    "corpus": 3,
-    "both": 2,
-    "neither": 1
+    "LOB / trailing caption": 35,
+    "LOB / wording": 59,
+    "both / trailing caption": 1,
+    "both / wording": 1,
+    "corpus / wording": 3,
+    "neither / wording": 1
    },
    "amend_missing": {
     "amendment not applied / site has LOB text": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "sales-tax": {
    "page": "jordanian-law/references/docs/markdown/قانون-مدني/doc-0487_قانون-الضريبة-العامة-على-المبيعات-وتعديلاته.md",
@@ -162,18 +183,19 @@
    "sha256": "f324347ecfee86e0a941e5413a30e11d66bf01ef77cde838c3a3d3402d74d510",
    "articles_on_page": 77,
    "body_ops": {
-    "LOB (elsewhere on the page)": 1,
-    "corpus": 28,
-    "LOB": 36,
-    "both": 3,
-    "neither": 2
+    "LOB / trailing caption": 25,
+    "LOB / wording": 12,
+    "both / wording": 3,
+    "corpus / wording": 28,
+    "neither / wording": 2
    },
    "amend_missing": {
     "amendment not applied / site differs from both": 1,
-    "amendment not applied / site has corpus text": 1,
     "amendment not applied / site has LOB text": 1,
+    "amendment not applied / site has corpus text": 1,
     "missing in corpus / article not on the site page": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "labour": {
    "page": "jordanian-law/references/docs/markdown/قانون-عمل/doc-0073_قانون-العمل-الأردني-حتى-2025.md",
@@ -182,15 +204,16 @@
    "sha256": "77f9d232518a570313098ea97ac51839b685a7e687b856f458445ab946513314",
    "articles_on_page": 142,
    "body_ops": {
-    "LOB": 36,
-    "corpus": 100,
-    "neither": 17,
-    "LOB (elsewhere on the page)": 1
+    "LOB / trailing caption": 25,
+    "LOB / wording": 12,
+    "corpus / wording": 100,
+    "neither / wording": 17
    },
    "amend_missing": {
     "amendment not applied / site has LOB text": 9,
     "amendment not applied / site has corpus text": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "execution": {
    "page": "jordanian-law/references/docs/markdown/إجراءات-قضائية/doc-0395_قانون-التنفيذ-الأردني-مع-تعديلات-2025.md",
@@ -199,15 +222,18 @@
    "sha256": "45a1293fe83460df1f53cedcab90ab7603a0657fa160fed4f5304f28aab32cd0",
    "articles_on_page": 119,
    "body_ops": {
-    "LOB": 34,
-    "corpus": 12,
-    "both": 4,
-    "neither": 1
+    "LOB / trailing caption": 24,
+    "LOB / wording": 10,
+    "both / trailing caption": 1,
+    "both / wording": 3,
+    "corpus / wording": 12,
+    "neither / wording": 1
    },
    "amend_missing": {
-    "missing in corpus / site has LOB text": 1,
-    "missing in corpus / article not on the site page": 1
-   }
+    "missing in corpus / article not on the site page": 1,
+    "missing in corpus / site has LOB text": 1
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "mediation": {
    "page": "jordanian-law/references/docs/markdown/إجراءات-قضائية/doc-0451_قانون-الوساطة-لتسوية-النزاعات-المدنية.md",
@@ -216,10 +242,11 @@
    "sha256": "e726e761809c60388b6ceb82e5ec2d37442af0dd788d501920d13817c2a1f6b9",
    "articles_on_page": 14,
    "body_ops": {
-    "corpus": 1,
-    "both": 1
+    "both / trailing caption": 1,
+    "corpus / wording": 1
    },
-   "amend_missing": {}
+   "amend_missing": {},
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "criminal-procedure": {
    "page": "jordanian-law/references/docs/markdown/قانون-جنائي/doc-0416_قانون-أصول-المحاكمات-الجزائية-حتى-2025.md",
@@ -228,13 +255,15 @@
    "sha256": "e36b56090762ca9f009eef38d399df1986e5d8f64d3b6e9d5f8f57cb85288e2d",
    "articles_on_page": 372,
    "body_ops": {
-    "corpus": 77,
-    "both": 2
+    "both / trailing caption": 2,
+    "corpus / chapter or part heading": 1,
+    "corpus / wording": 76
    },
    "amend_missing": {
     "amendment not applied / site has corpus text": 9,
-    "missing in corpus / article not on the site page": 2
-   }
+    "missing in corpus / site has corpus text": 2
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "courts-formation": {
    "page": "jordanian-law/references/docs/markdown/قانون-جنائي/doc-0367_قانون-تشكيل-المحاكم-النظامية-الأردني.md",
@@ -243,12 +272,13 @@
    "sha256": "2222bc80c31acc5849c783d809b6ad69be08b45aee6ab89e170df00e78429c74",
    "articles_on_page": 23,
    "body_ops": {
-    "corpus": 8,
-    "both": 1
+    "both / trailing caption": 1,
+    "corpus / wording": 8
    },
    "amend_missing": {
     "amendment not applied / site has corpus text": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "magistrates-courts": {
    "page": "jordanian-law/references/docs/markdown/إجراءات-قضائية/doc-0450_قانون-محاكم-الصلح-حتى-2025.md",
@@ -257,11 +287,12 @@
    "sha256": "504fd875728308f5916f618c5f06825e9764b75f428037b3d6599b53f543cbce",
    "articles_on_page": 22,
    "body_ops": {
-    "corpus": 3,
-    "neither": 1,
-    "both": 1
+    "both / trailing caption": 1,
+    "corpus / wording": 3,
+    "neither / wording": 1
    },
-   "amend_missing": {}
+   "amend_missing": {},
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "major-felonies-court": {
    "page": "jordanian-law/references/docs/markdown/إجراءات-قضائية/doc-0399_قانون-محكمة-الجنايات-الكبرى-حتى-2025.md",
@@ -270,12 +301,13 @@
    "sha256": "429fcc6bb1b60a8328a90285bfb163a64602c3a487ed3da66b8ac5034aef5ad7",
    "articles_on_page": 16,
    "body_ops": {
-    "corpus": 3,
-    "both": 1
+    "both / website residue": 1,
+    "corpus / wording": 3
    },
    "amend_missing": {
     "amendment not applied / site has corpus text": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "court-fees": {
    "page": "jordanian-law/references/docs/markdown/إجراءات-قضائية/doc-0568_جدول-رسوم-المحاكم-حتى-2025.md",
@@ -284,12 +316,14 @@
    "sha256": "17cc80b5d80c61cb2da6a58a150104e8ec03091e82b26060739965a361782ac4",
    "articles_on_page": 52,
    "body_ops": {
-    "corpus": 14,
-    "both": 20
+    "both / trailing caption": 19,
+    "both / wording": 1,
+    "corpus / wording": 14
    },
    "amend_missing": {
     "amendment not applied / site has corpus text": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   },
   "bar-association": {
    "page": "jordanian-law/references/docs/markdown/قانون-عمل/doc-1162_قانون-نقابة-المحامين-النظاميين.md",
@@ -298,12 +332,15 @@
    "sha256": "4bb2b0e427b531d85370a202537c828513aa9638321c07e3b9309953b3d83495",
    "articles_on_page": 110,
    "body_ops": {
-    "corpus": 43,
-    "both": 4
+    "both / trailing caption": 2,
+    "both / website residue": 1,
+    "both / wording": 1,
+    "corpus / wording": 43
    },
    "amend_missing": {
     "amendment not applied / site has corpus text": 1
-   }
+   },
+   "counts_note": "body_ops and amend_missing regenerated from «results» with the kinds of 2026-11-13 (verdict / kind); the first counts are superseded by sections 3 and 4 (corrected 2026-11-13)"
   }
  },
  "results": [
@@ -19476,7 +19513,7 @@
    "article": 188,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "site has LOB text apart from «الجمارك»: it reads «مدعي عام» where LOB reads «مدعي عام الجمارك» and the corpus «المدعي العام»; on that term it matches neither (corrected 2026-11-13)"
+   "site": "site differs from both on the term: it reads «مدعي عام» where LOB reads «مدعي عام الجمارك» and the corpus «المدعي العام»; otherwise it has LOB's text (corrected 2026-11-13)"
   },
   {
    "slug": "customs",
@@ -19495,7 +19532,7 @@
      "lob": "",
      "site_agrees_with": "corpus (the site has these «للنائب العام» paragraphs; it does not glue the next caption, «حالات التوقيف الاحتياطي») (corrected 2026-11-13)",
      "kind": "wording",
-     "note": "law 10/2019 (Gazette 5572, 2019-05-01, pp. 2428-2429), arts. 3 and 4, added these paragraphs; LOB lacks that law (corrected 2026-11-13)"
+     "note": "law 10/2019 (Gazette 5572, 1 May 2019 (printed in the law's own header, per WIPO Lex's copy; LOB gives 2019-08-28), pp. 2428-2429), arts. 3 and 4, added these paragraphs; LOB lacks that law (corrected 2026-11-13)"
     }
    ]
   },
@@ -19504,7 +19541,7 @@
    "article": 192,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "site has LOB text apart from «الجمارك»: it reads «مدعي عام» where LOB reads «مدعي عام الجمارك» and the corpus «المدعي العام»; on that term it matches neither (corrected 2026-11-13)"
+   "site": "site differs from both: it reads «مدعي عام» where LOB reads «مدعي عام الجمارك» and the corpus «المدعي العام», and «جريمة التهرب» where LOB and the corpus read «جريمة التهريب»; like LOB it reads «جرم التهرب المشهود» where the corpus reads «جرم التهريب المشهود» (corrected 2026-11-13)"
   },
   {
    "slug": "customs",
@@ -19523,7 +19560,7 @@
      "lob": "",
      "site_agrees_with": "corpus (the site has these «للنائب العام» paragraphs; it does not glue the next caption, «عدم شمول الغرامات الجمركية بالعفو العام») (corrected 2026-11-13)",
      "kind": "wording",
-     "note": "law 10/2019 (Gazette 5572, 2019-05-01, pp. 2428-2429), arts. 3 and 4, added these paragraphs; LOB lacks that law (corrected 2026-11-13)"
+     "note": "law 10/2019 (Gazette 5572, 1 May 2019 (printed in the law's own header, per WIPO Lex's copy; LOB gives 2019-08-28), pp. 2428-2429), arts. 3 and 4, added these paragraphs; LOB lacks that law (corrected 2026-11-13)"
     }
    ]
   },
@@ -19923,7 +19960,7 @@
    "article": 229,
    "suffix": "",
    "class": "amendment not applied",
-   "site": "site has corpus text"
+   "site": "site differs from both on the term: it reads «مدعي عام» where LOB reads «مدعي عام الجمارك» in (أ) and (ج) and the corpus «مدعي عام الجمارك» in (أ) and «المدعي العام» in (ج); it lacks the referral clause, like the corpus (corrected 2026-11-13)"
   },
   {
    "slug": "customs",
