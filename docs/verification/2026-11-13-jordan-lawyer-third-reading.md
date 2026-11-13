@@ -1,8 +1,10 @@
 # A third reading from jordan-lawyer.com (draft, for lawyer review)
 
-**Draft, for lawyer review («مسودة، لمراجعة المحامي»).** This adds one more reading to [the corpus verification of 2026-11-12](2026-11-12-corpus-vs-official.md). jordan-lawyer.com is a convenience copy. It can point to where a difference comes from, but it never proves a reading. Only the Official Gazette does. Nothing here marks any text as verified.
+**Draft, for lawyer review («مسودة، لمراجعة المحامي»).** *Corrected 2026-11-13, after the review of this branch ([`docs/reviews/2026-11-13-corpus-verify-review.md`](../reviews/2026-11-13-corpus-verify-review.md)):* the website-residue removals this report first described as committed were taken back with every other law-text change on the branch, so nothing in section 5 is applied. Section 4 no longer says the site "supports" the first fix attempt. Section 8 adds a check against the live site.
 
-Data: [`2026-11-13-jordan-lawyer-third-reading.json`](2026-11-13-jordan-lawyer-third-reading.json). It holds every word-level verdict, the page hashes, the residue removed, the items flagged and the list of other laws on the site.
+This adds one more reading to [the corpus verification of 2026-11-12](2026-11-12-corpus-vs-official.md). jordan-lawyer.com is a convenience copy. It can point to where a difference comes from, but it never proves a reading. Only the Official Gazette does. Nothing here marks any text as verified.
+
+Data: [`2026-11-13-jordan-lawyer-third-reading.json`](2026-11-13-jordan-lawyer-third-reading.json). It holds every word-level verdict, the page hashes, the website residue found, the items flagged, the list of other laws on the site, and the check against the live site of 2026-11-13.
 
 ## 1. Source and its limits
 
@@ -10,7 +12,7 @@ Data: [`2026-11-13-jordan-lawyer-third-reading.json`](2026-11-13-jordan-lawyer-t
 - **Pages added or changed on the site after January 2026 are not covered.** The Internet Archive holds the site's sitemap as of 2026-04-07, but `web.archive.org` is not reachable from this environment.
 - **Coverage.** The site's pages hold most articles of each law: civil-procedure 218 of 229, penal-code 462, evidence 71. The site often writes an article's heading as a link to a blog post, and those headings were read too. Neither the copy nor the site has a page for the maritime-commerce or investment-fund law.
 
-Method: for every word-level difference between the corpus (before the proposed fixes) and LOB, the same comparison as in the main report, the words on each side were looked for in the site's article of the same number. Each side was checked with three, then two, then one words of context, after the level (b) normalisation. If the article was not on the page, the whole page was searched. For every article LOB lists as amended after the corpus text ("amendment not applied") or that the corpus lacks ("missing in corpus"), the site's article was compared with both texts (word similarity of at least 0.9).
+Method: for every word-level difference between the corpus (as it is) and LOB, the same comparison as in the main report, the words on each side were looked for in the site's article of the same number. Each side was checked with three, then two, then one words of context, after the level (b) normalisation. If the article was not on the page, the whole page was searched. For every article LOB lists as amended after the corpus text ("amendment not applied") or that the corpus lacks ("missing in corpus"), the site's article was compared with both texts (word similarity of at least 0.9).
 
 ## 2. Where the corpus came from
 
@@ -58,7 +60,7 @@ These are the body differences only (the words differ). Counts are word-level op
 What it shows:
 
 1. **The 11 laws taken from jordan-lawyer.com:** the site shares the corpus reading in 590 operations and LOB's in 3. These differences were already on the site. They are not transcription errors made when the corpus was built.
-   - The 3 exceptions are not differences of wording. They are words that on the site are links to its blog posts: penal-code 52 («انظر شرح المادة 52 …») and 332 («انظر مقال …»), both removed below, and the heading words «( أسباب الطعن بالتمييز )» of civil-procedure 198, which are flagged.
+   - The 3 exceptions are not differences of wording. They are words that on the site are links to its blog posts: penal-code 52 («انظر شرح المادة 52 …») and 332 («انظر مقال …»), both listed in section 5, and the heading words «( أسباب الطعن بالتمييز )» of civil-procedure 198, which are flagged.
    - The 4 "neither" cases are single words where the corpus, the site and LOB do not all match, such as civil-procedure 164 «بنسبة» against LOB's «بنسنة» and 217 «وقف» against «وفق».
    - More generally, the titles the corpus gives articles of these laws after «— » are the site's link titles. The official text has no such titles. The main report counts them as formatting.
 2. **The 10 laws taken from aqel-lawfirm.com:** jordan-lawyer.com sides with LOB in 1,132 operations and with the corpus in 322.
@@ -85,10 +87,11 @@ For the articles the main report found out of date or missing, this is what the 
 | courts-formation, major-felonies-court, court-fees, bar-association | 0 | 1 each | 0 | 0 |
 | civil-code | 0 | 0 | 1 (1287) | 0 |
 
-- **For companies, labour and income-tax, a second unofficial copy already carries LOB's text** for most of the articles the proposed fixes bring up to date. This supports those fixes, but it does not replace the Gazette.
+- **For companies, labour and income-tax, a second unofficial copy carries LOB's text** for most of the articles the first fix attempt replaced. That makes them candidates for a passage-only fix, but it settles nothing. The site may copy LOB, and the review found defects inside those LOB texts (typos, glued words, stray «أو» in income-tax 34). The Gazette decides.
+- **Where the review found the corpus newer than LOB, the site sides with the corpus** (*added 2026-11-13*). This holds for landlords-tenants 5 and 7 and labour 137, where the corpus came from aqel-lawfirm.com and the site is an independent copy. It also holds for customs 161 and 168, civil-procedure 182 and 193, and penal-code 99 and 306 (for the penal code the site is the corpus's own source). This agrees with the review's regressions A1, A3, A10, A11, A18, A25, A26, A32 and A33. It is no proof either way.
 - **The site's own text is out of date for the penal code, criminal procedure and the jordan-lawyer.com laws generally, despite page titles that say «حتى 2025».** A page title on this site is no evidence that the text is current.
 
-## 5. Website residue found in the law text, and removed
+## 5. Website residue found in the law text (not applied)
 
 Reading the site's pages next to the corpus showed text in the corpus that is not law text. It is page furniture the build carried over:
 - the site's cross-links to its own blog posts («انظر مقال …»);
@@ -96,9 +99,9 @@ Reading the site's pages next to the corpus showed text in the corpus that is no
 - the site's link to its next page;
 - stray `<div` lines.
 
-Where it sat in a heading after «— », the product's parser read it as the first words of the article. The proposed fixes remove it, one law per commit. No word of law text changes.
+Where it sat in a heading after «— », the product's parser read it as the first words of the article. *Corrected 2026-11-13:* the removals were committed on 2026-11-13 and taken back the same day with every other law-text change on the branch, so they are not applied. Each is a candidate for a later per-law pull request, for the lawyer to approve.
 
-| Law | Article | Removed |
+| Law | Article | Website residue |
 |---|---|---|
 | civil-procedure | 86 | the line «انظر مقال الأحكام القانونية للكشف والخبرة» at the head of the article |
 | civil-procedure | 141 | «(انظر مقال الحجز التحفظي)» in the heading (the title «الحجز الاحتياطي» stays) |
@@ -114,15 +117,16 @@ Where it sat in a heading after «— », the product's parser read it as the fi
 | bar-association | 110 | «المصدر :  موقع محامي الأردن.», `<div` |
 | mediation | 14 | `<div` |
 
-Flagged for the reviewer, not removed:
+Flagged for the reviewer:
 
 | Law | Article | Text | Why |
 |---|---|---|---|
-| customs | 14 | «قرار مجلس الوزراء بالموافقة على تخفيض رسوم الجمركية https://lob.gov.jo/OPSHandler/…» | a link to an LOB attachment (the Cabinet decision), not article text |
 | courts-formation | 23 | «11/3/2001» | a date after the last article: perhaps the law's date, not article text |
 | mediation | 14 | «2/2/2006» | the same, at the end of the last article |
 | magistrates-courts | 22 | «18/7/2017» | the same |
 | civil-procedure | 198 | «( أسباب الطعن بالتمييز )» in the heading | on the site, a link to a blog post; kept like every other site title |
+
+*Corrected 2026-11-13:* this list first included a LOB attachment link in customs 14. That link was not in the corpus: the first fix attempt wrote it in (review A2), and the revert removed it.
 
 The search for residue covered every shard of the 22 laws. It looked for these patterns: «انظر مقال», «انظر شرح», «للاطلاع على مقال», «المصدر :», «موقع محامي», «تنزيل», «بصيغة», URLs, HTML tags, «حتى 20xx» at the end of a line, and dates alone on a line. Every other match was law text (for example «يشارك», «تحميل البضائع»).
 
@@ -143,7 +147,15 @@ These are candidates only. Under decisions D14/D15, a law joins the library from
 
 ## 7. What a named reviewer must confirm
 
-1. **The residue removals in section 5:** that each removed line is not law text. The four flagged items are also for the reviewer to decide.
+1. **The website residue in section 5:** that each line is not law text, before any per-law pull request removes it. The four flagged items are also for the reviewer to decide.
 2. **For the 10 aqel-lawfirm.com laws:** the readings where jordan-lawyer.com and LOB agree against the corpus. The JSON lists each one (`site_agrees_with: "LOB"`). They are the likeliest corpus errors, and each still needs the Gazette.
 3. **For the 11 jordan-lawyer.com laws:** nothing here bears on the Gazette reading. The comparison with the Gazette in the main report stands as the open item.
-4. **Whether the site has changed since January 2026.** That needs the live site or the Internet Archive's copy, and neither was reachable from this session.
+4. **Nothing further on the site's currency:** section 8 shows the site's law texts unchanged since January 2026.
+
+## 8. The live site on 2026-11-13 (*added 2026-11-13*)
+
+The owner ran `jordan_lawyer_export.py` from an ordinary connection on 2026-11-13. It took 3,148 posts and 103 pages through the site's WordPress API and page HTML, missing only one theme widget. The export zip has SHA-256 `326c8dd722c1811457daf65db61c05de83b1ecddd14c7cec456e79e9c4c4d337`; it is kept outside the repository. Each of the 19 law pages above was matched by title. The site has renamed them from «حتى 2025» to «حتى 2026», most of them on 2026-03-24. Each page was compared article by article with the January copy.
+
+- **No article's wording changed.** 48 articles differ between the two copies. In 47 of them the only difference is heading or link words at the start or end. The site writes each article's heading as a link to a blog post, and the live copy also ends some pages with a list of related laws («قوانين أردنية مهمة»). The 48th, penal-code 332, is a heading placed differently.
+- **So the renaming to «حتى 2026» did not bring new amendments into the text.** The verdicts in sections 3 and 4 hold for the live site. Rerun on the live pages, they change only where the export's pages yield more articles, for example 485 penal-code articles instead of 462.
+- The page modification dates on the live site are 2022-02-20, 2022-07-24, 2024-07-11, 2025-02-11, 2026-03-24, 2026-04-21.

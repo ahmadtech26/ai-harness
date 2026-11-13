@@ -23991,113 +23991,7 @@
    ]
   }
  ],
- "residue_removed": {
-  "courts-formation": [
-   {
-    "article": 23,
-    "file": "00-قانون-تشكيل-المحاكم-النظامية-الكامل.md",
-    "old": "11/3/2001\n\nجدول رسوم المحاكم حتى 2025\n\n<div\n",
-    "new": "11/3/2001\n"
-   }
-  ],
-  "civil-procedure": [
-   {
-    "article": 86,
-    "file": "02-المواد-63-101.md",
-    "old": "### المادة 86\n\nانظر مقال الأحكام القانونية للكشف والخبرة \n\n",
-    "new": "### المادة 86\n\n"
-   },
-   {
-    "article": 141,
-    "file": "04-المواد-141-168.md",
-    "old": "### المادة 141 — الحجز الاحتياطي (انظر مقال الحجز التحفظي)\n",
-    "new": "### المادة 141 — الحجز الاحتياطي\n"
-   }
-  ],
-  "mediation": [
-   {
-    "article": 14,
-    "file": "00-قانون-الوساطة-الكامل.md",
-    "old": "2/2/2006\n\n<div\n",
-    "new": "2/2/2006\n"
-   }
-  ],
-  "penal-code": [
-   {
-    "article": 52,
-    "file": "01-المواد-49-119.md",
-    "old": "### المادة 52 — انظر شرح المادة 52 إسقاط دعوى الحق العام بإسقاط الحق الشخصي\n",
-    "new": "### المادة 52 — إسقاط دعوى الحق العام بإسقاط الحق الشخصي\n"
-   },
-   {
-    "article": 10,
-    "file": "00-المواد-1-48.md",
-    "old": "### المادة 10 — (انظر مقال عن الاختصاص الدولي الجزائي للمحاكم الأردنية)\n",
-    "new": "### المادة 10\n"
-   },
-   {
-    "article": 332,
-    "file": "06-المواد-326-367.md",
-    "old": "إيذاء الأشخاص ( انظر مقال عن الإيذاء البسيط والإيذاء البليغ)",
-    "new": "إيذاء الأشخاص"
-   },
-   {
-    "article": 350,
-    "file": "06-المواد-326-367.md",
-    "old": " (انظر مقال عن التهديد بالقتل بوسيلة الكترونية)",
-    "new": ""
-   },
-   {
-    "article": 421,
-    "file": "08-المواد-399-443.md",
-    "old": "### المادة 421 — (انظر مقال الشيك المكتبي وفقا لأحدث التعديلات )\n",
-    "new": "### المادة 421\n"
-   },
-   {
-    "article": 421,
-    "file": "08-المواد-399-443.md",
-    "old": "الشرطان التاليان:- ( انظر مقال الشيك المكتبي وفقا لأحدث التعديلات )",
-    "new": "الشرطان التاليان:-"
-   }
-  ],
-  "major-felonies-court": [
-   {
-    "article": 16,
-    "file": "00-قانون-محكمة-الجنايات-الكبرى-الكامل.md",
-    "old": "مكلفون بتنفيذ أحكام هذا القانون.\n\nللاطلاع على مقال عن محكمة الجنايات الكبرى وعنوانها وقضاتها وأحكامها وكل ما يتعلق بها.\n\nمحكمة الجنايات الكبرى\n\n<div\n",
-    "new": "مكلفون بتنفيذ أحكام هذا القانون.\n"
-   }
-  ],
-  "evidence": [
-   {
-    "article": 11,
-    "file": "00-قانون-البينات-الكامل.md",
-    "old": "### المادة 11 — (انظر مقال عن السند العادي والإقرار الخطي )\n",
-    "new": "### المادة 11\n"
-   },
-   {
-    "article": 27,
-    "file": "00-قانون-البينات-الكامل.md",
-    "old": "يجوز الإثبات بالشهادة في الالتزامات غير التعاقدية. (انظر مقال عن كيفية مناقشة الشهود )",
-    "new": "يجوز الإثبات بالشهادة في الالتزامات غير التعاقدية."
-   }
-  ],
-  "bar-association": [
-   {
-    "article": 110,
-    "file": "02-المواد-102-110.md",
-    "old": "مكلفان بتنفيذ أحكام هذا القانون.\n\nالمصدر :  موقع محامي الأردن.\n\n<div\n",
-    "new": "مكلفان بتنفيذ أحكام هذا القانون.\n"
-   }
-  ]
- },
  "flagged_not_removed": [
-  {
-   "slug": "customs",
-   "article": 14,
-   "line": "قرار مجلس الوزراء بالموافقة على تخفيض رسوم الجمركية https://lob.gov.jo/OPSHandler/OPS_Auth.asmx/GetAttachment?…",
-   "why": "a link to an LOB attachment (the Cabinet decision), not article text; left for the reviewer"
-  },
   {
    "slug": "courts-formation",
    "article": 23,
@@ -25692,5 +25586,363 @@
    "repealed": false,
    "date": "2021-10-06"
   }
- ]
+ ],
+ "residue_found": {
+  "status": "committed on 2026-11-13 and taken back the same day with every other law-text change on the branch; not applied",
+  "edits": {
+   "courts-formation": [
+    {
+     "article": 23,
+     "file": "00-قانون-تشكيل-المحاكم-النظامية-الكامل.md",
+     "old": "11/3/2001\n\nجدول رسوم المحاكم حتى 2025\n\n<div\n",
+     "new": "11/3/2001\n"
+    }
+   ],
+   "civil-procedure": [
+    {
+     "article": 86,
+     "file": "02-المواد-63-101.md",
+     "old": "### المادة 86\n\nانظر مقال الأحكام القانونية للكشف والخبرة \n\n",
+     "new": "### المادة 86\n\n"
+    },
+    {
+     "article": 141,
+     "file": "04-المواد-141-168.md",
+     "old": "### المادة 141 — الحجز الاحتياطي (انظر مقال الحجز التحفظي)\n",
+     "new": "### المادة 141 — الحجز الاحتياطي\n"
+    }
+   ],
+   "mediation": [
+    {
+     "article": 14,
+     "file": "00-قانون-الوساطة-الكامل.md",
+     "old": "2/2/2006\n\n<div\n",
+     "new": "2/2/2006\n"
+    }
+   ],
+   "penal-code": [
+    {
+     "article": 52,
+     "file": "01-المواد-49-119.md",
+     "old": "### المادة 52 — انظر شرح المادة 52 إسقاط دعوى الحق العام بإسقاط الحق الشخصي\n",
+     "new": "### المادة 52 — إسقاط دعوى الحق العام بإسقاط الحق الشخصي\n"
+    },
+    {
+     "article": 10,
+     "file": "00-المواد-1-48.md",
+     "old": "### المادة 10 — (انظر مقال عن الاختصاص الدولي الجزائي للمحاكم الأردنية)\n",
+     "new": "### المادة 10\n"
+    },
+    {
+     "article": 332,
+     "file": "06-المواد-326-367.md",
+     "old": "إيذاء الأشخاص ( انظر مقال عن الإيذاء البسيط والإيذاء البليغ)",
+     "new": "إيذاء الأشخاص"
+    },
+    {
+     "article": 350,
+     "file": "06-المواد-326-367.md",
+     "old": " (انظر مقال عن التهديد بالقتل بوسيلة الكترونية)",
+     "new": ""
+    },
+    {
+     "article": 421,
+     "file": "08-المواد-399-443.md",
+     "old": "### المادة 421 — (انظر مقال الشيك المكتبي وفقا لأحدث التعديلات )\n",
+     "new": "### المادة 421\n"
+    },
+    {
+     "article": 421,
+     "file": "08-المواد-399-443.md",
+     "old": "الشرطان التاليان:- ( انظر مقال الشيك المكتبي وفقا لأحدث التعديلات )",
+     "new": "الشرطان التاليان:-"
+    }
+   ],
+   "major-felonies-court": [
+    {
+     "article": 16,
+     "file": "00-قانون-محكمة-الجنايات-الكبرى-الكامل.md",
+     "old": "مكلفون بتنفيذ أحكام هذا القانون.\n\nللاطلاع على مقال عن محكمة الجنايات الكبرى وعنوانها وقضاتها وأحكامها وكل ما يتعلق بها.\n\nمحكمة الجنايات الكبرى\n\n<div\n",
+     "new": "مكلفون بتنفيذ أحكام هذا القانون.\n"
+    }
+   ],
+   "evidence": [
+    {
+     "article": 11,
+     "file": "00-قانون-البينات-الكامل.md",
+     "old": "### المادة 11 — (انظر مقال عن السند العادي والإقرار الخطي )\n",
+     "new": "### المادة 11\n"
+    },
+    {
+     "article": 27,
+     "file": "00-قانون-البينات-الكامل.md",
+     "old": "يجوز الإثبات بالشهادة في الالتزامات غير التعاقدية. (انظر مقال عن كيفية مناقشة الشهود )",
+     "new": "يجوز الإثبات بالشهادة في الالتزامات غير التعاقدية."
+    }
+   ],
+   "bar-association": [
+    {
+     "article": 110,
+     "file": "02-المواد-102-110.md",
+     "old": "مكلفان بتنفيذ أحكام هذا القانون.\n\nالمصدر :  موقع محامي الأردن.\n\n<div\n",
+     "new": "مكلفان بتنفيذ أحكام هذا القانون.\n"
+    }
+   ]
+  }
+ },
+ "note_customs_14": "The LOB attachment link in customs 14, first listed as flagged, was written in by the first fix attempt (review A2); the revert removed it.",
+ "live_site_2026_11_13": {
+  "export_zip_sha256": "326c8dd722c1811457daf65db61c05de83b1ecddd14c7cec456e79e9c4c4d337",
+  "pages": {
+   "civil-procedure": {
+    "january_title": "قانون أصول المحاكمات المدنية حتى 2025",
+    "live_title": "قانون أصول المحاكمات المدنية حتى 2026",
+    "live_modified": "2026-03-24T22:53:58",
+    "live_link": "https://jordan-lawyer.com/2016/12/22/civil-law-procedures-jordan-law-of-1988/",
+    "articles_both": 218,
+    "only_january": 0,
+    "only_live": 10,
+    "changed": [
+     "2",
+     "133",
+     "135",
+     "140",
+     "160",
+     "167",
+     "190",
+     "198",
+     "205",
+     "212",
+     "225"
+    ]
+   },
+   "civil-code": {
+    "january_title": "القانون المدني الأردني حتى 2025",
+    "live_title": "القانون المدني الأردني حتى 2026",
+    "live_modified": "2026-03-24T22:59:04",
+    "live_link": "https://jordan-lawyer.com/2010/07/11/jordan-civil-law-with-all-amendments/",
+    "articles_both": 1441,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": [
+     "763",
+     "1054",
+     "1449"
+    ]
+   },
+   "evidence": {
+    "january_title": "قانون البينات الأردني حتى 2025",
+    "live_title": "قانون البينات الأردني حتى 2026",
+    "live_modified": "2026-03-24T22:46:37",
+    "live_link": "https://jordan-lawyer.com/2021/10/06/jordanian-evidence-law/",
+    "articles_both": 71,
+    "only_january": 0,
+    "only_live": 2,
+    "changed": [
+     "10",
+     "52",
+     "74"
+    ]
+   },
+   "landlords-tenants": {
+    "january_title": "قانون المالكين والمستأجرين حتى 2025",
+    "live_title": "قانون المالكين والمستأجرين حتى 2026",
+    "live_modified": "2026-03-24T22:58:37",
+    "live_link": "https://jordan-lawyer.com/2012/02/08/%d9%82%d8%a7%d9%86%d9%88%d9%86-%d8%a7%d9%84%d9%85%d8%a7%d9%84%d9%83%d9%8a%d9%86-%d9%88%d8%a7%d9%84%d9%85%d8%b3%d8%aa%d8%a3%d8%ac%d8%b1%d9%8a%d9%86-%d9%85%d8%b9-%d9%83%d8%a7%d9%85%d9%84-%d8%a7%d9%84/",
+    "articles_both": 22,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "commerce": {
+    "january_title": "قانون التجارة الأردني حتى 2025",
+    "live_title": "قانون التجارة الأردني حتى 2026",
+    "live_modified": "2026-03-24T22:46:50",
+    "live_link": "https://jordan-lawyer.com/2021/10/06/trade-law/",
+    "articles_both": 392,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "penal-code": {
+    "january_title": "قانون العقوبات الأردني مع كامل التعديلات حتى 2025",
+    "live_title": "قانون العقوبات الأردني مع كامل التعديلات حتى 2026",
+    "live_modified": "2026-03-24T22:53:24",
+    "live_link": "https://jordan-lawyer.com/2017/04/05/jordan-criminal-law/",
+    "articles_both": 462,
+    "only_january": 0,
+    "only_live": 23,
+    "changed": [
+     "9",
+     "84",
+     "96",
+     "104",
+     "169",
+     "173",
+     "208",
+     "213",
+     "220",
+     "224",
+     "235",
+     "238",
+     "270",
+     "320",
+     "332",
+     "348 مكرر",
+     "416",
+     "418",
+     "420",
+     "427",
+     "445",
+     "456",
+     "467",
+     "476"
+    ]
+   },
+   "companies": {
+    "january_title": "قانون الشركات الأردني حتى 2025",
+    "live_title": "قانون الشركات الأردني حتى 2026",
+    "live_modified": "2026-03-24T22:47:16",
+    "live_link": "https://jordan-lawyer.com/2021/10/06/jordanian-companies-law/",
+    "articles_both": 308,
+    "only_january": 0,
+    "only_live": 1,
+    "changed": [
+     "251"
+    ]
+   },
+   "customs": {
+    "january_title": "قانون الجمارك الأردني",
+    "live_title": "قانون الجمارك الأردني",
+    "live_modified": "2024-07-11T02:42:58",
+    "live_link": "https://jordan-lawyer.com/2021/10/06/jordanian-customs-law/",
+    "articles_both": 253,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "income-tax": {
+    "january_title": "قانون ضريبة الدخل وتعديلاته حتى 2025",
+    "live_title": "قانون ضريبة الدخل وتعديلاته حتى 2026",
+    "live_modified": "2026-03-24T22:51:50",
+    "live_link": "https://jordan-lawyer.com/2018/12/19/income-tax-law-2014-jordan/",
+    "articles_both": 82,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "sales-tax": {
+    "january_title": "قانون الضريبة العامة على المبيعات وتعديلاته",
+    "live_title": "قانون الضريبة العامة على المبيعات وتعديلاته",
+    "live_modified": "2022-02-20T20:11:00",
+    "live_link": "https://jordan-lawyer.com/2018/12/19/%d9%82%d8%a7%d9%86%d9%88%d9%86-%d8%a7%d9%84%d8%b6%d8%b1%d9%8a%d8%a8%d8%a9-%d8%a7%d9%84%d8%b9%d8%a7%d9%85%d8%a9-%d8%b9%d9%84%d9%89-%d8%a7%d9%84%d9%85%d8%a8%d9%8a%d8%b9%d8%a7%d8%aa-%d9%84%d8%b3%d9%86/",
+    "articles_both": 77,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "labour": {
+    "january_title": "قانون العمل الأردني حتى 2025",
+    "live_title": "قانون العمل الأردني حتى 2026",
+    "live_modified": "2026-03-24T22:59:31",
+    "live_link": "https://jordan-lawyer.com/2010/07/09/jordan-labor-law/",
+    "articles_both": 142,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": [
+     "142"
+    ]
+   },
+   "execution": {
+    "january_title": "قانون التنفيذ الأردني مع تعديلات 2025",
+    "live_title": "قانون التنفيذ الأردني مع تعديلات 2026",
+    "live_modified": "2026-03-24T22:58:20",
+    "live_link": "https://jordan-lawyer.com/2016/02/15/jordan-execution-civil-law/",
+    "articles_both": 119,
+    "only_january": 0,
+    "only_live": 1,
+    "changed": [
+     "6",
+     "77"
+    ]
+   },
+   "mediation": {
+    "january_title": "قانون الوساطة لتسوية النزاعات المدنية",
+    "live_title": "قانون الوساطة لتسوية النزاعات المدنية",
+    "live_modified": "2022-02-20T20:11:07",
+    "live_link": "https://jordan-lawyer.com/2018/10/29/mediation-law-of-jordan-courts/",
+    "articles_both": 14,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "criminal-procedure": {
+    "january_title": "قانون أصول المحاكمات الجزائية حتى 2025",
+    "live_title": "قانون أصول المحاكمات الجزائية حتى 2026",
+    "live_modified": "2026-03-24T22:57:37",
+    "live_link": "https://jordan-lawyer.com/2016/12/22/criminal-law-procedures-jordan-updtaed/",
+    "articles_both": 372,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": [
+     "370"
+    ]
+   },
+   "courts-formation": {
+    "january_title": "قانون تشكيل المحاكم النظامية الأردني",
+    "live_title": "قانون تشكيل المحاكم النظامية الأردني",
+    "live_modified": "2025-02-11T19:24:16",
+    "live_link": "https://jordan-lawyer.com/2012/11/04/%d9%82%d8%a7%d9%86%d9%88%d9%86-%d8%aa%d8%b4%d9%83%d9%8a%d9%84-%d8%a7%d9%84%d9%85%d8%ad%d8%a7%d9%83%d9%85-%d8%a7%d9%84%d9%86%d8%b8%d8%a7%d9%85%d9%8a%d8%a9/",
+    "articles_both": 23,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "magistrates-courts": {
+    "january_title": "قانون محاكم الصلح حتى 2025",
+    "live_title": "قانون محاكم الصلح حتى 2026",
+    "live_modified": "2026-03-24T22:52:56",
+    "live_link": "https://jordan-lawyer.com/2018/10/29/magistrate-courts-law-of-jordan-with-amendments/",
+    "articles_both": 22,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": [
+     "22"
+    ]
+   },
+   "major-felonies-court": {
+    "january_title": "قانون محكمة الجنايات الكبرى حتى 2025",
+    "live_title": "قانون محكمة الجنايات الكبرى حتى 2026",
+    "live_modified": "2026-03-24T22:58:03",
+    "live_link": "https://jordan-lawyer.com/2016/06/21/%d9%82%d8%a7%d9%86%d9%88%d9%86-%d9%85%d8%ad%d9%83%d9%85%d8%a9-%d8%a7%d9%84%d8%ac%d9%86%d8%a7%d9%8a%d8%a7%d8%aa-%d8%a7%d9%84%d9%83%d8%a8%d8%b1%d9%89/",
+    "articles_both": 16,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   },
+   "court-fees": {
+    "january_title": "جدول رسوم المحاكم حتى 2025",
+    "live_title": "جدول رسوم المحاكم حتى 2026",
+    "live_modified": "2026-04-21T20:52:58",
+    "live_link": "https://jordan-lawyer.com/2020/01/20/court-fees-sheet/",
+    "articles_both": 52,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": [
+     "52"
+    ]
+   },
+   "bar-association": {
+    "january_title": "قانون نقابة المحامين النظاميين",
+    "live_title": "قانون نقابة المحامين النظاميين",
+    "live_modified": "2022-07-24T23:36:18",
+    "live_link": "https://jordan-lawyer.com/2021/04/29/bar-association-law/",
+    "articles_both": 110,
+    "only_january": 0,
+    "only_live": 0,
+    "changed": []
+   }
+  },
+  "finding": "no article wording changed between the January copy and the live site; 47 of 48 differences are heading or link words at the edges, the 48th (penal-code 332) a heading placed differently"
+ }
 }
