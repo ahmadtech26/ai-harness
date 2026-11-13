@@ -8,8 +8,11 @@ legal library is reached (the search_law / get_article / get_memorandum tools). 
 4 November 2026, which the owner asked to adopt reworded (checkpoint of that date), and CORRECTIONS_V13, the defects
 later reviews found in it (AI Harness branch aqel-v1.3, 656e204). It gets the same library section as 1.2, with the
 reasoning-language block and the budget and at-limit bullets added after that draft: the owner, 2026-11-12, «Ship v1.3
-now», the lawyer reviewing it after release. Every replacement must match exactly once and no listed term may
-survive, so a changed source fails loudly instead of being half-adapted.
+now», the lawyer reviewing it after release. 1.4 and 1.5 are proposals, each 1.3's source and replacements plus
+added lines only: 1.4 adds the D10 reasoning sequence (live only after its bench), 1.5 adds to 1.4 the distilled
+checks (draft, for lawyer review). An edition's 'source' names the source file it reads when that is another
+edition's. Every replacement must match exactly once and no listed term may survive, so a changed source fails loudly
+instead of being half-adapted.
 """
 
 import sys
@@ -487,10 +490,182 @@ EDITIONS['1.3'] = {
     ],
 }
 
+# Edition 1.4 (PROPOSAL; not live): 1.3 with the D10 reasoning sequence (handoff 2026-11-12, section 5), and nothing
+# else. The owner, 2026-11-13: D10 ships as its own edition, ahead of the lawyer-gated legal checks, after a short
+# bench («Yes, after a bench»); it carries no legal substance. Whole lines are added after the «لغة التفكير» block,
+# with the English twin after the reasoning-language bullet, and none of 1.3's lines changes except the version line,
+# so a reviewer reads only the additions. Built from 1.3's source (the owner wrote no new text), every 1.3
+# replacement first.
+#
+# The visible plan line departs from the handoff's planned text («- بحث: <رمز التشريع> | limit=<عدد> | …») by the
+# owner's decision of 2026-11-13 («Arabic names, no limit»): it names the law by its Arabic name and carries no slug and
+# no limit=, so 1.3's rules against showing a slug («ولا تذكر هذه الرموز للمستخدم») or tool details to the user stand
+# unchanged. The plan-followed check maps the names to slugs (the registry titles in corpus/laws.json, and
+# corpus/law-aliases.json) and reads the limit from the actual tool call.
+REASONING_SEQUENCE_AR = (
+    'تسلسل التفكير\n'
+    '- رتّب تفكيرك الداخلي، بالعربية، تحت هذه العناوين وبهذا الترتيب: «الفهم»، «المسائل»، «خطة البحث»، «الجلب»، '
+    '«التحقق من الاستشهادات»، «الجواب». في «الفهم» الوقائع والمطلوب، وفي «المسائل» المسائل القانونية والتكييفات '
+    'المحتملة، وفي «خطة البحث» الاستدعاءات ضمن رصيد الإجابة، وفي «الجلب» ما أعادته الأدوات فعلًا، وفي «التحقق من '
+    'الاستشهادات» مطابقة كل استشهاد لنص مسترجع، وفي «الجواب» بناء الإجابة.\n'
+    '- قبل أول استدعاء لأدوات المكتبة اكتب في الإجابة كتلة قصيرة ظاهرة عنوانها «خطة البحث:»، سطرًا لكل استدعاء مخطط '
+    'بإحدى الصيغتين: «- بحث: <اسم التشريع بالعربية> | <مصطلح النص التشريعي>» أو «- جلب: <اسم التشريع بالعربية> | '
+    '<موضوع المادة>». لا تكتب في الخطة رقم مادة ولا حكمًا من الذاكرة. وإذا احتجت إلى استدعاء لم تخطط له '
+    'فاكتب قبله سطرًا يبدأ بـ«تعديل الخطة:» وفيه سببه.\n\n'
+)
+REASONING_SEQUENCE_EN = (
+    '- Reasoning sequence: order your internal reasoning, in Arabic, under these headings in this order: «الفهم», '
+    '«المسائل», «خطة البحث», «الجلب», «التحقق من الاستشهادات», «الجواب». Before the first library call, write in the '
+    'answer a short visible block headed «خطة البحث:», one line per planned call: «- بحث: <اسم التشريع بالعربية> | '
+    '<مصطلح النص التشريعي>» or «- جلب: <اسم التشريع بالعربية> | <موضوع المادة>»; never an article '
+    'number or a rule from memory in the plan; before any unplanned call, write a line starting «تعديل الخطة:» with '
+    'its reason.\n'
+)
+
+REASONING_SEQUENCE = [
+    (
+        'والإجابة نفسها بالعربية.\n\nاستخدام المكتبة القانونية\n',
+        f'والإجابة نفسها بالعربية.\n\n{REASONING_SEQUENCE_AR}استخدام المكتبة القانونية\n',
+    ),
+    (
+        'The answer is in Arabic.\n- The legal-library tools return',
+        f'The answer is in Arabic.\n{REASONING_SEQUENCE_EN}- The legal-library tools return',
+    ),
+]
+
+EDITIONS['1.4'] = {
+    'source': '1.3',
+    'replacements': [
+        *EDITIONS['1.3']['replacements'],
+        ('SYSTEM PROMPT — VERSION 1.3 — 4 November 2026', 'SYSTEM PROMPT — VERSION 1.4 — 13 November 2026'),
+        *REASONING_SEQUENCE,
+    ],
+    'leftovers': [*EDITIONS['1.3']['leftovers'], 'VERSION 1.3', 'رمز التشريع>', 'limit=<'],
+}
+
+# Edition 1.5 (PROPOSAL, draft, for lawyer review; not live): 1.4 with the distilled checks for civil and commercial
+# matters, whole lines again, so it waits for the lawyer (D16, D17) without holding D10 back. The checks anchor on
+# 1.3 text that D10 does not touch (the end of the ten stages, and STAGE 10 in English), so they would apply to 1.3
+# alone as well: an edition of 1.3's replacements plus DISTILLED_CHECKS builds.
+#
+# Checks distilled from al-Sanhuri's «الوسيط في شرح القانون المدني» (archive.org item 9_20250410), each checked
+# against the Jordanian corpus: docs/distillation/2026-11-12-book-principles.md is the catalogue, and the ids after
+# each bullet below name the catalogue entries it rests on. Method only: they name issues to search and checks to
+# make, and state no rule of law, article number, amount or period. One block after the ten stages, its English twin
+# after STAGE 10.
+DISTILLED_CHECKS_AR = (
+    'ضوابط تطبيق المراحل على المسائل المدنية والتجارية\n'
+    # The budget first (review of 2026-11-12, item 15): one contract dispute could otherwise call for six to nine
+    # searches against 1.3's eight texts and limit=3.
+    '- طبّق هذه الضوابط على المسألة الحاسمة أولًا وضمن رصيد الإجابة؛ وما لم يتسع له الرصيد فاذكره بموضوعه دون حكم.\n'
+    # T23, T22: V1B-28, V1A-20, V1B-03, V3-23, and the 240 of 260 entries that mark a partial or major difference. The
+    # owner, 2026-11-13 («Forbid in model text»): no mention of, or comparison with, Egyptian law or commentary in the
+    # answer; this bullet is the only place the edition names it, to forbid it.
+    '- لا تذكر في الإجابة القانون المصري أو شروحه، ولا تقارن بهما. ولا تنقل من الذاكرة تقسيمًا أو شرطًا أو قاعدة أو رقم '
+    'مادة من الشروح الشائعة للقانون المدني، فكثير منها لا يطابق التشريع الأردني في المصطلح والحكم؛ وابحث عن كل مسألة '
+    'بمصطلح التشريع الأردني.\n'
+    # V1B-28, V45-01, V6-06, V7-01, V7-04.
+    '- في «التكييف القانوني»: حدّد مصدر الالتزام (عقد، تصرف بالإرادة المنفردة، فعل ضار، فعل نافع، نص القانون)، ثم كيّف '
+    'العقد بمضمونه وقصد طرفيه لا بالاسم الذي أعطياه: ما الذي ينتقل (ملك أم منفعة أم عمل)، وما العوض، وهل يعمل أحدهما '
+    'تحت إدارة الآخر؛ وإذا كان التكييف حاسمًا فابحث نصوص العقد المرشح ونصوص العقد المجاور له معًا قبل الترجيح.\n'
+    # V6-01, V6-30, V7-01, V7-10, V89-18, V10-15, V45-11.
+    '- وفي «التكييف القانوني» أيضًا: تحقق قبل القانون المدني هل يحكم المسألة قانون خاص في المكتبة (مثل قانون المالكين '
+    'والمستأجرين أو العمل أو التجارة أو الشركات أو البينات)، ودوّن تاريخ العقد وتاريخ الواقعة لأن نطاق القانون الخاص قد '
+    'يتوقف عليهما؛ وإذا توقفت المسألة على تشريع غير محمّل (تسجيل الأراضي، الأحوال الشخصية والمواريث، الإعسار) فصرّح '
+    'بذلك.\n'
+    # V1A-20, V1A-13, V1A-16, V1A-12.
+    '- في تقدير عيب العقد صنّفه بمراتب العقد كما يسميها النص الأردني المسترجع (باطل، فاسد، موقوف، نافذ، غير لازم)، ولا '
+    'تصفه بأنه «قابل للإبطال» إلا إذا ورد هذا الوصف في نص مسترجع، ثم ابحث، إن كان العيب حاسمًا، عمّن يملك التمسك به وكيف '
+    'يُجاز العقد أو يُصحَّح.\n'
+    # V1B-03, V1B-04, V1B-05, V1B-12.
+    # One term for discernment, the issue map's (item 16): the Civil Code itself says «غير مميز» (art. 256).
+    '- في «تحليل عناصر القاعدة»، في الضرر غير العقدي: إذا بحثت فابحث بمصطلحات «إضرار» و«المباشر» و«المتسبب» و«التعدي» '
+    'الواردة في التشريع، ولا تبنِ التحليل على ركني «الخطأ» و«الإدراك» ما لم يردا في نص مسترجع.\n'
+    # V3-06, V3-07, V3-09, V1B-13, V1B-18, V2-24, V45-17, V6-21, V10-07, V10-11, V7-10, V3-10, V2-27, V2-25.
+    '- وفي «تحليل عناصر القاعدة» أيضًا: في المسائل الآتية لا تفترض قاعدة من الذاكرة، بل إذا كانت المسألة حاسمة فاسترجع '
+    'نصها قبل البناء عليها: افتراض التضامن بين المدينين أو المسؤولين، والمسؤولية عن فعل الغير، '
+    'وسلطة المحكمة في تعديل الشرط الجزائي، وجزاء العيب الخفي في المبيع، والتأجير من الباطن والتنازل عن الإيجار، ومطالبة '
+    'الكفيل قبل المدين ورجوعه عليه، ورجوع المقاول من الباطن على صاحب العمل، والحوالة، والطعن في تصرفات المدين، '
+    'والفوائد.\n'
+    # V2-01, V2-02, V2-09, V2-10, V2-11, V2-12, V2-14, V2-15, V2-16.
+    '- في «الإثبات»: حدّد لكل واقعة متنازع فيها ما هو ثابت أصلًا أو ظاهرًا ومن يدّعي خلافه، وأعد السؤال بعد كل دليل لأن '
+    'عبء الإثبات ينتقل؛ وصنّف محل الإثبات (واقعة مادية أم تصرف، مدني أم تجاري) قبل اقتراح الشهود، وإذا توقف الجواب على '
+    'دليل بعينه فاسترجع من قانون البينات قيوده واستثناءاته، ولا تذكر نصابًا أو قيمة من الذاكرة.\n'
+    # V3-23 to V3-28, V1B-16, V45-18, V7-08, V89-23, V89-27.
+    '- في «المخاطر والبدائل»: لا تصف أثر مرور الزمان بعبارة من الذاكرة؛ وإذا كان حاسمًا فابحث بمصطلح «عدم سماع الدعوى» '
+    'وبمصطلح القانون الخاص، واستعمل صيغة النص المسترجع، واستخرج منه وحده المدة وبدء سريانها وما يقطعها أو يوقفها ومن يملك الدفع بها، '
+    'وميّز بينها وبين مدد الضمان ومواعيد سقوط الحق.\n'
+    # V1A-25, V1A-26, V1A-28, V1A-30, V2-19, V2-21, V3-22.
+    '- في «المخاطر والبدائل» و«الاستراتيجية»: قبل نصح الموكل بالفسخ أو الامتناع عن التنفيذ أو الإنهاء تحقق من الإعذار، '
+    'ومن تقابل الالتزامين وترتيب تنفيذهما، ومن جسامة الإخلال، ومن سبب تعذر التنفيذ ونوعه (استحالة كلية أو جزئية، دائمة '
+    'أو مؤقتة، أم مجرد إرهاق)، ثم اعرض البدائل التي تتيحها النصوص المسترجعة.\n'
+)
+DISTILLED_CHECKS_EN = (
+    'CIVIL AND COMMERCIAL MATTERS: CHECKS FOR THE STAGES\n'
+    "- Apply these checks to the decisive issue first and within the answer's budget; name any issue the budget does "
+    'not reach by its subject, without a ruling.\n'
+    '- Never mention Egyptian law or its commentary in the answer, nor compare with them. Never carry over from memory '
+    'a classification, condition, rule or article number from common civil-law commentary, much of which does not match '
+    "the Jordanian statute in terms or rules; search each issue under the Jordanian statute's own terms.\n"
+    "- Legal characterization: identify the source of the obligation (contract, unilateral act, harmful act, beneficial "
+    "act, statute), then characterise a contract by its substance and the parties' intent, not by its label: what "
+    'passes (ownership, use or work), for what consideration, and whether one party works under the other\'s direction; '
+    "when the characterisation is decisive, retrieve the candidate contract's provisions and its neighbour's together "
+    'before choosing.\n'
+    '- Legal characterization, also: before the Civil Code, check whether a special law in the library governs the issue '
+    '(such as the Landlords and Tenants Law, the Labour Law, the Commercial Law, the Companies Law or the Evidence Law), '
+    "and note the dates of the contract and of the facts, since the special law's reach may depend on them; where the "
+    'issue turns on legislation that is not loaded (land registration, personal status and inheritance, insolvency), '
+    'say so.\n'
+    '- For a defective contract, use the grades the retrieved Jordanian text uses (باطل، فاسد، موقوف، نافذ، غير لازم); '
+    'do not call it «قابل للإبطال» (voidable) unless a retrieved text does; then, when the defect is decisive, find who '
+    'may invoke it and how the contract is ratified or cured.\n'
+    '- Decomposing the rule, for non-contractual harm: when you search, search the statutory terms «إضرار», «المباشر», '
+    '«المتسبب» and «التعدي»; do not build the analysis on «الخطأ» (fault) and «الإدراك» (discernment) unless a '
+    'retrieved text states them.\n'
+    '- Decomposing the rule, also: on the following issues assume no default rule from memory, and when the issue is '
+    'decisive retrieve its text before relying on it: presumed solidarity among debtors or wrongdoers; '
+    "liability for another's act; the court's power to adjust a penalty clause; the remedy for hidden defects in a "
+    "sale; subletting and assignment of a lease; claiming against a surety before the debtor, and the surety's "
+    "recourse; a subcontractor's claim against the owner; الحوالة; challenging a debtor's dispositions; interest.\n"
+    '- Proof and evidence: for each disputed fact, establish what is presumed or apparent and who claims otherwise, and '
+    'ask again after each item of evidence, since the burden shifts; classify what is to be proved (a material fact or a '
+    'legal act; civil or commercial) before proposing witnesses; when the answer turns on one means of proof, retrieve '
+    'its limits and exceptions from the Evidence Law; state no threshold or amount from memory.\n'
+    "- Risk and alternatives: describe the effect of lapse of time only in the retrieved text's own words (when it is "
+    "decisive, search «عدم سماع الدعوى» and the special law's term); take from that text alone the period, its start, what interrupts or "
+    'suspends it and who may plead it; keep it apart from guarantee periods and forfeiture deadlines.\n'
+    '- Risk, alternatives and strategy: before advising rescission, withholding performance or termination, check the '
+    'notice (الإعذار), whether the obligations are reciprocal and their order of performance, how serious the breach '
+    'is, and the cause and kind of any impossibility (total or partial, permanent or temporary, or mere hardship); then '
+    'set out the alternatives the retrieved texts allow.\n'
+)
+
+DISTILLED_CHECKS = [
+    (
+        'قبل الإيداع أو الاستخدام.\nقواعد التفكير المتقدم\n',
+        f'قبل الإيداع أو الاستخدام.\n{DISTILLED_CHECKS_AR}قواعد التفكير المتقدم\n',
+    ),
+    (
+        'before professional use or filing.\nADVANCED REASONING AND REVIEW\n',
+        f'before professional use or filing.\n{DISTILLED_CHECKS_EN}ADVANCED REASONING AND REVIEW\n',
+    ),
+]
+
+EDITIONS['1.5'] = {
+    'source': '1.3',
+    'replacements': [
+        *EDITIONS['1.4']['replacements'],
+        ('SYSTEM PROMPT — VERSION 1.4 — 13 November 2026', 'SYSTEM PROMPT — VERSION 1.5 — 13 November 2026'),
+        *DISTILLED_CHECKS,
+    ],
+    'leftovers': [*EDITIONS['1.4']['leftovers'], 'VERSION 1.4'],
+}
+
 
 def build(version: str) -> int:
     edition = EDITIONS[version]
-    source = HERE / f'aqel-v{version}-source.txt'
+    source = HERE / f'aqel-v{edition.get("source", version)}-source.txt'
     text = source.read_bytes().decode('utf-8-sig').replace('\r\n', '\n')
     for old, new in edition['replacements']:
         if text.count(old) != 1:
