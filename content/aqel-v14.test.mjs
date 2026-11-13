@@ -18,6 +18,7 @@ const companionAt = edition.indexOf('ENGLISH SYSTEM PROMPT');
 const arabic = edition.slice(0, companionAt);
 const english = edition.slice(companionAt);
 const isVersionLine = (line) => line.startsWith('SYSTEM PROMPT — VERSION ');
+const readJson = (...parts) => JSON.parse(fs.readFileSync(path.join(contentDir, ...parts), 'utf8'));
 
 /** The lines of `next` that are not `previous`'s, in order; fails unless `previous`'s lines (less the version line) survive in order. */
 function addedLines(previous, next) {
@@ -66,8 +67,33 @@ test('1.4 adds the D10 reasoning sequence after the reasoning-language block, in
   assert.ok(english.indexOf('- Reasoning language:') < english.indexOf('- Reasoning sequence:'));
 });
 
-test('the visible plan names a law by its name, never by the slug 1.3 keeps from the user', () => {
+// The owner, 2026-11-13 («Arabic names, no limit»): the visible plan shows the customer neither a slug nor a tool
+// argument, so 1.3's rules against both stand unchanged.
+const PLAN_LINES = [
+  '«- بحث: <اسم التشريع بالعربية> | <مصطلح النص التشريعي>»',
+  '«- جلب: <اسم التشريع بالعربية> | <موضوع المادة>»',
+];
+
+test('the visible plan names a law by its Arabic name and carries no slug and no limit, in both languages', () => {
+  for (const line of PLAN_LINES) {
+    assert.ok(arabic.includes(line), `Arabic: ${line}`);
+    assert.ok(english.includes(line), `English: ${line}`);
+  }
   assert.ok(!edition.includes('رمز التشريع>'));
-  assert.ok(arabic.includes('«- بحث: <اسم التشريع> | limit=<عدد> | <مصطلح النص التشريعي>»'));
+  assert.ok(!/limit=</.test(edition), 'no limit= in the plan grammar');
+  const plan = addedLines(base, edition).join('\n');
+  assert.ok(!/limit=|law=/.test(plan), 'the D10 lines show no tool argument');
   assert.ok(arabic.includes('ولا تذكر هذه الرموز للمستخدم'));
+});
+
+// The plan-followed check reads the law from the plan line by name: each name the edition gives the model for a law
+// must map back to its slug through the registry title or corpus/law-aliases.json, or the check cannot follow it.
+test('every law name the edition gives the model maps to its slug for the plan-followed check', () => {
+  const { laws } = readJson('corpus', 'laws.json');
+  const aliases = readJson('corpus', 'law-aliases.json');
+  const library = arabic.split('\n').find((line) => line.startsWith('- التشريعات المحمّلة في المكتبة ورموزها:'));
+  const named = [...library.matchAll(/(?:: |، )([^()،:]+?) \(([a-z-]+)\)/g)].map((m) => ({ name: m[1].trim(), slug: m[2] }));
+  assert.deepEqual(named.map(({ slug }) => slug).sort(), laws.map(({ slug }) => slug).sort(), 'the edition names every law of the registry');
+  const toSlug = new Map(laws.flatMap(({ slug, title }) => [[title, slug], ...(aliases[slug] ?? []).map((alias) => [alias, slug])]));
+  assert.deepEqual(named.filter(({ name, slug }) => toSlug.get(name) !== slug), []);
 });

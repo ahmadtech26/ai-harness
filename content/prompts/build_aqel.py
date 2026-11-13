@@ -497,9 +497,11 @@ EDITIONS['1.3'] = {
 # so a reviewer reads only the additions. Built from 1.3's source (the owner wrote no new text), every 1.3
 # replacement first.
 #
-# One change from the handoff's planned text: its visible plan line names the law by «<رمز التشريع>», but 1.3 tells
-# the model never to show a slug to the user («ولا تذكر هذه الرموز للمستخدم»), so the visible line names the law by
-# its Arabic name; the owner chooses.
+# The visible plan line departs from the handoff's planned text («- بحث: <رمز التشريع> | limit=<عدد> | …») by the
+# owner's decision of 2026-11-13 («Arabic names, no limit»): it names the law by its Arabic name and carries no slug and
+# no limit=, so 1.3's rules against showing a slug («ولا تذكر هذه الرموز للمستخدم») or tool details to the user stand
+# unchanged. The plan-followed check maps the names to slugs (the registry titles in corpus/laws.json, and
+# corpus/law-aliases.json) and reads the limit from the actual tool call.
 REASONING_SEQUENCE_AR = (
     'تسلسل التفكير\n'
     '- رتّب تفكيرك الداخلي، بالعربية، تحت هذه العناوين وبهذا الترتيب: «الفهم»، «المسائل»، «خطة البحث»، «الجلب»، '
@@ -507,15 +509,15 @@ REASONING_SEQUENCE_AR = (
     'المحتملة، وفي «خطة البحث» الاستدعاءات ضمن رصيد الإجابة، وفي «الجلب» ما أعادته الأدوات فعلًا، وفي «التحقق من '
     'الاستشهادات» مطابقة كل استشهاد لنص مسترجع، وفي «الجواب» بناء الإجابة.\n'
     '- قبل أول استدعاء لأدوات المكتبة اكتب في الإجابة كتلة قصيرة ظاهرة عنوانها «خطة البحث:»، سطرًا لكل استدعاء مخطط '
-    'بإحدى الصيغتين: «- بحث: <اسم التشريع> | limit=<عدد> | <مصطلح النص التشريعي>» أو «- جلب: <اسم التشريع> | '
-    '<موضوع المادة بكلمات قليلة>». لا تكتب في الخطة رقم مادة ولا حكمًا من الذاكرة. وإذا احتجت إلى استدعاء لم تخطط له '
+    'بإحدى الصيغتين: «- بحث: <اسم التشريع بالعربية> | <مصطلح النص التشريعي>» أو «- جلب: <اسم التشريع بالعربية> | '
+    '<موضوع المادة>». لا تكتب في الخطة رقم مادة ولا حكمًا من الذاكرة. وإذا احتجت إلى استدعاء لم تخطط له '
     'فاكتب قبله سطرًا يبدأ بـ«تعديل الخطة:» وفيه سببه.\n\n'
 )
 REASONING_SEQUENCE_EN = (
     '- Reasoning sequence: order your internal reasoning, in Arabic, under these headings in this order: «الفهم», '
     '«المسائل», «خطة البحث», «الجلب», «التحقق من الاستشهادات», «الجواب». Before the first library call, write in the '
-    'answer a short visible block headed «خطة البحث:», one line per planned call: «- بحث: <اسم التشريع> | '
-    'limit=<عدد> | <مصطلح النص التشريعي>» or «- جلب: <اسم التشريع> | <موضوع المادة بكلمات قليلة>»; never an article '
+    'answer a short visible block headed «خطة البحث:», one line per planned call: «- بحث: <اسم التشريع بالعربية> | '
+    '<مصطلح النص التشريعي>» or «- جلب: <اسم التشريع بالعربية> | <موضوع المادة>»; never an article '
     'number or a rule from memory in the plan; before any unplanned call, write a line starting «تعديل الخطة:» with '
     'its reason.\n'
 )
@@ -538,7 +540,7 @@ EDITIONS['1.4'] = {
         ('SYSTEM PROMPT — VERSION 1.3 — 4 November 2026', 'SYSTEM PROMPT — VERSION 1.4 — 13 November 2026'),
         *REASONING_SEQUENCE,
     ],
-    'leftovers': [*EDITIONS['1.3']['leftovers'], 'VERSION 1.3', 'رمز التشريع>'],
+    'leftovers': [*EDITIONS['1.3']['leftovers'], 'VERSION 1.3', 'رمز التشريع>', 'limit=<'],
 }
 
 # Edition 1.5 (PROPOSAL, draft, for lawyer review; not live): 1.4 with the distilled checks for civil and commercial
