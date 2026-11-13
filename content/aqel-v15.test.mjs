@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { termProblem } from './search-terms.mjs';
 
 const contentDir = path.dirname(fileURLToPath(import.meta.url));
 const readEdition = (version) =>
@@ -72,10 +73,41 @@ test('the added lines name no article number and pass only slugs the library has
   assert.deepEqual(passed.filter((slug) => !slugs.includes(slug)), []);
 });
 
-// A search term the model is told to use must be the statute's own word, or search_law finds nothing for it.
-test('every statutory term the distilled checks tell the model to search is in the Civil Code text', () => {
+const checksAr = arabic.slice(arabic.indexOf('\nضوابط تطبيق المراحل'), arabic.indexOf('\nقواعد التفكير المتقدم\n'));
+const checksEn = english.slice(english.indexOf('\nCIVIL AND COMMERCIAL MATTERS'), english.indexOf('\nADVANCED REASONING AND REVIEW\n'));
+/** What the checks quote that is not a search term: the stages they key to, and labels the model must not adopt. */
+const STAGES = ['التكييف القانوني', 'تحليل عناصر القاعدة', 'الإثبات', 'المخاطر والبدائل', 'الاستراتيجية'];
+const LABELS = ['قابل للإبطال', 'الخطأ', 'الإدراك'];
+const TERMS = ['إضرار', 'المباشر', 'المتسبب', 'التعدي', 'عدم سماع الدعوى'];
+
+// A search term the model is told to use must be the statute's own word, or search_law finds nothing for it; and a
+// statutory noun phrase, never a proposition or an amount (owner, 2026-11-13, «Noun phrases only»).
+test('every statutory term the distilled checks tell the model to search is in the Civil Code text, as a noun phrase', () => {
+  const quoted = (text) => [...new Set([...text.matchAll(/«([^»]+)»/g)].map((m) => m[1]))].sort();
+  assert.deepEqual(quoted(checksAr), [...STAGES, ...LABELS, ...TERMS].sort(), 'a new quoted term must be listed here');
+  assert.deepEqual(quoted(checksEn), [...LABELS, ...TERMS].sort());
   const civil = lawText('civil-code');
-  for (const term of ['إضرار', 'المباشر', 'المتسبب', 'التعدي', 'لا تسمع الدعوى', 'موقوف', 'غير لازم', 'فاسد']) {
+  for (const term of [...TERMS, 'موقوف', 'غير لازم', 'فاسد']) {
     assert.ok(civil.includes(term), `${term} is not in the Civil Code text`);
+    assert.equal(termProblem(term), null, `«${term}» is not a statutory noun phrase`);
   }
+});
+
+test('the checks open with the answer budget, in both languages', () => {
+  const first = (text) => text.split('\n').find((line) => line.startsWith('- '));
+  assert.ok(first(checksAr).startsWith('- طبّق هذه الضوابط على المسألة الحاسمة أولًا وضمن رصيد الإجابة'));
+  assert.ok(first(checksEn).startsWith("- Apply these checks to the decisive issue first and within the answer's budget"));
+});
+
+// The owner, 2026-11-13 («Forbid in model text»): the checks name Egyptian law once, to forbid it in the answer.
+test('the edition names Egyptian law only to forbid it, in both languages', () => {
+  const lines = edition.split('\n').filter((line) => /مصري|مصرية|Egypt/.test(line));
+  assert.equal(lines.length, 2, lines.map((line) => line.slice(0, 60)).join(' | '));
+  assert.ok(lines[0].startsWith('- لا تذكر في الإجابة القانون المصري أو شروحه، ولا تقارن بهما.'));
+  assert.ok(lines[1].startsWith('- Never mention Egyptian law or its commentary in the answer, nor compare with them.'));
+  assert.ok(!/مصري|مصرية|Egypt/.test(base), '1.4 does not name it');
+});
+
+test('one term for discernment: the checks say «الإدراك», as the issue map does', () => {
+  assert.ok(checksAr.includes('«الإدراك»') && !checksAr.includes('«التمييز»'));
 });
