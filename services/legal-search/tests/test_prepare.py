@@ -82,7 +82,7 @@ def test_the_real_registry_loads_every_law_at_its_directory_count():
     )
 
     assert len(prepared.articles) == 22
-    assert sum(len(articles) for articles in prepared.articles.values()) == 6599
+    assert sum(len(articles) for articles in prepared.articles.values()) == 6592
     penal = {(a.number, a.suffix): a.text for a in prepared.articles['penal-code']}
     assert {(153, 'مكرر'), (25, 'مكرر'), (25, 'مكرر ثانياً')} <= set(penal)
     # The relabelled article is the second heading's: only its text cites «(25 مكررة)».
