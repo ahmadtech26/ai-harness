@@ -8,8 +8,9 @@ legal library is reached (the search_law / get_article / get_memorandum tools). 
 4 November 2026, which the owner asked to adopt reworded (checkpoint of that date), and CORRECTIONS_V13, the defects
 later reviews found in it (AI Harness branch aqel-v1.3, 656e204). It gets the same library section as 1.2, with the
 reasoning-language block and the budget and at-limit bullets added after that draft: the owner, 2026-11-12, «Ship v1.3
-now», the lawyer reviewing it after release. 1.4 is a proposal (draft, for lawyer review): 1.3's source and
-replacements plus added lines only. An edition's 'source' names the source file it reads when that is another
+now», the lawyer reviewing it after release. 1.4 and 1.5 are proposals, each 1.3's source and replacements plus
+added lines only: 1.4 adds the D10 reasoning sequence (live only after its bench), 1.5 adds to 1.4 the distilled
+checks (draft, for lawyer review). An edition's 'source' names the source file it reads when that is another
 edition's. Every replacement must match exactly once and no listed term may survive, so a changed source fails loudly
 instead of being half-adapted.
 """
@@ -489,9 +490,61 @@ EDITIONS['1.3'] = {
     ],
 }
 
-# Edition 1.4 (PROPOSAL, draft, for lawyer review; not live): 1.3 with whole lines added and none of 1.3's lines
-# changed except the version line, so a reviewer reads only the additions. It is built from 1.3's source (the owner
-# wrote no new text), with every 1.3 replacement first.
+# Edition 1.4 (PROPOSAL; not live): 1.3 with the D10 reasoning sequence (handoff 2026-11-12, section 5), and nothing
+# else. The owner, 2026-11-13: D10 ships as its own edition, ahead of the lawyer-gated legal checks, after a short
+# bench («Yes, after a bench»); it carries no legal substance. Whole lines are added after the «لغة التفكير» block,
+# with the English twin after the reasoning-language bullet, and none of 1.3's lines changes except the version line,
+# so a reviewer reads only the additions. Built from 1.3's source (the owner wrote no new text), every 1.3
+# replacement first.
+#
+# One change from the handoff's planned text: its visible plan line names the law by «<رمز التشريع>», but 1.3 tells
+# the model never to show a slug to the user («ولا تذكر هذه الرموز للمستخدم»), so the visible line names the law by
+# its Arabic name; the owner chooses.
+REASONING_SEQUENCE_AR = (
+    'تسلسل التفكير\n'
+    '- رتّب تفكيرك الداخلي، بالعربية، تحت هذه العناوين وبهذا الترتيب: «الفهم»، «المسائل»، «خطة البحث»، «الجلب»، '
+    '«التحقق من الاستشهادات»، «الجواب». في «الفهم» الوقائع والمطلوب، وفي «المسائل» المسائل القانونية والتكييفات '
+    'المحتملة، وفي «خطة البحث» الاستدعاءات ضمن رصيد الإجابة، وفي «الجلب» ما أعادته الأدوات فعلًا، وفي «التحقق من '
+    'الاستشهادات» مطابقة كل استشهاد لنص مسترجع، وفي «الجواب» بناء الإجابة.\n'
+    '- قبل أول استدعاء لأدوات المكتبة اكتب في الإجابة كتلة قصيرة ظاهرة عنوانها «خطة البحث:»، سطرًا لكل استدعاء مخطط '
+    'بإحدى الصيغتين: «- بحث: <اسم التشريع> | limit=<عدد> | <مصطلح النص التشريعي>» أو «- جلب: <اسم التشريع> | '
+    '<موضوع المادة بكلمات قليلة>». لا تكتب في الخطة رقم مادة ولا حكمًا من الذاكرة. وإذا احتجت إلى استدعاء لم تخطط له '
+    'فاكتب قبله سطرًا يبدأ بـ«تعديل الخطة:» وفيه سببه.\n\n'
+)
+REASONING_SEQUENCE_EN = (
+    '- Reasoning sequence: order your internal reasoning, in Arabic, under these headings in this order: «الفهم», '
+    '«المسائل», «خطة البحث», «الجلب», «التحقق من الاستشهادات», «الجواب». Before the first library call, write in the '
+    'answer a short visible block headed «خطة البحث:», one line per planned call: «- بحث: <اسم التشريع> | '
+    'limit=<عدد> | <مصطلح النص التشريعي>» or «- جلب: <اسم التشريع> | <موضوع المادة بكلمات قليلة>»; never an article '
+    'number or a rule from memory in the plan; before any unplanned call, write a line starting «تعديل الخطة:» with '
+    'its reason.\n'
+)
+
+REASONING_SEQUENCE = [
+    (
+        'والإجابة نفسها بالعربية.\n\nاستخدام المكتبة القانونية\n',
+        f'والإجابة نفسها بالعربية.\n\n{REASONING_SEQUENCE_AR}استخدام المكتبة القانونية\n',
+    ),
+    (
+        'The answer is in Arabic.\n- The legal-library tools return',
+        f'The answer is in Arabic.\n{REASONING_SEQUENCE_EN}- The legal-library tools return',
+    ),
+]
+
+EDITIONS['1.4'] = {
+    'source': '1.3',
+    'replacements': [
+        *EDITIONS['1.3']['replacements'],
+        ('SYSTEM PROMPT — VERSION 1.3 — 4 November 2026', 'SYSTEM PROMPT — VERSION 1.4 — 13 November 2026'),
+        *REASONING_SEQUENCE,
+    ],
+    'leftovers': [*EDITIONS['1.3']['leftovers'], 'VERSION 1.3', 'رمز التشريع>'],
+}
+
+# Edition 1.5 (PROPOSAL, draft, for lawyer review; not live): 1.4 with the distilled checks for civil and commercial
+# matters, whole lines again, so it waits for the lawyer (D16, D17) without holding D10 back. The checks anchor on
+# 1.3 text that D10 does not touch (the end of the ten stages, and STAGE 10 in English), so they would apply to 1.3
+# alone as well: an edition of 1.3's replacements plus DISTILLED_CHECKS builds.
 #
 # Checks distilled from al-Sanhuri's «الوسيط في شرح القانون المدني» (archive.org item 9_20250410), each checked
 # against the Jordanian corpus: docs/distillation/2026-11-12-book-principles.md is the catalogue, and the ids after
@@ -577,60 +630,26 @@ DISTILLED_CHECKS_EN = (
     'set out the alternatives the retrieved texts allow.\n'
 )
 
-EDITIONS['1.4'] = {
-    'source': '1.3',
-    'replacements': [
-        *EDITIONS['1.3']['replacements'],
-        ('SYSTEM PROMPT — VERSION 1.3 — 4 November 2026', 'SYSTEM PROMPT — VERSION 1.4 — 12 November 2026'),
-        (
-            'قبل الإيداع أو الاستخدام.\nقواعد التفكير المتقدم\n',
-            f'قبل الإيداع أو الاستخدام.\n{DISTILLED_CHECKS_AR}قواعد التفكير المتقدم\n',
-        ),
-        (
-            'before professional use or filing.\nADVANCED REASONING AND REVIEW\n',
-            f'before professional use or filing.\n{DISTILLED_CHECKS_EN}ADVANCED REASONING AND REVIEW\n',
-        ),
-    ],
-    'leftovers': [*EDITIONS['1.3']['leftovers'], 'VERSION 1.3'],
-}
-
-
-# The reasoning sequence of D10 (handoff 2026-11-12, section 5), after the «لغة التفكير» block, with its English
-# twin after the reasoning-language bullet. One change from the handoff's planned text: its visible plan line names the
-# law by «<رمز التشريع>», but 1.3 tells the model never to show a slug to the user («ولا تذكر هذه الرموز للمستخدم»),
-# so the visible line names the law by its Arabic name; the owner chooses.
-REASONING_SEQUENCE_AR = (
-    'تسلسل التفكير\n'
-    '- رتّب تفكيرك الداخلي، بالعربية، تحت هذه العناوين وبهذا الترتيب: «الفهم»، «المسائل»، «خطة البحث»، «الجلب»، '
-    '«التحقق من الاستشهادات»، «الجواب». في «الفهم» الوقائع والمطلوب، وفي «المسائل» المسائل القانونية والتكييفات '
-    'المحتملة، وفي «خطة البحث» الاستدعاءات ضمن رصيد الإجابة، وفي «الجلب» ما أعادته الأدوات فعلًا، وفي «التحقق من '
-    'الاستشهادات» مطابقة كل استشهاد لنص مسترجع، وفي «الجواب» بناء الإجابة.\n'
-    '- قبل أول استدعاء لأدوات المكتبة اكتب في الإجابة كتلة قصيرة ظاهرة عنوانها «خطة البحث:»، سطرًا لكل استدعاء مخطط '
-    'بإحدى الصيغتين: «- بحث: <اسم التشريع> | limit=<عدد> | <مصطلح النص التشريعي>» أو «- جلب: <اسم التشريع> | '
-    '<موضوع المادة بكلمات قليلة>». لا تكتب في الخطة رقم مادة ولا حكمًا من الذاكرة. وإذا احتجت إلى استدعاء لم تخطط له '
-    'فاكتب قبله سطرًا يبدأ بـ«تعديل الخطة:» وفيه سببه.\n\n'
-)
-REASONING_SEQUENCE_EN = (
-    '- Reasoning sequence: order your internal reasoning, in Arabic, under these headings in this order: «الفهم», '
-    '«المسائل», «خطة البحث», «الجلب», «التحقق من الاستشهادات», «الجواب». Before the first library call, write in the '
-    'answer a short visible block headed «خطة البحث:», one line per planned call: «- بحث: <اسم التشريع> | '
-    'limit=<عدد> | <مصطلح النص التشريعي>» or «- جلب: <اسم التشريع> | <موضوع المادة بكلمات قليلة>»; never an article '
-    'number or a rule from memory in the plan; before any unplanned call, write a line starting «تعديل الخطة:» with '
-    'its reason.\n'
-)
-
-# Droppable on its own: the distilled checks above do not depend on these lines.
-EDITIONS['1.4']['replacements'] += [
+DISTILLED_CHECKS = [
     (
-        'والإجابة نفسها بالعربية.\n\nاستخدام المكتبة القانونية\n',
-        f'والإجابة نفسها بالعربية.\n\n{REASONING_SEQUENCE_AR}استخدام المكتبة القانونية\n',
+        'قبل الإيداع أو الاستخدام.\nقواعد التفكير المتقدم\n',
+        f'قبل الإيداع أو الاستخدام.\n{DISTILLED_CHECKS_AR}قواعد التفكير المتقدم\n',
     ),
     (
-        'The answer is in Arabic.\n- The legal-library tools return',
-        f'The answer is in Arabic.\n{REASONING_SEQUENCE_EN}- The legal-library tools return',
+        'before professional use or filing.\nADVANCED REASONING AND REVIEW\n',
+        f'before professional use or filing.\n{DISTILLED_CHECKS_EN}ADVANCED REASONING AND REVIEW\n',
     ),
 ]
-EDITIONS['1.4']['leftovers'].append('رمز التشريع>')
+
+EDITIONS['1.5'] = {
+    'source': '1.3',
+    'replacements': [
+        *EDITIONS['1.4']['replacements'],
+        ('SYSTEM PROMPT — VERSION 1.4 — 13 November 2026', 'SYSTEM PROMPT — VERSION 1.5 — 13 November 2026'),
+        *DISTILLED_CHECKS,
+    ],
+    'leftovers': [*EDITIONS['1.4']['leftovers'], 'VERSION 1.4'],
+}
 
 
 def build(version: str) -> int:
