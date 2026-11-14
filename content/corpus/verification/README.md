@@ -235,6 +235,30 @@ published), and a change of normalisation (a new name, and every record re-run).
   to the text is the server's hash check.
 - **The hash check** lives with the parser, on `recall-plan` (`legal-search-ingest --check-verification`).
 
+## Court fees: what corpus item N is
+
+`court-fees` («جدول رسوم المحاكم») is not a law but the schedule of a regulation: **نظام رسوم المحاكم رقم (43) لسنة
+2005** (Official Gazette 4711, 2005-06-16; the Bureau titles it «صادر بمقتضى المادة (20) من قانون تشكيل المحاكم النظامية رقم (17) لسنة 2001»). Its only
+amending regulation on the Gazette is **نظام رقم (108) لسنة 2008 — نظام معدل لنظام رسوم المحاكم** (Gazette 4935,
+2008-11-02, document 29412, pp. 5073-5087). Its article 6 (p. 5075) reads: «يلغى جدول رسوم المحاكم الملحق بالنظام
+الأصلي ويستعاض عنه بجدول رسوم المحاكم لسنة ٢٠٠٨ الملحق بهذا النظام». The replacement schedule, «جدول رسوم المحاكم»
+(pp. 5076-5087), is divided into 52 articles headed «المادة 1» to «المادة 52» under section headings («الدعاوى
+الحقوقية», «رسوم الدعاوى المتعلقة بالتحكيم», …).
+
+- **Corpus item N (`court-fees` article N) is article N of the schedule of 2008** as printed in Gazette 4935, for N = 1
+  to 52; the numbers are the schedule's own. The section headings are not items; where one is glued to the end of an
+  item it is set aside (see the method) and noted in the record.
+- The regulation's own articles (1-18 of 43/2005; 108/2008 renumbered its article 17 as 18 and added a new 17) are not
+  in the corpus. The Bureau (legislation 5081) prints the whole schedule inside article 18.
+- Each item's record therefore names 4711 as the original publication and 108/2008 (Gazette 4935, document 29412) as
+  an amendment with `effect: "replaced"`; the text in force is read from Gazette 4935 only.
+- Amending regulations: the Gazette's own issue pages from 4712 to 6088 (read 2026-11-14, by title) list
+  no other «نظام معدل لنظام رسوم المحاكم» and no new «نظام رسوم المحاكم» (the Shari'a courts' fees regulation 61/2015
+  is a different regulation). 508 special issues («عدد ممتاز») are listed there as one document without titles; their
+  contents were not listed. The Bureau records no amending regulation after 108/2008.
+- `laws.json` holds the regulation's publication data: `number` 43, `year` 2005, `gazette` 4711 / 2005-06-16, and as the
+  last amendment regulation 108/2008, Gazette 4935 / 2008-11-02 (both dates read from the issue covers).
+
 ## Law approval
 
 A law is approved only when its publication data in `laws.json` (the original's Gazette issue and date, the last
