@@ -1,19 +1,22 @@
 import json
 import os
+import shutil
 from dataclasses import replace as with_changes
+from datetime import date
 from pathlib import Path
 
 import pytest
 from psycopg import AsyncConnection
 
 from legal_search import db
-from legal_search.citation import format_articles
+from legal_search.citation import UNVERIFIED, format_articles
 from legal_search.corpus import Article
 from legal_search.corrections import load_corrections
 from legal_search.headings import extract
 from legal_search.ingest import IngestError, ingest, prepare
 from legal_search.memorandum import MemorandumError
 from legal_search.registry import load_registry
+from legal_search.verification import text_sha256
 from tests.pg import fresh
 
 pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
@@ -154,3 +157,102 @@ async def test_headings_missing_an_article_are_refused_before_anything_is_writte
         await db.upsert_articles(conn, [first, second], {('civil-code', 1, ''): ''})
 
     assert await _count(conn, 'articles') == 0
+
+
+# Verification (owner's instructions 2026-11-14 §3): set from the records beside the registry on every run, NULL otherwise.
+
+FIRST = 'نص المادة الأولى من القانون.'
+GAZETTE = {'method': 'text', 'original': {'issue': 2645, 'date': '1976-08-01', 'page': 2}, 'amendments': [],
+           'text_sha256': None, 'checked_on': '2026-11-14'}
+BUREAU = {'legislation_id': 536, 'url': None, 'as_of': '2026-10-01', 'text_sha256': None, 'checked_on': '2026-11-14'}
+
+
+def _records(registry: Path, *lines: dict) -> None:
+    folder = registry.parent / 'verification'
+    folder.mkdir(exist_ok=True)
+    (folder / 'civil-code.jsonl').write_text(
+        ''.join(json.dumps(line, ensure_ascii=False) + '\n' for line in lines), encoding='utf-8')
+
+
+def _record(number: int, text: str, result: str = 'verified') -> dict:
+    return {'law_slug': 'civil-code', 'number': number, 'suffix': '', 'text_sha256': text_sha256(text),
+            'result': result, 'reason': None, 'differs_from': None, 'difference': None, 'checked_on': '2026-11-14',
+            'normalisation': 'v1', 'gazette': GAZETTE if result == 'verified' else None,
+            'bureau': BUREAU if result == 'verified' else None, 'notes': '', 'lawyer_item': None}
+
+
+async def _verification_columns(conn) -> list[tuple]:
+    cur = await conn.execute('SELECT number, verified_at, verified_gazette, verified_bureau FROM articles ORDER BY number')
+    return await cur.fetchall()
+
+
+VERIFIED_ROW = (1, date(2026, 11, 14), [{'issue': '2645', 'page': '2'}], {'legislation_id': '536', 'as_of': '2026-10-01'})
+
+
+async def test_ingest_verifies_an_article_whose_record_is_verified_for_the_text_it_stores(conn, tmp_path: Path):
+    registry, corrections, corpus = _sources(tmp_path, TWO, 2)
+    _records(registry, _record(1, FIRST), _record(2, 'نص المادة الثانية من القانون.', 'unverifiable'))
+
+    _, _, matched = await ingest(os.environ['DATABASE_URL'], registry, corrections, corpus)
+
+    assert matched.problems == []
+    assert await _verification_columns(conn) == [VERIFIED_ROW, (2, None, None, None)]
+    served = format_articles([await db.get_article(conn, 'civil-code', 1, '')])
+    assert served.splitlines()[2] == (
+        '(المصدر: الجريدة الرسمية وديوان التشريع والرأي — متحقق منه: الجريدة الرسمية العدد 2645 ص 2، ديوان التشريع '
+        'والرأي معرّف التشريع 536 بصيغته في 1/10/2026، تاريخ التحقق 14/11/2026؛ بيانات النشر لم يُتحقق منها بعد)')
+    assert 'المصدر: نسخة المكتبة، غير رسمية — ' in format_articles([await db.get_article(conn, 'civil-code', 2, '')])
+
+
+async def test_a_changed_text_or_a_removed_record_sets_the_columns_back_to_null(conn, tmp_path: Path):
+    registry, corrections, corpus = _sources(tmp_path, TWO, 2)
+    _records(registry, _record(1, FIRST), _record(2, 'نص المادة الثانية من القانون.', 'unverifiable'))
+    await ingest(os.environ['DATABASE_URL'], registry, corrections, corpus)
+    assert (await _verification_columns(conn))[0] == VERIFIED_ROW
+
+    # The text changes and the record does not: the record no longer binds, and the earlier run's values go.
+    changed = TWO.replace(FIRST, 'نص المادة الأولى من القانون بعد التعديل.')
+    _, _, matched = await ingest(os.environ['DATABASE_URL'], *_sources(tmp_path, changed, 2))
+
+    assert await _verification_columns(conn) == [(1, None, None, None), (2, None, None, None)]
+    assert len(matched.problems) == 1 and 'civil-code المادة 1 is verified for text_sha256' in matched.problems[0]
+    assert f'— {UNVERIFIED}؛ ' in format_articles([await db.get_article(conn, 'civil-code', 1, '')])
+
+    # Back to the recorded text, then without the folder: verified, then NULL again.
+    await ingest(os.environ['DATABASE_URL'], *_sources(tmp_path, TWO, 2))
+    assert (await _verification_columns(conn))[0] == VERIFIED_ROW
+    shutil.rmtree(registry.parent / 'verification')
+    _, _, matched = await ingest(os.environ['DATABASE_URL'], *_sources(tmp_path, TWO, 2))
+    assert (await _verification_columns(conn), matched.files) == ([(1, None, None, None), (2, None, None, None)], 0)
+
+
+async def test_the_schema_step_brings_a_database_of_the_previous_image_forward(conn, tmp_path: Path):
+    # The previous image's tables: verified_at (never written by it) but no references or provenance, the copy site in
+    # source. A verified_at set by hand counts for nothing without a record.
+    await conn.execute('ALTER TABLE articles DROP COLUMN verified_gazette, DROP COLUMN verified_bureau, '
+                       'DROP COLUMN provenance')
+    await conn.execute('ALTER TABLE memorandum_notes DROP COLUMN provenance')
+    await conn.execute(
+        "INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, source, shard, verified_at) "
+        "VALUES ('civil-code', 'x', 1, '', 'المادة 1', 'نص قديم.', 'نص قديم', 'jordan-lawyer.com', '00.md', '2026-01-01')")
+    await conn.execute("INSERT INTO memorandum_notes (note_no, text, source) VALUES (1, 'شرح قديم.', 'aqel-lawfirm.com/ar/tashree3at/9')")
+
+    await db.create_schema(conn)
+    await db.create_schema(conn)  # every start runs it: a second run changes nothing
+    cur = await conn.execute(
+        "SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' "
+        "AND table_name IN ('articles', 'memorandum_notes') "
+        "AND column_name IN ('verified_at', 'verified_gazette', 'verified_bureau', 'provenance', 'source') "
+        "ORDER BY table_name, column_name")
+    assert await cur.fetchall() == [
+        ('articles', 'provenance', 'text'), ('articles', 'source', 'text'), ('articles', 'verified_at', 'date'),
+        ('articles', 'verified_bureau', 'jsonb'), ('articles', 'verified_gazette', 'jsonb'),
+        ('memorandum_notes', 'provenance', 'text'), ('memorandum_notes', 'source', 'text'),
+    ]
+
+    await ingest(os.environ['DATABASE_URL'], *_sources(tmp_path, TWO, 2))
+
+    cur = await conn.execute('SELECT number, provenance, source, verified_at FROM articles ORDER BY number')
+    assert await cur.fetchall() == [(1, 'example.test', '', None), (2, 'example.test', '', None)]
+    cur = await conn.execute('SELECT note_no, provenance, source FROM memorandum_notes ORDER BY note_no')
+    assert await cur.fetchall() == [(1, 'example.test/memo', ''), (2, 'example.test/memo', '')]

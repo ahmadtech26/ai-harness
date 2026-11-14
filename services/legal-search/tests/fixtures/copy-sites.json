@@ -1,0 +1,19 @@
+{
+  "description": "The copy sites the library's texts were taken from (owner's instructions 2026-11-14 §3: «Hide all copy sites»). No source line, label, note or heading of a legal-search tool's output may contain one, and no model-facing content file may name one; statutory text is not scanned (the law says «المحامي الأردني»). Never list the product's own names (عقل, AQEL, اقرأ للمحاماة).",
+  "built_from": [
+    "jordanian-law/references/القوانين-الأردنية/*/sections/*.md: frontmatter `source` (jordan-lawyer.com; aqel-lawfirm.com/ar/tashree3at/<n>; adaleh.info Art.aspx?Typ=2&Id=1177)",
+    "jordanian-law/references/القوانين-الأردنية/memorandum_civil_law.json: `source` (aqel-lawfirm.com/ar/tashree3at/9)",
+    "jordanian-law/references/docs/markdown/*/*.md (the pages listed in each folder's _metadata.json): frontmatter `source` (jordan-lawyer.com), `source_name` («حُماة الحق للمحاماة») and `author` («حُماة الحق»)",
+    "jordanian-law/references/docs/catalog/*.json: `author`, the site title «حماة الحق - محامي الأردن»"
+  ],
+  "match": "a name matches where it occurs as a substring after Arabic diacritics (U+064B-U+0652, U+0670) and tatweel (U+0640) are removed from both, Latin letters compared case-insensitively",
+  "names": [
+    "jordan-lawyer.com",
+    "aqel-lawfirm.com",
+    "adaleh.info",
+    "حماة الحق",
+    "حُماة الحق",
+    "محامي الأردن",
+    "محامي الاردن"
+  ]
+}
