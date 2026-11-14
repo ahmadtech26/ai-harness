@@ -1,4 +1,4 @@
-Kept in the repository from 2026-11-14; later verification PRs add every differs and unverifiable article.
+Kept in the repository from 2026-11-14. Every `differs` and `unverifiable` article of the verification pass is in the per-law lists in [lawyer/](lawyer/README.md).
 
 Draft, for lawyer review.
 
