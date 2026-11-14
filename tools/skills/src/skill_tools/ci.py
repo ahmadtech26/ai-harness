@@ -31,6 +31,7 @@ def run(content: Path, release: bool) -> list[checks.Problem]:
             + checks.check_version_bump(skill, released) + checks.check_secrets(skill)
             + checks.check_override_phrases(skill) + checks.check_required_tools(skill, specialists)
         )
+        problems += checks.check_catalog_description(skill)
         if release:
             problems += checks.check_review(skill)
     for specialist in specialists:
