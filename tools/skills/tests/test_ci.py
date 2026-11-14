@@ -5,6 +5,7 @@ import pytest
 
 from skill_tools import ci
 from tests.helpers import make_skill
+from tests.test_copy_sites import write_list
 
 SPECIALIST = {'name': 'aqel', 'skills': ['good-skill'], 'tools': []}
 
@@ -15,6 +16,7 @@ def _content(root: Path, *, skills: list[str], review: str = 'draft') -> Path:
         make_skill(content / 'skills', name, extra_metadata=f'  review:\n    status: {review}\n')
     (content / 'specialists').mkdir(parents=True)
     (content / 'specialists' / 'aqel.json').write_text(json.dumps(SPECIALIST), encoding='utf-8')
+    write_list(content)
     return content
 
 
