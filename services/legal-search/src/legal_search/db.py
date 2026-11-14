@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS articles (
   text TEXT NOT NULL,
   norm TEXT NOT NULL,
   tsv TSVECTOR GENERATED ALWAYS AS (to_tsvector('simple', norm)) STORED,
-  source TEXT NOT NULL DEFAULT '',  -- emptied by every ingest; the copy site is in provenance (below)
+  source TEXT NOT NULL DEFAULT '',
   shard TEXT NOT NULL DEFAULT '',
   verified_at DATE,
   UNIQUE (law_slug, number, suffix)
@@ -56,16 +56,6 @@ CREATE INDEX IF NOT EXISTS articles_tsv ON articles USING GIN (tsv);
 -- came from: 'site', headings.extract over the text as published; '' never derived.
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS heading TEXT NOT NULL DEFAULT '';
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS heading_origin TEXT NOT NULL DEFAULT '';
--- Verification (owner's instructions 2026-11-14 §3): every ingest sets verified_at and the references the library shows
--- from the article's record in content/corpus/verification/, or NULL (verification.match). verified_at is in the
--- CREATE above and in the live database already; the line is there for a database older than both.
-ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_at DATE;
-ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_gazette JSONB;
-ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_bureau JSONB;
--- Provenance: the copy site an article or a memorandum note was taken from (a section's `source:` frontmatter, the
--- memorandum file's `source`). Internal: no query a tool's output is built from reads it. The ingest writes '' into the
--- old source columns, which stay only so the service of the previous image keeps running while a deploy re-ingests.
-ALTER TABLE articles ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
 -- The keyword engine's corpus version (keyword_engine): every write to articles bumps it, and an index built from
 -- another (created, version) pair is rebuilt. created tells a recreated table from the old one, whose counter it restarts.
 CREATE TABLE IF NOT EXISTS index_state (
@@ -77,9 +67,8 @@ INSERT INTO index_state (id, version) VALUES (1, 0) ON CONFLICT DO NOTHING;
 CREATE TABLE IF NOT EXISTS memorandum_notes (
   note_no INT PRIMARY KEY,
   text TEXT NOT NULL,
-  source TEXT NOT NULL DEFAULT ''  -- emptied by every ingest; the copy site is in provenance (below)
+  source TEXT NOT NULL DEFAULT ''
 );
-ALTER TABLE memorandum_notes ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
 CREATE TABLE IF NOT EXISTS memorandum_links (
   article_number INT NOT NULL,
   note_no INT NOT NULL REFERENCES memorandum_notes (note_no) ON DELETE CASCADE,
@@ -103,6 +92,19 @@ ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS requested_suffix TEXT;
 ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS outcome TEXT NOT NULL DEFAULT 'served'
   CHECK (outcome IN ('served', 'capped', 'throttled', 'suspended'));
 ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS candidate_ids BIGINT[] NOT NULL DEFAULT '{}';
+-- Verification (owner's instructions 2026-11-14 §3): every ingest sets verified_at and the references the library shows
+-- from the article's record in content/corpus/verification/, or NULL (verification.match). verified_at is in the
+-- articles CREATE statement and in the live database already; the line is there for a database older than both.
+-- These lines come after candidate_ids so that the owner's retrieval_log changes and these stay apart (owner, §0).
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_at DATE;
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_gazette JSONB;
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_bureau JSONB;
+-- Provenance: the copy site an article or a memorandum note was taken from (a section's `source:` frontmatter, the
+-- memorandum file's `source`). Internal: no query a tool's output is built from reads it. The ingest writes '' into the
+-- old source columns, which stay only so the service of the previous image keeps running while a deploy re-ingests.
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
+-- The memorandum note's copy site, as for articles (above); the old source column is emptied by every ingest.
+ALTER TABLE memorandum_notes ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS retrieval_log_user_time ON retrieval_log (user_id, created_at);
 CREATE INDEX IF NOT EXISTS retrieval_log_message ON retrieval_log (message_id);
 -- Telemetry and simulation read a window by time alone (R3 n=14); without it each request scans the whole log.
