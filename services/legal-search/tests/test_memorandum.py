@@ -212,8 +212,11 @@ async def test_memorandum_page_returns_notes_in_note_order_with_the_articles_eac
     page = await db.memorandum_page(conn, 1, 2, 3)
 
     assert [(note.note_no, note.first_article, note.last_article) for note in page] == [(3, 1, 4), (4, 1, 1), (5, 1, 1)]
-    assert page[0].source == 'example.test/memo'
     assert await db.memorandum_count(conn, 1) == 7
+    # The copy site is the note's internal provenance; a served note does not carry it.
+    assert not hasattr(page[0], 'source') and not hasattr(page[0], 'provenance')
+    cur = await conn.execute('SELECT DISTINCT provenance, source FROM memorandum_notes')
+    assert await cur.fetchall() == [('example.test/memo', '')]
 
 
 @needs_postgres

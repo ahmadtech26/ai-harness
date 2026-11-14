@@ -7,12 +7,14 @@ from datetime import date, datetime
 
 from psycopg import AsyncConnection
 from psycopg.rows import dict_row
+from psycopg.types.json import Jsonb
 
 from legal_search.corpus import Article
 from legal_search.normalize import normalize, tokens
 from legal_search.registry import Law
 from legal_search.search_config import DEFAULT, SearchConfig
 from legal_search.synonyms import synonym_terms
+from legal_search.verification import Key, Verification
 
 # Run at every service start and every ingest. CREATE … IF NOT EXISTS never changes a table a deployed
 # database already has: a new column on an existing table goes in as ALTER TABLE … ADD COLUMN IF NOT
@@ -44,7 +46,7 @@ CREATE TABLE IF NOT EXISTS articles (
   text TEXT NOT NULL,
   norm TEXT NOT NULL,
   tsv TSVECTOR GENERATED ALWAYS AS (to_tsvector('simple', norm)) STORED,
-  source TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT '',  -- emptied by every ingest; the copy site is in provenance (below)
   shard TEXT NOT NULL DEFAULT '',
   verified_at DATE,
   UNIQUE (law_slug, number, suffix)
@@ -54,6 +56,16 @@ CREATE INDEX IF NOT EXISTS articles_tsv ON articles USING GIN (tsv);
 -- came from: 'site', headings.extract over the text as published; '' never derived.
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS heading TEXT NOT NULL DEFAULT '';
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS heading_origin TEXT NOT NULL DEFAULT '';
+-- Verification (owner's instructions 2026-11-14 §3): every ingest sets verified_at and the references the library shows
+-- from the article's record in content/corpus/verification/, or NULL (verification.match). verified_at is in the
+-- CREATE above and in the live database already; the line is there for a database older than both.
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_at DATE;
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_gazette JSONB;
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_bureau JSONB;
+-- Provenance: the copy site an article or a memorandum note was taken from (a section's `source:` frontmatter, the
+-- memorandum file's `source`). Internal: no query a tool's output is built from reads it. The ingest writes '' into the
+-- old source columns, which stay only so the service of the previous image keeps running while a deploy re-ingests.
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
 -- The keyword engine's corpus version (keyword_engine): every write to articles bumps it, and an index built from
 -- another (created, version) pair is rebuilt. created tells a recreated table from the old one, whose counter it restarts.
 CREATE TABLE IF NOT EXISTS index_state (
@@ -65,8 +77,9 @@ INSERT INTO index_state (id, version) VALUES (1, 0) ON CONFLICT DO NOTHING;
 CREATE TABLE IF NOT EXISTS memorandum_notes (
   note_no INT PRIMARY KEY,
   text TEXT NOT NULL,
-  source TEXT NOT NULL DEFAULT ''
+  source TEXT NOT NULL DEFAULT ''  -- emptied by every ingest; the copy site is in provenance (below)
 );
+ALTER TABLE memorandum_notes ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
 CREATE TABLE IF NOT EXISTS memorandum_links (
   article_number INT NOT NULL,
   note_no INT NOT NULL REFERENCES memorandum_notes (note_no) ON DELETE CASCADE,
@@ -166,6 +179,8 @@ class LawMeta:
 
 @dataclass(frozen=True)
 class Found:
+    """An article as the tools serve it. It carries no provenance: the copy site stays in the database."""
+
     id: int
     law_slug: str
     number: int
@@ -173,9 +188,12 @@ class Found:
     law_title: str
     label: str
     text: str
-    source: str
-    verified: bool
+    verification: Verification | None = None  # set only for an article its record verifies (verification.match)
     law: LawMeta = LawMeta()
+
+    @property
+    def verified(self) -> bool:
+        return self.verification is not None
 
 
 def query_terms(query: str, config: SearchConfig = DEFAULT) -> list[str]:
@@ -225,19 +243,20 @@ async def upsert_laws(conn: AsyncConnection, laws: list[Law]) -> int:
 _BUMP_INDEX_VERSION = 'UPDATE index_state SET version = version + 1 WHERE id = 1'
 
 
+# The copy site goes into provenance; source, the column the previous image read, is emptied (SCHEMA's provenance note).
 _UPSERT_ARTICLE = """
-INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, source, shard)
+INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, provenance, shard)
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 ON CONFLICT (law_slug, number, suffix) DO UPDATE SET
   law_title = EXCLUDED.law_title, label = EXCLUDED.label, text = EXCLUDED.text,
-  norm = EXCLUDED.norm, source = EXCLUDED.source, shard = EXCLUDED.shard
+  norm = EXCLUDED.norm, provenance = EXCLUDED.provenance, source = '', shard = EXCLUDED.shard
 """
 _UPSERT_ARTICLE_AND_HEADING = """
-INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, source, shard, heading, heading_origin)
+INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, provenance, shard, heading, heading_origin)
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 ON CONFLICT (law_slug, number, suffix) DO UPDATE SET
   law_title = EXCLUDED.law_title, label = EXCLUDED.label, text = EXCLUDED.text,
-  norm = EXCLUDED.norm, source = EXCLUDED.source, shard = EXCLUDED.shard,
+  norm = EXCLUDED.norm, provenance = EXCLUDED.provenance, source = '', shard = EXCLUDED.shard,
   heading = EXCLUDED.heading, heading_origin = EXCLUDED.heading_origin
 """
 HEADING_FROM_SITE = 'site'  # heading_origin of a heading headings.extract read from the text as published
@@ -248,7 +267,8 @@ async def upsert_articles(conn: AsyncConnection, articles: list[Article],
     """Insert or update the articles by (law, number, suffix). With `headings` (headings.extract's, by that key), each
     article's heading is stored too, with heading_origin 'site'; a key missing from it raises KeyError before anything
     is written. Without it the stored heading and origin are kept: a heading is derived from the text as published, and
-    a later write of the text (an O-42 clean-up, review 2026-11-11 (f)) neither re-derives nor clears it."""
+    a later write of the text (an O-42 clean-up, review 2026-11-11 (f)) neither re-derives nor clears it. The article's
+    `source` (its copy site) is stored as provenance. The verification columns are set_verification's alone."""
     rows = [
         (article.law_slug, article.law_title, article.number, article.suffix, article.label, article.text,
          normalize(article.text), article.source, article.shard)
@@ -265,6 +285,36 @@ async def upsert_articles(conn: AsyncConnection, articles: list[Article],
         if articles:
             await cur.execute(_BUMP_INDEX_VERSION)
     return len(articles)
+
+
+_CLEAR_VERIFICATION = """
+UPDATE articles SET verified_at = NULL, verified_gazette = NULL, verified_bureau = NULL
+WHERE verified_at IS NOT NULL OR verified_gazette IS NOT NULL OR verified_bureau IS NOT NULL
+"""
+_SET_VERIFICATION = """
+UPDATE articles SET verified_at = %s, verified_gazette = %s, verified_bureau = %s
+WHERE law_slug = %s AND number = %s AND suffix = %s
+"""
+
+
+async def set_verification(conn: AsyncConnection, verified: dict[Key, Verification]) -> int:
+    """Make every article's verified_at, verified_gazette and verified_bureau what `verified` gives it (by law slug,
+    number and suffix), and NULL for every other article, also where an earlier run set them. Run it inside the ingest's
+    transaction, after the articles are written, so no reader sees the columns cleared. Returns how many articles are
+    stored as verified."""
+    count = 0
+    async with conn.cursor() as cur:
+        await cur.execute(_CLEAR_VERIFICATION)
+        changed = cur.rowcount
+        for (law_slug, number, suffix), verification in sorted(verified.items()):
+            await cur.execute(_SET_VERIFICATION, (
+                verification.checked_on, Jsonb(verification.gazette_column()), Jsonb(verification.bureau_column()),
+                law_slug, number, suffix,
+            ))
+            count += cur.rowcount
+        if changed or count:
+            await cur.execute(_BUMP_INDEX_VERSION)
+    return count
 
 
 async def prune_articles(conn: AsyncConnection, law_slug: str, keep: set[tuple[int, str]]) -> int:
@@ -290,10 +340,11 @@ async def index_version(conn: AsyncConnection) -> tuple[datetime, int] | None:
     return (row[0], row[1]) if row else None
 
 
-# Every result joins its law's registry row; LEFT JOIN so an article never disappears for want of one.
+# Every result joins its law's registry row; LEFT JOIN so an article never disappears for want of one. It never reads
+# provenance or source: no tool output may carry the copy site.
 _SELECT = """
 SELECT a.id, a.law_slug, a.number, a.suffix, COALESCE(l.title, a.law_title) AS law_title, a.label, a.text,
-       a.source, a.verified_at, l.number AS law_number, l.year AS law_year, l.gazette_issue, l.gazette_date,
+       a.verified_at, a.verified_gazette, a.verified_bureau, l.number AS law_number, l.year AS law_year, l.gazette_issue, l.gazette_date,
        l.amendment_law, l.amendment_year, l.amendment_gazette_issue, l.amendment_gazette_date, l.note,
        COALESCE(l.approved, false) AS approved
 FROM articles a LEFT JOIN laws l ON l.slug = a.law_slug
@@ -309,8 +360,7 @@ def _found(row: dict) -> Found:
         law_title=row['law_title'],
         label=row['label'],
         text=row['text'],
-        source=row['source'],
-        verified=row['verified_at'] is not None,
+        verification=Verification.from_columns(row['verified_at'], row['verified_gazette'], row['verified_bureau']),
         law=LawMeta(
             number=row['law_number'],
             year=row['law_year'],
@@ -387,23 +437,26 @@ async def law_slugs(conn: AsyncConnection) -> list[str]:
 
 @dataclass(frozen=True)
 class Note:
+    """A memorandum note as get_memorandum serves it; like Found, it carries no provenance."""
+
     note_no: int
     text: str
-    source: str
     first_article: int | None = None  # the lowest and highest Civil Code article linked to this note
     last_article: int | None = None
 
 
-async def replace_memorandum(conn: AsyncConnection, notes: dict[int, str], links: list[tuple[int, int]], source: str) -> None:
-    """Make the memorandum tables equal to the source: upsert notes, replace links, drop vanished notes."""
+async def replace_memorandum(conn: AsyncConnection, notes: dict[int, str], links: list[tuple[int, int]],
+                             provenance: str) -> None:
+    """Make the memorandum tables equal to the source: upsert notes, replace links, drop vanished notes. `provenance`
+    (the memorandum file's `source`, its copy site) goes into the internal provenance column; source is emptied."""
     await conn.execute('DELETE FROM memorandum_links')
     async with conn.cursor() as cur:
         await cur.executemany(
             """
-            INSERT INTO memorandum_notes (note_no, text, source) VALUES (%s, %s, %s)
-            ON CONFLICT (note_no) DO UPDATE SET text = EXCLUDED.text, source = EXCLUDED.source
+            INSERT INTO memorandum_notes (note_no, text, provenance) VALUES (%s, %s, %s)
+            ON CONFLICT (note_no) DO UPDATE SET text = EXCLUDED.text, provenance = EXCLUDED.provenance, source = ''
             """,
-            [(note_no, text, source) for note_no, text in sorted(notes.items())],
+            [(note_no, text, provenance) for note_no, text in sorted(notes.items())],
         )
         await cur.executemany('INSERT INTO memorandum_links (article_number, note_no) VALUES (%s, %s)', links)
     await conn.execute('DELETE FROM memorandum_notes WHERE NOT (note_no = ANY(%s::int[]))', (sorted(notes),))
@@ -421,7 +474,7 @@ async def memorandum_page(conn: AsyncConnection, article_number: int, offset: in
         return []
     cur = await conn.execute(
         """
-        SELECT n.note_no, n.text, n.source, s.first_article, s.last_article
+        SELECT n.note_no, n.text, s.first_article, s.last_article
         FROM memorandum_links k
         JOIN memorandum_notes n ON n.note_no = k.note_no
         JOIN (SELECT note_no, min(article_number) AS first_article, max(article_number) AS last_article
