@@ -38,6 +38,13 @@ def test_passes_clean_content_unless_release_requires_review(tmp_path: Path):
     assert [p.rule for p in ci.run(content, release=True)] == ['review']
 
 
+def test_runs_the_catalog_description_check_on_every_skill(tmp_path: Path):
+    content = _content(tmp_path, skills=['good-skill'])
+    make_skill(content / 'skills', 'wordy-skill', description='Method ' + 'x' * 250)
+
+    assert [(p.skill, p.rule) for p in ci.run(content, release=False)] == [('wordy-skill', 'catalog-description')]
+
+
 def test_flags_a_specialist_listing_a_missing_skill(tmp_path: Path):
     content = _content(tmp_path, skills=[])
     (content / 'skills').mkdir(parents=True)

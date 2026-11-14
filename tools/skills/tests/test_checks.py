@@ -39,6 +39,15 @@ def test_rejects_a_missing_or_too_long_description(tmp_path: Path):
         'description', 'description']
 
 
+def test_rejects_a_description_longer_than_the_skill_catalog_passes(tmp_path: Path):
+    at_limit = _load(make_skill(tmp_path, 'at-limit', description='ن' * 250))
+    over = _load(make_skill(tmp_path, 'over-limit', description='Jordanian ' + 'x' * 241))
+
+    assert checks.check_catalog_description(at_limit) == []
+    assert [(p.rule, '251 characters' in p.message) for p in checks.check_catalog_description(over)] == [
+        ('catalog-description', True)]
+
+
 def test_rejects_a_skill_md_over_20000_characters(tmp_path: Path):
     skill = _load(make_skill(tmp_path, 'big-skill', body='ن' * 20_001))
 
