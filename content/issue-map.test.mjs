@@ -4,7 +4,8 @@
 // the named law's text, a line may name no article number, and each line's catalogue entry must exist and propose the
 // same sentence and terms. The same checks run on any other skill's reference line that ends in a catalogue id. A
 // line names one search or more, each a law and its terms: «— البحث: law="civil-code"، «…»، «…»؛ law="evidence"، «…».»
-// Every term is a statutory noun phrase (search-terms.mjs; owner, 2026-11-13).
+// Every term is a statutory noun phrase (search-terms.mjs; owner, 2026-11-13). Practice notes (lines ending in a PN id,
+// references/practice.md) have their own form and tests in practice-notes.test.mjs.
 // Files are read with either line end: a Windows checkout gives CRLF, and a line that kept its \r would match nothing.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -22,6 +23,7 @@ const catalogue = readText(path.join(contentDir, '..', 'docs', 'distillation', '
 const { laws } = JSON.parse(fs.readFileSync(path.join(contentDir, 'corpus', 'laws.json'), 'utf8'));
 const LINE = /^- (?<text>.+?)(?: — البحث: (?<searches>law="[a-z-]+"، .+?))?\. <!-- (?<id>V[0-9A-Z]+-[0-9]+) -->$/;
 const ID_COMMENT = / <!-- V[0-9A-Z]+-[0-9]+ -->$/;
+const PRACTICE_NOTE = / <!-- PN-[0-9]+ [^>]*-->$/;
 
 const lawTexts = new Map();
 /** A law's whole text as the library holds it (section files, headings included), normalised. */
@@ -41,12 +43,13 @@ function lawText(slug) {
   return lawTexts.get(slug);
 }
 
-/** The entry lines of a reference file: in the issue map every bullet, elsewhere a bullet that ends in an id comment. */
+/** The entry lines of a reference file: in the issue map every bullet but a practice note, elsewhere a bullet that ends in
+ * a catalogue id comment. */
 function entryLines(text, skill) {
   return text
     .replace(/\r\n/g, '\n')
     .split('\n')
-    .filter((line) => line.startsWith('- ') && (skill === ISSUE_MAP || ID_COMMENT.test(line)));
+    .filter((line) => line.startsWith('- ') && ((skill === ISSUE_MAP && !PRACTICE_NOTE.test(line)) || ID_COMMENT.test(line)));
 }
 
 const referenceFiles = fs

@@ -5,6 +5,7 @@ import pytest
 
 from skill_tools import ci
 from tests.helpers import make_skill
+from tests.test_copy_sites import write_list
 
 SPECIALIST = {'name': 'aqel', 'skills': ['good-skill'], 'tools': []}
 
@@ -15,6 +16,7 @@ def _content(root: Path, *, skills: list[str], review: str = 'draft') -> Path:
         make_skill(content / 'skills', name, extra_metadata=f'  review:\n    status: {review}\n')
     (content / 'specialists').mkdir(parents=True)
     (content / 'specialists' / 'aqel.json').write_text(json.dumps(SPECIALIST), encoding='utf-8')
+    write_list(content)
     return content
 
 
@@ -34,6 +36,13 @@ def test_passes_clean_content_unless_release_requires_review(tmp_path: Path):
 
     assert ci.run(content, release=False) == []
     assert [p.rule for p in ci.run(content, release=True)] == ['review']
+
+
+def test_runs_the_catalog_description_check_on_every_skill(tmp_path: Path):
+    content = _content(tmp_path, skills=['good-skill'])
+    make_skill(content / 'skills', 'wordy-skill', description='Method ' + 'x' * 250)
+
+    assert [(p.skill, p.rule) for p in ci.run(content, release=False)] == [('wordy-skill', 'catalog-description')]
 
 
 def test_flags_a_specialist_listing_a_missing_skill(tmp_path: Path):

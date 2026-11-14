@@ -136,7 +136,9 @@
     },
     {
       "slug": "court-fees",
-      "title": "جدول رسوم المحاكم"
+      "title": "جدول رسوم المحاكم",
+      "number": 43,
+      "year": 2005
     },
     {
       "slug": "bar-association",
