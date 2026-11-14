@@ -1,5 +1,5 @@
 {
-  "note": "The copy sites the corpus and the page copies were taken from (sections' and pages' source/source_name, the memorandum's source, the site title in the page catalog). No model-facing file or tool output may name one. A name matches, ignoring case, tatweel and diacritics, where no letter or digit is joined to it, except one attached و/ف/ب/ل/ك before it: «المحامي الأردني», a statutory term, is not the site title. Never list the product's own names.",
+  "note": "The copy sites the corpus and the page copies were taken from (sections' and pages' source/source_name, the memorandum's source, the site title in the page catalog). No model-facing file or tool output may name one. skill-ci matches a name ignoring case, tatweel and diacritics, where no letter or digit is joined to it, except one attached و/ف/ب/ل/ك before it («المحامي الأردني», a statutory term, is not the site title). Never list the product's own names.",
   "names": [
     "jordan-lawyer.com",
     "aqel-lawfirm.com",
