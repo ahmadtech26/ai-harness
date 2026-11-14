@@ -14,6 +14,7 @@ from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 
+from legal_search import synonyms
 from legal_search.normalize import folded_words
 from legal_search.normalize import stem as stem_today
 from legal_search.synonyms import RAW_GROUPS
@@ -62,6 +63,8 @@ class Analyser:
     def __init__(self) -> None:
         self.stopwords = frozenset(self.join(word) for word in RAW_STOPWORDS.split())
         self._synonyms = [[self.tokens(member) for member in group] for group in RAW_GROUPS]
+        # The installed vocabulary's directed pairs (synonyms.use_vocabulary), read when the analyser is built.
+        self._directed = [(self.tokens(everyday), self.tokens(statutory)) for everyday, statutory in synonyms.RAW_DIRECTED]
 
     def stem(self, word: str) -> str:
         raise NotImplementedError
@@ -86,12 +89,20 @@ class Analyser:
         return [list(group) for group in self._synonyms]
 
     def synonym_members(self, tokens: list[str]) -> list[list[str]]:
-        """The absent members of every group with a member present, each as prefix-matched words (analyser.rs:249-266)."""
+        """The absent members of every group with a member present, each as prefix-matched words (analyser.rs:249-266),
+        then the statutory phrase of every installed everyday wording present, unless the query already searches it
+        (synonyms.synonym_terms)."""
 
         def contains(member: list[str]) -> bool:
             size = len(member)
             return size > 0 and len(tokens) >= size and any(
                 all(tokens[i + j].startswith(member[j]) for j in range(size)) for i in range(len(tokens) - size + 1)
+            )
+
+        def covers(member: list[str]) -> bool:
+            size = len(member)
+            return size > 0 and len(tokens) >= size and any(
+                all(member[j].startswith(tokens[i + j]) for j in range(size)) for i in range(len(tokens) - size + 1)
             )
 
         added: list[list[str]] = []
@@ -100,6 +111,9 @@ class Analyser:
                 for member in group:
                     if not contains(member) and member not in added:
                         added.append(member)
+        for everyday, statutory in self._directed:
+            if contains(everyday) and not covers(statutory) and statutory not in added:
+                added.append(statutory)
         return added
 
 
