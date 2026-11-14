@@ -156,7 +156,9 @@ test('every skill with reference files names each of them in SKILL.md by its ful
 });
 
 test('every practice note has a source record, and every record names a note, its file and an unchanged page', () => {
-  const records = readText(SOURCES).split('\n').filter(Boolean).map((line) => JSON.parse(line));
+  // The file is shared with the other distillation outputs (eval set, Cassation leads, search vocabulary), whose
+  // records carry an «output» field; the practice notes' records have none.
+  const records = readText(SOURCES).split('\n').filter(Boolean).map((line) => JSON.parse(line)).filter((record) => !('output' in record));
   const byId = new Map(parsed.map(({ file, skill, match }) => [match.groups.id, { file, skill }]));
   const fields = ['item', 'skill', 'file', 'page', 'sha256', 'post_date', 'distilled_on', 'review'];
   const pairs = new Set();
