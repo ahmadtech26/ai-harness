@@ -1,4 +1,6 @@
-"""corpus-ci: check the law registry and the corrections file (content/corpus) against the corpus folders.
+"""corpus-ci: check the law registry, the corrections file and the verification records (content/corpus) against
+the corpus folders. The verification records (content/corpus/verification/<law-slug>.jsonl) are checked for schema
+and article coverage only; their text_sha256 is checked by legal-search's --check-verification on recall-plan.
 
     corpus-ci --content /w/content --corpus /w/jordanian-law/references/القوانين-الأردنية            # staging
     corpus-ci --content /w/content --corpus /w/jordanian-law/references/القوانين-الأردنية --release  # production
@@ -17,7 +19,8 @@ def run(content: Path, corpus: Path, release: bool) -> list[Problem]:
     folder = content / 'corpus'
     registry = json.loads((folder / 'laws.json').read_text(encoding='utf-8'))
     corrections = json.loads((folder / 'corrections.json').read_text(encoding='utf-8'))
-    return corpus_checks.check_all(registry, corrections, corpus, release)
+    return (corpus_checks.check_all(registry, corrections, corpus, release)
+            + corpus_checks.check_verification(folder / 'verification', registry, corrections, corpus))
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -31,4 +34,6 @@ def main(argv: list[str] | None = None) -> None:
         print(f'FAIL {problem.skill}: {problem.rule}: {problem.message}')
     if problems:
         sys.exit(1)
-    print('corpus-ci: registry and corrections pass' + (' (release)' if args.release else ''))
+    verified = sorted(p.stem for p in (args.content / 'corpus' / 'verification').glob('*.jsonl'))
+    print('corpus-ci: registry, corrections and verification records pass' + (' (release)' if args.release else '')
+          + f'; laws with a verification file: {", ".join(verified) or "none"}')
