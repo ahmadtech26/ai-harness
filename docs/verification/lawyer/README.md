@@ -6,14 +6,15 @@ reading differs from the stored text, it gives the two readings word by word (st
 reader's notes (open questions, fixes made, decisions held for the owner).
 
 The lists were made from the records as they stand once every verification PR has merged (records, Gazette fixes and
-re-verifications): 6592 articles, 50 verified, 644 differs, 5898 unverifiable.
+re-verifications, and the penal code's comparison with Qistas): 6592 articles, 50 verified, 1063 differs, 5479
+unverifiable.
 
 | Law | Articles | Verified | Differs | Unverifiable |
 |---|---|---|---|---|
 | [companies](companies.md) | 314 | 2 | 15 | 297 |
 | [civil-code](civil-code.md) | 1448 | 0 | 0 | 1448 |
 | [majalla](majalla.md) | 1851 | 0 | 0 | 1851 |
-| [penal-code](penal-code.md) | 489 | 4 | 56 | 429 |
+| [penal-code](penal-code.md) | 489 | 4 | 475 | 10 |
 | [commerce](commerce.md) | 480 | 0 | 188 | 292 |
 | [maritime-commerce](maritime-commerce.md) | 386 | 0 | 0 | 386 |
 | [civil-procedure](civil-procedure.md) | 229 | 3 | 14 | 212 |
@@ -32,12 +33,16 @@ re-verifications): 6592 articles, 50 verified, 644 differs, 5898 unverifiable.
 | [major-felonies-court](major-felonies-court.md) | 16 | 0 | 0 | 16 |
 | [investment-fund](investment-fund.md) | 16 | 6 | 10 | 0 |
 | [mediation](mediation.md) | 14 | 0 | 14 | 0 |
-| **all** | 6592 | 50 | 644 | 5898 |
+| **all** | 6592 | 50 | 1063 | 5479 |
 
 Why so few are `verified`: `v1` keeps hamza, letter forms and punctuation, and the Gazette, the Bureau and the stored
 text each write these differently (the Gazette prints «او», «اذا», «احكام» without hamza and labels as «أ-»; the stored
 text has «أو», «إذا», «أ.»). Most `differs` articles agree in words. Whether to restyle the stored text to the Gazette's
 spelling, or to widen the normalisation, is the owner's decision. Most `unverifiable` articles need a Gazette issue
 from before 4632, which the Gazette site does not hold.
+
+Penal code: its 419 articles whose Gazette issue (1487) is offline are compared with Qistas's consolidated text,
+under the owner's exception of 2026-11-14 (Qistas accepted as an authentic source). Their «Gazette» reading in
+penal-code.md is Qistas's text, not a Gazette page.
 
 The earlier open items (PRs #1–#27) are in [../lawyer-open-items.md](../lawyer-open-items.md).
