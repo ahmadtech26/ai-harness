@@ -1,6 +1,6 @@
 ---
 name: jordanian-civil-issue-map
-description: Issue checklists for civil and commercial disputes and contracts under Jordanian law (contract, harm, proof, obligations, sale, lease, work and insurance contracts, property, securities) — what to ask, what to distinguish, and which statutory terms to search in the legal library. Use when analysing such a dispute or reviewing such a contract.
+description: Jordanian civil and commercial disputes — contract, harm, proof, obligations, sale, lease, work, insurance, property, securities, time bars. Issue checklists and statutory search terms. Use when analysing a dispute or reviewing a contract.
 metadata:
   version: "0.3.0"
   owner: iqraa-legal-content
