@@ -22,7 +22,8 @@ somewhere else.
 | `deploy/staging` | The local, production-shaped staging stack (`compose.yaml`) and its acceptance driver (`scenarios.mjs`), drills, mock model and Docker tests. See `deploy/staging/README.md`. |
 | `jordanian-law` | The law library as a skill (`SKILL.md`): 22 Jordanian laws verbatim with the Civil Code explanatory memorandum (`references/القوانين-الأردنية`), and practitioner commentary that is context, not authority (`references/docs`). |
 | `services/legal-search` | The library service: an MCP server (`search_law`, `get_article`, `get_memorandum`) over Postgres with Arabic full-text search, the ingest that loads the registry with its corrections, the retrieval evaluation, and the sweep guard with its caps and retrieval log. |
-| `tools/skills` | The skill tools image: `skill-ci` (checks the content skills), `corpus-ci` (checks the law registry and corrections against the library) and `skill-stage` (copies a release's skills into a build folder). |
+| `tools/skills` | The skill tools image: `skill-ci` (checks the content skills), `corpus-ci` (checks the law registry, corrections and verification records against the library) and `skill-stage` (copies a release's skills into a build folder). |
+| `tools/verification` | The verification pass's tools: `v1.py` (normalisation `v1`) and `dump_texts.py` (the stored texts, from `recall-plan`'s `legal_search`). See `content/corpus/verification/README.md`. |
 | `tools/plan` | The implementation-plan generator: `mkplan.py` renders plan chunks, `assemble.py` joins them, `pin_pristine.py` pins the "before" files to the plan's base commits. |
 
 Also at the top of `tools/`: `gates.sh` (below) and `release_eval.py`, the retrieval gate that compares a run with
@@ -53,11 +54,13 @@ Each step prints `== <step>`, then `PASS <step>` or `FAIL <step>`. The steps, in
 | `docker` | `deploy/staging/docker-tests`, one file at a time (`--test-concurrency=1`): each file boots whole compose projects, and run together they exhaust Docker's network address pools. The tests run under their own `hardening-*` names, build a throwaway `hardening-test/` image on the current `iqraa/platform:phase1` where they need one, rebuild `hardening-test/legal-search:isolated` from `services/legal-search` every run, never use port 3080, the client previews' 3091-3097 or the staging project, and remove what they made, volumes included | Docker, Node; `iqraa/platform:phase1` for the tests that build a release image |
 | `fork` | the fork's `src/iqraa` Jest suites and `tsc --noEmit` in `packages/api`, then the `client` suites, through `deploy/dev/platform.sh` | Docker, the AI Platform checkout (`PLATFORM_DIR`) |
 
-Python never runs on the host, with one exception: the skill tools, `legal-search`, the plan tools' tests and the eval
-gate all run in containers, as the steps above do. The exception is `tools/plan/pin_pristine.py`, which reads the plan's
-base commits with `git show` from the checkouts themselves; the pinned `python:3.12-slim` image has no git, so it runs
-on the host, where git and both checkouts are (`python3 -I tools/plan/pin_pristine.py --build <folder> --repo
-fork=<path>@<sha> --repo harness=<path>@<sha>`). It only reads the repositories. Node runs on the host for the `.mjs`
+Python never runs on the host, with two exceptions: the skill tools, `legal-search`, the plan tools' tests and the eval
+gate all run in containers, as the steps above do. The first exception is `tools/plan/pin_pristine.py`, which reads the
+plan's base commits with `git show` from the checkouts themselves; the pinned `python:3.12-slim` image has no git, so it
+runs on the host, where git and both checkouts are (`python3 -I tools/plan/pin_pristine.py --build <folder> --repo
+fork=<path>@<sha> --repo harness=<path>@<sha>`). It only reads the repositories. The second is the verification pass's
+tools (`tools/verification`), run by hand (`content/corpus/verification/README.md`); the `skills` step's image does not
+hold them and skips their test, which `uv run pytest -q` in `tools/skills` runs. Node runs on the host for the `.mjs`
 scripts and tests.
 
 The `fork` step keeps the fork's `node_modules` in Docker volumes. On a new machine, install them once with
