@@ -1,6 +1,6 @@
 # landlords-tenants: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/reverify-landlords-tenants-2026-11`. 22 articles: 0 verified, 5 differs, 17 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 22 articles: 0 verified, 5 differs, 17 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 
@@ -19,7 +19,7 @@ Issues below 4632 are not on the Gazette site; a scan of the printed issue settl
 
 Both texts in `v1` form (diacritics and tatweel removed, digits unified). The stored text has the glued headings and titles that the Bureau comparison identified removed. A caption the reader set aside separately (see the reader's notes and the record's notes) can still show here as stored words «→ (not in the Gazette)»; it is not counted as a difference in the record.
 
-- **7** (body; Gazette 3984 p. 1656): «أ‌.» → «أ-»; «القانون.» → «القانون .»; «أحدهم» → «احدهم»; «السكن،» → «السكن ،»; «أن» → «ان»; «آخر. ب‌.» → «آخر . ب-»; «إن» → «ان»; «للمأجور. مواطنو الدول الاخرى المستثنون من استمرار الايجارة» → «للمأجور .»
+- **7** (body; Gazette 3984 p. 1656): «أ‌.» → «أ-»; «القانون.» → «القانون .»; «أحدهم» → «احدهم»; «السكن،» → «السكن ،»; «أن» → «ان»; «آخر. ب‌.» → «آخر . ب-»; «إن» → «ان»; «للمأجور.» → «للمأجور .»
 - **16** (formatting; Gazette 3984 p. 1656): «القانون.» → «القانون .»
 - **18** (body; Gazette 3984 p. 1656): «بالأجور» → «بالاجور»; «النافذة.» → «النافذة .»
 - **19** (body; Gazette 3984 p. 1656): «إتباع» → «اتباع»; «لإخلاء» → «لاخلاء»; «الإخلاء» → «الاخلاء»; «القانون: أ.» → «القانون :- أ-»; «إخلاء» → «اخلاء»; «إعادة المأجور خلال» → «اعادة المأجورخلال»; «أيام» → «ايام»; «الإخطار» → «الاخطار»; «لاحق،» → «لاحق ،»; «الأمور» → «الامور»; «بإخلاء» → «باخلاء»; «لإثبات» → «لاثبات»; «ضروريا. ب.» → «ضروريا . ب-»; «مجتمعين:1.» → «مجتمعين :- 1-»; «أيام» → «ايام»; «مرافعة. 2.» → «مرافعة . 2-»; «بطلبه. ج.» → «بطلبه . ج-»; «اخر،» → «اخر ،»; «الماجور،» → «المأجور ،»; «الأخر» → «الاخر»; «النافذة. د.» → «النافذة . د-»; «طلبه. ه.» → «طلبه . ه-»; «المادة،» → «المادة ،»; «الإخلاء» → «الاخلاء»; «المادة.» → «المادة .»

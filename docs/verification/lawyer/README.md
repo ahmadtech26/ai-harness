@@ -6,7 +6,7 @@ reading differs from the stored text, it gives the two readings word by word (st
 reader's notes (open questions, fixes made, decisions held for the owner).
 
 The lists were made from the records as they stand once every verification PR has merged (records, Gazette fixes and
-re-verifications, and the penal code's comparison with Qistas): 6592 articles, 50 verified, 1063 differs, 5479
+re-verifications, the penal code's comparison with Qistas, and the records recomputed on the cleaned text of §7): 6592 articles, 51 verified, 1062 differs, 5479
 unverifiable.
 
 | Law | Articles | Verified | Differs | Unverifiable |
@@ -26,14 +26,14 @@ unverifiable.
 | [income-tax](income-tax.md) | 82 | 9 | 73 | 0 |
 | [sales-tax](sales-tax.md) | 77 | 3 | 34 | 40 |
 | [evidence](evidence.md) | 74 | 0 | 4 | 70 |
-| [court-fees](court-fees.md) | 52 | 0 | 37 | 15 |
+| [court-fees](court-fees.md) | 52 | 1 | 36 | 15 |
 | [courts-formation](courts-formation.md) | 23 | 1 | 3 | 19 |
 | [landlords-tenants](landlords-tenants.md) | 22 | 0 | 5 | 17 |
 | [magistrates-courts](magistrates-courts.md) | 22 | 8 | 14 | 0 |
 | [major-felonies-court](major-felonies-court.md) | 16 | 0 | 0 | 16 |
 | [investment-fund](investment-fund.md) | 16 | 6 | 10 | 0 |
 | [mediation](mediation.md) | 14 | 0 | 14 | 0 |
-| **all** | 6592 | 50 | 1063 | 5479 |
+| **all** | 6592 | 51 | 1062 | 5479 |
 
 Why so few are `verified`: `v1` keeps hamza, letter forms and punctuation, and the Gazette, the Bureau and the stored
 text each write these differently (the Gazette prints «او», «اذا», «احكام» without hamza and labels as «أ-»; the stored

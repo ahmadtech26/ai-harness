@@ -1,6 +1,6 @@
 # income-tax: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/reverify-income-tax-2026-11`. 82 articles: 9 verified, 73 differs, 0 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 82 articles: 9 verified, 73 differs, 0 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 

@@ -1,6 +1,6 @@
 # civil-procedure: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/records-civil-procedure-2026-11`. 229 articles: 3 verified, 14 differs, 212 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 229 articles: 3 verified, 14 differs, 212 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 

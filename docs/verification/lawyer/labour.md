@@ -1,13 +1,13 @@
 # labour: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/reverify-labour-2026-11`. 142 articles: 1 verified, 26 differs, 115 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 142 articles: 1 verified, 26 differs, 115 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 
-- **unverifiable / gazette_offline (the Bureau also differs: formatting)** (16): 1, 14, 24, 27, 28, 48, 59, 60, 66, 71, 96, 114, 126, 129, 132, 139
+- **unverifiable / gazette_offline (the Bureau also differs: formatting)** (15): 1, 14, 24, 27, 28, 48, 59, 60, 66, 96, 114, 126, 129, 132, 139
 - **unverifiable / gazette_offline (the Bureau also differs: body)** (56): 2, 4, 6, 9, 15–17, 26, 29, 31–33, 36, 38, 39, 41, 42, 46, 47, 49–51, 54, 57, 61, 65, 67, 70, 76, 78, 79, 81, 84, 87, 89, 90, 92, 94, 95, 97, 100–104, 110, 117–119, 121, 122, 124, 125, 135, 141, 142
 - **differs / from both / formatting** (13): 3, 10, 12, 52, 56, 58, 69, 72, 98, 99, 108, 109, 116
-- **unverifiable / gazette_offline** (42): 5, 7, 8, 18, 19, 21–23, 35, 37, 45, 55, 62–64, 68, 73–75, 80, 82, 83, 85, 86, 88, 91, 93, 105, 106, 111, 112, 120, 123, 127, 128, 130, 131, 133, 134, 136, 138, 140
+- **unverifiable / gazette_offline** (43): 5, 7, 8, 18, 19, 21–23, 35, 37, 45, 55, 62–64, 68, 71, 73–75, 80, 82, 83, 85, 86, 88, 91, 93, 105, 106, 111, 112, 120, 123, 127, 128, 130, 131, 133, 134, 136, 138, 140
 - **differs / from bureau / body** (6): 13, 25, 53, 107, 113, 115
 - **differs / from both / body** (7): 20, 34, 40, 43, 44, 77, 137
 - **unverifiable / gazette_offline (the Bureau also differs: trailing-title)** (1): 30

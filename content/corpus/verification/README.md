@@ -224,6 +224,13 @@ A Gazette-sourced fix PR therefore updates the records of the articles it change
 Two things the hash cannot see: an amending law published after `checked_on` (the law is re-run when one is
 published), and a change of normalisation (a new name, and every record re-run).
 
+**Glued headings (owner 2026-11-14 §7).** From the server change that strips, at ingest, the next article's heading
+glued to the end of an article (`headings.glued_headings` / `strip_glued` on `recall-plan`), the stored text of 1,936
+articles no longer ends with that heading, and every record binds the cleaned text. A record whose comparison had set
+that heading aside keeps its verdicts; the others were compared again on the cleaned text. No article whose text still
+ends with a glued heading is `verified`. Other stored-text defects (a heading the rule does not take, a caption at the
+start, a doubled word) are listed in `docs/verification/2026-11-14-stored-text-defects.md` for a Gazette-sourced fix.
+
 ## The checks
 
 - **corpus-ci** (`tools/skills`, schema only): every file names a registry law; each line is a record of the schema
