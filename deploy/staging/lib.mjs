@@ -481,6 +481,11 @@ export const check = (ok, detail) => ({ ok: Boolean(ok), detail });
 export const verdict = (checks) => ({ pass: Object.values(checks).every((c) => c.ok), checks });
 export const countBy = (values) => values.reduce((acc, v) => ({ ...acc, [v]: (acc[v] ?? 0) + 1 }), {});
 export const answered = (t) => /MOCK_OK|TOOL_RESULT_SEEN/.test(t.result.text ?? '');
+/**
+ * The «المصدر:» values of a library reply (legal-search citation.py), in order: each up to the «؛» after it (the
+ * retrieval id follows the source, plan S8) or the « — » before the verification label.
+ */
+export const sourcesOf = (text) => [...text.matchAll(/المصدر: (.*?)(?:؛| — )/g)].map((m) => m[1]);
 // A refused turn must reach the provider not at all: conversation-title requests count too.
 export const providerCalls = (t) => t.calls.length + t.titles.length;
 
