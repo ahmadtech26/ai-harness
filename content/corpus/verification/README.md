@@ -150,7 +150,9 @@ item), `file_sha256` is the sha256 of the page image or file read, and `law` and
 read: its evidence line's `text_sha256`), `checked_on`, and `result` (`match` \| `formatting` \| `body`: the helper's
 text against the stored text under `v1`, information only, for grouping the lawyer list). corpus-ci rejects a Gazette
 reference (`gazette.original` or an amendment) or a `bureau.url` on a helper's host, reading the host as a resolver does
-(a port, a userinfo part, a trailing dot or capitals do not hide it). The 73 penal-code Qistas texts that carried the
+(a port, a userinfo part, a trailing dot or capitals do not hide it), and rejects any reference URL whose spelling a
+browser could resolve elsewhere (a non-ASCII host, a «%», a «\»). `helper.url` is required and on the helper's host,
+and a record's `gazette.text_sha256` is never its helper's. The 73 penal-code Qistas texts that carried the
 Qistas print page's own URL (printed reversed inside the text, «…research.qistas.com/ar/print/laws//:https») have it
 removed; their `text_sha256` is of the text without it.
 
@@ -190,8 +192,9 @@ The shape of a record (placeholders, not data):
 them, one per page image read in page order (the form most lines use); `pages`, optional, lists `{issue, page,
 document_id, image_sha256}` per page; `note`, optional, says how a line was made where it was not transcribed from the
 source (execution 62's line was reconstructed on 2026-11-15 from its record's note of the 2026-11-14 reading). corpus-ci
-checks every line's schema and `text_sha256` (sha256 of `text`), that a helper line is on its host and has no Gazette
-fields, and that every `text_sha256` a record cites (gazette, bureau, helper) has a line of that source for the article. The text is the transcription or the Bureau's article text as read, before `v1`, so
+checks every line's schema and `text_sha256` (sha256 of `text`), that a helper line has a url on its host and no Gazette
+fields, that a Gazette line names its url or its page image(s) (one pinned exception, companies 151, follow-ups item 2),
+and that every `text_sha256` a record cites (gazette, bureau, helper) has a line of that source for the article. The text is the transcription or the Bureau's article text as read, before `v1`, so
 `compare()` can be run on it again. Gazette images and PDFs are never committed; their sha256 identifies them.
 
 ## How to re-run a law
@@ -291,7 +294,8 @@ amending regulation on the Gazette is **نظام رقم (108) لسنة 2008 — 
   entry `"instrument": "regulation"` (an entry without `instrument` is a law). corpus-ci accepts `law` or `regulation`;
   legal-search's registry (`registry.py`, recall-plan) reads it, and the library then prints the amendment as «آخر
   تعديل: النظام المعدِّل رقم 108 لسنة 2008» (the heading keeps the plain title, «جدول رسوم المحاكم رقم 43 لسنة 2005»).
-  `law-aliases.json` gives the regulation's own name, «نظام رسوم المحاكم», as a court-fees alias.
+  `law-aliases.json` gives court-fees the alias «الجدول الملحق بنظام رسوم المحاكم» (owner, «Narrow name»): the library
+  holds the schedule's 52 items, not the regulation's own 18 articles, so the regulation's bare name is not an alias.
 
 ## Law approval
 

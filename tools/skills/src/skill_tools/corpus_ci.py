@@ -42,3 +42,7 @@ def main(argv: list[str] | None = None) -> None:
     verified = sorted(p.stem for p in (args.content / 'corpus' / 'verification').glob('*.jsonl'))
     print('corpus-ci: registry, corrections, verification records and evidence pass' + (' (release)' if args.release else '')
           + f'; laws with a verification file: {", ".join(verified) or "none"}')
+
+
+if __name__ == '__main__':
+    main()

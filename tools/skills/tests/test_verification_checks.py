@@ -94,8 +94,9 @@ def gazette(method: str = 'text', **reference) -> dict:
 
 BUREAU = {'legislation_id': 42, 'url': 'https://example.test/bureau/42', 'as_of': '2026-11-14', 'text_sha256': SHA,
           'checked_on': '2026-11-14'}
-HELPER = {'source': 'qistas', 'url': 'https://research.qistas.com/ar/print/laws?es=1', 'text_sha256': SHA,
+HELPER = {'source': 'qistas', 'url': 'https://research.qistas.com/ar/print/laws?es=1', 'text_sha256': 'b' * 64,
           'checked_on': '2026-11-14', 'result': 'body'}
+REFURL = 'an http(s) URL with an ASCII host and no «%» or «\\»'
 NOT_THE_GAZETTE = 'is on qistas.com: qistas is a helper source, never the Gazette or the Bureau (its reading goes in the helper block)'
 
 
@@ -189,7 +190,7 @@ RECORD_VIOLATIONS = [
     (record(checked_on='14/11/2026'), ('date', 'checked_on must be an ISO date (YYYY-MM-DD)')),
     (record(gazette=gazette(date='1900-3-2')), ('date', 'gazette.original.date must be an ISO date (YYYY-MM-DD)')),
     (record(gazette=gazette(method='pdf')), ('schema', 'gazette.method must be one of text, image')),
-    (record(gazette=gazette(url='doc.pm.gov.jo/1')), ('schema', 'gazette.original.url must be an http(s) URL')),
+    (record(gazette=gazette(url='doc.pm.gov.jo/1')), ('schema', f'gazette.original.url must be {REFURL}')),
     (record(gazette=gazette(editor='x')), ('schema', 'unknown field gazette.original.editor')),
     (record(gazette=_with_gazette(amendments=[{'law': 7}])), ('schema', 'missing field gazette.amendments[0].effect')),
     (record(gazette=_with_gazette(amendments=[{
@@ -211,6 +212,14 @@ RECORD_VIOLATIONS = [
     (record(helper={**HELPER, 'url': 'https://example.test/print'}),
      ('schema', "helper.url is not on qistas.com, the host of helper.source 'qistas'")),
     (record(helper={**HELPER, 'result': 'equal'}), ('schema', 'helper.result must be one of match, formatting, body')),
+    (record(helper={**HELPER, 'url': None}), ('schema', 'helper.url must not be null')),
+    # spellings a browser resolves to another host than the one the URL seems to name
+    (record(helper={**HELPER, 'url': 'https://research.qistas.com/%2e%2e/x'}), ('schema', f'helper.url must be {REFURL}')),
+    (record(gazette=gazette(url='https://qistаs.com/x')), ('schema', f'gazette.original.url must be {REFURL}')),  # Cyrillic а
+    (record(gazette=gazette(url='https://example.test\\@qistas.com/')), ('schema', f'gazette.original.url must be {REFURL}')),
+    (record(bureau={**BUREAU, 'url': 'https://qistas%2Ecom/x'}), ('schema', f'bureau.url must be {REFURL}')),
+    (record(gazette=gazette(), helper={**HELPER, 'text_sha256': SHA}),
+     ('schema', "gazette.text_sha256 is the helper's text_sha256: a helper's reading is never the Gazette's")),
     (record(gazette=_with_gazette(amendments=[{
         'law': 7, 'year': 1901, 'issue': 1300, 'date': '1901-05-06', 'page': 3, 'effect': 'amended',
         'document_id': None, 'url': 'https://qistas.com/x', 'file_sha256': None}])),
@@ -348,6 +357,9 @@ EVIDENCE_VIOLATIONS = [
     (evidence('qistas', issue=1487), ('schema', "a qistas line is a helper's reading: issue must be null")),
     (evidence('qistas', url='https://example.test/print'), ('schema', "a qistas line's url is not on qistas.com")),
     (evidence(law_slug='civil-code'), ('schema', "law_slug 'civil-code' is not the file's law 'demo-law'")),
+    (evidence(url=None, image_sha256=None), ('schema', 'a gazette line needs its url or its image_sha256')),
+    (evidence('qistas', url=None), ('schema', "a qistas line's url is not on qistas.com")),
+    (evidence(url='https://example.test/a%20b'), ('schema', f'url must be {REFURL}')),
 ]
 
 
@@ -359,7 +371,7 @@ def test_rejects_each_evidence_violation():
 
 
 def test_accepts_the_forms_of_an_evidence_line():
-    lines = [evidence(), evidence(image_sha256=SHA), evidence(image_sha256=None, url=None),
+    lines = [evidence(), evidence(image_sha256=SHA), evidence(image_sha256=None), evidence(url=None),
              evidence(pages=[{'issue': 1234, 'page': 10, 'document_id': 9, 'image_sha256': SHA}], note='reconstructed'),
              evidence('bureau'), evidence('qistas'), evidence('bureau', text=None, text_sha256=None)]
 
@@ -391,4 +403,25 @@ def test_a_missing_evidence_folder_fails_only_where_a_record_cites_a_text(tmp_pa
     _write(tmp_path / 'verification', 'demo-law.jsonl', [record(bureau=dict(BUREAU))])
     assert [p.message for p in check_evidence(tmp_path / 'nowhere', tmp_path / 'verification')] == [
         'missing: the records cite texts']
+
+
+def test_the_one_gazette_line_without_its_source_is_pinned():
+    composite = evidence(law_slug='companies', number=151, url=None, image_sha256=None)
+    assert check_evidence_line(composite, 'companies') == []
+    assert check_evidence_line({**composite, 'number': 152}, 'companies') == [
+        ('schema', 'a gazette line needs its url or its image_sha256')]
+
+
+def test_python_dash_m_runs_corpus_ci(tmp_path: Path):
+    import subprocess
+    import sys
+    content, corpus = _content(tmp_path, _all_records(gazette=None))
+    run = subprocess.run([sys.executable, '-m', 'skill_tools.corpus_ci', '--content', str(content), '--corpus', str(corpus)],
+                         capture_output=True, text=True, check=False)
+    assert run.returncode == 0, run.stderr
+    assert run.stdout.startswith('corpus-ci: registry, corrections, verification records and evidence pass')
+    _write(content / 'corpus' / 'verification', 'demo-law.jsonl', [record(result='checked')])
+    failing = subprocess.run([sys.executable, '-m', 'skill_tools.corpus_ci', '--content', str(content), '--corpus', str(corpus)],
+                             capture_output=True, text=True, check=False)
+    assert failing.returncode == 1
 

@@ -249,16 +249,16 @@ HELPER_SOURCES = {'qistas': 'qistas.com'}
 NORMALISATIONS = ('v1',)
 # (kind, nullable). A kind is a named value type, a tuple of allowed values, a nested object, or [item kind].
 _REFERENCE = {'issue': ('id', True), 'date': ('date', True), 'page': ('id', True), 'document_id': ('id', True),
-              'url': ('url', True), 'file_sha256': ('sha256', True)}
+              'url': ('refurl', True), 'file_sha256': ('sha256', True)}
 _AMENDMENT = {'law': ('int', True), 'year': ('int', True), **_REFERENCE, 'effect': (EFFECTS, False)}
 _GAZETTE = {'method': (METHODS, True), 'original': (_REFERENCE, True), 'amendments': ([_AMENDMENT], False),
             'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
-_BUREAU = {'legislation_id': ('id', True), 'url': ('url', True), 'as_of': ('date', True),
+_BUREAU = {'legislation_id': ('id', True), 'url': ('refurl', True), 'as_of': ('date', True),
            'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
 # The helper's text against the stored text under v1 (information only, for grouping the lawyer list): equal, or the
 # kind of difference v1.compare gives.
 HELPER_RESULTS = ('match', 'formatting', 'body')
-_HELPER = {'source': (tuple(HELPER_SOURCES), False), 'url': ('url', True), 'text_sha256': ('sha256', True),
+_HELPER = {'source': (tuple(HELPER_SOURCES), False), 'url': ('refurl', False), 'text_sha256': ('sha256', True),
            'checked_on': ('date', True), 'result': (HELPER_RESULTS, True)}
 RECORD = {
     'law_slug': ('str', False), 'number': ('int', False), 'suffix': ('str', False), 'text_sha256': ('sha256', False),
@@ -275,6 +275,10 @@ _KINDS = {
     'sha256': (lambda v: _is(v, str) and bool(SHA256.match(v)), 'a sha256 (64 lowercase hex digits)'),
     'date': (lambda v: _iso(v), 'an ISO date (YYYY-MM-DD)'),
     'url': (lambda v: _url(v), 'an http(s) URL'),
+    # A reference URL of a record or an evidence line: no spelling a browser would resolve to another host (a non-ASCII
+    # host, a percent-escape, a backslash), so the helper-host rule reads the host the URL really names.
+    'refurl': (lambda v: _url(v) and '%' not in v and '\\' not in v and _ascii_host(v),
+               'an http(s) URL with an ASCII host and no «%» or «\\»'),
 }
 MAX_PROBLEMS_PER_FILE = 20
 # `### المادة N`, optionally «مكرر» and one more word, optionally a dash and inline text: the article headings of a
@@ -321,6 +325,14 @@ def _filled_reference(reference: object, method: object) -> bool:
             and (method != 'image' or reference.get('file_sha256') is not None))
 
 
+def _ascii_host(url: str) -> bool:
+    try:
+        host = urlsplit(url).hostname or ''
+    except ValueError:
+        return False
+    return bool(host) and host.isascii()
+
+
 def host_of(url: object) -> str:
     """The URL's host as a resolver sees it: lowercase, without userinfo, port or a trailing dot; '' when there is none."""
     if not _is(url, str):
@@ -354,9 +366,12 @@ def _helper_problems(record: dict) -> list[str]:
         if name is not None:
             problems.append(f'{path}.url is on {HELPER_SOURCES[name]}: {name} is a helper source, never the Gazette '
                             'or the Bureau (its reading goes in the helper block)')
-    if helper is not None and helper['url'] is not None and helper_of_host(helper['url']) != helper['source']:
+    if helper is not None and helper_of_host(helper['url']) != helper['source']:
         problems.append(f'helper.url is not on {HELPER_SOURCES[helper["source"]]}, the host of helper.source '
                         f'{helper["source"]!r}')
+    if (helper is not None and gazette is not None and gazette['text_sha256'] is not None
+            and gazette['text_sha256'] == helper['text_sha256']):
+        problems.append('gazette.text_sha256 is the helper\'s text_sha256: a helper\'s reading is never the Gazette\'s')
     return problems
 
 
@@ -509,7 +524,7 @@ EVIDENCE_SOURCES = ('gazette', 'bureau', *HELPER_SOURCES)
 _PAGE = {'issue': ('id', True), 'page': ('id', True), 'document_id': ('id', True), 'image_sha256': ('sha256', True)}
 EVIDENCE_LINE = {
     'law_slug': ('str', False), 'number': ('int', False), 'suffix': ('str', False), 'source': (EVIDENCE_SOURCES, False),
-    'text': ('str', True), 'text_sha256': ('sha256', True), 'url': ('url', True), 'document_id': ('id', True),
+    'text': ('str', True), 'text_sha256': ('sha256', True), 'url': ('refurl', True), 'document_id': ('id', True),
     'issue': ('id', True), 'page': ('id', True), 'image_sha256': ('image', True), 'pages': ([_PAGE], True),
     'note': ('str', True), 'accessed_on': ('date', False),
 }
@@ -518,6 +533,11 @@ _KINDS['image'] = (lambda v: (_is(v, str) and bool(SHA256.match(v)))
                    or (_is(v, list) and bool(v) and all(_is(x, str) and bool(SHA256.match(x)) for x in v)),
                    'a sha256 or a non-empty list of sha256, one per page image')
 _GAZETTE_FIELDS = ('document_id', 'issue', 'page', 'image_sha256', 'pages')
+# A Gazette line names what it was read from: its url or its page image(s). The one known exception, until the
+# follow-up (docs/verification/2026-11-15-follow-ups.md, item 2) fills it from the page images:
+GAZETTE_LINES_WITHOUT_SOURCE = {
+    ('companies', 151, ''): 'composite line over pages 5643-5644 and 3642-3643 (evidence/companies.jsonl:193); follow-ups item 2',
+}
 
 
 def check_evidence_line(line: object, slug: str) -> list[tuple[str, str]]:
@@ -535,13 +555,16 @@ def check_evidence_line(line: object, slug: str) -> list[tuple[str, str]]:
         problems.append(('schema', 'text_sha256 is not the sha256 of text (UTF-8)'))
     helper = helper_of_host(line['url'])
     if line['source'] in HELPER_SOURCES:
-        if line['url'] is not None and helper != line['source']:
+        if helper != line['source']:
             problems.append(('schema', f'a {line["source"]} line\'s url is not on {HELPER_SOURCES[line["source"]]}'))
         problems += [('schema', f'a {line["source"]} line is a helper\'s reading: {key} must be null')
                      for key in _GAZETTE_FIELDS if line.get(key) is not None]
     elif helper is not None:
         problems.append(('schema', f'a {line["source"]} line\'s url is on {HELPER_SOURCES[helper]}: {helper} is a helper '
                                    'source, its line is labelled ' + repr(helper)))
+    if (line['source'] == 'gazette' and line['url'] is None and line['image_sha256'] is None
+            and (slug, line['number'], line['suffix']) not in GAZETTE_LINES_WITHOUT_SOURCE):
+        problems.append(('schema', 'a gazette line needs its url or its image_sha256'))
     return problems
 
 
