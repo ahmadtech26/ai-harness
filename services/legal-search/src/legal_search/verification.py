@@ -25,8 +25,11 @@ from legal_search.corpus import Article
 
 VERIFICATION_DIR = 'verification'
 RESULTS = ('verified', 'differs', 'unverifiable')
-# An amendment with one of these effects is where the text in force begins: it replaced the whole text, inserted the
-# article («مكرر») or repealed it. Later amendments touched that text; earlier issues are history.
+# An amendment's `effect`, every value there is. It must equal corpus-ci's EFFECTS (tools/skills, corpus_checks.py on
+# the content branch), which accepts exactly these: a record with any other effect is a problem and verifies nothing.
+EFFECTS = ('amended', 'replaced', 'added', 'repealed', 'renumbered')
+# Of EFFECTS, the ones where the text in force begins: it replaced the whole text, inserted the article («مكرر») or
+# repealed it. Later amendments touched that text; earlier issues are history.
 _TEXT_STARTS = ('replaced', 'added', 'repealed')
 _SHA256 = re.compile(r'^[0-9a-f]{64}$')
 # An issue, page or legislation id as the label prints it: ASCII letters and digits, inner «.», «/» and «-» («12-13»).
@@ -139,6 +142,18 @@ def gazette_in_force(gazette: dict) -> tuple[GazetteRef, ...]:
     return tuple(refs)
 
 
+def _effect_problem(record: dict) -> str | None:
+    """Why an amendment of the record's Gazette block has no effect of EFFECTS; None when each has one (or there is
+    no block or no amendment)."""
+    gazette = record.get('gazette')
+    amendments = gazette.get('amendments') if isinstance(gazette, dict) else None
+    for index, amendment in enumerate(amendments if isinstance(amendments, list) else []):
+        effect = amendment.get('effect') if isinstance(amendment, dict) else None
+        if not (isinstance(effect, str) and effect in EFFECTS):
+            return f'gazette.amendments[{index}].effect {effect!r} is not one of {", ".join(EFFECTS)}'
+    return None
+
+
 def verification_of(record: dict) -> Verification | str:
     """A verified record's references, or why the library cannot show them (the record then verifies nothing)."""
     checked_on = _iso(record.get('checked_on'))
@@ -173,8 +188,8 @@ class Matched:
 def match(articles: dict[str, list[Article]], directory: Path) -> Matched:
     """The verified articles among `articles` (law slug -> its articles as `ingest.prepare` returns them) by the records
     in `directory`, and the problems: a line that is not a record, a record of another law or of no parsed article, a
-    second record for an article, a verified record whose text_sha256 is not the text's or whose references cannot be
-    shown, and a law with a file but an article without a record."""
+    second record for an article, an amendment whose effect is not one of EFFECTS, a verified record whose text_sha256
+    is not the text's or whose references cannot be shown, and a law with a file but an article without a record."""
     verified: dict[Key, Verification] = {}
     problems: list[str] = []
     results = dict.fromkeys(RESULTS, 0)
@@ -226,6 +241,10 @@ def match(articles: dict[str, list[Article]], directory: Path) -> Matched:
             recorded = record.get('text_sha256')
             if not (isinstance(recorded, str) and _SHA256.match(recorded)):
                 problems.append(f'{where}: text_sha256 is not a lowercase sha256 hex digest')
+                continue
+            effect = _effect_problem(record)
+            if effect is not None:
+                problems.append(f'{where}: {slug} {_label(*key)}: {effect}')
                 continue
             if result != 'verified':
                 continue
