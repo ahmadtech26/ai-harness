@@ -1,8 +1,8 @@
-"""Glued headings (owner, 2026-11-14 §7): the stored text of an article never ends with a heading that belongs to the
-next article. headings.extract finds that heading (it moves it into the next article's heading field); the ingest now
-also strips it from the article's text, and the heading field keeps it. What heading text the strip leaves at the end
-of an article is pinned (RESIDUE, the owner's point 12); test_glued_headings_official.py checks the strip against the
-Gazette and Bureau texts (point 11)."""
+"""Glued headings (owner, 2026-11-14 §7): the stored text of an article does not end with the heading that belongs to
+the next article. headings.extract finds that heading (it moves it into the next article's heading field); the ingest
+now also strips it from the article's text, and the heading field keeps it. The heading text still at the end of an
+article after the strip, as far as this test's detectors find it, is pinned (RESIDUE, the owner's point 12);
+test_glued_headings_official.py checks the strip against the Gazette and Bureau texts (point 11)."""
 
 import os
 import re
@@ -108,12 +108,17 @@ def test_prepare_stores_the_text_without_its_glued_heading_and_keeps_the_heading
     assert prepared.glued == {('civil-code', 1, ''): 'الفصل الثاني احكام العقد'}
 
 
-# What is still heading text at the end of an article after the strip (the owner's point 12), pinned so that it
-# cannot grow silently. 'stacked': a markdown heading line stacked above the one the strip took (the Majalla, where a
-# «## الباب …» line stands over the «## الفصل …» line that is the next article's heading). 'list': the strip took the
-# last item of a list of the next article's headings and left the rest of the list, down to that item's marker
-# (commerce 15 ends «… دفاتر التجار أ. دفتر يومية ب. دفتر صور الرسائل ج.»; item ج., «دفتر الجرد والميزانية», is 16's
-# heading). 'rule': the strip rule run again on the stored text with the law's bleed status before the strip (none).
+# The heading text still at the end of an article after the strip, found by the test's detectors (the owner's point
+# 12), pinned so that it cannot grow silently. 'stacked': a markdown heading line stacked above the one the strip took
+# (the Majalla, where a «## الباب …» line stands over the «## الفصل …» line that is the next article's heading).
+# 'list': the strip took the last item of a list of the next article's headings and left the rest of the list, down to
+# that item's marker (commerce 15 ends «… دفاتر التجار أ. دفتر يومية ب. دفتر صور الرسائل ج.»; item ج., «دفتر الجرد
+# والميزانية», is 16's heading). 'rule': the strip rule run again on the stored text with the law's bleed status
+# before the strip (none).
+# The detectors do not see everything: 195 more articles end with the next article's heading because their text has
+# no sentence end for the strip to cut at, each a repealed article («ملغاة» and the heading) or an amendment note
+# («* ملاحظة: …» closing on a year or a date, then the heading): commerce 290-477 (188), companies 188, 213, 266 and
+# 283, customs 234, income-tax 55 and execution 62. They are left as they are.
 RESIDUE = {
     **{('majalla', number, ''): 'stacked' for number in (
         196, 236, 261, 299, 360, 432, 462, 496, 521, 581, 595, 620, 633, 658, 679, 721, 728, 772, 803, 836, 860, 911,
@@ -129,9 +134,9 @@ LIST_END = re.compile(r'(?:^|\s)(?:[أ-ي]|هـ|[0-9٠-٩]{1,2})\s*[.\-–)]$') 
 def test_the_real_corpus_keeps_no_glued_heading_beyond_the_pinned_residue(capsys):
     """Over the whole library: how many articles ended with the next article's heading before the ingest strips it (and
     how many ended with exactly that heading, the owner's count), and how many still end with heading text after it
-    (RESIDUE): by the same rule, with each law's bleed status from before the strip, which the strip itself lowers
-    (a status recomputed from the cleaned text would hide what is left); by a stacked «##» heading; by a list of
-    headings the strip took the last item of."""
+    as the test's detectors find it (RESIDUE; not the 195 without a sentence end, above): by the same rule, with each
+    law's bleed status from before the strip, which the strip itself lowers (a status recomputed from the cleaned text
+    would hide what is left); by a stacked «##» heading; by a list of headings the strip took the last item of."""
     corpus_files = Path(os.environ['CONTENT_DIR']) / 'corpus'
     laws, corrections = load_registry(corpus_files / 'laws.json'), load_corrections(corpus_files / 'corrections.json')
     corpus = Path(os.environ['CORPUS_DIR'])
