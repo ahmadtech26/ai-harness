@@ -4,11 +4,13 @@ verification/<law-slug>.jsonl), run by corpus-ci.
 Every check returns problems; an empty list passes. Rules: phase 3 spec A.1–A.3. A present value needs a
 source URL; an absent value is fine (values are never guessed)."""
 
+import hashlib
 import json
 import re
 from collections import Counter
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from skill_tools.checks import Problem
 
@@ -253,8 +255,11 @@ _GAZETTE = {'method': (METHODS, True), 'original': (_REFERENCE, True), 'amendmen
             'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
 _BUREAU = {'legislation_id': ('id', True), 'url': ('url', True), 'as_of': ('date', True),
            'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
+# The helper's text against the stored text under v1 (information only, for grouping the lawyer list): equal, or the
+# kind of difference v1.compare gives.
+HELPER_RESULTS = ('match', 'formatting', 'body')
 _HELPER = {'source': (tuple(HELPER_SOURCES), False), 'url': ('url', True), 'text_sha256': ('sha256', True),
-           'checked_on': ('date', True)}
+           'checked_on': ('date', True), 'result': (HELPER_RESULTS, True)}
 RECORD = {
     'law_slug': ('str', False), 'number': ('int', False), 'suffix': ('str', False), 'text_sha256': ('sha256', False),
     'norm_sha256': ('sha256', True), 'result': (RESULTS, False), 'reason': (REASONS, True),
@@ -316,25 +321,42 @@ def _filled_reference(reference: object, method: object) -> bool:
             and (method != 'image' or reference.get('file_sha256') is not None))
 
 
-def _host(url: object) -> str:
-    match = re.match(r'^https?://([^/?#]+)', url) if _is(url, str) else None
-    return match.group(1).lower() if match else ''
+def host_of(url: object) -> str:
+    """The URL's host as a resolver sees it: lowercase, without userinfo, port or a trailing dot; '' when there is none."""
+    if not _is(url, str):
+        return ''
+    try:
+        host = urlsplit(url.strip()).hostname or ''
+    except ValueError:
+        return ''
+    return host.rstrip('.').lower()
+
+
+def helper_of_host(url: object) -> str | None:
+    """The helper source whose host (or a subdomain of it) `url` is on, else None."""
+    host = host_of(url)
+    return next((name for name, helper in HELPER_SOURCES.items() if host == helper or host.endswith('.' + helper)), None)
 
 
 def _helper_problems(record: dict) -> list[str]:
-    """A helper source's reading is never a Gazette reference (run on a record whose schema passed)."""
-    gazette = record['gazette']
-    if gazette is None:
-        return []
-    references = [('gazette.original', gazette['original'])] + [
-        (f'gazette.amendments[{index}]', amendment) for index, amendment in enumerate(gazette['amendments'])]
+    """A helper source's reading is never a Gazette or Bureau reference, and a helper block's URL is on its own source's
+    host (run on a record whose schema passed)."""
+    references: list[tuple[str, object]] = []
+    gazette, bureau, helper = record['gazette'], record['bureau'], record.get('helper')
+    if gazette is not None:
+        references += [('gazette.original', gazette['original'])] + [
+            (f'gazette.amendments[{index}]', amendment) for index, amendment in enumerate(gazette['amendments'])]
+    if bureau is not None:
+        references.append(('bureau', bureau))
     problems = []
     for path, reference in references:
-        host = _host(reference['url']) if reference else ''
-        for name, helper_host in HELPER_SOURCES.items():
-            if host == helper_host or host.endswith('.' + helper_host):
-                problems.append(f'{path}.url is on {helper_host}: {name} is a helper source, never the Gazette '
-                                '(its reading goes in the helper block)')
+        name = helper_of_host(reference['url']) if reference else None
+        if name is not None:
+            problems.append(f'{path}.url is on {HELPER_SOURCES[name]}: {name} is a helper source, never the Gazette '
+                            'or the Bureau (its reading goes in the helper block)')
+    if helper is not None and helper['url'] is not None and helper_of_host(helper['url']) != helper['source']:
+        problems.append(f'helper.url is not on {HELPER_SOURCES[helper["source"]]}, the host of helper.source '
+                        f'{helper["source"]!r}')
     return problems
 
 
@@ -477,4 +499,96 @@ def check_verification(directory: Path, registry: object, corrections: object, c
             more = len(file_problems) - MAX_PROBLEMS_PER_FILE
             file_problems = file_problems[:MAX_PROBLEMS_PER_FILE] + [Problem(name, 'schema', f'{more} more problem(s) not shown')]
         problems += file_problems
+    return problems
+
+
+# Evidence files: docs/verification/evidence/<law-slug>.jsonl beside content/ (content/corpus/verification/README.md,
+# «Evidence files»), one line per article and source. Schema, the text's hash, the helper rule, and the records' links:
+# every source block's text_sha256 (gazette, bureau, helper) has its own evidence line for the article.
+EVIDENCE_SOURCES = ('gazette', 'bureau', *HELPER_SOURCES)
+_PAGE = {'issue': ('id', True), 'page': ('id', True), 'document_id': ('id', True), 'image_sha256': ('sha256', True)}
+EVIDENCE_LINE = {
+    'law_slug': ('str', False), 'number': ('int', False), 'suffix': ('str', False), 'source': (EVIDENCE_SOURCES, False),
+    'text': ('str', True), 'text_sha256': ('sha256', True), 'url': ('url', True), 'document_id': ('id', True),
+    'issue': ('id', True), 'page': ('id', True), 'image_sha256': ('image', True), 'pages': ([_PAGE], True),
+    'note': ('str', True), 'accessed_on': ('date', False),
+}
+OPTIONAL_EVIDENCE_KEYS = {'pages', 'note'}
+_KINDS['image'] = (lambda v: (_is(v, str) and bool(SHA256.match(v)))
+                   or (_is(v, list) and bool(v) and all(_is(x, str) and bool(SHA256.match(x)) for x in v)),
+                   'a sha256 or a non-empty list of sha256, one per page image')
+_GAZETTE_FIELDS = ('document_id', 'issue', 'page', 'image_sha256', 'pages')
+
+
+def check_evidence_line(line: object, slug: str) -> list[tuple[str, str]]:
+    """(rule, message) for each problem of one line of evidence/<slug>.jsonl."""
+    if not _is(line, dict):
+        return [('schema', 'each line must be a JSON object')]
+    problems = _object_problems(line, EVIDENCE_LINE, '', OPTIONAL_EVIDENCE_KEYS)
+    if _is(line.get('law_slug'), str) and line['law_slug'] != slug:
+        problems.append(('schema', f'law_slug {line["law_slug"]!r} is not the file\'s law {slug!r}'))
+    if problems:
+        return problems
+    if (line['text'] is None) != (line['text_sha256'] is None):
+        problems.append(('schema', 'text and text_sha256 are both set or both null'))
+    elif line['text'] is not None and hashlib.sha256(line['text'].encode('utf-8')).hexdigest() != line['text_sha256']:
+        problems.append(('schema', 'text_sha256 is not the sha256 of text (UTF-8)'))
+    helper = helper_of_host(line['url'])
+    if line['source'] in HELPER_SOURCES:
+        if line['url'] is not None and helper != line['source']:
+            problems.append(('schema', f'a {line["source"]} line\'s url is not on {HELPER_SOURCES[line["source"]]}'))
+        problems += [('schema', f'a {line["source"]} line is a helper\'s reading: {key} must be null')
+                     for key in _GAZETTE_FIELDS if line.get(key) is not None]
+    elif helper is not None:
+        problems.append(('schema', f'a {line["source"]} line\'s url is on {HELPER_SOURCES[helper]}: {helper} is a helper '
+                                   'source, its line is labelled ' + repr(helper)))
+    return problems
+
+
+def _cited_texts(record: dict) -> list[tuple[str, str]]:
+    """(evidence source, text_sha256) of each source block of a record that cites a text."""
+    cited = []
+    for block, source in (('gazette', 'gazette'), ('bureau', 'bureau')):
+        value = record.get(block)
+        if _is(value, dict) and _is(value.get('text_sha256'), str):
+            cited.append((source, value['text_sha256']))
+    helper = record.get('helper')
+    if _is(helper, dict) and _is(helper.get('text_sha256'), str) and _is(helper.get('source'), str):
+        cited.append((helper['source'], helper['text_sha256']))
+    return cited
+
+
+def check_evidence(directory: Path, verification: Path) -> list[Problem]:
+    """Every evidence/<law-slug>.jsonl line, and every text a verification record cites: a line of that source for the
+    article with that text_sha256. A missing evidence folder is a problem only when a record cites a text."""
+    records_by_law: dict[str, list[tuple[int, dict]]] = {}
+    for path in sorted(verification.glob('*.jsonl')) if verification.is_dir() else []:
+        records, _ = _read_records(path, f'verification/{path.name}')
+        records_by_law[path.stem] = [(n, r) for n, r in records if _is(r, dict)]
+    citing = any(_cited_texts(r) for rows in records_by_law.values() for _, r in rows)
+    if not directory.is_dir():
+        return [Problem('docs/verification/evidence', 'evidence', 'missing: the records cite texts')] if citing else []
+    problems: list[Problem] = []
+    for path in sorted(directory.glob('*.jsonl')):
+        slug, name = path.stem, f'evidence/{path.name}'
+        lines, file_problems = _read_records(path, name)
+        seen: set[tuple] = set()
+        for line_number, line in lines:
+            file_problems += [Problem(f'{name}:{line_number}', rule, message)
+                              for rule, message in check_evidence_line(line, slug)]
+            if _is(line, dict):
+                seen.add((line.get('number'), line.get('suffix'), line.get('source'), line.get('text_sha256')))
+        for line_number, record in records_by_law.pop(slug, []):
+            for source, digest in _cited_texts(record):
+                if (record.get('number'), record.get('suffix'), source, digest) not in seen:
+                    file_problems.append(Problem(f'verification/{slug}.jsonl:{line_number}', 'evidence',
+                                                 f'{_key_label(record.get("number"), record.get("suffix"))}: no {source} '
+                                                 f'line in {name} with the {source} text_sha256 the record cites'))
+        if len(file_problems) > MAX_PROBLEMS_PER_FILE:
+            more = len(file_problems) - MAX_PROBLEMS_PER_FILE
+            file_problems = file_problems[:MAX_PROBLEMS_PER_FILE] + [Problem(name, 'evidence', f'{more} more problem(s) not shown')]
+        problems += file_problems
+    for slug, rows in sorted(records_by_law.items()):
+        if any(_cited_texts(r) for _, r in rows):
+            problems.append(Problem(f'verification/{slug}.jsonl', 'evidence', f'cites texts, but evidence/{slug}.jsonl is missing'))
     return problems

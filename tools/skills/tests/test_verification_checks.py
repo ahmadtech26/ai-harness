@@ -1,11 +1,22 @@
-"""corpus-ci's verification-record checks (content/corpus/verification/<law-slug>.jsonl): schema and article coverage."""
+"""corpus-ci's verification-record checks (content/corpus/verification/<law-slug>.jsonl): schema and article coverage,
+and the evidence files (docs/verification/evidence/<law-slug>.jsonl): schema and a line behind every text a record cites."""
 
+import hashlib
 import json
 from pathlib import Path
 
 import pytest
 
-from skill_tools.corpus_checks import EFFECTS, article_keys, check_verification, check_verification_record, heading_keys
+from skill_tools.corpus_checks import (
+    EFFECTS,
+    article_keys,
+    check_evidence,
+    check_evidence_line,
+    check_verification,
+    check_verification_record,
+    heading_keys,
+    host_of,
+)
 from skill_tools.corpus_ci import main
 
 SHA = 'a' * 64
@@ -84,7 +95,8 @@ def gazette(method: str = 'text', **reference) -> dict:
 BUREAU = {'legislation_id': 42, 'url': 'https://example.test/bureau/42', 'as_of': '2026-11-14', 'text_sha256': SHA,
           'checked_on': '2026-11-14'}
 HELPER = {'source': 'qistas', 'url': 'https://research.qistas.com/ar/print/laws?es=1', 'text_sha256': SHA,
-          'checked_on': '2026-11-14'}
+          'checked_on': '2026-11-14', 'result': 'body'}
+NOT_THE_GAZETTE = 'is on qistas.com: qistas is a helper source, never the Gazette or the Bureau (its reading goes in the helper block)'
 
 
 def verified(**changes) -> dict:
@@ -190,14 +202,19 @@ RECORD_VIOLATIONS = [
     (record(helper={**HELPER, 'source': 'adaleh'}), ('schema', 'helper.source must be one of qistas')),
     (record(helper={**HELPER, 'page': 3}), ('schema', 'unknown field helper.page')),
     (record(helper={key: value for key, value in HELPER.items() if key != 'url'}), ('schema', 'missing field helper.url')),
-    (record(gazette=gazette(url=HELPER['url'])),
-     ('schema', 'gazette.original.url is on qistas.com: qistas is a helper source, never the Gazette '
-                '(its reading goes in the helper block)')),
+    (record(gazette=gazette(url=HELPER['url'])), ('schema', f'gazette.original.url {NOT_THE_GAZETTE}')),
+    # a port, a userinfo part, a trailing dot or capitals do not hide the host
+    (record(gazette=gazette(url='https://research.qistas.com:443/ar/print')), ('schema', f'gazette.original.url {NOT_THE_GAZETTE}')),
+    (record(gazette=gazette(url='https://user:pw@qistas.com/x')), ('schema', f'gazette.original.url {NOT_THE_GAZETTE}')),
+    (record(gazette=gazette(url='https://research.QISTAS.com./x')), ('schema', f'gazette.original.url {NOT_THE_GAZETTE}')),
+    (record(bureau={**BUREAU, 'url': 'https://qistas.com/law/1'}), ('schema', f'bureau.url {NOT_THE_GAZETTE}')),
+    (record(helper={**HELPER, 'url': 'https://example.test/print'}),
+     ('schema', "helper.url is not on qistas.com, the host of helper.source 'qistas'")),
+    (record(helper={**HELPER, 'result': 'equal'}), ('schema', 'helper.result must be one of match, formatting, body')),
     (record(gazette=_with_gazette(amendments=[{
         'law': 7, 'year': 1901, 'issue': 1300, 'date': '1901-05-06', 'page': 3, 'effect': 'amended',
         'document_id': None, 'url': 'https://qistas.com/x', 'file_sha256': None}])),
-     ('schema', 'gazette.amendments[0].url is on qistas.com: qistas is a helper source, never the Gazette '
-                '(its reading goes in the helper block)')),
+     ('schema', f'gazette.amendments[0].url {NOT_THE_GAZETTE}')),
     (record(reason=None), ('schema', 'an unverifiable record needs a reason')),
     (record(result='differs', reason=None, differs_from='gazette'), ('schema', 'a differs record needs difference')),
     (verified(reason='sources_disagree'), ('schema', 'a verified record must have reason null')),
@@ -284,7 +301,7 @@ def test_cli_passes_and_names_the_laws_with_a_file(tmp_path: Path, capsys):
     main(['--content', str(content), '--corpus', str(corpus)])
 
     assert capsys.readouterr().out.splitlines() == [
-        'corpus-ci: registry, corrections and verification records pass; laws with a verification file: demo-law']
+        'corpus-ci: registry, corrections, verification records and evidence pass; laws with a verification file: demo-law']
 
 
 def test_cli_fails_on_a_record_problem(tmp_path: Path, capsys):
@@ -296,3 +313,82 @@ def test_cli_fails_on_a_record_problem(tmp_path: Path, capsys):
     assert exit_info.value.code == 1
     assert capsys.readouterr().out.splitlines() == [
         'FAIL verification/demo-law.jsonl: articles: 1 corpus article(s) have no record: المادة 4 مكرر']
+
+
+def test_host_of_reads_the_host_a_resolver_sees():
+    assert [host_of(url) for url in ('https://A.Qistas.COM.:8080/x', 'https://u:p@qistas.com', 'qistas.com/x', None)] == [
+        'a.qistas.com', 'qistas.com', '', '']
+
+
+TEXT = 'نص.'
+
+
+def evidence(source: str = 'gazette', **changes) -> dict:
+    line = {'law_slug': 'demo-law', 'number': 1, 'suffix': '', 'source': source, 'text': TEXT,
+            'text_sha256': hashlib.sha256(TEXT.encode('utf-8')).hexdigest(), 'url': 'https://example.test/g/1',
+            'document_id': 9, 'issue': 1234, 'page': 10, 'image_sha256': [SHA], 'accessed_on': '2026-11-14'}
+    if source != 'gazette':
+        line.update(document_id=None, issue=None, page=None, image_sha256=None)
+    if source == 'qistas':
+        line['url'] = HELPER['url']
+    line.update(changes)
+    return line
+
+
+EVIDENCE_VIOLATIONS = [
+    (evidence(source='scan'), ('schema', 'source must be one of gazette, bureau, qistas')),
+    (evidence(text_sha256=SHA), ('schema', 'text_sha256 is not the sha256 of text (UTF-8)')),
+    (evidence(text=None), ('schema', 'text and text_sha256 are both set or both null')),
+    (evidence(image_sha256=[]), ('schema', 'image_sha256 must be a sha256 or a non-empty list of sha256, one per page image')),
+    (evidence(image_sha256=['x']), ('schema', 'image_sha256 must be a sha256 or a non-empty list of sha256, one per page image')),
+    (evidence(pages=[{'issue': 1, 'page': 2, 'document_id': 3}]), ('schema', 'missing field pages[0].image_sha256')),
+    (evidence(editor='x'), ('schema', 'unknown field editor')),
+    (evidence(url='https://qistas.com:443/print'),
+     ('schema', "a gazette line's url is on qistas.com: qistas is a helper source, its line is labelled 'qistas'")),
+    (evidence('qistas', issue=1487), ('schema', "a qistas line is a helper's reading: issue must be null")),
+    (evidence('qistas', url='https://example.test/print'), ('schema', "a qistas line's url is not on qistas.com")),
+    (evidence(law_slug='civil-code'), ('schema', "law_slug 'civil-code' is not the file's law 'demo-law'")),
+]
+
+
+def test_rejects_each_evidence_violation():
+    missed = [(expected, found) for value, expected in EVIDENCE_VIOLATIONS
+              if expected not in (found := check_evidence_line(value, 'demo-law'))]
+
+    assert missed == []
+
+
+def test_accepts_the_forms_of_an_evidence_line():
+    lines = [evidence(), evidence(image_sha256=SHA), evidence(image_sha256=None, url=None),
+             evidence(pages=[{'issue': 1234, 'page': 10, 'document_id': 9, 'image_sha256': SHA}], note='reconstructed'),
+             evidence('bureau'), evidence('qistas'), evidence('bureau', text=None, text_sha256=None)]
+
+    assert [check_evidence_line(line, 'demo-law') for line in lines] == [[]] * len(lines)
+
+
+def _write(folder: Path, name: str, rows: list) -> None:
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / name).write_text(''.join(json.dumps(row, ensure_ascii=False) + '\n' for row in rows), encoding='utf-8')
+
+
+def test_every_text_a_record_cites_has_its_evidence_line(tmp_path: Path):
+    line = evidence()
+    cited = record(gazette={**gazette(), 'text_sha256': line['text_sha256']}, bureau={**BUREAU, 'text_sha256': SHA},
+                   helper={**HELPER, 'text_sha256': line['text_sha256']})
+    _write(tmp_path / 'verification', 'demo-law.jsonl', [cited])
+    _write(tmp_path / 'evidence', 'demo-law.jsonl', [line, evidence('qistas')])
+
+    messages = [p.message for p in check_evidence(tmp_path / 'evidence', tmp_path / 'verification')]
+
+    assert messages == ['المادة 1: no bureau line in evidence/demo-law.jsonl with the bureau text_sha256 the record cites']
+    _write(tmp_path / 'evidence', 'demo-law.jsonl', [line, evidence('qistas'), evidence('bureau', text=None, text_sha256=None)])
+    assert len(check_evidence(tmp_path / 'evidence', tmp_path / 'verification')) == 1  # a null text is no text
+
+
+def test_a_missing_evidence_folder_fails_only_where_a_record_cites_a_text(tmp_path: Path):
+    _write(tmp_path / 'verification', 'demo-law.jsonl', [record()])
+    assert check_evidence(tmp_path / 'nowhere', tmp_path / 'verification') == []
+    _write(tmp_path / 'verification', 'demo-law.jsonl', [record(bureau=dict(BUREAU))])
+    assert [p.message for p in check_evidence(tmp_path / 'nowhere', tmp_path / 'verification')] == [
+        'missing: the records cite texts']
+
