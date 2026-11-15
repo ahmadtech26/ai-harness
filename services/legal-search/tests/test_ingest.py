@@ -13,7 +13,6 @@ from legal_search import db
 from legal_search.citation import UNVERIFIED, format_articles
 from legal_search.corpus import Article
 from legal_search.corrections import load_corrections
-from legal_search.headings import extract
 from legal_search.ingest import IngestError, ingest, prepare
 from legal_search.memorandum import MemorandumError
 from legal_search.registry import load_registry
@@ -25,7 +24,7 @@ pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='need
 TWO = '### المادة 1\n\nنص المادة الأولى من القانون.\n\n---\n\n### المادة 2\n\nنص المادة الثانية من القانون.\n'
 ONE = '### المادة 1\n\nنص المادة الأولى من القانون.\n'
 # Article 1 ends with the title of what follows (O-42): a short unpunctuated paragraph after a sentence end, which
-# headings.extract makes article 2's heading. Article 1's text keeps it.
+# headings.extract makes article 2's heading. The ingest stores it there and strips it from article 1 (§7).
 TITLED = (
     '### المادة 1\n\nنص المادة الأولى من القانون.\n\nالفصل الثاني احكام العقد\n\n---\n\n'
     '### المادة 2\n\nنص المادة الثانية من القانون.\n'
@@ -105,9 +104,10 @@ async def test_a_failed_check_writes_nothing(conn, tmp_path: Path):
 CIVIL = 'القانون المدني الأردني'
 
 
-def _prepared(tmp_path: Path, body: str, count: int) -> list[Article]:
+def _prepared(tmp_path: Path, body: str, count: int) -> tuple[list[Article], dict]:
     registry, corrections, corpus = _sources(tmp_path, body, count)
-    return prepare(load_registry(registry), load_corrections(corrections), corpus).articles['civil-code']
+    prepared = prepare(load_registry(registry), load_corrections(corrections), corpus)
+    return prepared.articles['civil-code'], prepared.headings['civil-code']
 
 
 async def _stored(conn) -> list[tuple]:
@@ -115,11 +115,13 @@ async def _stored(conn) -> list[tuple]:
     return await cur.fetchall()
 
 
-async def test_ingest_stores_the_extracted_heading_and_leaves_text_unchanged(conn, tmp_path: Path):
+async def test_ingest_stores_the_extracted_heading_and_the_text_without_it(conn, tmp_path: Path):
+    # Owner 2026-11-14 §7: the heading glued to the end of article 1 is article 2's; it is stored as 2's heading field
+    # (read from the text as published) and stripped from 1's text.
     await ingest(os.environ['DATABASE_URL'], *_sources(tmp_path, TITLED, 2))
 
     assert await _stored(conn) == [
-        (1, 'نص المادة الأولى من القانون.\n\nالفصل الثاني احكام العقد', '', 'site'),
+        (1, 'نص المادة الأولى من القانون.', '', 'site'),
         (2, 'نص المادة الثانية من القانون.', 'الفصل الثاني احكام العقد', 'site'),
     ]
 
@@ -127,13 +129,13 @@ async def test_ingest_stores_the_extracted_heading_and_leaves_text_unchanged(con
 async def test_format_articles_is_byte_identical_with_headings_present(conn, tmp_path: Path):
     # REQ-RAG-050: the heading feeds the keyword index only; what the library serves does not change with it. Before:
     # a database from before Task 3.4, without the columns; after: create_schema adds them and the headings are stored.
-    articles = _prepared(tmp_path, TITLED, 2)
+    articles, headings = _prepared(tmp_path, TITLED, 2)
     await conn.execute('ALTER TABLE articles DROP COLUMN heading, DROP COLUMN heading_origin')
     await db.upsert_articles(conn, articles)
     before = format_articles([await db.get_article(conn, 'civil-code', number, '') for number in (1, 2)])
 
     await db.create_schema(conn)
-    await db.upsert_articles(conn, articles, extract(articles))
+    await db.upsert_articles(conn, articles, headings)
     after = format_articles([await db.get_article(conn, 'civil-code', number, '') for number in (1, 2)])
 
     assert [row[2] for row in await _stored(conn)] == ['', 'الفصل الثاني احكام العقد']   # the heading is there

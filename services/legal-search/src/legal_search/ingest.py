@@ -7,7 +7,8 @@ Every law is parsed, corrected and checked first (count = law-directory.md minus
 article), and the memorandum's links are read from its own headings with the corrections file's `memorandum`
 entries applied; any defect stops the run before anything is written. Then one transaction upserts the laws
 and articles, each article with the heading headings.extract reads from its law's text as published (the keyword
-engine's heading field, stored with heading_origin 'site'; the text itself is stored unchanged), deletes articles
+engine's heading field, stored with heading_origin 'site'; the text is stored without the heading glued to its end
+that is the next article's, owner 2026-11-14 §7), deletes articles
 no longer in the source, sets every article's verification from the records in `verification/` beside the registry
 (verification.match: verified only when the record says so for the text being stored; NULL otherwise, also where an
 earlier run set it), and replaces the memorandum tables. A record that verifies nothing for another reason than its
@@ -21,7 +22,7 @@ record whose text_sha256 is no longer the sha256 of its article's text.
 import argparse
 import asyncio
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from dataclasses import replace as with_changes
 from pathlib import Path
 
@@ -30,6 +31,7 @@ from psycopg import AsyncConnection
 from legal_search import db, verification
 from legal_search.corpus import Article, parse_law
 from legal_search.corrections import Correction, CorrectionError, apply_corrections, load_corrections
+from legal_search.headings import Key, glued_headings, strip_glued
 from legal_search.headings import extract as extract_headings
 from legal_search.memorandum import Memorandum, MemorandumError, load_memorandum, load_memorandum_corrections
 from legal_search.registry import Law, RegistryError, directory_counts, load_registry
@@ -44,8 +46,12 @@ class IngestError(ValueError):
 @dataclass(frozen=True)
 class Prepared:
     laws: list[Law]
-    articles: dict[str, list[Article]]  # law slug -> articles in file order, corrections applied
+    articles: dict[str, list[Article]]  # law slug -> articles in file order, corrections applied, glued headings stripped
     short: list[Article]
+    # law slug -> each article's heading field, extracted from the text as published (before the stripping)
+    headings: dict[str, dict[Key, str]] = field(default_factory=dict)
+    # article -> the heading stripped from the end of its text: the next article's (owner, 2026-11-14 §7)
+    glued: dict[Key, str] = field(default_factory=dict)
 
 
 def _label(number: int, suffix: str) -> str:
@@ -82,9 +88,16 @@ def prepare(laws: list[Law], corrections: list[Correction], corpus: Path) -> Pre
     if unknown:
         raise IngestError(f'corrections name laws not in the registry: {", ".join(unknown)}')
     counts = directory_counts(corpus / 'law-directory.md')
-    articles = {law.slug: _law_articles(law, corrections, corpus, counts) for law in laws}
+    parsed = {law.slug: _law_articles(law, corrections, corpus, counts) for law in laws}
+    # The headings come from the text as published, before anything is stripped (review 2026-11-11 (f)); then each
+    # article loses the heading at its end that is the next article's (owner, 2026-11-14 §7), and that cleaned text is
+    # what is stored, what the verification records bind (text_sha256) and what the tools serve.
+    headings = {slug: extract_headings(law_articles) for slug, law_articles in parsed.items()}
+    glued = {key: tail for slug, law_articles in parsed.items()
+             for key, tail in glued_headings(law_articles, headings[slug]).items()}
+    articles = {slug: strip_glued(law_articles, glued) for slug, law_articles in parsed.items()}
     short = [a for law_articles in articles.values() for a in law_articles if len(a.text) < SHORT_ARTICLE]
-    return Prepared(laws, articles, short)
+    return Prepared(laws, articles, short, headings, glued)
 
 
 async def ingest(conninfo: str, registry: Path, corrections: Path,
@@ -101,9 +114,10 @@ async def ingest(conninfo: str, registry: Path, corrections: Path,
         async with conn.transaction():
             await db.upsert_laws(conn, prepared.laws)
             for slug, articles in prepared.articles.items():
-                # The headings come from the text prepare returns, which is stored as it is: an O-42 clean-up of the
-                # text must never run before this, or the titles it removes are lost as headings (review 2026-11-11 (f)).
-                await db.upsert_articles(conn, articles, extract_headings(articles))
+                # The headings prepare extracted from the text as published, before it stripped the glued ones: a
+                # clean-up of the text must never run before the extraction, or the titles it removes are lost as
+                # headings (review 2026-11-11 (f)).
+                await db.upsert_articles(conn, articles, prepared.headings[slug])
                 await db.prune_articles(conn, slug, {(a.number, a.suffix) for a in articles})
             await db.set_verification(conn, matched.verified)
             await db.replace_memorandum(conn, memorandum.notes, memorandum.links, memorandum.source)
@@ -154,6 +168,7 @@ def main() -> None:
     print(f'ingested {len(memorandum.notes)} memorandum notes and {len(memorandum.links)} links')
     print(f'memorandum articles without a note: {", ".join(map(str, memorandum.uncovered)) or "none"}')
     print(f'ingested {sum(len(a) for a in prepared.articles.values())} articles from {len(prepared.laws)} laws')
+    print(f'glued headings stripped from the end of {len(prepared.glued)} articles (each kept as the next heading)')
     _report(matched, args.registry)
 
 

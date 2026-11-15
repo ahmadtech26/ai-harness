@@ -27,9 +27,13 @@ services:
       COURT_FEES_DIR: /corpus/جدول-رسوم-المحاكم
       CORPUS_DIR: /corpus
       CONTENT_DIR: /content
+      VERIFICATION_EVIDENCE_DIR: /verification-evidence
     volumes:
       - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
       - '../../content:/content:ro'
+      # The Gazette and Bureau texts test_glued_headings_official.py checks the strip against. A checkout without the
+      # folder (a server-only branch) gets an empty one from Docker, and those tests skip, saying so.
+      - '../../docs/verification/evidence:/verification-evidence:ro'
     command: ['pytest', '-q']
 
   # Retrieval evaluation (plan-phase3-retrieval-eval):  docker compose -f compose.test.yaml run --rm --build eval check
