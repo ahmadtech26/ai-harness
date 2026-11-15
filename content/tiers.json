@@ -21,7 +21,8 @@
       "order": 2,
       "plans": ["PLAN_PRO", "PLAN_FIRM"],
       "provider": "MockLLM",
-      "model": "mock-model"
+      "model": "mock-model",
+      "instructionsSuffix": "prompts/aqel-v1.3.1-advanced.md"
     },
     {
       "key": "expert",
@@ -31,7 +32,8 @@
       "order": 3,
       "plans": ["PLAN_FIRM"],
       "provider": "MockLLM",
-      "model": "mock-model"
+      "model": "mock-model",
+      "instructionsSuffix": "prompts/aqel-v1.3.1-expert.md"
     }
   ]
 }

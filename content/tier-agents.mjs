@@ -89,7 +89,7 @@ export function planTierAgents({ tiersDoc, contentDir, startersDoc, env = proces
     .sort((a, b) => a.order - b.order)
     .map((tier) => {
       // A tier's own text (tiers.json instructionsSuffix, a path under contentDir) goes after the composed text, pinned
-      // skill included: the tiers without one keep one shared text, and the suffixed tier shares its prefix.
+      // skill included: every tier with a suffix shares the composed text as its prefix.
       const suffix = tier.instructionsSuffix
         ? fs.readFileSync(path.join(contentDir, tier.instructionsSuffix), 'utf8').replace(/\r\n/g, '\n')
         : undefined;
