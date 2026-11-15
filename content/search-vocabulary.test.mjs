@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { namedSites } from './copy-sites.mjs';
 import { normalise, termProblem } from './search-terms.mjs';
 
 const contentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -18,8 +19,6 @@ const vocabulary = JSON.parse(raw);
 const { laws } = JSON.parse(fs.readFileSync(path.join(contentDir, 'corpus', 'laws.json'), 'utf8'));
 const TOP_KEYS = ['entries', 'note', 'review', 'version'];
 const ENTRY_KEYS = ['articles', 'everyday', 'id', 'law', 'statutory'];
-// The source sites' names (owner, 2026-11-14 §3); the product's own names are not on it.
-const SITE_NAMES = ['jordan-lawyer', 'aqel-lawfirm', 'adaleh', 'حماة الحق', 'حُماة الحق', 'محامي الأردن', 'محامي الاردن'];
 
 const lawTexts = new Map();
 /** A law's whole text as the library holds it (section files, headings included), normalised. */
@@ -79,6 +78,7 @@ test('every everyday wording differs from its statutory phrase and belongs to on
 });
 
 test('no wording or note names a source site', () => {
-  for (const name of SITE_NAMES) assert.ok(!raw.includes(name), `the vocabulary names ${name}`);
+  // The names are the one copy-site list's (content/corpus/copy-sites.json; owner, 2026-11-14 §3).
+  assert.deepEqual(namedSites(raw), [], 'the vocabulary names a copy site');
   assert.ok(!/https?:\/\//.test(raw), 'the vocabulary holds a link');
 });

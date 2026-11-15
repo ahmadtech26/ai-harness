@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { namedSites } from './copy-sites.mjs';
 import { normalise, termProblem } from './search-terms.mjs';
 
 const contentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -171,9 +172,10 @@ test('every practice note has a source record, and every record names a note, it
     assert.equal(record.review, MARK);
     assert.match(record.distilled_on, /^\d{4}-\d{2}-\d{2}$/);
     assert.ok(record.page.startsWith('jordanian-law/references/docs/markdown/'), `${record.item}: ${record.page}`);
-    const page = fs.readFileSync(path.join(repoDir, record.page));
-    assert.equal(crypto.createHash('sha256').update(page).digest('hex'), record.sha256, `${record.item}: ${record.page} changed`);
-    assert.equal(/^date: "(\d{4}-\d{2}-\d{2})"$/m.exec(page.toString('utf8'))?.[1], record.post_date, `${record.item}: post date`);
+    // Hashed with CRLF turned into LF (readText), so a Windows checkout (core.autocrlf) gives the recorded hash too.
+    const page = readText(path.join(repoDir, record.page));
+    assert.equal(crypto.createHash('sha256').update(page, 'utf8').digest('hex'), record.sha256, `${record.item}: ${record.page} changed`);
+    assert.equal(/^date: "(\d{4}-\d{2}-\d{2})"$/m.exec(page)?.[1], record.post_date, `${record.item}: post date`);
     const pair = `${record.item} ${record.page}`;
     assert.ok(!pairs.has(pair), `${pair}: recorded twice`);
     pairs.add(pair);
@@ -184,10 +186,13 @@ test('every practice note has a source record, and every record names a note, it
 // The owner, 2026-11-14: model-facing text never names the site, its firm or its title, and has no links to it; and no
 // Egyptian law (2026-11-13). Statutory text is not served from these files, so a plain search is enough here.
 test('what the model reads of a skill with practice notes names no copy site and links nowhere, and no note names Egyptian law', () => {
-  const COPY_SITE = /jordan-lawyer|حماة الحق|حُماة الحق|محامي الأردن|محامي الاردن|https?:\/\/|www\./i;
+  const LINK = /https?:\/\/|www\./i;
   for (const skill of new Set(notes.map((n) => n.skill))) {
     const served = [{ file: `${skill}/SKILL.md`, text: readText(path.join(skillsDir, skill, 'SKILL.md')) }, ...referenceFiles.filter((ref) => ref.skill === skill)];
-    for (const { file, text } of served) assert.ok(!COPY_SITE.test(text), `${file}: ${COPY_SITE.exec(text)?.[0]}`);
+    for (const { file, text } of served) {
+      assert.deepEqual(namedSites(text), [], `${file}: names a copy site`);
+      assert.ok(!LINK.test(text), `${file}: ${LINK.exec(text)?.[0]}`);
+    }
   }
   for (const { match } of parsed) assert.ok(!/مصري|مصرية|Egypt/i.test(match.input), `${match.groups.id}: Egyptian law`);
 });
