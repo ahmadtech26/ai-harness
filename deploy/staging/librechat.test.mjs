@@ -35,3 +35,34 @@ function topLevelBlock(text, name) {
 test('the interface turns the context gauge and its Compact button off, for everyone (O-90, O-115)', () => {
   assert.equal(topLevelBlock(yaml, 'interface').contextUsage, 'false');
 });
+
+// The fork starts only with exactly these four library headers (AI Platform-next packages/api/src/iqraa/config.ts
+// LIBRARY_REQUEST_HEADERS, hook M1): any other set is the fault «other requestHeaders». X-Iqraa-Tier carries the tier
+// spec legal-search grants the allowance by (plan F3), so this yaml and the fork image ship in one recreate.
+const LIBRARY_REQUEST_HEADERS = {
+  'X-Iqraa-User': '{{LIBRECHAT_USER_ID}}',
+  'X-Iqraa-Message': '{{LIBRECHAT_BODY_MESSAGEID}}',
+  'X-Iqraa-Conversation': '{{LIBRECHAT_BODY_CONVERSATIONID}}',
+  'X-Iqraa-Tier': '{{LIBRECHAT_BODY_IQRAATIER}}',
+};
+
+/** The legal-search MCP server's requestHeaders, as [header, value] in file order (values unquoted). */
+function libraryRequestHeaders(text) {
+  const lines = text.split(/\r?\n/);
+  const server = lines.indexOf('  legal-search:', lines.indexOf('mcpServers:'));
+  const start = lines.indexOf('    requestHeaders:', server);
+  assert.ok(server > 0 && start > server, 'librechat.yaml has mcpServers.legal-search.requestHeaders');
+  const headers = [];
+  for (const line of lines.slice(start + 1)) {
+    const pair = /^      ([A-Za-z0-9-]+):\s*(.*)$/.exec(line);
+    if (!pair) break;
+    headers.push([pair[1], pair[2].replace(/^(['"])(.*)\1$/, '$2')]);
+  }
+  return headers;
+}
+
+test('librechat.yaml pins the four library request headers', () => {
+  // Fails if a header is missing, extra or has another value: the fork would refuse to start, or the tier would not
+  // reach legal-search and every answer would get the lowest allowance.
+  assert.deepEqual(libraryRequestHeaders(yaml), Object.entries(LIBRARY_REQUEST_HEADERS));
+});
