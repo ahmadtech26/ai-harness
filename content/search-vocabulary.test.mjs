@@ -1,12 +1,10 @@
 // The everyday search vocabulary (draft, for lawyer review):  node --test content/search-vocabulary.test.mjs
 // corpus/search-vocabulary.json maps everyday wordings («طرد العامل», «الكمبيالة») to the statutory noun phrase the mapped
-// law uses («فصل العامل», «سند السحب»). legal-search adds the statutory phrase to a query that holds an everyday wording,
-// once a server or an evaluation run installs the file (LEGAL_SEARCH_VOCABULARY, recall-plan vocabulary.py). It is never
-// shown to the model. These tests hold the file to the library: every statutory phrase is a statutory noun phrase
+// law uses («فصل العامل», «سند السحب»), for legal-search to add the statutory phrase to a query that holds an everyday
+// wording once the server reads the file (#34, on hold). It is never shown to the model. These tests hold the file to the library: every statutory phrase is a statutory noun phrase
 // (search-terms.mjs; owner, 2026-11-13) found in the mapped law's text, and no wording names a source site.
-// Each listed article holds its phrase by the rule the file's note states (legal-search's tokens, a contiguous run, in
-// the article's own text with its leftover captions excluded); the per-article test below applies it to the section
-// files.
+// Each listed article holds its phrase by the rule the file's note states; the per-article test below is that rule's
+// definition (bodyTokens and holds).
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -99,22 +97,33 @@ function sectionArticles(slug) {
   }
   return found;
 }
+/** How near the end a heading §1 records may start: its own length plus this many tokens (a glued heading after it). */
+const NEAR_END = 20;
 /** The tokens of an article's own text (as the section files hold it, before the ingest's strip) without its leftover
- * captions: a leading caption; the next article's heading glued to its end (a short unpunctuated last paragraph, or a
- * short unpunctuated run after its last sentence end), which the ingest strips; and then the heading §1 of the
- * stored-text defects list records at its end, which the ingest leaves. */
-function bodyTokens(text, tail) {
+ * captions, cut in this order:
+ *  1. a leading caption: a first paragraph of at most 12 words with none of the marks . : ؛ ، ؟ !;
+ *  2. the heading §1 of the stored-text defects list records at the article's end: from where its tokens start, if that
+ *     is within its own length plus NEAR_END tokens of the end, to the end (`found` is called when it is found);
+ *  3. otherwise the next article's heading glued to the end, which the ingest strips: a last paragraph of the same kind
+ *     as 1, or else, after the last of the marks . : ؛ ؟ !, a run of the same kind. */
+function bodyTokens(text, tail, found = () => {}) {
   let paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
   if (paragraphs.length > 1 && shortCaption(paragraphs[0])) paragraphs = paragraphs.slice(1);
-  if (paragraphs.length > 1 && shortCaption(paragraphs.at(-1))) paragraphs = paragraphs.slice(0, -1);
-  let joined = paragraphs.join('\n\n');
+  const words = tokens(paragraphs.join('\n\n'));
+  const tailWords = tail ? tokens(tail.replace(/^#+\s*/, '')) : [];
+  if (tailWords.length) {
+    for (let start = words.length - tailWords.length; start >= Math.max(0, words.length - tailWords.length - NEAR_END); start -= 1) {
+      if (tailWords.every((word, j) => words[start + j] === word)) {
+        found();
+        return words.slice(0, start);
+      }
+    }
+  }
+  if (paragraphs.length > 1 && shortCaption(paragraphs.at(-1))) return tokens(paragraphs.slice(0, -1).join('\n\n'));
+  const joined = paragraphs.join('\n\n');
   const end = Math.max(...[...joined.matchAll(/[.:؛؟!]/g)].map((m) => m.index), -1);
   const after = joined.slice(end + 1).trim();
-  if (end >= 0 && after && shortCaption(after)) joined = joined.slice(0, end + 1);
-  let words = tokens(joined);
-  const tailWords = tail ? tokens(tail.replace(/^#+\s*/, '')) : [];
-  if (tailWords.length && words.slice(-tailWords.length).join(' ') === tailWords.join(' ')) words = words.slice(0, -tailWords.length);
-  return words;
+  return end >= 0 && after && shortCaption(after) ? tokens(joined.slice(0, end + 1)) : words;
 }
 const holds = (words, phrase) =>
   words.some((_, i) => phrase.length > 0 && phrase.every((word, j) => words[i + j] === word));
@@ -147,11 +156,12 @@ test('every statutory phrase is a statutory noun phrase found in the mapped law'
 // The owner, 2026-11-15: a listed article holds the phrase in its own text, not only in a heading left at its end or a
 // caption, and not only in a longer word («الإخبارات» does not hold «الإخبار»).
 test('every listed article holds its statutory phrase by the note\'s rule', () => {
-  assert.match(vocabulary.note, /contiguous run of legal-search's tokens/);
+  assert.match(vocabulary.note, /search-vocabulary\.test\.mjs/);
   const tails = leftoverTails();
   assert.ok(tails.size > 0, 'no heading read from §1 of the stored-text defects list');
   const problems = [];
   for (const { id, statutory, law, articles } of vocabulary.entries) {
+    assert.ok(articles.length <= 5, `${id}: more than five articles`);
     const texts = sectionArticles(law);
     const phrase = tokens(statutory);
     for (const number of articles) {
@@ -160,6 +170,24 @@ test('every listed article holds its statutory phrase by the note\'s rule', () =
     }
   }
   assert.deepEqual(problems, []);
+});
+
+test('every heading §1 of the defects list records for a mapped law is found near its article\'s end and cut', () => {
+  const tails = leftoverTails();
+  const mapped = new Set(vocabulary.entries.map((entry) => entry.law));
+  const missed = [];
+  let checked = 0;
+  for (const [key, tail] of tails) {
+    const [law, number] = key.split(' ');
+    if (!mapped.has(law)) continue;
+    const text = sectionArticles(law).get(Number(number));
+    let found = false;
+    if (text !== undefined) bodyTokens(text, tail, () => { found = true; });
+    if (!found) missed.push(`${key} «${tail}»`);
+    checked += 1;
+  }
+  assert.ok(checked > 0, 'no §1 heading of a mapped law');
+  assert.deepEqual(missed, []);
 });
 
 test('every everyday wording differs from its statutory phrase and belongs to one entry', () => {
