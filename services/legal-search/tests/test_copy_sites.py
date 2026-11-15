@@ -1,7 +1,7 @@
 """No copy site reaches the model (owner's instructions 2026-11-14 §3, «Hide all copy sites»): no heading, source line,
 label or note of search_law, get_article or get_memorandum contains a name of the shared list (tests/copy_sites.py).
 Statutory text is not scanned: the law itself says «المحامي الأردني» (bar-association 9). The copy site stays in the
-internal provenance column, where the same scan finds it."""
+internal provenance column (and, in this release, in the old source column), where the same scan finds it."""
 
 import json
 import os
@@ -95,7 +95,8 @@ async def test_no_tool_output_names_a_copy_site_and_the_provenance_keeps_it(conn
     assert found_in(ARTICLES[2].text, names()) == ['محامي الاردن']  # the law's own words: why statutory text is not scanned
     cur = await conn.execute('SELECT provenance, source FROM articles UNION ALL SELECT provenance, source FROM memorandum_notes')
     rows = await cur.fetchall()
-    assert len(rows) == 4 and all(found_in(provenance, names()) and source == '' for provenance, source in rows)
+    # source keeps the same value for the previous image, which prints it until it is recreated.
+    assert len(rows) == 4 and all(found_in(provenance, names()) and source == provenance for provenance, source in rows)
 
 
 # The whole library: every article and every memorandum note, as the tools format them.
@@ -153,10 +154,10 @@ async def test_no_article_or_memorandum_note_of_the_library_is_served_with_a_cop
         notes_served |= {note.note_no for note in page}
     assert notes_served == set(memorandum.notes)
 
-    # The copy sites are all still there, in provenance, where no tool reads them.
+    # The copy sites are all still there, in provenance and in source, where no tool reads them.
     for table in ('articles', 'memorandum_notes'):
         cur = await conn.execute(f"SELECT provenance, count(*) FROM {table} GROUP BY provenance")
         groups = await cur.fetchall()
         assert all(found_in(provenance, listed) for provenance, _ in groups), table
-        cur = await conn.execute(f"SELECT count(*) FROM {table} WHERE source <> ''")
+        cur = await conn.execute(f"SELECT count(*) FROM {table} WHERE source IS DISTINCT FROM provenance")
         assert (await cur.fetchone())[0] == 0

@@ -252,7 +252,9 @@ async def test_the_schema_step_brings_a_database_of_the_previous_image_forward(c
 
     await ingest(os.environ['DATABASE_URL'], *_sources(tmp_path, TWO, 2))
 
+    # The copy site in provenance, and the same in source, which the previous image prints until it is recreated.
     cur = await conn.execute('SELECT number, provenance, source, verified_at FROM articles ORDER BY number')
-    assert await cur.fetchall() == [(1, 'example.test', '', None), (2, 'example.test', '', None)]
+    assert await cur.fetchall() == [(1, 'example.test', 'example.test', None), (2, 'example.test', 'example.test', None)]
     cur = await conn.execute('SELECT note_no, provenance, source FROM memorandum_notes ORDER BY note_no')
-    assert await cur.fetchall() == [(1, 'example.test/memo', ''), (2, 'example.test/memo', '')]
+    assert await cur.fetchall() == [(1, 'example.test/memo', 'example.test/memo'),
+                                    (2, 'example.test/memo', 'example.test/memo')]
