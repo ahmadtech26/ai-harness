@@ -14,6 +14,12 @@ class RegistryError(ValueError):
     pass
 
 
+# An entry's `instrument`, which the citation's amendment line follows (citation.details): an entry without it is
+# a law (قانون); court-fees is a regulation (نظام), the schedule of نظام رسوم المحاكم رقم 43 لسنة 2005, last amended by
+# نظام رقم 108 لسنة 2008. Any other value is refused.
+INSTRUMENTS = ('law', 'regulation')
+
+
 @dataclass(frozen=True)
 class Gap:
     number: int
@@ -39,6 +45,7 @@ class Law:
     note: str | None = None
     known_gaps: tuple[Gap, ...] = ()
     approved: bool = False
+    instrument: str = 'law'  # one of INSTRUMENTS
 
 
 def _date(value: str | None) -> date | None:
@@ -46,6 +53,10 @@ def _date(value: str | None) -> date | None:
 
 
 def _law(entry: dict) -> Law:
+    instrument = entry.get('instrument', 'law')
+    if not (isinstance(instrument, str) and instrument in INSTRUMENTS):
+        raise RegistryError(f'registry entry {entry.get("slug", "?")!r}: instrument {instrument!r} is not one of '
+                            f'{", ".join(INSTRUMENTS)}')
     try:
         gazette = entry.get('gazette') or {}
         amendment = entry.get('amendment') or {}
@@ -66,6 +77,7 @@ def _law(entry: dict) -> Law:
             note=entry.get('note'),
             known_gaps=tuple(Gap(g['number'], g.get('suffix', ''), g['reason']) for g in entry.get('known_gaps', [])),
             approved=(entry.get('review') or {}).get('status') == 'approved',
+            instrument=instrument,
         )
     except (KeyError, TypeError, ValueError, AttributeError) as error:
         raise RegistryError(f'registry entry {entry.get("slug", "?")!r}: {error!r}') from error
