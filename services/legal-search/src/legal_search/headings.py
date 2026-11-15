@@ -138,11 +138,14 @@ STATUTORY_ENDINGS: frozenset[Key] = frozenset({
 })
 
 
-def glued_headings(law_articles: list[Article], headings: dict[Key, str]) -> dict[Key, str]:
+def glued_headings(law_articles: list[Article], headings: dict[Key, str],
+                   law_bleeds: bool | None = None) -> dict[Key, str]:
     """For one law's articles in file order and the headings extract gave them: each article (but the last) whose text
     ends with a trailing heading that equals or begins the next article's heading, with that heading; never one listed
-    in STATUTORY_ENDINGS."""
-    law_bleeds = bleeds(law_articles)
+    in STATUTORY_ENDINGS. `law_bleeds` is the law's bleed status, by default that of these articles; a check of the
+    stripped text passes the status of the text as published, since the strip lowers a law's rate of sentence tails."""
+    if law_bleeds is None:
+        law_bleeds = bleeds(law_articles)
     glued: dict[Key, str] = {}
     for index, item in enumerate(law_articles[:-1]):
         key = (item.law_slug, item.number, item.suffix)

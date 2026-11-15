@@ -1,16 +1,19 @@
 """Glued headings (owner, 2026-11-14 §7): the stored text of an article never ends with a heading that belongs to the
 next article. headings.extract finds that heading (it moves it into the next article's heading field); the ingest now
-also strips it from the article's text, and the heading field keeps it."""
+also strips it from the article's text, and the heading field keeps it. What heading text the strip leaves at the end
+of an article is pinned (RESIDUE, the owner's point 12); test_glued_headings_official.py checks the strip against the
+Gazette and Bureau texts (point 11)."""
 
 import os
+import re
 from collections import Counter
 from pathlib import Path
 
 import pytest
 
-from legal_search.corpus import Article
-from legal_search.corrections import load_corrections
-from legal_search.headings import STATUTORY_ENDINGS, extract, glued_headings, strip_glued
+from legal_search.corpus import Article, parse_law
+from legal_search.corrections import apply_corrections, load_corrections
+from legal_search.headings import PARAGRAPHS, STATUTORY_ENDINGS, bleeds, extract, glued_headings, strip_glued
 from legal_search.ingest import prepare
 from legal_search.registry import Law, load_registry
 
@@ -105,43 +108,76 @@ def test_prepare_stores_the_text_without_its_glued_heading_and_keeps_the_heading
     assert prepared.glued == {('civil-code', 1, ''): 'الفصل الثاني احكام العقد'}
 
 
-@pytest.mark.skipif(not (os.environ.get('CORPUS_DIR') and os.environ.get('CONTENT_DIR')), reason='real corpus not mounted')
-def test_the_real_corpus_keeps_no_glued_heading(capsys):
-    """Over the whole library: how many articles ended with the next article's heading before the ingest strips it (and
-    how many ended with exactly that heading, the owner's count), and how many still do after (none)."""
-    corpus_files = Path(os.environ['CONTENT_DIR']) / 'corpus'
-    prepared = prepare(load_registry(corpus_files / 'laws.json'), load_corrections(corpus_files / 'corrections.json'),
-                       Path(os.environ['CORPUS_DIR']))
+# What is still heading text at the end of an article after the strip (the owner's point 12), pinned so that it
+# cannot grow silently. 'stacked': a markdown heading line stacked above the one the strip took (the Majalla, where a
+# «## الباب …» line stands over the «## الفصل …» line that is the next article's heading). 'list': the strip took the
+# last item of a list of the next article's headings and left the rest of the list, down to that item's marker
+# (commerce 15 ends «… دفاتر التجار أ. دفتر يومية ب. دفتر صور الرسائل ج.»; item ج., «دفتر الجرد والميزانية», is 16's
+# heading). 'rule': the strip rule run again on the stored text with the law's bleed status before the strip (none).
+RESIDUE = {
+    **{('majalla', number, ''): 'stacked' for number in (
+        196, 236, 261, 299, 360, 432, 462, 496, 521, 581, 595, 620, 633, 658, 679, 721, 728, 772, 803, 836, 860, 911,
+        1007, 1113, 1233, 1307, 1328, 1430, 1459, 1547, 1555, 1586, 1683, 1735, 1753, 1791, 1828)},
+    **{('commerce', number, ''): 'list' for number in (15, 140, 228, 229, 230, 239, 245)},
+    ('execution', 107, ''): 'list',
+    ('labour', 30, ''): 'list',
+}
+LIST_END = re.compile(r'(?:^|\s)(?:[أ-ي]|هـ|[0-9٠-٩]{1,2})\s*[.\-–)]$')  # a list item's marker with nothing after it
 
-    raw = _raw_texts(prepared)
+
+@pytest.mark.skipif(not (os.environ.get('CORPUS_DIR') and os.environ.get('CONTENT_DIR')), reason='real corpus not mounted')
+def test_the_real_corpus_keeps_no_glued_heading_beyond_the_pinned_residue(capsys):
+    """Over the whole library: how many articles ended with the next article's heading before the ingest strips it (and
+    how many ended with exactly that heading, the owner's count), and how many still end with heading text after it
+    (RESIDUE): by the same rule, with each law's bleed status from before the strip, which the strip itself lowers
+    (a status recomputed from the cleaned text would hide what is left); by a stacked «##» heading; by a list of
+    headings the strip took the last item of."""
+    corpus_files = Path(os.environ['CONTENT_DIR']) / 'corpus'
+    laws, corrections = load_registry(corpus_files / 'laws.json'), load_corrections(corpus_files / 'corrections.json')
+    corpus = Path(os.environ['CORPUS_DIR'])
+    prepared = prepare(laws, corrections, corpus)
+    published = {law.slug: apply_corrections(parse_law(corpus / law.folder, law.slug),
+                                             [c for c in corrections if c.law == law.slug]) for law in laws}
+    raw = {(a.law_slug, a.number, a.suffix): a.text.strip() for articles in published.values() for a in articles}
+
     before = Counter(key[0] for key in prepared.glued)
     exactly = Counter(key[0] for key, tail in prepared.glued.items()
                       if _ends_with_words(raw[key], prepared.headings[key[0]][_next(prepared, key)]))
-    # The same rule run again on the stored (cleaned) text, with the heading fields as stored: nothing is left.
-    after = Counter(key[0] for slug, articles in prepared.articles.items()
-                    for key in glued_headings(articles, prepared.headings[slug]))
+    lowered = sorted(slug for slug, articles in prepared.articles.items() if bleeds(published[slug]) != bleeds(articles))
+    rule = {key for slug, articles in prepared.articles.items()
+            for key in glued_headings(articles, prepared.headings[slug], law_bleeds=bleeds(published[slug]))}
+    stacked = {(slug, a.number, a.suffix) for slug, articles in prepared.articles.items() for a in articles
+               if PARAGRAPHS.split(a.text.strip())[-1].strip().startswith('#')}
+    listed = {key for key, tail in prepared.glued.items()
+              if _on_one_line(raw[key], tail) and LIST_END.search(_stored(prepared, key))}
+    residue = {**{key: 'rule' for key in rule}, **{key: 'stacked' for key in stacked}, **{key: 'list' for key in listed}}
+    after = {kind: Counter(key[0] for key, found in residue.items() if found == kind) for kind in ('rule', 'stacked', 'list')}
 
     with capsys.disabled():
-        print('\nglued headings, before → after the ingest strips them (of which the whole next heading):')
-        for slug in sorted(before, key=lambda s: -before[s]):
-            print(f'  {slug}: {before[slug]} ({exactly[slug]}) → {after[slug]}')
-        print(f'  all: {sum(before.values())} ({sum(exactly.values())}) → {sum(after.values())}')
+        print('\nglued headings, before → after the ingest strips them (of which the whole next heading); after: heading '
+              'text still at the end (by the rule with the bleed status before the strip, stacked «##» headings, '
+              'lists without their last item)')
+        for slug in sorted(set(before) | {key[0] for key in residue}, key=lambda s: (-before[s], s)):
+            found = [after[kind][slug] for kind in after]
+            print(f'  {slug}: {before[slug]} ({exactly[slug]}) → {sum(found)} ({", ".join(map(str, found))})')
+        found = [sum(after[kind].values()) for kind in after]
+        print(f'  all: {sum(before.values())} ({sum(exactly.values())}) → {sum(found)} ({", ".join(map(str, found))})')
+        print(f'  laws whose bleed status the strip lowers: {", ".join(lowered) or "none"}')
 
     assert sum(before.values()) > 1500
-    assert sum(after.values()) == 0
+    assert residue == RESIDUE
     assert ('civil-code', 288, '') not in prepared.glued
     assert sum(len(a) for a in prepared.articles.values()) == 6592
 
 
-def _raw_texts(prepared) -> dict:
-    """The text as parsed, before stripping: the cleaned text plus the heading taken off it."""
-    texts = {}
-    for slug, articles in prepared.articles.items():
-        for item in articles:
-            key = (slug, item.number, item.suffix)
-            tail = prepared.glued.get(key)
-            texts[key] = item.text + (' ' + tail if tail else '')
-    return texts
+def _stored(prepared, key) -> str:
+    return next(a.text for a in prepared.articles[key[0]] if (a.number, a.suffix) == key[1:])
+
+
+def _on_one_line(text: str, tail: str) -> bool:
+    """Whether the heading stripped from the end of `text` stood on the same line as the text before it."""
+    head = text[: -len(tail)]
+    return '\n' not in head[len(head.rstrip()):]
 
 
 def _next(prepared, key):
