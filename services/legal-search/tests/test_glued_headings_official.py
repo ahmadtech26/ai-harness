@@ -3,12 +3,13 @@ rule (the owner's point 11): no article the strip changed has a Gazette or Burea
 strip removed from it. Such an ending would mean that the strip cut law text, not the next article's heading.
 
 The official texts are the evidence lines of the content tree, docs/verification/evidence/<law>.jsonl, beside content/
-in a content checkout ({law_slug, number, suffix, source, text, url, …}). That folder is not in this tree, and the test
-stack does not mount it (the eval service's /evidence is the eval's own output folder): VERIFICATION_EVIDENCE_DIR names
-it, else it is the folder beside CONTENT_DIR (<CONTENT_DIR>/../docs/verification/evidence); without it the tests that
-need it are skipped. An official text is a line whose source is gazette or bureau and whose url is not on qistas.com:
-the penal code's Qistas readings are labelled gazette until the content PR relabels them qistas, and Qistas is a helper
-source, never the Gazette. A line without text is no text.
+in a content checkout ({law_slug, number, suffix, source, text, url, …}). VERIFICATION_EVIDENCE_DIR names the folder
+(the test stack mounts it at /verification-evidence), else it is the folder beside CONTENT_DIR
+(<CONTENT_DIR>/../docs/verification/evidence). The tests that need it skip, saying why, when there is no such folder or
+it holds no <law>.jsonl: a checkout without the content tree (a server-only branch) has none, and Docker mounts an
+empty folder for a missing source; they never pass on nothing. An official text is a line whose source is gazette or
+bureau and whose url is not on qistas.com (Qistas is a helper source, never the Gazette, whether its lines are labelled
+qistas or, before the content PR relabelled them, gazette). A line without text is no text.
 
 A stripped article without an official text (the Majalla: it has no evidence file and no official source) is checked in
 its source shard instead: the words removed are the last line of the article's block there, a markdown heading line.
@@ -42,7 +43,7 @@ DIGITS = ({ord(c): str(i) for i, c in enumerate('٠١٢٣٤٥٦٧٨٩')}
           | {ord(c): str(i) for i, c in enumerate('۰۱۲۳۴۵۶۷۸۹')})
 SPACE = re.compile(r'\s+')
 # punctuation for the formatting test only (never removed by v1 itself)
-PUNCT = re.compile(r'[\.,،؛;:\-–—_\(\)\[\]\{\}\xab\xbb"\'!?؟…/\\*]')
+PUNCT = re.compile(r'[\.,،؛;:\-–—_\(\)\[\]\{\}«»"\'!?؟…/\\*]')
 
 
 def v1(text: str) -> str:
@@ -120,6 +121,9 @@ def stripped():
                     'docs/verification/evidence is beside CONTENT_DIR')
     if not folder.is_dir():
         pytest.skip(f'{EVIDENCE_DIR} names no folder: {folder}')
+    if not any(folder.glob('*.jsonl')):
+        pytest.skip(f'the verification evidence folder holds no <law>.jsonl: {folder} (a checkout without the content '
+                    "tree's docs/verification/evidence; Docker mounts an empty folder for a missing source)")
     corpus_files = Path(os.environ['CONTENT_DIR']) / 'corpus'
     prepared = prepare(load_registry(corpus_files / 'laws.json'), load_corrections(corpus_files / 'corrections.json'),
                        Path(os.environ['CORPUS_DIR']))
