@@ -3,7 +3,7 @@
   "review": {
     "status": "draft"
   },
-  "note": "Everyday wordings mapped to the statutory noun phrase the mapped law uses, for query expansion in legal-search (an everyday wording in a query adds the statutory term; never the reverse). Each statutory term occurs in the mapped law's library text; `articles` lists up to five articles that contain it. Draft, for lawyer review (مسودة، لمراجعة المحامي). Not shown to the model.",
+  "note": "Everyday wordings mapped to the statutory noun phrase the mapped law uses, for query expansion in legal-search (an everyday wording in a query adds the statutory term; never the reverse). Each statutory term occurs in the mapped law's library text. `articles` lists up to five plain-numbered articles that hold it by this rule: the term's legal-search tokens (normalize.tokens: letters folded, one clitic prefix stripped) occur as a contiguous run of legal-search's tokens of the article's stored text, with its leftover captions excluded (a leading caption, the heading the stored-text defects list §1 records at its end, a short unpunctuated last paragraph); a longer word («الإخبارات», «الإضافية») does not hold the term. Draft, for lawyer review (مسودة، لمراجعة المحامي). Not shown to the model.",
   "entries": [
     {
       "id": "v01",
@@ -43,10 +43,7 @@
       "law": "labour",
       "articles": [
         2,
-        46,
-        54,
-        59,
-        137
+        46
       ]
     },
     {
@@ -122,8 +119,7 @@
       "statutory": "عقد العمل غير المحدد المدة",
       "law": "labour",
       "articles": [
-        23,
-        30
+        23
       ]
     },
     {
@@ -136,8 +132,7 @@
       "law": "labour",
       "articles": [
         23,
-        26,
-        30
+        26
       ]
     },
     {
@@ -185,7 +180,6 @@
       "law": "penal-code",
       "articles": [
         240,
-        242,
         417,
         418,
         419
@@ -243,8 +237,8 @@
       "statutory": "قلة احتراز",
       "law": "penal-code",
       "articles": [
+        64,
         343,
-        374,
         384
       ]
     },
@@ -287,11 +281,11 @@
       "statutory": "الإخبار",
       "law": "criminal-procedure",
       "articles": [
-        20,
         27,
         29,
         43,
-        44
+        45,
+        50
       ]
     },
     {

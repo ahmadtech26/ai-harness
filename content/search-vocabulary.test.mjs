@@ -4,7 +4,9 @@
 // once a server or an evaluation run installs the file (LEGAL_SEARCH_VOCABULARY, recall-plan vocabulary.py). It is never
 // shown to the model. These tests hold the file to the library: every statutory phrase is a statutory noun phrase
 // (search-terms.mjs; owner, 2026-11-13) found in the mapped law's text, and no wording names a source site.
-// legal-search's test_vocabulary.py checks the same file against the ingested articles (each listed article holds it).
+// Each listed article holds its phrase by the rule the file's note states (legal-search's tokens, a contiguous run, in
+// the article's own text with its leftover captions excluded); the per-article test below applies it to the section
+// files.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,6 +40,85 @@ function lawText(slug) {
   return lawTexts.get(slug);
 }
 
+// legal-search's normalize.tokens (services/legal-search/src/legal_search/normalize.py on recall-plan), ported: fold
+// diacritics, tatweel, letter variants and digits, split on non-word characters, strip one clitic prefix (longest first)
+// where a three-letter stem remains. Keep it in step with that file.
+const FOLD = { 'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ى': 'ي', 'ة': 'ه', 'ؤ': 'و', 'ئ': 'ي' };
+const PREFIXES = ['وال', 'بال', 'كال', 'فال', 'لل', 'ال', 'و', 'ف', 'ب', 'ك', 'ل'];
+const stem = (word) => {
+  const prefix = PREFIXES.find((p) => word.startsWith(p) && word.length - p.length >= 3);
+  return prefix ? word.slice(prefix.length) : word;
+};
+export const tokens = (text) =>
+  text
+    .replace(/[\u064B-\u0652\u0670\u0640]/g, '')
+    .replace(/[أإآٱىةؤئ]/g, (c) => FOLD[c])
+    .replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+    .replace(/[^\p{L}\p{N}_\s]/gu, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(stem);
+
+const SENTENCE = /[.:؛،؟!]/;
+const shortCaption = (paragraph) => paragraph.split(/\s+/).length <= 12 && !SENTENCE.test(paragraph);
+/** The headings left at the end of a stored text, by law and article: §1 of the stored-text defects list. */
+function leftoverTails() {
+  const doc = fs.readFileSync(path.join(contentDir, '..', 'docs', 'verification', '2026-11-14-stored-text-defects.md'), 'utf8');
+  const section = doc.replace(/\r\n/g, '\n').split('\n## 1.')[1].split('\n## 2.')[0];
+  const slugs = new Set(laws.map((law) => law.slug));
+  const tails = new Map();
+  for (const bullet of section.split(/\n(?=- )/).map((b) => b.replace(/\n\s*/g, ' '))) {
+    let law = /^- \*\*([a-z-]+)/.exec(bullet)?.[1];
+    for (const m of bullet.matchAll(/(?:\b([a-z]+(?:-[a-z]+)*) )?(\d+):? «([^»]+)»/g)) {
+      if (m[1] && slugs.has(m[1])) law = m[1];
+      if (law && slugs.has(law) && !tails.has(`${law} ${m[2]}`)) tails.set(`${law} ${m[2]}`, m[3]);
+    }
+  }
+  return tails;
+}
+/** A law's articles as its section files hold them, plain numbers only: number → the article's own text. */
+function sectionArticles(slug) {
+  const law = laws.find((entry) => entry.slug === slug);
+  const folder = path.join(contentDir, '..', 'jordanian-law', 'references', 'القوانين-الأردنية', law.folder);
+  const sections = path.join(folder, 'sections');
+  const dir = fs.existsSync(sections) ? sections : folder;
+  const found = new Map();
+  for (const name of fs.readdirSync(dir).filter((n) => n.endsWith('.md') && !n.startsWith('_')).sort()) {
+    let key = null;
+    let body = [];
+    const close = () => key !== null && !found.has(key) && found.set(key, body.join('\n'));
+    for (const line of fs.readFileSync(path.join(dir, name), 'utf8').replace(/\r\n/g, '\n').split('\n')) {
+      if (/^#{1,6}\s/.test(line)) {
+        close();
+        const m = /^###\s+المادة\s+(\d+)(\s+مكرر)?(?=\s|$)(?:\s+—\s+(.*))?/.exec(line);
+        key = m && !m[2] ? Number(m[1]) : null;
+        body = m?.[3] ? [m[3]] : [];
+      } else if (key !== null && line.trim() !== '---') body.push(line); // «---» separates articles in a shard
+    }
+    close();
+  }
+  return found;
+}
+/** The tokens of an article's own text (as the section files hold it, before the ingest's strip) without its leftover
+ * captions: a leading caption; the next article's heading glued to its end (a short unpunctuated last paragraph, or a
+ * short unpunctuated run after its last sentence end), which the ingest strips; and then the heading §1 of the
+ * stored-text defects list records at its end, which the ingest leaves. */
+function bodyTokens(text, tail) {
+  let paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  if (paragraphs.length > 1 && shortCaption(paragraphs[0])) paragraphs = paragraphs.slice(1);
+  if (paragraphs.length > 1 && shortCaption(paragraphs.at(-1))) paragraphs = paragraphs.slice(0, -1);
+  let joined = paragraphs.join('\n\n');
+  const end = Math.max(...[...joined.matchAll(/[.:؛؟!]/g)].map((m) => m.index), -1);
+  const after = joined.slice(end + 1).trim();
+  if (end >= 0 && after && shortCaption(after)) joined = joined.slice(0, end + 1);
+  let words = tokens(joined);
+  const tailWords = tail ? tokens(tail.replace(/^#+\s*/, '')) : [];
+  if (tailWords.length && words.slice(-tailWords.length).join(' ') === tailWords.join(' ')) words = words.slice(0, -tailWords.length);
+  return words;
+}
+const holds = (words, phrase) =>
+  words.some((_, i) => phrase.length > 0 && phrase.every((word, j) => words[i + j] === word));
+
 /** A phrase's words, normalised, with a leading «ال» dropped when three letters remain (the search's own stripping). */
 const words = (phrase) => normalise(phrase).split(' ').map((word) => (word.startsWith('ال') && word.length > 4 ? word.slice(2) : word));
 
@@ -61,6 +142,24 @@ test('every statutory phrase is a statutory noun phrase found in the mapped law'
     assert.equal(termProblem(statutory), null, `${id}: «${statutory}» ${termProblem(statutory)}`);
     assert.ok(lawText(law).includes(` ${normalise(statutory)} `), `${id}: «${statutory}» is not in ${law}`);
   }
+});
+
+// The owner, 2026-11-15: a listed article holds the phrase in its own text, not only in a heading left at its end or a
+// caption, and not only in a longer word («الإخبارات» does not hold «الإخبار»).
+test('every listed article holds its statutory phrase by the note\'s rule', () => {
+  assert.match(vocabulary.note, /contiguous run of legal-search's tokens/);
+  const tails = leftoverTails();
+  assert.ok(tails.size > 0, 'no heading read from §1 of the stored-text defects list');
+  const problems = [];
+  for (const { id, statutory, law, articles } of vocabulary.entries) {
+    const texts = sectionArticles(law);
+    const phrase = tokens(statutory);
+    for (const number of articles) {
+      if (!texts.has(number)) problems.push(`${id}: ${law} ${number} is not a plain-numbered article`);
+      else if (!holds(bodyTokens(texts.get(number), tails.get(`${law} ${number}`)), phrase)) problems.push(`${id}: ${law} ${number}`);
+    }
+  }
+  assert.deepEqual(problems, []);
 });
 
 test('every everyday wording differs from its statutory phrase and belongs to one entry', () => {
