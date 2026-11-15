@@ -56,6 +56,36 @@ test('gives each agent the four featured starters and the tier model, which the 
   assert.equal(overridden.body.model, 'other-model');
 });
 
+// A tier's instructionsSuffix (edition 1.3.1: the fast tier's, owner 2026-11-14) goes after the composed text, pinned
+// skill included, so the tiers without one keep one shared text and the suffixed tier shares its prefix.
+const withoutSuffixes = { ...tiersDoc, tiers: tiersDoc.tiers.map(({ instructionsSuffix: _suffix, ...tier }) => tier) };
+const composedText = () => planTierAgents({ tiersDoc: withoutSuffixes, contentDir, startersDoc, env: {} })[0].body.instructions;
+const textOf = (key) => plan().find((entry) => entry.tier.key === key).body.instructions;
+
+test('a tier without a suffix gets the composed text unchanged', () => {
+  // Fails if a suffix leaks into a tier that has none, or the composed text is altered for every tier.
+  const unsuffixed = plan().filter((entry) => !entry.tier.instructionsSuffix);
+
+  assert.ok(unsuffixed.length > 0);
+  for (const { body } of unsuffixed) assert.equal(body.instructions, composedText());
+});
+
+test("the fast tier's text is the composed text, a blank line and the suffix", () => {
+  // Fails if the suffix is dropped, placed before the pinned skill, or joined without one blank line.
+  const fast = tiersDoc.tiers.find((tier) => tier.key === 'fast');
+  const suffix = fs.readFileSync(path.join(contentDir, fast.instructionsSuffix), 'utf8').replace(/\r\n/g, '\n');
+  const composed = composedText();
+
+  assert.ok(composed.endsWith('\n') && !composed.endsWith('\n\n'));
+  assert.equal(textOf('fast'), `${composed}\n${suffix}`);
+  assert.deepEqual(lintAgentBody(plan()[0].body), []);
+});
+
+test('advanced and expert get byte-identical texts', () => {
+  // Fails if the two tiers without a suffix stop sharing one text (and its prompt cache).
+  assert.equal(textOf('advanced'), textOf('expert'));
+});
+
 test('lists no pinned skill among the listed ones, since pinned bodies live in the instructions', () => {
   const [fast] = plan();
 

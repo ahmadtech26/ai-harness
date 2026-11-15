@@ -558,7 +558,9 @@ async function scenario11(ctx) {
 // ---------------------------------------------------------------- library sweep guard (Phase 3, spec C)
 
 const LIBRARY_SUSPENDED = 'تم إيقاف الوصول إلى المكتبة القانونية لهذا الحساب مؤقتًا. يُرجى التواصل مع الدعم.';
-const LIBRARY_CAP_REACHED = 'تم بلوغ الحد المسموح من النصوص لهذه الإجابة أو لهذا اليوم. يُرجى الاعتماد على ما سبق استرجاعه.';
+// legal-search's cap texts (tools.py, plan 2026-11-14 S2): both begin with the prefix; a throttled account gets the daily one.
+const LIBRARY_CAP_PREFIX = 'تم بلوغ الحد المسموح من النصوص';
+const LIBRARY_CAP_DAILY = `${LIBRARY_CAP_PREFIX} لهذا اليوم في هذا الحساب. لا تستدعِ أدوات المكتبة بعد الآن في هذه الإجابة؛ أجب بما استُرجع وحده، واذكر للمستخدم بموضوعها النقاط التي بقيت دون نص مسترجع، وأن حد اليوم قد بلغ.`;
 const GUARD_LAW = 'penal-code';
 const GUARD_STAFF_ROUTES = [
   ['GET', '/api/iqraa/admin/library/flags'],
@@ -585,7 +587,7 @@ const GUARD_STAFF_ROUTES = [
 async function scenarioGuard(ctx) {
   const { staff, agentId } = ctx;
   const library = (route, options = {}) => api(`/api/iqraa/admin/library${route}`, { token: staff.token, ...options });
-  const refused = (text) => text === LIBRARY_CAP_REACHED || text === LIBRARY_SUSPENDED;
+  const refused = (text) => (text ?? '').startsWith(LIBRARY_CAP_PREFIX) || text === LIBRARY_SUSPENDED;
   const servedArticle = (text, number) => new RegExp(`— المادة ${number}(?!\\d)`).test(text ?? '');
   const article = (number) => ({ tool: 'get_article', arguments: { number, law: GUARD_LAW } });
   const toolText = (t) => (t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '');
@@ -678,8 +680,8 @@ async function scenarioGuard(ctx) {
   const sweeperWould = wouldFlag.find((u) => u.user_id === sweeper.id);
   return {
     ...verdict({
-      suspectedAt12: check(walk.slice(0, 11).every((text, i) => servedArticle(text, i + 1)) && walk[11] === LIBRARY_CAP_REACHED, `articles 1–11 served ${walk.slice(0, 11).filter((text, i) => servedArticle(text, i + 1)).length}/11; article 12: ${walk[11]?.slice(0, 80)}`),
-      provenAt24: check(walk.slice(12, 23).every((text) => text === LIBRARY_CAP_REACHED) && walk.slice(23).every((text) => text === LIBRARY_SUSPENDED), `13–23 throttled ${walk.slice(12, 23).filter((text) => text === LIBRARY_CAP_REACHED).length}/11; 24–40 suspended ${walk.slice(23).filter((text) => text === LIBRARY_SUSPENDED).length}/17`),
+      suspectedAt12: check(walk.slice(0, 11).every((text, i) => servedArticle(text, i + 1)) && walk[11] === LIBRARY_CAP_DAILY, `articles 1–11 served ${walk.slice(0, 11).filter((text, i) => servedArticle(text, i + 1)).length}/11; article 12: ${walk[11]?.slice(0, 80)}`),
+      provenAt24: check(walk.slice(12, 23).every((text) => text === LIBRARY_CAP_DAILY) && walk.slice(23).every((text) => text === LIBRARY_SUSPENDED), `13–23 throttled ${walk.slice(12, 23).filter((text) => text === LIBRARY_CAP_DAILY).length}/11; 24–40 suspended ${walk.slice(23).filter((text) => text === LIBRARY_SUSPENDED).length}/17`),
       alertsInOrder: check(alerts.every((a) => a.level === 'error') && JSON.stringify(changes.map((a) => [a.event, a.flag_level])) === JSON.stringify([['sweep_flag_opened', 'suspected'], ['sweep_flag_escalated', 'proven']]) && JSON.stringify(emittedChanges) === JSON.stringify(['sweep_flag_opened', 'sweep_flag_escalated']) && refusalAlerts === 17, `changes ${JSON.stringify(changes.map((a) => `${a.event}@${a.log_id}`))}; emitted ${JSON.stringify(emittedChanges)}; sweep_refused ${refusalAlerts} (exactly 17: articles 25–40 plus the chat call; more means duplicated alert lines)`),
       staffSeeEvidence: check(flag?.level === 'proven' && opened.kind === 'run' && opened.law === GUARD_LAW && opened.first === 1 && opened.last === 12 && escalated.first === 13 && escalated.last === 24 && escalated.after_flag === true, `flag ${JSON.stringify({ level: flag?.level, opened, escalated }).slice(0, 300)}`),
       refusedThroughLibreChat: check(viaChat.calls.length === 2 && toolText(viaChat).includes(LIBRARY_SUSPENDED), `calls ${viaChat.calls.length}; tool result: ${toolText(viaChat).slice(0, 200)}`),

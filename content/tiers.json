@@ -10,7 +10,8 @@
       "order": 1,
       "plans": ["PLAN_BASIC", "PLAN_PRO", "PLAN_FIRM"],
       "provider": "MockLLM",
-      "model": "mock-model"
+      "model": "mock-model",
+      "instructionsSuffix": "prompts/aqel-v1.3.1-fast.md"
     },
     {
       "key": "advanced",

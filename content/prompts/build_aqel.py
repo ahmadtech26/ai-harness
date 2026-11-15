@@ -3,6 +3,7 @@
     python -I content/prompts/build_aqel.py 1.3
 
 Reads aqel-v<version>-source.txt (kept verbatim for provenance) and writes aqel-v<version>-librechat.md.
+An edition with tier suffixes (1.3.1: the fast tier's) also writes aqel-v<version>-<tier key>.md.
 Up to 1.2 only platform wording is adapted: the date variable, AnythingLLM workspaces and indexing, and how the
 legal library is reached (the search_law / get_article / get_memorandum tools). 1.3 also carries the prompt review of
 4 November 2026, which the owner asked to adopt reworded (checkpoint of that date), and CORRECTIONS_V13, the defects
@@ -662,6 +663,108 @@ EDITIONS['1.5'] = {
     'leftovers': [*EDITIONS['1.4']['leftovers'], 'VERSION 1.4'],
 }
 
+# Edition 1.3.1 (owner, 2026-11-14; plan .hq/docs/plans/2026-11-14-allowance-search-edition-plan.md, Task E1): 1.3
+# with five rules: search the right law, the memo matches the analysis, no guessed article numbers, honest gap
+# wording, and the allowance read from the line legal-search ends every served reply with («النصوص المتبقية لهذه
+# الإجابة: {left} من {per_answer}.»), since the allowance is per tier (fast 8, advanced 11, expert 16) and the
+# edition no longer states a number. PER_ANSWER above still describes 1.2 to 1.5. The at-limit bullet's daily
+# sentence matches legal-search's CAP_DAILY («… لهذا اليوم في هذا الحساب»), true only once the refusal texts are split.
+def _v13_line(prefix: str) -> str:
+    """The one line of the built v1.3 edition that starts with `prefix` (v1.3 is pinned: VP:26-29)."""
+    text = (HERE / 'aqel-v1.3-librechat.md').read_text(encoding='utf-8').replace('\r\n', '\n')
+    lines = [line for line in text.split('\n') if line.startswith(prefix)]
+    if len(lines) != 1:
+        raise SystemExit(f'FAIL: expected one v1.3 line starting {prefix!r}, found {len(lines)}')
+    return lines[0] + '\n'
+
+# C2: the allowance from the tool's line, and search the right law (replaces all of v1.3 line 78)
+C2_AR = (
+    '- لكل إجابة رصيد من نصوص المكتبة في مجموعها: يعيد البحث الواحد بـ search_law ما لا يزيد على 5 منها ويُحتسب بعدد ما '
+    'أعاده، وتُحتسب المادة التي تعيدها get_article نصًا واحدًا، وكذلك كل ملاحظة تعيدها get_memorandum. وتنتهي كل نتيجة '
+    'للمكتبة بسطر «النصوص المتبقية لهذه الإجابة: …»؛ فخطّط بما يذكره هذا السطر لا برقم تفترضه، وإذا وصلتك نتائج عدة معًا '
+    'فاعتمد أصغر رقم فيها، واحسب منه أي صياغة ثانية تجرّبها.\n'
+    '- خطّط لعمليات البحث قبل أول استدعاء: إذا كان السؤال واسعًا يجمع مسائل عدة، فحدّد المسألة الحاسمة وابحث عنها أولًا، '
+    'أو اطلب من المستخدم أن يضيّق سؤاله. واجعل أول استدعاء بحثًا واحدًا عنها، ثم خطّط لما بعده بما يذكره سطر الرصيد. '
+    'ابحث بالمصطلح القانوني الذي يستعمله نص التشريع نفسه لا بوصف عام للمسألة، ولا تحصر البحث في تشريع واحد إلا إذا كانت '
+    'المسألة كلها فيه: فإذا امتدت إلى أكثر من تشريع، أو لم تتيقن أين تقع، فابحث في كل تشريع تمتد إليه، أو ابحث أولًا '
+    'مرة واحدة دون الوسيط law ثم احصر ما بعدها في التشريعات التي ظهرت في نتيجته.\n'
+)
+# C3: the daily-limit sentence of the at-limit bullet (v1.3 line 79), true only once the refusal texts are split
+C3_OLD_AR = ('لكن الرسالة نفسها تصدر عند بلوغ الحد اليومي للحساب: فإذا جاءت قبل أن تستنفد الإجابة رصيدها، فقد بلغ '
+             'الحساب حده اليومي ولا يفيد تقسيم السؤال، فأخبر المستخدم بذلك.')
+C3_AR = 'وإذا ذكرت الرسالة أن الحد بلغ لهذا اليوم في هذا الحساب، فلا يفيد تقسيم السؤال، فأخبر المستخدم بذلك.'
+# C4: no guessed article numbers (v1.3 line 72; English before line 133's «For an article whose number you know»)
+C4_OLD_AR = 'أو get_article إذا عرفت رقم المادة؛ وانقل نص المادة وعنوانها حرفيًا كما أعادتهما الأداة.'
+C4_AR = ('أو get_article إذا عرفت رقم المادة؛ ولا يُعدّ الرقم معروفًا إلا إذا ورد في نص أعادته الأدوات في هذه المحادثة '
+         'أو في رسالة المستخدم، أما رقم تتذكره أو تخمّنه فلا تستدعِ به get_article، بل ابحث عن المسألة بـ search_law. '
+         'وانقل نص المادة وعنوانها حرفيًا كما أعادتهما الأداة.')
+C4_EN = ('A number counts as known only if it appears in a text the library tools returned in this conversation or in '
+         "the user's message; never call get_article with a number recalled from memory or guessed: search the issue "
+         'with search_law instead. ')
+# C5: the memo matches the analysis (quality check, v1.3 line 56; English at the end of line 165)
+C5_OLD_AR = 'هل أخفيت معلومة ناقصة؟ صحح أي خطأ قبل تقديم الرد.'
+C5_AR = ('هل أخفيت معلومة ناقصة؟ وإذا تضمّن الرد مذكرة أو مسودة، فطابق كل سبب فيها بالنص المقتبس الذي يستند إليه '
+         'وبتحليلك في الرد نفسه، ولا تجعل سببًا قانونيًا فيها ما ذكرت في الرد أنه لم يُسترجع نصه. صحح أي خطأ قبل تقديم الرد.')
+C5_EN = (' When the answer includes a memo or draft, check each of its reasons against the quoted text it rests on and '
+         'against your own analysis in the same answer, and never give as a legal reason in it anything the answer says '
+         'was not retrieved.')
+# C6: honest gap wording (v1.3 line 66, item 7; English after line 133's «Explain what must be checked; …»)
+C6_AR = (' وإذا بقيت مسألة دون نص لأنك لم تبحث في التشريع الذي تقع فيه، فابحث فيه ما دام في الرصيد متسع، وإلا فاذكر '
+         'للمستخدم أنك لم تبحث في ذلك التشريع واعرض أن تجلب نصه في سؤال تالٍ؛ ولا تنسب النقص إلى المكتبة، ولا تعدّه من '
+         'المعلومات المطلوبة من المستخدم.')
+C6_EN = (' When an issue is left without a text because you did not search the law it falls under, search that law '
+         "while the answer's budget allows; otherwise tell the user which law was not searched and offer to fetch its "
+         'text in a follow-up question; do not blame the library for the gap, and do not list it as information the user '
+         'must supply.')
+# C2 + C3 in English: all of v1.3 line 190
+C23_EN = (
+    '- Each answer may receive a limited number of library texts in all, stated by the line «النصوص المتبقية لهذه '
+    'الإجابة: …» that ends every library reply: one search_law call returns at most 5 and counts what it returns; an '
+    'article from get_article counts one, and so does each get_memorandum note. Plan by what that line says, never by a '
+    'number you assume; when several replies arrive together, go by the smallest number among them, and count any '
+    'second phrasing against it. Plan the searches before the first call: make the first call one search for the '
+    "decisive issue, then plan the rest by the line. Search with the statute's own term; restrict a search to one law "
+    'only when the whole issue lies in it: when it spans several laws, or you are unsure where it lies, search each law '
+    'it spans, or search once without law first and then within the laws its result shows. When a tool says the limit '
+    'is reached, make no further library call in that answer; answer from the retrieved texts only; name, by subject '
+    'and not by article number, each point left without a retrieved text; state for it no amount, period, deadline or '
+    "competent court from memory, nor that it is left to the court's discretion, not even in a conditional analysis; "
+    'and suggest asking each point separately. When the message says the limit has been reached for today for this '
+    'account, splitting the question will not help, so say so.\n'
+)
+
+EDITIONS['1.3.1'] = {
+    'source': '1.3',
+    'replacements': [
+        *EDITIONS['1.3']['replacements'],
+        ('SYSTEM PROMPT — VERSION 1.3 — 4 November 2026', 'SYSTEM PROMPT — VERSION 1.3.1 — 14 November 2026'),
+        (_v13_line('- لكل إجابة رصيد'), C2_AR),
+        (C3_OLD_AR, C3_AR),
+        (C4_OLD_AR, C4_AR),
+        ('For an article whose number you know', C4_EN + 'For an article whose number you know'),
+        (C5_OLD_AR, C5_AR),
+        ('missing evidence.\n', 'missing evidence.' + C5_EN + '\n'),
+        ('اعترف بالنقص واذكر المطلوب للتحقق.', 'اعترف بالنقص واذكر المطلوب للتحقق.' + C6_AR),
+        ('Explain what must be checked; do not provide a fabricated citation.',
+         'Explain what must be checked; do not provide a fabricated citation.' + C6_EN),
+        (_v13_line('- Each answer may receive at most'), C23_EN),
+    ],
+    'leftovers': [*EDITIONS['1.3']['leftovers'], 'VERSION 1.3 —', 'لا توزّع البحث', 'كلما عُرف التشريع', '3+3+2',
+                  'limit=3', 'لا يتجاوز 8', 'at most 8', 'الرسالة نفسها', 'The same message marks'],
+}
+
+# Fast tier only (owner 2026-11-14). «عقل خبير» is PLAN_FIRM only while fast is on PLAN_BASIC/PRO/FIRM
+# (tiers.json:11, :31), so the suggestion is conditional ‡.
+FAST_TIER_AR = (
+    'حدود «عقل سريع»\n'
+    '- إذا تناول السؤال أكثر من تشريع أو طلب مذكرة كاملة، فأجب عن المسألة الحاسمة بما يتسع له الرصيد، واذكر بموضوعها ما '
+    'لم تتناوله، واقترح على المستخدم في آخر الرد أن يطرح سؤاله كاملًا على «عقل خبير» إن كان متاحًا في اشتراكه.\n'
+)
+# The build writes each suffix beside the edition, as aqel-v<version>-<tier key>.md (LF); tiers.json names it in the
+# tier's instructionsSuffix, and tier-agents.mjs appends it after the composed text, so the tiers without a suffix
+# keep byte-identical texts and the suffixed tier shares their prefix.
+EDITIONS['1.3.1']['suffixes'] = {'fast': FAST_TIER_AR}
+
 
 def build(version: str) -> int:
     edition = EDITIONS[version]
@@ -679,6 +782,10 @@ def build(version: str) -> int:
     target = HERE / f'aqel-v{version}-librechat.md'
     target.write_text(text, encoding='utf-8', newline='\n')
     print(f'wrote {target.name} ({len(text)} characters)')
+    for key, suffix in edition.get('suffixes', {}).items():
+        suffix_target = HERE / f'aqel-v{version}-{key}.md'
+        suffix_target.write_text(suffix, encoding='utf-8', newline='\n')
+        print(f'wrote {suffix_target.name} ({len(suffix)} characters)')
     return 0
 
 
