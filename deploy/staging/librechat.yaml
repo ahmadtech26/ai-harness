@@ -89,6 +89,7 @@ mcpServers:
       X-Iqraa-User: '{{LIBRECHAT_USER_ID}}'
       X-Iqraa-Message: '{{LIBRECHAT_BODY_MESSAGEID}}'
       X-Iqraa-Conversation: '{{LIBRECHAT_BODY_CONVERSATIONID}}'
+      X-Iqraa-Tier: '{{LIBRECHAT_BODY_IQRAATIER}}'
 
 endpoints:
   agents:
