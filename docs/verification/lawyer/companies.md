@@ -1,6 +1,6 @@
 # companies: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/cleaned-text-records-2026-11`. 314 articles: 2 verified, 15 differs, 297 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 314 articles: 1 verified, 16 differs, 297 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 
@@ -8,6 +8,7 @@ Final records: branch `verify/cleaned-text-records-2026-11`. 314 articles: 2 ver
 - **unverifiable / gazette_offline (the Bureau also differs: body)** (264): 3–22, 24–30, 32–43, 45–49, 51–61, 63–65, 65 مكرر, 66, 66 مكرر, 67, 67 مكرر, 68, 68 مكرر, 69 مكرر, 70, 70 مكرر, 71, 71 مكرر, 72, 72 مكرر, 73, 73 مكرر, 74, 74 مكرر, 75, 75 مكرر, 76, 76 مكرر, 77 مكرر, 78 مكرر, 79 مكرر, 80 مكرر, 81 مكرر, 82 مكرر, 83 مكرر, 84 مكرر, 85 مكرر, 86 مكرر, 87 مكرر, 88 مكرر, 89 مكرر, 90–95, 97–101, 105–117, 120, 122, 125, 128, 130, 132–136, 138–140, 142, 143, 146, 148, 150, 152–160, 162, 163, 165–183, 185–187, 189–212, 214–223, 225–232, 234–272, 274–284, 286–289
 - **unverifiable / gazette_offline** (15): 44, 50, 62, 69, 104, 123, 124, 129, 131, 141, 145, 149, 213, 224, 233
 - **differs / from both / formatting** (14): 77–89, 151
+- **differs / from both / trailing-title** (1): 188
 - **differs / from both / body** (1): 273
 
 ## gazette_offline, by the Gazette issue(s) still needed

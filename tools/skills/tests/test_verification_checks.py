@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from skill_tools.corpus_checks import article_keys, check_verification, check_verification_record, heading_keys
+from skill_tools.corpus_checks import EFFECTS, article_keys, check_verification, check_verification_record, heading_keys
 from skill_tools.corpus_ci import main
 
 SHA = 'a' * 64
@@ -82,6 +82,8 @@ def gazette(method: str = 'text', **reference) -> dict:
 
 
 BUREAU = {'legislation_id': 42, 'url': 'https://example.test/bureau/42', 'as_of': '2026-11-14', 'text_sha256': SHA,
+          'checked_on': '2026-11-14'}
+HELPER = {'source': 'qistas', 'url': 'https://research.qistas.com/ar/print/laws?es=1', 'text_sha256': SHA,
           'checked_on': '2026-11-14'}
 
 
@@ -185,6 +187,17 @@ RECORD_VIOLATIONS = [
     (record(bureau={**BUREAU, 'as_of': '2026'}), ('date', 'bureau.as_of must be an ISO date (YYYY-MM-DD)')),
     (record(bureau={**BUREAU, 'version': 3}), ('schema', 'unknown field bureau.version')),
     (record(lawyer_item=12), ('schema', 'lawyer_item must be a string')),
+    (record(helper={**HELPER, 'source': 'adaleh'}), ('schema', 'helper.source must be one of qistas')),
+    (record(helper={**HELPER, 'page': 3}), ('schema', 'unknown field helper.page')),
+    (record(helper={key: value for key, value in HELPER.items() if key != 'url'}), ('schema', 'missing field helper.url')),
+    (record(gazette=gazette(url=HELPER['url'])),
+     ('schema', 'gazette.original.url is on qistas.com: qistas is a helper source, never the Gazette '
+                '(its reading goes in the helper block)')),
+    (record(gazette=_with_gazette(amendments=[{
+        'law': 7, 'year': 1901, 'issue': 1300, 'date': '1901-05-06', 'page': 3, 'effect': 'amended',
+        'document_id': None, 'url': 'https://qistas.com/x', 'file_sha256': None}])),
+     ('schema', 'gazette.amendments[0].url is on qistas.com: qistas is a helper source, never the Gazette '
+                '(its reading goes in the helper block)')),
     (record(reason=None), ('schema', 'an unverifiable record needs a reason')),
     (record(result='differs', reason=None, differs_from='gazette'), ('schema', 'a differs record needs difference')),
     (verified(reason='sources_disagree'), ('schema', 'a verified record must have reason null')),
@@ -217,8 +230,22 @@ def test_accepts_the_filled_forms_of_a_verified_record():
         'law': 7, 'year': 1901, 'issue': '1300', 'date': '1901-05-06', 'page': '12-13', 'effect': 'replaced',
         'document_id': None, 'url': 'https://example.test/gazette/1300', 'file_sha256': None}]})
     with_norm = verified(norm_sha256=SHA, notes='trailing heading «الفصل الثاني» set aside', lawyer_item='companies-3')
+    with_helper = verified(helper=dict(HELPER))
 
-    assert [check_verification_record(value, 'demo-law') for value in (image, amended_only, with_norm)] == [[], [], []]
+    assert [check_verification_record(value, 'demo-law')
+            for value in (image, amended_only, with_norm, with_helper)] == [[], [], [], []]
+
+
+def test_an_unverifiable_record_may_carry_a_helper_reading_only_in_its_helper_block():
+    offline = record(gazette={**gazette(), 'method': None, 'text_sha256': None, 'checked_on': None}, helper=dict(HELPER),
+                     differs_from='bureau', difference='formatting')
+
+    assert check_verification_record(offline, 'demo-law') == []
+
+
+def test_the_amendment_effects_are_pinned():
+    # legal-search's verification.EFFECTS (recall-plan) pins the same tuple: a new effect changes both, with a test each.
+    assert EFFECTS == ('amended', 'replaced', 'added', 'repealed', 'renumbered')
 
 
 def test_reports_lines_that_are_not_json_or_blank(tmp_path: Path):

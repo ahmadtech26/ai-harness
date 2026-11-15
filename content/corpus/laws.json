@@ -603,6 +603,7 @@
       "slug": "court-fees",
       "title": "جدول رسوم المحاكم",
       "folder": "جدول-رسوم-المحاكم",
+      "instrument": "regulation",
       "number": 43,
       "year": 2005,
       "gazette": {
@@ -623,6 +624,7 @@
       },
       "sources": {
         "title": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935",
+        "instrument": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
         "number": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
         "year": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
         "gazette.issue": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",

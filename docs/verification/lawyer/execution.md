@@ -1,12 +1,13 @@
 # execution: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/cleaned-text-records-2026-11`. 119 articles: 7 verified, 109 differs, 3 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 119 articles: 6 verified, 110 differs, 3 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 
 - **unverifiable / gazette_image_unread** (3): 1, 22, 30
 - **differs / from both / formatting** (68): 2, 5, 8–10, 13–15, 19, 23, 25–27, 29, 31, 32, 34, 36, 37, 40–46, 48–58, 61, 63–66, 68, 69, 72–74, 78, 80, 81, 84, 85, 89, 90, 93, 95, 96, 99–102, 105, 107, 108, 110, 116, 118, 119
 - **differs / from both / body** (40): 3, 4, 6, 7, 11, 12, 16, 20, 21, 24, 28, 35, 38, 39, 47, 59, 60, 67, 70, 71, 75–77, 79, 83, 86, 88, 91, 92, 94, 97, 98, 103, 104, 106, 109, 111, 113, 114, 117
+- **differs / from both / trailing-title** (1): 62
 - **differs / from bureau / formatting** (1): 87
 
 ## Where the Gazette reading differs from the stored text: stored → Gazette, word by word

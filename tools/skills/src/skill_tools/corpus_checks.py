@@ -18,8 +18,11 @@ ISO_DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 REVIEW_STATUSES = ('draft', 'approved')
 TOP_FIELDS = {
     'slug': str, 'title': str, 'folder': str, 'number': int, 'year': int, 'gazette': dict,
-    'amendment': dict, 'note': str, 'known_gaps': list, 'review': dict, 'sources': dict,
+    'amendment': dict, 'note': str, 'known_gaps': list, 'review': dict, 'sources': dict, 'instrument': str,
 }
+# What the entry is: a law (قانون, the default when `instrument` is absent) or a regulation (نظام, e.g. court-fees, the
+# schedule of نظام رسوم المحاكم رقم 43 لسنة 2005). legal-search's registry reads it and prints «نظام» for a regulation.
+INSTRUMENTS = ('law', 'regulation')
 REQUIRED = ('slug', 'title', 'folder', 'review', 'sources')
 GAZETTE_FIELDS = {'issue': int, 'date': str, 'source_url': str}
 AMENDMENT_FIELDS = {'law': int, 'year': int, 'gazette_issue': int, 'gazette_date': str, 'source_url': str}
@@ -86,6 +89,8 @@ def check_schema(entry: dict, name: str) -> list[Problem]:
     for key in ('title', 'folder', 'note'):
         if _is(entry.get(key), str) and not entry[key].strip():
             problems.append(Problem(name, 'schema', f'{key} must not be empty'))
+    if _is(entry.get('instrument'), str) and entry['instrument'] not in INSTRUMENTS:
+        problems.append(Problem(name, 'schema', f'instrument must be one of {", ".join(INSTRUMENTS)}'))
     if _is(entry.get('gazette'), dict):
         problems += _fields(entry['gazette'], GAZETTE_FIELDS, 'gazette.', name)
     if _is(entry.get('amendment'), dict):
@@ -233,7 +238,12 @@ REASONS = ('gazette_offline', 'gazette_image_unread', 'bureau_unreachable', 'no_
 DIFFERS_FROM = ('gazette', 'bureau', 'both')
 DIFFERENCES = ('formatting', 'trailing-title', 'body', 'repeal')
 METHODS = ('text', 'image')
+# legal-search's verification.EFFECTS (recall-plan) holds the same five values, in this order; both are pinned by tests.
 EFFECTS = ('amended', 'replaced', 'added', 'repealed', 'renumbered')
+# A helper source (owner 2026-11-15, «Helper source only»): read to help find a text, never the Gazette and never counted
+# toward `verified`. Its reading goes in the record's `helper` block, never in `gazette`; a Gazette reference whose URL is
+# on a helper's host is a problem.
+HELPER_SOURCES = {'qistas': 'qistas.com'}
 NORMALISATIONS = ('v1',)
 # (kind, nullable). A kind is a named value type, a tuple of allowed values, a nested object, or [item kind].
 _REFERENCE = {'issue': ('id', True), 'date': ('date', True), 'page': ('id', True), 'document_id': ('id', True),
@@ -243,14 +253,16 @@ _GAZETTE = {'method': (METHODS, True), 'original': (_REFERENCE, True), 'amendmen
             'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
 _BUREAU = {'legislation_id': ('id', True), 'url': ('url', True), 'as_of': ('date', True),
            'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
+_HELPER = {'source': (tuple(HELPER_SOURCES), False), 'url': ('url', True), 'text_sha256': ('sha256', True),
+           'checked_on': ('date', True)}
 RECORD = {
     'law_slug': ('str', False), 'number': ('int', False), 'suffix': ('str', False), 'text_sha256': ('sha256', False),
     'norm_sha256': ('sha256', True), 'result': (RESULTS, False), 'reason': (REASONS, True),
     'differs_from': (DIFFERS_FROM, True), 'difference': (DIFFERENCES, True), 'checked_on': ('date', False),
     'normalisation': (NORMALISATIONS, False), 'gazette': (_GAZETTE, True), 'bureau': (_BUREAU, True),
-    'notes': ('str', True), 'lawyer_item': ('str', True),
+    'helper': (_HELPER, True), 'notes': ('str', True), 'lawyer_item': ('str', True),
 }
-OPTIONAL_RECORD_KEYS = {'norm_sha256'}
+OPTIONAL_RECORD_KEYS = {'norm_sha256', 'helper'}
 _KINDS = {
     'int': (lambda v: _is(v, int), 'an int'),
     'str': (lambda v: _is(v, str), 'a string'),
@@ -304,6 +316,28 @@ def _filled_reference(reference: object, method: object) -> bool:
             and (method != 'image' or reference.get('file_sha256') is not None))
 
 
+def _host(url: object) -> str:
+    match = re.match(r'^https?://([^/?#]+)', url) if _is(url, str) else None
+    return match.group(1).lower() if match else ''
+
+
+def _helper_problems(record: dict) -> list[str]:
+    """A helper source's reading is never a Gazette reference (run on a record whose schema passed)."""
+    gazette = record['gazette']
+    if gazette is None:
+        return []
+    references = [('gazette.original', gazette['original'])] + [
+        (f'gazette.amendments[{index}]', amendment) for index, amendment in enumerate(gazette['amendments'])]
+    problems = []
+    for path, reference in references:
+        host = _host(reference['url']) if reference else ''
+        for name, helper_host in HELPER_SOURCES.items():
+            if host == helper_host or host.endswith('.' + helper_host):
+                problems.append(f'{path}.url is on {helper_host}: {name} is a helper source, never the Gazette '
+                                '(its reading goes in the helper block)')
+    return problems
+
+
 def _result_problems(record: dict) -> list[str]:
     """What a record's result requires of its other fields (run on a record whose schema passed)."""
     result = record['result']
@@ -339,7 +373,7 @@ def check_verification_record(record: object, slug: str) -> list[tuple[str, str]
     if _is(record.get('law_slug'), str) and record['law_slug'] != slug:
         problems.append(('schema', f'law_slug {record["law_slug"]!r} is not the file\'s law {slug!r}'))
     if not problems:
-        problems += [('schema', message) for message in _result_problems(record)]
+        problems += [('schema', message) for message in _helper_problems(record) + _result_problems(record)]
     return problems
 
 
