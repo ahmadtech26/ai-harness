@@ -13,10 +13,11 @@ test('lists every law of the registry with its title, number, year and short nam
 
   assert.equal(built.laws.length, laws.laws.length);
   assert.deepEqual(civil, { slug: 'civil-code', title: 'القانون المدني الأردني', aliases: ['القانون المدني'], number: 43, year: 1976 });
-  // The schedule's registry title, and the regulation's own name as an alias (owner 2026-11-15): an answer that names
-  // «نظام رسوم المحاكم» is the library's court-fees, not a law outside it.
+  // The schedule's registry title, and as its alias the schedule named after its regulation (owner 2026-11-15, «Narrow
+  // name»): the library holds the schedule's 52 items, not the regulation's own 18 articles, so «المادة 3 من نظام رسوم
+  // المحاكم» must not be read as the schedule's item 3.
   assert.deepEqual(built.laws.find((law) => law.slug === 'court-fees'), {
-    slug: 'court-fees', title: 'جدول رسوم المحاكم', number: 43, year: 2005, aliases: ['نظام رسوم المحاكم'],
+    slug: 'court-fees', title: 'جدول رسوم المحاكم', number: 43, year: 2005, aliases: ['الجدول الملحق بنظام رسوم المحاكم'],
   });
 });
 
