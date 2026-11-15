@@ -5,7 +5,7 @@ next article's heading glued to the end (#86). «Gazette reading: yes» marks an
 a Gazette page in this pass (its fix can come from that reading, one law per PR); «no» needs a Gazette issue that is
 not online (see the lawyer lists).
 
-## 1. A heading still at the end of the text (28)
+## 1. A heading still at the end of the text (71)
 
 #86 strips the heading the next article takes as its heading field. These endings are headings or captions it does
 not take: a heading that ends in a bracket or holds a colon or digits, or a caption of several parts («دفاتر التجار أ. …»)
@@ -40,6 +40,13 @@ of which #86 strips only the words after the last full stop. The Bureau comparis
 - penal-code 416: «الفصل الثاني- في الاحتيال وسائر ضروب الغش» (Gazette reading: no)
 - penal-code 454: «الفصل السابع- في الجرائم المتعلقة بنظام المياه التنقيب عن المياه» (Gazette reading: no)
 - penal-code 458: «الباب الثاني عشر- في المخالفات تخريب الساحات والطرق العامة» (Gazette reading: yes)
+
+### Added 2026-11-15 (owner): 43 more endings #86 does not take
+
+Found after #86 by computing the residue with each law's bleed status from before the strip and counting heading lines (#86, item 12): 46 articles still end in heading text, of which commerce 15, execution 107 and labour 30 were listed above. The other 43:
+
+- **commerce** (6, the rest of a caption of several parts, as in commerce 15; Gazette reading: no): 140 «تداول سند السحب بطريق التظهير 2. تدوين ليس لامر 3.»; 228 «السند الخالي من البيانات أ. خلو مكان الاداء ب. خلو الشيك من البيانات ج. خلو محل الانشاء د.»; 229 «1. سحب الشيك على مصرف 2.»; 230 «1. اصدار الشيك بوجود مقابل 2. على الساحب اداء مقابل الوفاء 3. مسؤولية الساحب تجاه المظهرين او الحامل 4.»; 239 «ألتظهير 1. خلو من الشرط 2.تظهير جزئي 3. تظهير لحامله 4.»; 245 «1. مدة وفاء الشيك داخل الاردن 2. مدة وفاء الشيك المسحوب خارج المملكة 3.»
+- **majalla** (37, a «##» book or chapter heading line stacked at the end of the text; no Gazette publication, so no Gazette reading can fix it: the owner's decision on the Majalla text applies): 196 «الباب الثاني في بيان المسائل المتعلقة بالمبيع 151»; 236 «الباب الثالث في بيان المسائل المتعلقة بالثمن 152»; 261 «الباب الخامس في بيان المسائل المتعلقة بالتسليم والتسلم»; 299 «الباب السادس»; 360 «الباب السابع في بيان انواع البيع 120 واحكامه»; 432 «الباب الثاني في بيان المسائل المتعلقة بعقد الاجارة»; 462 «الباب الثالث في بيان المسائل التي تتعلق بالاجرة»; 496 «الباب الخامس في الخيارات 116»; 521 «الباب السادس في بيان انواع المأجور 411 واحكامه»; 581 «الباب السابع في وظيفة الآجر والمستاجر وصلاحيتهما بعد العقد»; 595 «الباب الثامن»; 620 «الباب الاول في عقد 103 الكفالة»; 633 «الباب الثاني في بيان احكام الكفالة 612»; 658 «الباب الثالث في البراءة من الكفالة»; 679 «الباب الاول في بيان عقد 103 الحوالة 673»; 721 «الباب الثالث في بيان المسائل التي تتعلق بالمرهون 701»; 728 «الباب الرابع في بيان احكام الرهن 701»; 772 «الباب الثاني في الوديعة 673»; 803 «الباب الثالث»; 836 «الباب الاول في بيان المسائل المتعلقة بعقد 103 الهبة»; 860 «الباب الثالث في بيان احكام الهبة 833»; 911 «الباب الثاني في بيان الاتلاف»; 1007 «الباب الثالث في بيان الشفعة 950»; 1113 «الباب الثاني في بيان القسمة 1114»; 1233 «الباب الرابع في بيان شركة 1045 الاباحة 836»; 1307 «الباب الخامس في بيان النفقات 1054 المشتركة 1045»; 1328 «الباب السادس في بيان شركة العقد»; 1430 «الباب الثامن في بيان المزارعة والمساقاة»; 1459 «الباب الثالث في بيان احكام الوكالة 1449»; 1547 «الباب الثالث في المصالح عنه 1534»; 1555 «الباب الرابع في بيان احكام الصلح والابراء 1536 و 1561»; 1586 «الباب الثالث في بيان احكام الاقرار 1572»; 1683 «الباب الاول في الشهادة 1684»; 1735 «الباب الثاني في بيان الحجج الخطية والقرينة القاطعة 1741 و 1740»; 1753 «الباب الرابع في ترجيح البينات 1676 والتحالف 1742 و 1752 و 1681»; 1791 «الباب الاول في الحكام 1785»; 1828 «الباب الثاني في الحكم 1786»
 
 ## 2. A title or heading at the start of the text (153)
 
@@ -91,3 +98,9 @@ opening the text («السلم: السلم: …»); the lawyer decides which are
 - Paragraph breaks inside a sentence: none found in the parsed text (every paragraph break follows a full stop, colon
   or similar); the splits above are paragraphs that continue the one before.
 
+## 5. Repealed articles that serve «ملغاة» and the whole repealed text (191)
+
+The stored text is «ملغاة» followed by the full text the repeal removed, so the library serves a repealed text after the word «ملغاة» (the model could quote it as law in force). The Gazette and the Bureau show only the repeal; the records are `differs` / `repeal` (commerce) or `unverifiable` (penal-code) and do not compare the wording. A fix keeps «ملغاة» alone, from the repealing law's Gazette text, one law per PR.
+
+- **commerce 290–477** (188): repealed by the Insolvency Law 21/2018 art. 140 («تلغى أحكام الإفلاس والصلح الواقي منه الواردة في المواد من (٢٩٠) ولغاية (٤٧٧) من قانون التجارة رقم (١٢) لسنة ١٩٦٦»), Gazette 5514 p. 2701. Gazette reading: yes (the repealing provision).
+- **penal-code 124–126** (3): repealed by 50/1971 art. 17 (قانون حماية أسرار ووثائق الدولة), Gazette 2315 p. 1164. Gazette reading: no (2315 is not online; the Bureau shows the repeal).
