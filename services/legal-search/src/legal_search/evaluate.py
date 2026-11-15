@@ -13,7 +13,9 @@ same corpus, set and code give the same numbers. `--field question` searches eac
 query (REQ-RAG-032). `--queries` takes each item's query and law from a JSONL side file of {id, query, law} rows,
 one per item (recorded queries, O-94), and the run records the file's sha256; it does not combine with
 `--field question`. Beside `corpus_sha256` the run records `index_sha256` (the keys and the index-only columns,
-INDEX_COLUMNS), and every search is strict: an evaluation never scores a fallback.
+INDEX_COLUMNS), and every search is strict: an evaluation never scores a fallback. `run` searches with the everyday
+vocabulary LEGAL_SEARCH_VOCABULARY names, as the server would (vocabulary.py; none when unset), and records its
+file's sha256 as `vocabulary_sha256` (null without one).
 """
 
 import argparse
@@ -29,7 +31,7 @@ from typing import Literal, get_args
 from psycopg import AsyncConnection, sql
 from psycopg.abc import Query
 
-from legal_search import db
+from legal_search import db, synonyms, vocabulary
 from legal_search.corrections import CorrectionError, load_corrections
 from legal_search.evalset import EvalSet, EvalSetError, Item, corpus_problems, coverage, coverage_problems, parse_evalset
 from legal_search.ingest import IngestError, Prepared, ingest, prepare
@@ -105,6 +107,8 @@ def log_row(report: dict) -> str:
 def _settings(run: dict) -> str:
     parts = ['law filter'] if run.get('use_law_filter') else []
     parts += [f'{name}={value}' for name, value in sorted(run.get('config', {}).items())]
+    if run.get('vocabulary_sha256'):
+        parts.append(f'vocabulary {run["vocabulary_sha256"][:12]}')
     return ', '.join(parts) or 'defaults'
 
 
@@ -143,6 +147,7 @@ async def run_eval(conninfo: str, sources: Sources, label: str, *, use_law_filte
             'label': label, 'set': evalset.name, 'set_review': evalset.review_status, 'set_sha256': evalset.sha256,
             'corpus_sha256': corpus_sha256, 'index_sha256': index_sha256, 'use_law_filter': use_law_filter, 'depth': DEPTH,
             'config': asdict(config), 'field': field, 'queries_sha256': queries_sha256,
+            'vocabulary_sha256': synonyms.VOCABULARY_SHA256,
         },
         'metrics': summarise([scored for scored, _ in results]),
         'memorandum': memorandum,
@@ -379,6 +384,7 @@ def main() -> None:
         if args.command == 'check':
             _check(_sources(args))
         elif args.command == 'run':
+            synonyms.use_vocabulary(vocabulary.vocabulary_from_env())
             report = asyncio.run(run_eval(db.database_url(), _sources(args), args.label,
                                           use_law_filter=args.use_law_filter, reset=args.reset, config=with_overrides(DEFAULT, args.config),
                                           field=args.field, queries=args.queries))

@@ -13,6 +13,8 @@ search_law ranks with the server's search config: DEFAULT, or the overrides LEGA
 only the timing stack sets (recall plan Tasks 3.2 and 3.9; search_config.search_config_from_env). A server whose
 config ranks with the keyword engine (ranker=bm25) builds that config's index before it serves. Its searches run
 one at a time (keyword_engine.DEFAULT_SEARCHES) unless LEGAL_SEARCH_ENGINE_SEARCHES allows more; no deploy file sets it.
+An everyday search vocabulary is installed only when LEGAL_SEARCH_VOCABULARY names its file (vocabulary.py); no deploy
+file sets it either.
 """
 
 import asyncio
@@ -35,7 +37,7 @@ from psycopg_pool import AsyncConnectionPool
 from pydantic import Field
 from starlette.routing import Mount
 
-from legal_search import admin, db, keyword_engine, spans, tools
+from legal_search import admin, db, keyword_engine, spans, synonyms, tools, vocabulary
 from legal_search import guard as sweep
 from legal_search.caps import Caps
 from legal_search.guard_settings import GuardSettings, SettingsCache, ensure_settings, validate
@@ -344,6 +346,7 @@ def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts:
 
 def main() -> None:
     keyword_engine.SEARCHES = keyword_engine.Searches(engine_searches_from_env())
+    synonyms.use_vocabulary(vocabulary.vocabulary_from_env())  # before any index build; unset installs none
     pool = AsyncConnectionPool(db.database_url(), min_size=1, max_size=10, open=False, timeout=POOL_TIMEOUT,
                                kwargs=connection_kwargs())
     app = build_app(pool, caps_from_env(), read_secret(), allowed_hosts_from_env(), tool_deadline_from_env(),
