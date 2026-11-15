@@ -46,6 +46,11 @@ Quoted from the owner's instructions, §1, with the record fields named.
   file sha256). No other edition, print copy or consolidation site counts. Without such a scan the article is
   `unverifiable` (`reason: "gazette_offline"`), and the missing issues are listed. (As found on 2026-11-14: the Gazette
   site lists issues from 4632 on; archive.org held no scan of a Jordanian Gazette issue.)
+- **Helper sources** (owner 2026-11-15, «Helper source only»): a consolidation site read to help find a text, today
+  Qistas (qistas.com) for the penal code, is never the Gazette and never counts toward `verified`. Its reading goes in
+  the record's `helper` block, never in `gazette`, and its evidence line has `source: "qistas"`. A record whose only
+  Gazette-like reading is a helper's is `unverifiable` (`gazette_offline`), unless an archive.org scan of the issue
+  exists. Helper names are on the copy-site list (`content/corpus/copy-sites.json`), so they never reach the model.
 - **Repealed articles** (corpus «ملغاة»): `verified` when the repealing law's Gazette text and the Bureau both show the
   repeal (`effect: "repealed"`); the wording is not compared.
 - **«مكرر» articles:** the first Gazette text is the amending law that inserted it (`effect: "added"`). A «مكرر» text
@@ -100,7 +105,8 @@ A change to these rules is a new normalisation (`v2`), and every record made und
 ## The record
 
 One JSON object per line, one line per corpus article of the law, in the order of the stored texts
-(`dump_texts.py`'s order). Every key below is present (only `norm_sha256` may be left out); an unknown value is `null`.
+(`dump_texts.py`'s order). Every key below is present (only `norm_sha256` and `helper` may be left out); an unknown
+value is `null`.
 corpus-ci rejects any other key.
 
 | Key | Value |
@@ -118,6 +124,7 @@ corpus-ci rejects any other key.
 | `normalisation` | `v1` |
 | `gazette` | `null`, or `{method, original, amendments, text_sha256, checked_on}` (below) |
 | `bureau` | `null`, or `{legislation_id, url, as_of, text_sha256, checked_on}` (below) |
+| `helper` | optional: `{source, url, text_sha256, checked_on, result}`, a helper source's reading (below); never a Gazette reading |
 | `notes` | text or `null`: what was set aside (a trailing heading, a site title), both readings where sources disagree, a fix PR |
 | `lawyer_item` | the article's entry in `docs/verification/lawyer-open-items.md`, as text, or `null` |
 
@@ -138,6 +145,16 @@ item), `file_sha256` is the sha256 of the page image or file read, and `law` and
 
 `bureau`: `legislation_id` (int or string), `url`, `as_of` (YYYY-MM-DD: the version or as-of date the Bureau shows),
 `text_sha256` (of the Bureau's article text as read), `checked_on`.
+
+`helper`: `source` (`qistas`), `url` (the page read, on the helper's own host), `text_sha256` (of the helper's text as
+read: its evidence line's `text_sha256`), `checked_on`, and `result` (`match` \| `formatting` \| `body`: the helper's
+text against the stored text under `v1`, information only, for grouping the lawyer list). corpus-ci rejects a Gazette
+reference (`gazette.original` or an amendment) or a `bureau.url` on a helper's host, reading the host as a resolver does
+(a port, a userinfo part, a trailing dot or capitals do not hide it), and rejects any reference URL whose spelling a
+browser could resolve elsewhere (a non-ASCII host, a «%», a «\»). `helper.url` is required and on the helper's host,
+and a record's `gazette.text_sha256` is never its helper's. The 73 penal-code Qistas texts that carried the
+Qistas print page's own URL (printed reversed inside the text, «…research.qistas.com/ar/print/laws//:https») have it
+removed; their `text_sha256` is of the text without it.
 
 What the result requires (corpus-ci checks these):
 
@@ -170,8 +187,14 @@ The shape of a record (placeholders, not data):
  "accessed_on": "<YYYY-MM-DD>"}
 ```
 
-`source` is `gazette` or `bureau`; a Gazette line read from a page image carries `image_sha256`, a Bureau line `url`
-and `null` for the Gazette fields. The text is the transcription or the Bureau's article text as read, before `v1`, so
+`source` is `gazette`, `bureau` or `qistas` (a helper source); a Gazette line read from a page image carries
+`image_sha256`, a Bureau or helper line `url` and `null` for the Gazette fields. `image_sha256` is a sha256 or a list of
+them, one per page image read in page order (the form most lines use); `pages`, optional, lists `{issue, page,
+document_id, image_sha256}` per page; `note`, optional, says how a line was made where it was not transcribed from the
+source (execution 62's line was reconstructed on 2026-11-15 from its record's note of the 2026-11-14 reading). corpus-ci
+checks every line's schema and `text_sha256` (sha256 of `text`), that a helper line has a url on its host and no Gazette
+fields, that a Gazette line names its url or its page image(s) (one pinned exception, companies 151, follow-ups item 2),
+and that every `text_sha256` a record cites (gazette, bureau, helper) has a line of that source for the article. The text is the transcription or the Bureau's article text as read, before `v1`, so
 `compare()` can be run on it again. Gazette images and PDFs are never committed; their sha256 identifies them.
 
 ## How to re-run a law
@@ -224,6 +247,16 @@ A Gazette-sourced fix PR therefore updates the records of the articles it change
 Two things the hash cannot see: an amending law published after `checked_on` (the law is re-run when one is
 published), and a change of normalisation (a new name, and every record re-run).
 
+**Glued headings (owner 2026-11-14 §7).** From the server change that strips, at ingest, the next article's heading
+glued to the end of an article (`headings.glued_headings` / `strip_glued` on `recall-plan`), the stored text of 1,936
+articles no longer ends with that heading, and every record binds the cleaned text. A record whose comparison had set
+that heading aside keeps its verdicts; the others were compared again on the cleaned text. No article whose text still
+ends with a glued heading is `verified`: five repeals whose stored «ملغاة» still ends with the next article's caption,
+which the rule does not take (no sentence end to cut at: companies 188 and 213, customs 234, execution 62, penal-code
+308), are not verified; four are `differs` / `trailing-title` until their text is cleaned from the Gazette, and companies
+213 stays `unverifiable` (its repealing issue is offline). Other stored-text defects (a heading the rule does not take, a caption at the
+start, a doubled word) are listed in `docs/verification/2026-11-14-stored-text-defects.md` for a Gazette-sourced fix.
+
 ## The checks
 
 - **corpus-ci** (`tools/skills`, schema only): every file names a registry law; each line is a record of the schema
@@ -257,7 +290,12 @@ amending regulation on the Gazette is **نظام رقم (108) لسنة 2008 — 
   is a different regulation). 508 special issues («عدد ممتاز») are listed there as one document without titles; their
   contents were not listed. The Bureau records no amending regulation after 108/2008.
 - `laws.json` holds the regulation's publication data: `number` 43, `year` 2005, `gazette` 4711 / 2005-06-16, and as the
-  last amendment regulation 108/2008, Gazette 4935 / 2008-11-02 (both dates read from the issue covers).
+  last amendment regulation 108/2008, Gazette 4935 / 2008-11-02 (both dates read from the issue covers), and marks the
+  entry `"instrument": "regulation"` (an entry without `instrument` is a law). corpus-ci accepts `law` or `regulation`;
+  legal-search's registry (`registry.py`, recall-plan) reads it, and the library then prints the amendment as «آخر
+  تعديل: النظام المعدِّل رقم 108 لسنة 2008» (the heading keeps the plain title, «جدول رسوم المحاكم رقم 43 لسنة 2005»).
+  `law-aliases.json` gives court-fees the alias «الجدول الملحق بنظام رسوم المحاكم» (owner, «Narrow name»): the library
+  holds the schedule's 52 items, not the regulation's own 18 articles, so the regulation's bare name is not an alias.
 
 ## Law approval
 

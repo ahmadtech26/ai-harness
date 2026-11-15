@@ -1,6 +1,6 @@
 # customs: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/reverify-customs-2026-11`. 254 articles: 1 verified, 10 differs, 243 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 254 articles: 1 verified, 10 differs, 243 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 
@@ -10,7 +10,7 @@ Final records: branch `verify/reverify-customs-2026-11`. 254 articles: 1 verifie
 - **differs / from both / body** (3): 94, 137, 251
 - **differs / from bureau / body** (3): 105, 227, 233
 - **differs / from both / formatting** (3): 147, 249, 250
-- **differs / from bureau / repeal** (1): 234
+- **differs / from both / trailing-title** (1): 234
 
 ## gazette_offline, by the Gazette issue(s) still needed
 
@@ -48,7 +48,7 @@ Verification pass of 2026-11-14 (draft, for lawyer review). PRs: #46 (records), 
 | differs | both | body | 4 |
 | differs | both | formatting | 2 |
 | differs | bureau | body | 3 |
-| differs | bureau | repeal | 1 |
+| differs | both | trailing-title | 1 |
 | unverifiable | gazette_offline | - | 19 |
 | unverifiable | gazette_offline | body | 209 |
 | unverifiable | gazette_offline | formatting | 15 |
@@ -59,7 +59,7 @@ Verification pass of 2026-11-14 (draft, for lawyer review). PRs: #46 (records), 
 - **customs/differs/both/body** (4): 94, 137, 250–251
 - **customs/differs/both/formatting** (2): 147, 249
 - **customs/differs/bureau/body** (3): 105, 227, 233
-- **customs/differs/bureau/repeal** (1): 234
+- **customs/differs/both/trailing-title** (1): 234
 
 #### Unverifiable: Gazette offline (243; **customs/unverifiable/gazette_offline/…**)
 
@@ -114,7 +114,7 @@ Set-aside parts (glued titles and headings) are removed first. «∅» = nothing
 #### Notes for the lawyer and the owner
 
 - **249–251, renumbering.** 24/2010 (temporary; Gazette 5040 p. 3972) added art. 249 («بدل خدمة»). 37/2010 (temporary; 5062 pp. 6179–6181) added art. 250 (the sales-tax provisions) and renumbered 250–252 as 251–253. 33/2018 (5520 p. 3873) added a new 249 (the transitional provision) and renumbered 249–253 as 250–254. So the corpus's 249 = 33/2018's article, 250 = 24/2010's 249, and 251 = 37/2010's 250. **Open:** whether the temporary laws 24/2010 and 37/2010 were later approved, replaced or annulled was not checked, and the Bureau records neither.
-- **227, 233, 234 — 10/2019 (Gazette 5572, did 53973), which the Bureau's chain lacks.** 227 and 233 equal the Gazette, and the Bureau still prints the older texts (`differs_from: bureau`). 234 is repealed by 10/2019 art. 11 (p. 2430). The corpus has «ملغاة» and the Bureau prints a text (`differs`/`bureau`/`repeal`).
+- **227, 233, 234 — 10/2019 (Gazette 5572, did 53973), which the Bureau's chain lacks.** 227 and 233 equal the Gazette, and the Bureau still prints the older texts (`differs_from: bureau`). 234 is repealed by 10/2019 art. 11 (p. 2430). The corpus has «ملغاة» followed by the next article's caption «الاعفاء من نفقات التنفيذ», and the Bureau prints a text (now `differs`/`both`/`trailing-title`, owner 2026-11-15).
 - **Glued titles set aside against the Gazette text:** 105, 137, 147, 227, 233, 250 and 251 (the next article's title from the copy site), by the Bureau comparison's rule C4.
 - **7/2025 (5991, did 60605) was read.** It touches none of the 11 online articles.
 - **Fix PR scope.** One word difference: 250 «تغادر» → Gazette «يغادر» (24/2010 art. 2, 5040 p. 3972). 94 («احكام» → «أحكام») and 251 («بشانها», «باي» → «بشأنها», «بأي», and «رقم 6» → «رقم (٦)») differ in hamza or brackets only; 137 has an invisible ZWNJ after «أ». Not fixed (coordinator's rule: word differences only).

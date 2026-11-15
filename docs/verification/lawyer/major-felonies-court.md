@@ -1,6 +1,6 @@
 # major-felonies-court: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/records-offline-laws-2026-11`. 16 articles: 0 verified, 0 differs, 16 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 16 articles: 0 verified, 0 differs, 16 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 

@@ -1,13 +1,14 @@
 # companies: lawyer list (verification pass 2026-11-14, draft, for lawyer review)
 
-Final records: branch `verify/reverify-companies-2026-11`. 314 articles: 2 verified, 15 differs, 297 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
+Final records: branch `verify/cleaned-text-records-2026-11`. 314 articles: 1 verified, 16 differs, 297 unverifiable. Every article that is not `verified` is listed below once, by result / reason (unverifiable) or differs_from / difference (differs).
 
 ## Not verified, by result
 
-- **unverifiable / gazette_offline (the Bureau also differs: formatting)** (17): 1, 23, 96, 102, 103, 118, 119, 121, 126, 127, 137, 144, 147, 161, 164, 184, 285
-- **unverifiable / gazette_offline (the Bureau also differs: body)** (265): 2–22, 24–30, 32–43, 45–49, 51–61, 63–65, 65 مكرر, 66, 66 مكرر, 67, 67 مكرر, 68, 68 مكرر, 69 مكرر, 70, 70 مكرر, 71, 71 مكرر, 72, 72 مكرر, 73, 73 مكرر, 74, 74 مكرر, 75, 75 مكرر, 76, 76 مكرر, 77 مكرر, 78 مكرر, 79 مكرر, 80 مكرر, 81 مكرر, 82 مكرر, 83 مكرر, 84 مكرر, 85 مكرر, 86 مكرر, 87 مكرر, 88 مكرر, 89 مكرر, 90–95, 97–101, 105–117, 120, 122, 125, 128, 130, 132–136, 138–140, 142, 143, 146, 148, 150, 152–160, 162, 163, 165–183, 185–187, 189–212, 214–223, 225–232, 234–272, 274–284, 286–289
+- **unverifiable / gazette_offline (the Bureau also differs: formatting)** (18): 1, 2, 23, 96, 102, 103, 118, 119, 121, 126, 127, 137, 144, 147, 161, 164, 184, 285
+- **unverifiable / gazette_offline (the Bureau also differs: body)** (264): 3–22, 24–30, 32–43, 45–49, 51–61, 63–65, 65 مكرر, 66, 66 مكرر, 67, 67 مكرر, 68, 68 مكرر, 69 مكرر, 70, 70 مكرر, 71, 71 مكرر, 72, 72 مكرر, 73, 73 مكرر, 74, 74 مكرر, 75, 75 مكرر, 76, 76 مكرر, 77 مكرر, 78 مكرر, 79 مكرر, 80 مكرر, 81 مكرر, 82 مكرر, 83 مكرر, 84 مكرر, 85 مكرر, 86 مكرر, 87 مكرر, 88 مكرر, 89 مكرر, 90–95, 97–101, 105–117, 120, 122, 125, 128, 130, 132–136, 138–140, 142, 143, 146, 148, 150, 152–160, 162, 163, 165–183, 185–187, 189–212, 214–223, 225–232, 234–272, 274–284, 286–289
 - **unverifiable / gazette_offline** (15): 44, 50, 62, 69, 104, 123, 124, 129, 131, 141, 145, 149, 213, 224, 233
 - **differs / from both / formatting** (14): 77–89, 151
+- **differs / from both / trailing-title** (1): 188
 - **differs / from both / body** (1): 273
 
 ## gazette_offline, by the Gazette issue(s) still needed
@@ -33,8 +34,8 @@ Both texts in `v1` form (diacritics and tatweel removed, digits unified). The st
 - **87** (formatting; Gazette 5874 p. 3639): «أ.» → «أ-»; «التالية: 1.» → «التالية:- 1-»; «2.» → «2-»; «3.» → «3-»; «ب.» → «ب-»; «ج.» → «ج-»
 - **88** (formatting; Gazette 5874 p. 3640): «أ.» → «أ-»; «التالية: 1.» → «التالية:- 1-»; «2.» → «2-»; «3.» → «3-»; «القانون. ب.» → «القانون . ب-»; «المختصة. ج.» → «المختصة . ج-»
 - **89** (formatting; Gazette 5874 p. 3640): «أ.» → «أ-»; «ب.» → «ب-»; «ج.» → «ج-»; «المراقب.» → «المراقب .»
-- **151** (formatting; Gazette 5481+5874 p. 5643-5644+3642-3643): «بموجبها: أ.» → «بموجبها:- أ-»; «التعليمات. ب.» → «التعليمات . ب-»; «المادة. ج.» → «المادة . ج-»; «مهام رئيس المجلس» → (not in the Gazette)
-- **273** (body; Gazette 5743 p. 3785-3786): «الباب الرابع عشر الرقابة على الشركات يترتب على جميع الشركات التقيد باحكام هذا القانون ومراعاة عقود تاسيسها وانظمتها الاساسية ونشرة الاصدار وتطبيق القرارات التي تتخذها هيئاتها العامة وللوزير والمراقب اتخاذ الاجراءات التي يريانها مناسبة لمراقبة الشركات للتحقق من تقيدها بتلك الاحكام والعقود والانظمة والقرارات وتشمل الرقابة بشكل خاص ما يلي: أ. فحص حسابات الشركة وقيودها. ب. التاكد من التزام الشركة بالغايات التي اسست من اجلها. المادة (273 مكرر): أ.» → «أ-»; (not stored) → «1-»; «الدائرة،» → «الدائرة ،»; «الشركة.» → «الشركة . 2-»; (not stored) → «3-»; «الغاية. ب.» → «الغاية . ب-»; «للعموم،» → «للعموم ،»; «ج.» → «ج-»; «د.» → «د-»; «الاطلاع على المعلومات» → (not in the Gazette)
+- **151** (formatting; Gazette 5481+5874 p. 5643-5644+3642-3643): «بموجبها: أ.» → «بموجبها:- أ-»; «التعليمات. ب.» → «التعليمات . ب-»; «المادة. ج.» → «المادة . ج-»
+- **273** (body; Gazette 5743 p. 3785-3786): «الباب الرابع عشر الرقابة على الشركات يترتب على جميع الشركات التقيد باحكام هذا القانون ومراعاة عقود تاسيسها وانظمتها الاساسية ونشرة الاصدار وتطبيق القرارات التي تتخذها هيئاتها العامة وللوزير والمراقب اتخاذ الاجراءات التي يريانها مناسبة لمراقبة الشركات للتحقق من تقيدها بتلك الاحكام والعقود والانظمة والقرارات وتشمل الرقابة بشكل خاص ما يلي: أ. فحص حسابات الشركة وقيودها. ب. التاكد من التزام الشركة بالغايات التي اسست من اجلها. المادة (273 مكرر): أ.» → «أ-»; (not stored) → «1-»; «الدائرة،» → «الدائرة ،»; «الشركة.» → «الشركة . 2-»; (not stored) → «3-»; «الغاية. ب.» → «الغاية . ب-»; «للعموم،» → «للعموم ،»; «ج.» → «ج-»; «د.» → «د-»
 
 ## Reader's notes
 
@@ -52,7 +53,7 @@ Verification pass of 2026-11-14 (draft, for lawyer review): the records are in #
   - **V1c** (111): the Bureau differs in other words; the table below gives the first differences. Among them: the Bureau lacks 34(ب) (20/2023 art. 9, Gazette 5874 p. 3630) and 66(ج) (19/2021 art. 3, Gazette 5743 p. 3785), which the corpus has as printed (corpus newer than the Bureau; keep the corpus). 13: the Bureau keeps «على الأقل على نفقة الشركة» (see 13 below). 265 is the owner's «corpus newer than the Bureau» case. 67, 73, 97 and 248 (40/2002, Gazette 4556) are in V1.
 - **companies V2 — 77–89, and 151 after #37 (formatting only)**: the words equal 20/2023 art. 12 (Gazette 5874 pp. 3631–3640) and the Bureau; the corpus writes «أ.», «1.» and «:» where both print «أ-», «1-» and «:-» (PR #25's conventions). Under `v1` they stay `differs` / `formatting`. Owner: keep the corpus style, restyle these articles to the Gazette's punctuation, or define a normalisation that folds paragraph-marker punctuation. 151 after #37, and every offline article once its issue is found, has the same question.
 - **companies V3 — 273**: the stored 273 holds 273 مكرر (19/2021 art. 5, Gazette 5743 pp. 3785–3786), which the Gazette and the Bureau keep separate; the merged text also lacks the item numbers «1-», «2-», «3-» of 273 مكرر(أ). For the O-42 marker split, after the lawyer's samples and the owner's go; the numbers can then be restored from the Gazette. 273's own text needs 4204.
-- **companies V5 — 213**: stored «ملغاة»; the Bureau also shows «ملغاة» and its copy of 40/2002 art. 82 repeals 213, but Gazette 4556 is offline.
+- **companies V5 — 213**: stored «ملغاة» followed by the next article's caption «التأسيس والعمل والرسوم» (set aside; listed in the stored-text defects); the Bureau also shows «ملغاة» and its copy of 40/2002 art. 82 repeals 213, but Gazette 4556 is offline.
 - **companies V6 — 2, 6, 7, 285, 66 مكرر, 69 مكرر, 70 مكرر, 72 مكرر, 79 مكرر, 83 مكرر, 86 مكرر**: the 20/2023 passages are applied in #37 from Gazette 5874 (re-compared in the re-verification PR); the rest of each text still needs an offline issue (2, 7, 285: 4204 and 4556; 6: 4204, 4533 and 4556; the «مكرر» rows: 4533). Placements for the lawyer to confirm:
   - 6: the new (ز) («على المراقب أن يعلن …») is placed after (و), and the former (ز) becomes (ح); its cross-reference «الفقرات (د) و (هـ) و (و)» is unchanged, as 20/2023 does not touch it.
   - 7: after the repeal of (و), the former (ز) («يتم امام المراقب …») is (و).
