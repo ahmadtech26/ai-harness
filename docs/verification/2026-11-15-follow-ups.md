@@ -9,7 +9,9 @@ is a later PR of its own.
    (`gazette_in_force` on recall-plan: from the last `replaced`, `added` or `repealed` amendment on). The records'
    references are not affected; the evidence lines should name the issue and page actually transcribed. (A first count
    on this branch, comparing each Gazette line's issue with its record's text in force, gives 353 after the Qistas lines
-   left the Gazette source; the method of the owner's count decides.)
+   left the Gazette source; the method of the owner's count decides.) The largest group: the 188 lines of commerce
+   290-477 transcribe the repeal by the Insolvency Law 21/2018 art. 140 but name issue 1910 p. 472 (the 1966 original),
+   not issue 5514 p. 2701, where that repeal is printed.
 2. **Two-page articles and their image hashes.** Schema decided (2026-11-15, corpus-ci): `image_sha256` is a sha256 or
    a list of them, one per page image in page order, and `pages` lists `{issue, page, document_id, image_sha256}` per
    page. What remains: companies 151 (evidence line 193), a composite line over pages 5643-5644 and 3642-3643, has no

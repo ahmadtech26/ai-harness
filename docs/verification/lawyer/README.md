@@ -6,8 +6,9 @@ reading differs from the stored text, it gives the two readings word by word (st
 reader's notes (open questions, fixes made, decisions held for the owner).
 
 The lists were made from the records as they stand once every verification PR has merged (records, Gazette fixes and
-re-verifications, the records recomputed on the cleaned text of §7, and the owner's corrections of 2026-11-15: three repeals
-still ending with a glued title are `differs` / `trailing-title`, and Qistas is a helper source only): 6592 articles,
+re-verifications, the records recomputed on the cleaned text of §7, and the owner's corrections of 2026-11-15: four
+repeals still ending with the next article's caption (companies 188, customs 234, execution 62, penal-code 308) are
+`differs` / `trailing-title`, companies 213 stays `unverifiable`, and Qistas is a helper source only): 6592 articles,
 48 verified, 646 differs, 5898 unverifiable.
 
 | Law | Articles | Verified | Differs | Unverifiable |

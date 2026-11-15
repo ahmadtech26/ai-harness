@@ -48,7 +48,7 @@ Verification pass of 2026-11-14 (draft, for lawyer review). PRs: #46 (records), 
 | differs | both | body | 4 |
 | differs | both | formatting | 2 |
 | differs | bureau | body | 3 |
-| differs | bureau | repeal | 1 |
+| differs | both | trailing-title | 1 |
 | unverifiable | gazette_offline | - | 19 |
 | unverifiable | gazette_offline | body | 209 |
 | unverifiable | gazette_offline | formatting | 15 |
@@ -59,7 +59,7 @@ Verification pass of 2026-11-14 (draft, for lawyer review). PRs: #46 (records), 
 - **customs/differs/both/body** (4): 94, 137, 250–251
 - **customs/differs/both/formatting** (2): 147, 249
 - **customs/differs/bureau/body** (3): 105, 227, 233
-- **customs/differs/bureau/repeal** (1): 234
+- **customs/differs/both/trailing-title** (1): 234
 
 #### Unverifiable: Gazette offline (243; **customs/unverifiable/gazette_offline/…**)
 
