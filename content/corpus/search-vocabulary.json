@@ -1,0 +1,514 @@
+{
+  "version": 1,
+  "review": {
+    "status": "draft"
+  },
+  "note": "Everyday wordings mapped to the statutory noun phrase the mapped law uses, for query expansion in legal-search (an everyday wording in a query adds the statutory term; never the reverse). Each statutory term occurs in the mapped law's library text. `articles` lists up to five plain-numbered articles that hold it; the definition is content/search-vocabulary.test.mjs (bodyTokens, holds): the term's legal-search tokens (normalize.tokens: letters folded, one clitic prefix such as و ف ب ك ل or «ال» stripped where three letters remain) occur as a contiguous run of the tokens of the article's text in its section file, after three cuts: a leading caption (a first paragraph of at most 12 words with none of the marks . : ؛ ، ؟ !); the heading §1 of docs/verification/2026-11-14-stored-text-defects.md records at the article's end, from where its tokens start near the end; otherwise the next article's heading glued to the end (a last paragraph of that kind, or a run of that kind after the last of . : ؛ ؟ !). For the lawyer: a form with a prefix letter or «ال» holds the term («بالاحتيال», «والإخبار»); a plural or longer form does not («الإخبارات», «الإضافية», «الاحتيالية»). Draft, for lawyer review (مسودة، لمراجعة المحامي). Not shown to the model.",
+  "entries": [
+    {
+      "id": "v01",
+      "everyday": [
+        "طرد العامل",
+        "فصل الموظف"
+      ],
+      "statutory": "فصل العامل",
+      "law": "labour",
+      "articles": [
+        24,
+        28
+      ]
+    },
+    {
+      "id": "v02",
+      "everyday": [
+        "الراتب",
+        "الرواتب"
+      ],
+      "statutory": "الأجور",
+      "law": "labour",
+      "articles": [
+        2,
+        26,
+        35,
+        37,
+        51
+      ]
+    },
+    {
+      "id": "v03",
+      "everyday": [
+        "الساعات الإضافية"
+      ],
+      "statutory": "العمل الإضافي",
+      "law": "labour",
+      "articles": [
+        2,
+        46
+      ]
+    },
+    {
+      "id": "v04",
+      "everyday": [
+        "ساعات الدوام",
+        "الدوام الرسمي"
+      ],
+      "statutory": "ساعات العمل",
+      "law": "labour",
+      "articles": [
+        2,
+        54,
+        56,
+        57,
+        58
+      ]
+    },
+    {
+      "id": "v05",
+      "everyday": [
+        "إجازة الوضع"
+      ],
+      "statutory": "إجازة أمومة",
+      "law": "labour",
+      "articles": [
+        70
+      ]
+    },
+    {
+      "id": "v06",
+      "everyday": [
+        "تعويض نهاية الخدمة"
+      ],
+      "statutory": "مكافأة نهاية الخدمة",
+      "law": "labour",
+      "articles": [
+        32,
+        33,
+        92
+      ]
+    },
+    {
+      "id": "v07",
+      "everyday": [
+        "القضية العمالية",
+        "الدعوى العمالية"
+      ],
+      "statutory": "نزاعات العمل الفردية",
+      "law": "labour",
+      "articles": [
+        137
+      ]
+    },
+    {
+      "id": "v08",
+      "everyday": [
+        "عقد العمل المؤقت"
+      ],
+      "statutory": "عقد العمل لمدة محدودة",
+      "law": "labour",
+      "articles": [
+        2,
+        15
+      ]
+    },
+    {
+      "id": "v09",
+      "everyday": [
+        "العقد المفتوح",
+        "عقد العمل الدائم"
+      ],
+      "statutory": "عقد العمل غير المحدد المدة",
+      "law": "labour",
+      "articles": [
+        23
+      ]
+    },
+    {
+      "id": "v10",
+      "everyday": [
+        "الاستقالة",
+        "تقديم الاستقالة"
+      ],
+      "statutory": "إنهاء عقد العمل",
+      "law": "labour",
+      "articles": [
+        23,
+        26
+      ]
+    },
+    {
+      "id": "v11",
+      "everyday": [
+        "حادث العمل",
+        "حوادث العمل"
+      ],
+      "statutory": "إصابة العمل",
+      "law": "labour",
+      "articles": [
+        2,
+        90
+      ]
+    },
+    {
+      "id": "v12",
+      "everyday": [
+        "الحد الأدنى للرواتب"
+      ],
+      "statutory": "الحد الأدنى للأجور",
+      "law": "labour",
+      "articles": [
+        52,
+        53
+      ]
+    },
+    {
+      "id": "v13",
+      "everyday": [
+        "شيك بدون رصيد"
+      ],
+      "statutory": "مقابل وفاء",
+      "law": "penal-code",
+      "articles": [
+        421
+      ]
+    },
+    {
+      "id": "v14",
+      "everyday": [
+        "النصب"
+      ],
+      "statutory": "الاحتيال",
+      "law": "penal-code",
+      "articles": [
+        240,
+        417,
+        418,
+        419
+      ]
+    },
+    {
+      "id": "v15",
+      "everyday": [
+        "خيانة الأمانة"
+      ],
+      "statutory": "إساءة الائتمان",
+      "law": "penal-code",
+      "articles": [
+        426
+      ]
+    },
+    {
+      "id": "v16",
+      "everyday": [
+        "الضرب",
+        "الاعتداء بالضرب"
+      ],
+      "statutory": "الإيذاء",
+      "law": "penal-code",
+      "articles": [
+        338,
+        339,
+        340,
+        344,
+        345
+      ]
+    },
+    {
+      "id": "v17",
+      "everyday": [
+        "الشتم",
+        "السب والشتم"
+      ],
+      "statutory": "القدح",
+      "law": "penal-code",
+      "articles": [
+        122,
+        188,
+        189,
+        190,
+        193
+      ]
+    },
+    {
+      "id": "v18",
+      "everyday": [
+        "القتل الخطأ",
+        "القتل غير العمد"
+      ],
+      "statutory": "قلة احتراز",
+      "law": "penal-code",
+      "articles": [
+        64,
+        343,
+        384
+      ]
+    },
+    {
+      "id": "v19",
+      "everyday": [
+        "التنازل عن الشكوى",
+        "سحب الشكوى"
+      ],
+      "statutory": "إسقاط الحق الشخصي",
+      "law": "penal-code",
+      "articles": [
+        27,
+        72
+      ]
+    },
+    {
+      "id": "v20",
+      "everyday": [
+        "رجال الشرطة",
+        "مركز الشرطة",
+        "محضر الشرطة"
+      ],
+      "statutory": "الضابطة العدلية",
+      "law": "criminal-procedure",
+      "articles": [
+        8,
+        9,
+        13,
+        15,
+        19
+      ]
+    },
+    {
+      "id": "v21",
+      "everyday": [
+        "البلاغ",
+        "تقديم بلاغ"
+      ],
+      "statutory": "الإخبار",
+      "law": "criminal-procedure",
+      "articles": [
+        27,
+        29,
+        43,
+        45,
+        50
+      ]
+    },
+    {
+      "id": "v22",
+      "everyday": [
+        "الكمبيالة"
+      ],
+      "statutory": "سند السحب",
+      "law": "commerce",
+      "articles": [
+        123,
+        124,
+        125,
+        126,
+        127
+      ]
+    },
+    {
+      "id": "v23",
+      "everyday": [
+        "الضرر المعنوي",
+        "التعويض المعنوي",
+        "الضرر النفسي"
+      ],
+      "statutory": "الضرر الأدبي",
+      "law": "civil-code",
+      "articles": [
+        267
+      ]
+    },
+    {
+      "id": "v24",
+      "everyday": [
+        "المسؤولية التقصيرية"
+      ],
+      "statutory": "الفعل الضار",
+      "law": "civil-code",
+      "articles": [
+        22,
+        269,
+        270,
+        272,
+        274
+      ]
+    },
+    {
+      "id": "v25",
+      "everyday": [
+        "التدليس"
+      ],
+      "statutory": "التغرير",
+      "law": "civil-code",
+      "articles": [
+        143,
+        148,
+        150
+      ]
+    },
+    {
+      "id": "v26",
+      "everyday": [
+        "الشرط الجزائي",
+        "التعويض الاتفاقي"
+      ],
+      "statutory": "قيمة الضمان",
+      "law": "civil-code",
+      "articles": [
+        364
+      ]
+    },
+    {
+      "id": "v27",
+      "everyday": [
+        "العيب الخفي",
+        "عيب مصنعي"
+      ],
+      "statutory": "خيار العيب",
+      "law": "civil-code",
+      "articles": [
+        193,
+        197,
+        198,
+        512,
+        688
+      ]
+    },
+    {
+      "id": "v28",
+      "everyday": [
+        "الرهن العقاري",
+        "رهن الشقة"
+      ],
+      "statutory": "الرهن التأميني",
+      "law": "civil-code",
+      "articles": [
+        70,
+        1322,
+        1323,
+        1329,
+        1330
+      ]
+    },
+    {
+      "id": "v29",
+      "everyday": [
+        "الطابو"
+      ],
+      "statutory": "تسجيل الأراضي",
+      "law": "civil-code",
+      "articles": [
+        1198,
+        1204,
+        1237,
+        1446
+      ]
+    },
+    {
+      "id": "v30",
+      "everyday": [
+        "عقد الشراكة"
+      ],
+      "statutory": "عقد الشركة",
+      "law": "civil-code",
+      "articles": [
+        584,
+        587,
+        590,
+        592,
+        599
+      ]
+    },
+    {
+      "id": "v31",
+      "everyday": [
+        "المخالصة"
+      ],
+      "statutory": "الإبراء",
+      "law": "civil-code",
+      "articles": [
+        430,
+        444,
+        445,
+        446,
+        447
+      ]
+    },
+    {
+      "id": "v32",
+      "everyday": [
+        "الشريك المستتر"
+      ],
+      "statutory": "الشريك غير الظاهر",
+      "law": "companies",
+      "articles": [
+        50
+      ]
+    },
+    {
+      "id": "v33",
+      "everyday": [
+        "دائرة مراقبة الشركات"
+      ],
+      "statutory": "مراقب الشركات",
+      "law": "companies",
+      "articles": [
+        209,
+        243
+      ]
+    },
+    {
+      "id": "v34",
+      "everyday": [
+        "طرد المستأجر",
+        "إخراج المستأجر"
+      ],
+      "statutory": "إخلاء المأجور",
+      "law": "landlords-tenants",
+      "articles": [
+        5,
+        10
+      ]
+    },
+    {
+      "id": "v35",
+      "everyday": [
+        "الشهادة السماعية"
+      ],
+      "statutory": "الشهادة بالسماع",
+      "law": "evidence",
+      "articles": [
+        39
+      ]
+    },
+    {
+      "id": "v36",
+      "everyday": [
+        "المحكمة الصلحية"
+      ],
+      "statutory": "محكمة الصلح",
+      "law": "magistrates-courts",
+      "articles": [
+        2,
+        3,
+        7,
+        8,
+        10
+      ]
+    },
+    {
+      "id": "v37",
+      "everyday": [
+        "بوليصة الشحن",
+        "سند الشحن"
+      ],
+      "statutory": "وثيقة الشحن",
+      "law": "maritime-commerce",
+      "articles": [
+        198,
+        200,
+        201,
+        202,
+        204
+      ]
+    }
+  ]
+}

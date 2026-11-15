@@ -1,4 +1,8 @@
-"""corpus-ci: check the law registry and the corrections file (content/corpus) against the corpus folders.
+"""corpus-ci: check the law registry, the corrections file and the verification records (content/corpus) against
+the corpus folders. The verification records (content/corpus/verification/<law-slug>.jsonl) are checked for schema
+and article coverage, and the evidence files (docs/verification/evidence/<law-slug>.jsonl, beside content/; --evidence
+names another folder) for schema and for a line behind every text a record cites. A record's text_sha256 against the
+stored text is checked by legal-search's --check-verification on recall-plan.
 
     corpus-ci --content /w/content --corpus /w/jordanian-law/references/القوانين-الأردنية            # staging
     corpus-ci --content /w/content --corpus /w/jordanian-law/references/القوانين-الأردنية --release  # production
@@ -13,11 +17,14 @@ from skill_tools import corpus_checks
 from skill_tools.checks import Problem
 
 
-def run(content: Path, corpus: Path, release: bool) -> list[Problem]:
+def run(content: Path, corpus: Path, release: bool, evidence: Path | None = None) -> list[Problem]:
     folder = content / 'corpus'
     registry = json.loads((folder / 'laws.json').read_text(encoding='utf-8'))
     corrections = json.loads((folder / 'corrections.json').read_text(encoding='utf-8'))
-    return corpus_checks.check_all(registry, corrections, corpus, release)
+    evidence = evidence or content.parent / 'docs' / 'verification' / 'evidence'
+    return (corpus_checks.check_all(registry, corrections, corpus, release)
+            + corpus_checks.check_verification(folder / 'verification', registry, corrections, corpus)
+            + corpus_checks.check_evidence(evidence, folder / 'verification'))
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -25,10 +32,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument('--content', type=Path, required=True)
     parser.add_argument('--corpus', type=Path, required=True)
     parser.add_argument('--release', action='store_true', help='require an approved review on every entry and on the corrections')
+    parser.add_argument('--evidence', type=Path, help='the evidence folder (default: docs/verification/evidence beside --content)')
     args = parser.parse_args(argv)
-    problems = run(args.content, args.corpus, args.release)
+    problems = run(args.content, args.corpus, args.release, args.evidence)
     for problem in problems:
         print(f'FAIL {problem.skill}: {problem.rule}: {problem.message}')
     if problems:
         sys.exit(1)
-    print('corpus-ci: registry and corrections pass' + (' (release)' if args.release else ''))
+    verified = sorted(p.stem for p in (args.content / 'corpus' / 'verification').glob('*.jsonl'))
+    print('corpus-ci: registry, corrections, verification records and evidence pass' + (' (release)' if args.release else '')
+          + f'; laws with a verification file: {", ".join(verified) or "none"}')
+
+
+if __name__ == '__main__':
+    main()

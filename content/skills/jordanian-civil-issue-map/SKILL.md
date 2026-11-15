@@ -1,14 +1,14 @@
 ---
 name: jordanian-civil-issue-map
-description: Issue checklists for civil and commercial disputes and contracts under Jordanian law (contract, harm, proof, obligations, sale, lease, work and insurance contracts, property, securities) — what to ask, what to distinguish, and which statutory terms to search in the legal library. Use when analysing such a dispute or reviewing such a contract.
+description: Jordanian civil and commercial disputes — contract, harm, proof, obligations, sale, lease, work, insurance, property, securities, time bars. Issue checklists and statutory search terms. Use when analysing a dispute or reviewing a contract.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   owner: iqraa-legal-content
   requires:
     tools: [search_law, get_article]
   review:
     status: draft
-    note: "Draft, for lawyer review. Distilled from al-Sanhuri's al-Wasit (archive.org 9_20250410) and checked against the Jordanian corpus; catalogue: docs/distillation/2026-11-12-book-principles.md"
+    note: "Draft, for lawyer review. Distilled from al-Sanhuri's al-Wasit (archive.org 9_20250410) and checked against the Jordanian corpus; catalogue: docs/distillation/2026-11-12-book-principles.md. 0.3.0 adds references/practice.md, practice notes (PN ids) distilled from law-firm practice pages and each tied to the corpus articles it names; internal source records under docs/distillation"
 ---
 
 # خريطة المسائل المدنية والتجارية في القانون الأردني
@@ -30,6 +30,7 @@ metadata:
    - المقاولة والوكالة والوديعة والحراسة وعقد العمل والتأمين: `skills/jordanian-civil-issue-map/references/work-and-insurance.md`
    - الملكية وأسباب كسبها: `skills/jordanian-civil-issue-map/references/property.md`
    - الكفالة والرهن وحقوق الامتياز: `skills/jordanian-civil-issue-map/references/securities.md`
+   - الإجراءات العملية (مرور الزمن، والشيك والكمبيالة، ودعوى المأجور، والمستندات في الإثبات): `skills/jordanian-civil-issue-map/references/practice.md`
 2. **اختر المسائل** التي تثيرها الوقائع فعلًا من سطور الملف، ورتّبها، وحدّد المسألة الحاسمة. لا تعالج كل سطر، ولا تطرح على المستخدم إلا الأسئلة التي يتوقف عليها الجواب.
 3. **خطّط البحث ضمن رصيد الإجابة**: في آخر كل سطر رمز التشريع ومصطلحات بحث ترد في نصه (ورمز تشريع ثانٍ ومصطلحه إن احتاجت المسألة قانونين). ابدأ بالمسألة الحاسمة، ومرّر law، والتزم بحدود البحث في التعليمات العامة؛ وإذا كثرت المسائل فاقترح على المستخدم تقسيم السؤال.
 4. **طبّق النص المسترجع وحده**: انقل النص كما أعادته الأداة مع حالة التحقق، وطبّقه على الوقائع. وما لم يُسترجع نصه فاذكره بموضوعه دون حكم.
@@ -38,5 +39,6 @@ metadata:
 ## ضوابط
 - لا تذكر في الإجابة القانون المصري أو شروحه، ولا تقارن بهما.
 - لا تذكر للمستخدم رموز التشريعات ولا المعرّفات الواردة في تعليقات الملفات.
+- سطور ملف الإجراءات العملية تسمّي المواد بأرقامها: استرجعها بـ `get_article` قبل أن تبني عليها، ولا تنقل من السطر نفسه حكمًا أو مدة أو مقدارًا.
 - إذا توقفت المسألة على تشريع غير محمّل في المكتبة (تسجيل الأراضي، الأحوال الشخصية والمواريث، الإعسار) فصرّح بذلك ولا تسدّ النقص من الذاكرة.
 - اتبع صيغة الإجابة المحددة في التعليمات العامة للمنصة.
