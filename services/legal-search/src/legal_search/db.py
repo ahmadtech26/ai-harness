@@ -106,6 +106,8 @@ ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_bureau JSONB;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
 -- The memorandum note's copy site, as for articles (above), and the same value in its old source column.
 ALTER TABLE memorandum_notes ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
+-- The registry entry's instrument (registry.INSTRUMENTS): 'regulation' makes the citation say «نظام» (citation.py).
+ALTER TABLE laws ADD COLUMN IF NOT EXISTS instrument TEXT NOT NULL DEFAULT 'law';
 CREATE INDEX IF NOT EXISTS retrieval_log_user_time ON retrieval_log (user_id, created_at);
 CREATE INDEX IF NOT EXISTS retrieval_log_message ON retrieval_log (message_id);
 -- Telemetry and simulation read a window by time alone (R3 n=14); without it each request scans the whole log.
@@ -178,6 +180,7 @@ class LawMeta:
     amendment_gazette_date: date | None = None
     note: str | None = None
     approved: bool = False
+    instrument: str = 'law'  # registry.INSTRUMENTS; 'law' also for an article whose law has no registry row
 
 
 @dataclass(frozen=True)
@@ -223,20 +226,21 @@ async def upsert_laws(conn: AsyncConnection, laws: list[Law]) -> int:
             await cur.execute(
                 """
                 INSERT INTO laws (slug, title, number, year, gazette_issue, gazette_date, gazette_url, amendment_law,
-                  amendment_year, amendment_gazette_issue, amendment_gazette_date, amendment_url, note, approved)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                  amendment_year, amendment_gazette_issue, amendment_gazette_date, amendment_url, note, approved,
+                  instrument)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (slug) DO UPDATE SET
                   title = EXCLUDED.title, number = EXCLUDED.number, year = EXCLUDED.year,
                   gazette_issue = EXCLUDED.gazette_issue, gazette_date = EXCLUDED.gazette_date,
                   gazette_url = EXCLUDED.gazette_url, amendment_law = EXCLUDED.amendment_law,
                   amendment_year = EXCLUDED.amendment_year, amendment_gazette_issue = EXCLUDED.amendment_gazette_issue,
                   amendment_gazette_date = EXCLUDED.amendment_gazette_date, amendment_url = EXCLUDED.amendment_url,
-                  note = EXCLUDED.note, approved = EXCLUDED.approved
+                  note = EXCLUDED.note, approved = EXCLUDED.approved, instrument = EXCLUDED.instrument
                 """,
                 (
                     law.slug, law.title, law.number, law.year, law.gazette_issue, law.gazette_date, law.gazette_url,
                     law.amendment_law, law.amendment_year, law.amendment_gazette_issue, law.amendment_gazette_date,
-                    law.amendment_url, law.note, law.approved,
+                    law.amendment_url, law.note, law.approved, law.instrument,
                 ),
             )
     return len(laws)
@@ -352,7 +356,7 @@ _SELECT = """
 SELECT a.id, a.law_slug, a.number, a.suffix, COALESCE(l.title, a.law_title) AS law_title, a.label, a.text,
        a.verified_at, a.verified_gazette, a.verified_bureau, l.number AS law_number, l.year AS law_year, l.gazette_issue, l.gazette_date,
        l.amendment_law, l.amendment_year, l.amendment_gazette_issue, l.amendment_gazette_date, l.note,
-       COALESCE(l.approved, false) AS approved
+       COALESCE(l.approved, false) AS approved, COALESCE(l.instrument, 'law') AS instrument
 FROM articles a LEFT JOIN laws l ON l.slug = a.law_slug
 """
 
@@ -378,6 +382,7 @@ def _found(row: dict) -> Found:
             amendment_gazette_date=row['amendment_gazette_date'],
             note=row['note'],
             approved=row['approved'],
+            instrument=row['instrument'],
         ),
     )
 
