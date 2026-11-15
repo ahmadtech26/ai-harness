@@ -603,11 +603,35 @@
       "slug": "court-fees",
       "title": "جدول رسوم المحاكم",
       "folder": "جدول-رسوم-المحاكم",
+      "number": 43,
+      "year": 2005,
+      "gazette": {
+        "issue": 4711,
+        "date": "2005-06-16",
+        "source_url": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711"
+      },
+      "amendment": {
+        "law": 108,
+        "year": 2008,
+        "gazette_issue": 4935,
+        "gazette_date": "2008-11-02",
+        "source_url": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935"
+      },
+      "note": "الجدول الملحق بنظام رسوم المحاكم رقم (43) لسنة 2005، وقد ألغت المادة (6) من النظام المعدل رقم (108) لسنة 2008 الجدول الأصلي واستعاضت عنه بجدول رسوم المحاكم لسنة 2008؛ المادة (ن) هنا هي المادة (ن) من ذلك الجدول.",
       "review": {
         "status": "draft"
       },
       "sources": {
-        "title": "https://jordan-lawyer.com"
+        "title": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935",
+        "number": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
+        "year": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
+        "gazette.issue": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
+        "gazette.date": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4711",
+        "amendment.law": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935",
+        "amendment.year": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935",
+        "amendment.gazette_issue": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935",
+        "amendment.gazette_date": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935",
+        "note": "https://pm.gov.jo/Ar/Pages/NewsPaperDetails/4935"
       }
     },
     {

@@ -13,7 +13,7 @@ test('lists every law of the registry with its title, number, year and short nam
 
   assert.equal(built.laws.length, laws.laws.length);
   assert.deepEqual(civil, { slug: 'civil-code', title: 'القانون المدني الأردني', aliases: ['القانون المدني'], number: 43, year: 1976 });
-  assert.deepEqual(built.laws.find((law) => law.slug === 'court-fees'), { slug: 'court-fees', title: 'جدول رسوم المحاكم' });
+  assert.deepEqual(built.laws.find((law) => law.slug === 'court-fees'), { slug: 'court-fees', title: 'جدول رسوم المحاكم', number: 43, year: 2005 });
 });
 
 test('the checked-in file is what the registry and the aliases produce', () => {
