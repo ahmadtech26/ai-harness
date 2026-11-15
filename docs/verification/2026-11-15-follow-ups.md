@@ -10,9 +10,11 @@ is a later PR of its own.
    references are not affected; the evidence lines should name the issue and page actually transcribed. (A first count
    on this branch, comparing each Gazette line's issue with its record's text in force, gives 353 after the Qistas lines
    left the Gazette source; the method of the owner's count decides.)
-2. **Two-page articles that record only one image hash.** An article that runs over two Gazette pages should carry one
-   `image_sha256` per page (`pages`). Found so far: 11 companies lines whose page is a range but whose `pages` hold fewer
-   than two distinct image hashes.
+2. **Two-page articles and their image hashes.** Schema decided (2026-11-15, corpus-ci): `image_sha256` is a sha256 or
+   a list of them, one per page image in page order, and `pages` lists `{issue, page, document_id, image_sha256}` per
+   page. What remains: companies 151 (evidence line 193), a composite line over pages 5643-5644 and 3642-3643, has no
+   image hash at all; and 10 companies lines whose page is a range carry a list of hashes but no `pages`, so which
+   hash is which page is not recorded. Fill both from the page images.
 3. **Gazette evidence text for the companies passages of 20/2023.** The companies records that cite the amending law
    20/2023 need the Gazette text of the amended passages in the evidence file, so the comparison can be re-run.
 4. **The maritime-commerce registry gap in the lawyer list.** `content/corpus/laws.json` has no `amendment.gazette_date`
