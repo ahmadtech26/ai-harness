@@ -115,10 +115,14 @@ def test_prepare_stores_the_text_without_its_glued_heading_and_keeps_the_heading
 # that item's marker (commerce 15 ends «… دفاتر التجار أ. دفتر يومية ب. دفتر صور الرسائل ج.»; item ج., «دفتر الجرد
 # والميزانية», is 16's heading). 'rule': the strip rule run again on the stored text with the law's bleed status
 # before the strip (none).
-# The detectors do not see everything: 195 more articles end with the next article's heading because their text has
-# no sentence end for the strip to cut at, each a repealed article («ملغاة» and the heading) or an amendment note
-# («* ملاحظة: …» closing on a year or a date, then the heading): commerce 290-477 (188), companies 188, 213, 266 and
-# 283, customs 234, income-tax 55 and execution 62. They are left as they are.
+# The detectors do not see everything: 197 more articles end with the next article's heading because their text has
+# no sentence end for the strip to cut at (listed, each with its heading, in the content tree's
+# docs/verification/2026-11-14-stored-text-defects.md, §1): «ملغاة» and the heading (companies 188 and 213, customs 234,
+# execution 62, penal-code 308, which opens with the heading «أحكام شاملة»); the copy site's amendment note closing on
+# a date, then the heading (companies 266 and 283, income-tax 55); «ملغاة», the repealed text and the note of the
+# repeal, then the heading (commerce 290-477, 188); a last sentence without its full stop, then the heading
+# (penal-code 345 مكرر, «… ذكراً كان أو أنثى» and «الفصل الثاني- في الجرائم الواقعة على الحرية والشرف»). They are left
+# as they are.
 RESIDUE = {
     **{('majalla', number, ''): 'stacked' for number in (
         196, 236, 261, 299, 360, 432, 462, 496, 521, 581, 595, 620, 633, 658, 679, 721, 728, 772, 803, 836, 860, 911,
@@ -134,7 +138,7 @@ LIST_END = re.compile(r'(?:^|\s)(?:[أ-ي]|هـ|[0-9٠-٩]{1,2})\s*[.\-–)]$') 
 def test_the_real_corpus_keeps_no_glued_heading_beyond_the_pinned_residue(capsys):
     """Over the whole library: how many articles ended with the next article's heading before the ingest strips it (and
     how many ended with exactly that heading, the owner's count), and how many still end with heading text after it
-    as the test's detectors find it (RESIDUE; not the 195 without a sentence end, above): by the same rule, with each
+    as the test's detectors find it (RESIDUE; not the 197 without a sentence end, above): by the same rule, with each
     law's bleed status from before the strip, which the strip itself lowers (a status recomputed from the cleaned text
     would hide what is left); by a stacked «##» heading; by a list of headings the strip took the last item of."""
     corpus_files = Path(os.environ['CONTENT_DIR']) / 'corpus'
