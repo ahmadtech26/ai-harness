@@ -35,7 +35,7 @@ from legal_search.registry import load_registry
 
 # --- v1, copied from the content tree's tools/verification/v1.py (owner's decision, 2026-11-14): Unicode NFC; tatweel
 # and diacritics removed; Arabic-Indic and Extended Arabic-Indic digits to ASCII; whitespace and line breaks collapsed.
-# The character classes are the file's, written here with \u escapes (its diacritic ranges hold combining marks).
+# The character classes are the file's, character for character.
 TATWEEL = 'ـ'
 DIACRITICS = re.compile('[ؐ-ًؚ-ٰٟۖ-ۜ۟-۪ۨ-ۭ]')
 DIGITS = ({ord(c): str(i) for i, c in enumerate('٠١٢٣٤٥٦٧٨٩')}
