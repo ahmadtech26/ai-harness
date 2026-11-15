@@ -1,10 +1,12 @@
 import os
+from dataclasses import replace as with_changes
 from datetime import date
 
 import pytest
 from psycopg import AsyncConnection
 
 from legal_search import db
+from legal_search.citation import format_articles
 from legal_search.corpus import Article
 from legal_search.registry import Law
 from tests.pg import fresh
@@ -51,6 +53,25 @@ async def test_found_carries_the_registry_title_and_citation_fields(conn):
     assert found.law_title == 'قانون العقوبات الأردني'
     assert (found.law.number, found.law.year, found.law.gazette_issue, found.law.gazette_date, found.law.note, found.law.approved) == (
         99, 1900, 1234, date(1900, 3, 2), 'ملاحظة اختبار', False)
+
+
+async def test_the_registry_instrument_reaches_the_citation(conn):
+    labour = await db.get_article(conn, 'labour', 20, '')
+    assert labour.law.instrument == 'law'
+    await db.upsert_laws(conn, [with_changes(LABOUR, number=43, year=2005, amendment_law=108, amendment_year=2008,
+                                             instrument='regulation')])
+    stored = await conn.execute("SELECT slug, instrument FROM laws ORDER BY slug")
+    assert await stored.fetchall() == [('labour', 'regulation'), ('penal-code', 'law')]
+
+    regulation = await db.get_article(conn, 'labour', 20, '')
+
+    assert regulation.law.instrument == 'regulation'
+    lines = format_articles([regulation]).splitlines()
+    assert lines[0] == '[1] قانون العمل، نظام رقم 43 لسنة 2005 — المادة 20'
+    assert lines[2].startswith('(آخر تعديل: النظام المعدِّل رقم 108 لسنة 2008؛ ')
+    # An article whose law has no registry row is a law's.
+    await conn.execute('DELETE FROM laws')
+    assert (await db.get_article(conn, 'labour', 20, '')).law.instrument == 'law'
 
 
 async def test_pruning_drops_articles_no_longer_in_the_source(conn):

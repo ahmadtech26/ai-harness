@@ -1,10 +1,13 @@
 import hashlib
 import re
+from dataclasses import replace as with_changes
 from datetime import date
 
 import pytest
 
 from legal_search.citation import (
+    AMENDING_LAW,
+    AMENDING_REGULATION,
     LIBRARY_COPY,
     MEMORANDUM_TITLE,
     MEMORANDUM_UNVERIFIED,
@@ -14,6 +17,7 @@ from legal_search.citation import (
     VERIFIED,
     format_articles,
     format_memorandum,
+    heading,
     verified_label,
 )
 from legal_search.db import Found, LawMeta, Note
@@ -54,6 +58,42 @@ def test_shows_the_gazette_and_the_latest_amendment():
         '(الجريدة الرسمية: العدد 1234، 2/3/1900؛ آخر تعديل: القانون المعدِّل رقم 7 لسنة 1950 '
         '(الجريدة الرسمية: العدد 4321، 5/6/1950)؛ المصدر: نسخة المكتبة، غير رسمية — '
     )
+
+
+# A regulation (registry `instrument`): court-fees is the schedule of نظام رسوم المحاكم رقم 43 لسنة 2005, last amended
+# by نظام رقم 108 لسنة 2008. A law prints as before.
+
+FEES = LawMeta(number=43, year=2005, gazette_issue=4711, gazette_date=date(2005, 6, 16), amendment_law=108,
+               amendment_year=2008, amendment_gazette_issue=4935, amendment_gazette_date=date(2008, 11, 2),
+               instrument='regulation')
+
+
+def _article_1(law: LawMeta, title: str) -> Found:
+    return Found(id=1, law_slug='court-fees', number=1, suffix='', law_title=title, label='المادة 1', text='نص.',
+                 law=law)
+
+
+@pytest.mark.parametrize('law, title, expected', [
+    (with_changes(FEES, instrument='law'), 'قانون العمل', 'قانون العمل رقم 43 لسنة 2005 — المادة 1'),
+    (FEES, 'جدول رسوم المحاكم', 'جدول رسوم المحاكم، نظام رقم 43 لسنة 2005 — المادة 1'),
+    (FEES, 'نظام رسوم المحاكم', 'نظام رسوم المحاكم رقم 43 لسنة 2005 — المادة 1'),
+    (LawMeta(instrument='regulation'), 'جدول رسوم المحاكم', 'جدول رسوم المحاكم، نظام — المادة 1'),
+], ids=['law', 'regulation', 'regulation titled نظام', 'regulation without number or year'])
+def test_a_regulation_is_named_one_in_its_heading(law: LawMeta, title: str, expected: str):
+    assert heading(_article_1(law, title)) == expected
+    assert format_articles([_article_1(law, title)]).splitlines()[0] == f'[1] {expected}'
+    assert expected.count('—') == 1  # the heading's only dash is the one before the label
+
+
+@pytest.mark.parametrize('instrument, amending', [('law', AMENDING_LAW), ('regulation', AMENDING_REGULATION)])
+def test_the_amendment_line_names_the_instrument_that_amended_it(instrument: str, amending: str):
+    details = format_articles([_article_1(with_changes(FEES, instrument=instrument), 'جدول رسوم المحاكم')]).splitlines()[2]
+
+    assert details == (
+        f'(الجريدة الرسمية: العدد 4711، 16/6/2005؛ آخر تعديل: {amending} رقم 108 لسنة 2008 (الجريدة الرسمية: العدد 4935، '
+        f'2/11/2008)؛ المصدر: {LIBRARY_COPY} — {UNVERIFIED}؛ {METADATA_UNVERIFIED})')
+    assert (AMENDING_LAW, AMENDING_REGULATION) == ('القانون المعدِّل', 'النظام المعدِّل')
+    assert details.count('—') == 1  # the client's label still starts after the only dash
 
 
 # The labels the model relays word for word (AQEL v1.3 line 73) and the fork's client reads: byte for byte as on
@@ -115,7 +155,8 @@ def _client_label(details: str) -> str | None:
     return (rest[:end.start()] if end else rest).strip() or None
 
 
-@pytest.mark.parametrize('law', [LawMeta(), LawMeta(approved=True)], ids=['draft law', 'approved law'])
+@pytest.mark.parametrize('law', [LawMeta(), LawMeta(approved=True), FEES], ids=['draft law', 'approved law',
+                                                                                   'regulation'])
 @pytest.mark.parametrize('verification', [None, CHECKED], ids=['unverified', 'verified'])
 def test_the_client_reads_the_whole_label_and_the_label_holds_nothing_it_forbids(law, verification):
     details = format_articles([_found(law, verification)]).splitlines()[2]

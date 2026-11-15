@@ -4,7 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from legal_search.registry import Gap, RegistryError, directory_counts, load_registry
+from legal_search.registry import (
+    INSTRUMENTS,
+    Gap,
+    RegistryError,
+    directory_counts,
+    load_registry,
+)
 
 # Fixture values are deliberately not real citation data.
 ENTRY = {
@@ -37,6 +43,19 @@ def test_reads_citation_fields_and_known_gaps(tmp_path: Path):
     assert (law.amendment_law, law.amendment_year, law.amendment_gazette_issue, law.amendment_gazette_date) == (
         7, 1950, 4321, date(1950, 6, 5))
     assert law.approved is False
+
+
+def test_an_entry_is_a_law_unless_its_instrument_says_regulation(tmp_path: Path):
+    law, regulation = load_registry(_write(tmp_path, [ENTRY, {**ENTRY, 'slug': 'court-fees', 'instrument': 'regulation'}]))
+
+    assert (law.instrument, regulation.instrument) == ('law', 'regulation')
+    assert INSTRUMENTS == ('law', 'regulation')
+
+
+@pytest.mark.parametrize('instrument', ['bylaw', 'Regulation', 'نظام', '', None, ['regulation']])
+def test_rejects_an_instrument_that_is_neither_law_nor_regulation(tmp_path: Path, instrument):
+    with pytest.raises(RegistryError, match=r"'court-fees': instrument .* is not one of law, regulation"):
+        load_registry(_write(tmp_path, [{**ENTRY, 'slug': 'court-fees', 'instrument': instrument}]))
 
 
 def test_rejects_a_duplicate_slug(tmp_path: Path):

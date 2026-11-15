@@ -13,7 +13,15 @@ import pytest
 from legal_search import ingest
 from legal_search.corpus import Article
 from legal_search.ingest import check_verification
-from legal_search.verification import GazetteRef, Verification, gazette_in_force, match, text_sha256
+from legal_search.verification import (
+    _TEXT_STARTS,
+    EFFECTS,
+    GazetteRef,
+    Verification,
+    gazette_in_force,
+    match,
+    text_sha256,
+)
 
 FIRST = 'نص المادة الأولى من القانون.'
 SECOND = 'نص المادة الثانية من القانون.'
@@ -22,6 +30,8 @@ ARTICLES = {'labour': [Article('labour', 'قانون العمل', 1, '', FIRST, 
 GAZETTE = {'method': 'text', 'original': {'issue': 4113, 'date': '1996-04-16', 'page': 1173},
            'amendments': [], 'text_sha256': None, 'checked_on': '2026-11-14'}
 BUREAU = {'legislation_id': 3392, 'url': None, 'as_of': '2026-10-01', 'text_sha256': None, 'checked_on': '2026-11-14'}
+AMENDMENT = {'law': 26, 'year': 2010, 'issue': 5025, 'date': '2010-05-16', 'page': 2002, 'document_id': None,
+             'url': None, 'file_sha256': None, 'effect': 'amended'}
 
 
 def record(number: int = 1, suffix: str = '', text: str = FIRST, result: str = 'verified', **changes) -> dict:
@@ -134,12 +144,35 @@ def test_two_records_for_one_article_verify_nothing(tmp_path: Path):
     (record(bureau={**BUREAU, 'as_of': '2026-13-01'}), 'bureau.as_of is not a YYYY-MM-DD date'),
     (record(gazette={**GAZETTE, 'original': {'issue': 4113, 'page': '12 — 13'}}), "gazette page '12 — 13' is not"),
     (record(bureau={**BUREAU, 'legislation_id': '3392)'}), "bureau legislation_id '3392)' is not"),
+    (record(gazette={**GAZETTE, 'amendments': [AMENDMENT, {**AMENDMENT, 'effect': 'modified'}]}),
+     "gazette.amendments[1].effect 'modified' is not one of amended, replaced, added, repealed, renumbered"),
+    (record(gazette={**GAZETTE, 'amendments': [{key: value for key, value in AMENDMENT.items() if key != 'effect'}]}),
+     'gazette.amendments[0].effect None is not one of'),
+    (record(result='differs', differs_from='gazette', difference='body',
+            gazette={**GAZETTE, 'amendments': [{**AMENDMENT, 'effect': 'Amended'}]}),
+     "gazette.amendments[0].effect 'Amended' is not one of"),
 ], ids=lambda value: value if isinstance(value, str) and len(value) < 40 else None)
 def test_a_record_the_library_cannot_use_verifies_nothing_and_is_a_problem(tmp_path: Path, line, problem: str):
     matched = match(ARTICLES, write(tmp_path / 'verification', [line, BOTH[1]]))
 
     assert matched.verified == {}
     assert len(matched.problems) >= 1 and problem in matched.problems[0]
+
+
+def test_the_effects_are_corpus_cis():
+    # Must equal corpus-ci's EFFECTS (tools/skills/src/skill_tools/corpus_checks.py on the content branch), values and
+    # order: corpus-ci accepts exactly these, and a record with another effect is a problem here.
+    assert EFFECTS == ('amended', 'replaced', 'added', 'repealed', 'renumbered')
+    assert set(_TEXT_STARTS) < set(EFFECTS)
+
+
+@pytest.mark.parametrize('effect', EFFECTS)
+def test_a_record_with_each_effect_verifies(tmp_path: Path, effect: str):
+    lines = [record(gazette={**GAZETTE, 'amendments': [{**AMENDMENT, 'effect': effect}]}), BOTH[1]]
+
+    matched = match(ARTICLES, write(tmp_path / 'verification', lines))
+
+    assert (list(matched.verified), matched.problems) == ([('labour', 1, '')], [])
 
 
 def test_the_gazette_issues_of_the_text_in_force():

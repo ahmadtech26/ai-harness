@@ -100,11 +100,14 @@ ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_at DATE;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_gazette JSONB;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_bureau JSONB;
 -- Provenance: the copy site an article or a memorandum note was taken from (a section's `source:` frontmatter, the
--- memorandum file's `source`). Internal: no query a tool's output is built from reads it. The ingest writes '' into the
--- old source columns, which stay only so the service of the previous image keeps running while a deploy re-ingests.
+-- memorandum file's `source`). Internal: no query a tool's output is built from reads it, nor the old source column.
+-- In this release the ingest still writes the same value into source: the previous image prints «المصدر: <source>»
+-- until its container is recreated, and an empty source would show an empty «المصدر:» from the ingest to the recreate.
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
--- The memorandum note's copy site, as for articles (above); the old source column is emptied by every ingest.
+-- The memorandum note's copy site, as for articles (above), and the same value in its old source column.
 ALTER TABLE memorandum_notes ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
+-- The registry entry's instrument (registry.INSTRUMENTS): 'regulation' makes the citation say «نظام» (citation.py).
+ALTER TABLE laws ADD COLUMN IF NOT EXISTS instrument TEXT NOT NULL DEFAULT 'law';
 CREATE INDEX IF NOT EXISTS retrieval_log_user_time ON retrieval_log (user_id, created_at);
 CREATE INDEX IF NOT EXISTS retrieval_log_message ON retrieval_log (message_id);
 -- Telemetry and simulation read a window by time alone (R3 n=14); without it each request scans the whole log.
@@ -177,6 +180,7 @@ class LawMeta:
     amendment_gazette_date: date | None = None
     note: str | None = None
     approved: bool = False
+    instrument: str = 'law'  # registry.INSTRUMENTS; 'law' also for an article whose law has no registry row
 
 
 @dataclass(frozen=True)
@@ -222,20 +226,21 @@ async def upsert_laws(conn: AsyncConnection, laws: list[Law]) -> int:
             await cur.execute(
                 """
                 INSERT INTO laws (slug, title, number, year, gazette_issue, gazette_date, gazette_url, amendment_law,
-                  amendment_year, amendment_gazette_issue, amendment_gazette_date, amendment_url, note, approved)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                  amendment_year, amendment_gazette_issue, amendment_gazette_date, amendment_url, note, approved,
+                  instrument)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (slug) DO UPDATE SET
                   title = EXCLUDED.title, number = EXCLUDED.number, year = EXCLUDED.year,
                   gazette_issue = EXCLUDED.gazette_issue, gazette_date = EXCLUDED.gazette_date,
                   gazette_url = EXCLUDED.gazette_url, amendment_law = EXCLUDED.amendment_law,
                   amendment_year = EXCLUDED.amendment_year, amendment_gazette_issue = EXCLUDED.amendment_gazette_issue,
                   amendment_gazette_date = EXCLUDED.amendment_gazette_date, amendment_url = EXCLUDED.amendment_url,
-                  note = EXCLUDED.note, approved = EXCLUDED.approved
+                  note = EXCLUDED.note, approved = EXCLUDED.approved, instrument = EXCLUDED.instrument
                 """,
                 (
                     law.slug, law.title, law.number, law.year, law.gazette_issue, law.gazette_date, law.gazette_url,
                     law.amendment_law, law.amendment_year, law.amendment_gazette_issue, law.amendment_gazette_date,
-                    law.amendment_url, law.note, law.approved,
+                    law.amendment_url, law.note, law.approved, law.instrument,
                 ),
             )
     return len(laws)
@@ -245,20 +250,22 @@ async def upsert_laws(conn: AsyncConnection, laws: list[Law]) -> int:
 _BUMP_INDEX_VERSION = 'UPDATE index_state SET version = version + 1 WHERE id = 1'
 
 
-# The copy site goes into provenance; source, the column the previous image read, is emptied (SCHEMA's provenance note).
+# The copy site goes into provenance, and into source, the column the previous image reads, until that image is gone
+# (SCHEMA's provenance note).
 _UPSERT_ARTICLE = """
-INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, provenance, shard)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, provenance, source, shard)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 ON CONFLICT (law_slug, number, suffix) DO UPDATE SET
   law_title = EXCLUDED.law_title, label = EXCLUDED.label, text = EXCLUDED.text,
-  norm = EXCLUDED.norm, provenance = EXCLUDED.provenance, source = '', shard = EXCLUDED.shard
+  norm = EXCLUDED.norm, provenance = EXCLUDED.provenance, source = EXCLUDED.source, shard = EXCLUDED.shard
 """
 _UPSERT_ARTICLE_AND_HEADING = """
-INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, provenance, shard, heading, heading_origin)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+INSERT INTO articles (law_slug, law_title, number, suffix, label, text, norm, provenance, source, shard, heading,
+  heading_origin)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 ON CONFLICT (law_slug, number, suffix) DO UPDATE SET
   law_title = EXCLUDED.law_title, label = EXCLUDED.label, text = EXCLUDED.text,
-  norm = EXCLUDED.norm, provenance = EXCLUDED.provenance, source = '', shard = EXCLUDED.shard,
+  norm = EXCLUDED.norm, provenance = EXCLUDED.provenance, source = EXCLUDED.source, shard = EXCLUDED.shard,
   heading = EXCLUDED.heading, heading_origin = EXCLUDED.heading_origin
 """
 HEADING_FROM_SITE = 'site'  # heading_origin of a heading headings.extract read from the text as published
@@ -270,10 +277,11 @@ async def upsert_articles(conn: AsyncConnection, articles: list[Article],
     article's heading is stored too, with heading_origin 'site'; a key missing from it raises KeyError before anything
     is written. Without it the stored heading and origin are kept: a heading is derived from the text as published, and
     a later write of the text (an O-42 clean-up, review 2026-11-11 (f)) neither re-derives nor clears it. The article's
-    `source` (its copy site) is stored as provenance. The verification columns are set_verification's alone."""
+    `source` (its copy site) is stored as provenance and, for the previous image, as source (SCHEMA's provenance note).
+    The verification columns are set_verification's alone."""
     rows = [
         (article.law_slug, article.law_title, article.number, article.suffix, article.label, article.text,
-         normalize(article.text), article.source, article.shard)
+         normalize(article.text), article.source, article.source, article.shard)
         for article in articles
     ]
     statement = _UPSERT_ARTICLE
@@ -348,7 +356,7 @@ _SELECT = """
 SELECT a.id, a.law_slug, a.number, a.suffix, COALESCE(l.title, a.law_title) AS law_title, a.label, a.text,
        a.verified_at, a.verified_gazette, a.verified_bureau, l.number AS law_number, l.year AS law_year, l.gazette_issue, l.gazette_date,
        l.amendment_law, l.amendment_year, l.amendment_gazette_issue, l.amendment_gazette_date, l.note,
-       COALESCE(l.approved, false) AS approved
+       COALESCE(l.approved, false) AS approved, COALESCE(l.instrument, 'law') AS instrument
 FROM articles a LEFT JOIN laws l ON l.slug = a.law_slug
 """
 
@@ -374,6 +382,7 @@ def _found(row: dict) -> Found:
             amendment_gazette_date=row['amendment_gazette_date'],
             note=row['note'],
             approved=row['approved'],
+            instrument=row['instrument'],
         ),
     )
 
@@ -450,15 +459,17 @@ class Note:
 async def replace_memorandum(conn: AsyncConnection, notes: dict[int, str], links: list[tuple[int, int]],
                              provenance: str) -> None:
     """Make the memorandum tables equal to the source: upsert notes, replace links, drop vanished notes. `provenance`
-    (the memorandum file's `source`, its copy site) goes into the internal provenance column; source is emptied."""
+    (the memorandum file's `source`, its copy site) goes into the internal provenance column and, for the previous
+    image, into source (SCHEMA's provenance note)."""
     await conn.execute('DELETE FROM memorandum_links')
     async with conn.cursor() as cur:
         await cur.executemany(
             """
-            INSERT INTO memorandum_notes (note_no, text, provenance) VALUES (%s, %s, %s)
-            ON CONFLICT (note_no) DO UPDATE SET text = EXCLUDED.text, provenance = EXCLUDED.provenance, source = ''
+            INSERT INTO memorandum_notes (note_no, text, provenance, source) VALUES (%s, %s, %s, %s)
+            ON CONFLICT (note_no) DO UPDATE SET text = EXCLUDED.text, provenance = EXCLUDED.provenance,
+              source = EXCLUDED.source
             """,
-            [(note_no, text, provenance) for note_no, text in sorted(notes.items())],
+            [(note_no, text, provenance, provenance) for note_no, text in sorted(notes.items())],
         )
         await cur.executemany('INSERT INTO memorandum_links (article_number, note_no) VALUES (%s, %s)', links)
     await conn.execute('DELETE FROM memorandum_notes WHERE NOT (note_no = ANY(%s::int[]))', (sorted(notes),))
