@@ -106,7 +106,7 @@ ALTER TABLE articles ADD COLUMN IF NOT EXISTS verified_bureau JSONB;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
 -- The memorandum note's copy site, as for articles (above), and the same value in its old source column.
 ALTER TABLE memorandum_notes ADD COLUMN IF NOT EXISTS provenance TEXT NOT NULL DEFAULT '';
--- The registry entry's instrument (registry.INSTRUMENTS): 'regulation' makes the citation say «نظام» (citation.py).
+-- The registry entry's instrument (registry.INSTRUMENTS): 'regulation' makes the amendment line say «النظام المعدِّل».
 ALTER TABLE laws ADD COLUMN IF NOT EXISTS instrument TEXT NOT NULL DEFAULT 'law';
 CREATE INDEX IF NOT EXISTS retrieval_log_user_time ON retrieval_log (user_id, created_at);
 CREATE INDEX IF NOT EXISTS retrieval_log_message ON retrieval_log (message_id);

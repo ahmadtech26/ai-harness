@@ -1,8 +1,9 @@
 """The text a library result shows the model: the citation heading, the article, the publication data
 the registry has (nothing it lacks), the source and verification labels, and a law's note.
 
-A regulation (the registry's `instrument`, registry.INSTRUMENTS) is cited as one: its heading names it «نظام» and its
-amendment line names «النظام المعدِّل»; a law's citation is unchanged.
+A regulation (the registry's `instrument`, registry.INSTRUMENTS) keeps its plain title in the heading (owner, 2026-11-15:
+the fork's client reads the law's title from it), and its amendment line names «النظام المعدِّل»; a law's citation is
+unchanged.
 
 The source line never names the copy site a text was taken from (owner: «Hide all copy sites»): a verified article
 names the official sources and its label gives the Gazette issues, the Bureau's legislation id and version and the
@@ -24,7 +25,6 @@ MEMORANDUM_TITLE = 'المذكرة الإيضاحية للقانون المدن�
 MEMORANDUM_UNVERIFIED = 'لم يُتحقق بعد من مطابقته للنص الرسمي للمذكرة'
 OFFICIAL_SOURCES = 'الجريدة الرسمية وديوان التشريع والرأي'  # the source of a verified article
 LIBRARY_COPY = 'نسخة المكتبة، غير رسمية'  # the source of every other article and of the memorandum
-REGULATION = 'نظام'
 # The amendment line's instrument: a law is amended by a law, a regulation by a regulation.
 AMENDING_LAW = 'القانون المعدِّل'
 AMENDING_REGULATION = 'النظام المعدِّل'
@@ -59,12 +59,9 @@ def _regulation(found: Found) -> bool:
 
 
 def heading(found: Found) -> str:
-    """«قانون العمل رقم 8 لسنة 1996 — المادة 61». A regulation whose title does not begin with «نظام» is named one
-    after a comma: «جدول رسوم المحاكم، نظام رقم 43 لسنة 2005 — المادة 1»; «نظام … رقم 43 لسنة 2005» is already named.
-    The heading's one « — » is the one before the label."""
+    """«قانون العمل رقم 8 لسنة 1996 — المادة 61», and a regulation's the same way with its plain title: «جدول رسوم
+    المحاكم رقم 43 لسنة 2005 — المادة 1». The heading's one « — » is the one before the label."""
     name = found.law_title
-    if _regulation(found) and not name.startswith(REGULATION):
-        name += f'، {REGULATION}'
     if found.law.number is not None:
         name += f' رقم {found.law.number}'
     if found.law.year is not None:
