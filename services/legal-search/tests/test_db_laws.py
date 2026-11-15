@@ -67,7 +67,7 @@ async def test_the_registry_instrument_reaches_the_citation(conn):
 
     assert regulation.law.instrument == 'regulation'
     lines = format_articles([regulation]).splitlines()
-    assert lines[0] == '[1] قانون العمل، نظام رقم 43 لسنة 2005 — المادة 20'
+    assert lines[0] == '[1] قانون العمل رقم 43 لسنة 2005 — المادة 20'
     assert lines[2].startswith('(آخر تعديل: النظام المعدِّل رقم 108 لسنة 2008؛ ')
     # An article whose law has no registry row is a law's.
     await conn.execute('DELETE FROM laws')

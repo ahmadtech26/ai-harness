@@ -330,5 +330,5 @@ async def test_the_ingest_stores_the_registry_instrument_and_the_citation_follow
     cur = await conn.execute('SELECT slug, instrument FROM laws')
     assert await cur.fetchall() == [('civil-code', 'regulation')]
     lines = format_articles([await db.get_article(conn, 'civil-code', 1, '')]).splitlines()
-    assert lines[0] == '[1] جدول رسوم المحاكم، نظام رقم 43 لسنة 2005 — المادة 1'
+    assert lines[0] == '[1] جدول رسوم المحاكم رقم 43 لسنة 2005 — المادة 1'
     assert lines[2].startswith('(آخر تعديل: النظام المعدِّل رقم 108 لسنة 2008؛ المصدر: ')

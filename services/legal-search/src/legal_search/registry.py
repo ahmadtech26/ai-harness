@@ -14,7 +14,7 @@ class RegistryError(ValueError):
     pass
 
 
-# An entry's `instrument`, which the citation's wording follows (citation.heading and details): an entry without it is
+# An entry's `instrument`, which the citation's amendment line follows (citation.details): an entry without it is
 # a law (قانون); court-fees is a regulation (نظام), the schedule of نظام رسوم المحاكم رقم 43 لسنة 2005, last amended by
 # نظام رقم 108 لسنة 2008. Any other value is refused.
 INSTRUMENTS = ('law', 'regulation')

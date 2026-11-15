@@ -75,11 +75,11 @@ def _article_1(law: LawMeta, title: str) -> Found:
 
 @pytest.mark.parametrize('law, title, expected', [
     (with_changes(FEES, instrument='law'), 'قانون العمل', 'قانون العمل رقم 43 لسنة 2005 — المادة 1'),
-    (FEES, 'جدول رسوم المحاكم', 'جدول رسوم المحاكم، نظام رقم 43 لسنة 2005 — المادة 1'),
+    (FEES, 'جدول رسوم المحاكم', 'جدول رسوم المحاكم رقم 43 لسنة 2005 — المادة 1'),
     (FEES, 'نظام رسوم المحاكم', 'نظام رسوم المحاكم رقم 43 لسنة 2005 — المادة 1'),
-    (LawMeta(instrument='regulation'), 'جدول رسوم المحاكم', 'جدول رسوم المحاكم، نظام — المادة 1'),
+    (LawMeta(instrument='regulation'), 'جدول رسوم المحاكم', 'جدول رسوم المحاكم — المادة 1'),
 ], ids=['law', 'regulation', 'regulation titled نظام', 'regulation without number or year'])
-def test_a_regulation_is_named_one_in_its_heading(law: LawMeta, title: str, expected: str):
+def test_a_regulation_keeps_its_plain_title_in_its_heading(law: LawMeta, title: str, expected: str):
     assert heading(_article_1(law, title)) == expected
     assert format_articles([_article_1(law, title)]).splitlines()[0] == f'[1] {expected}'
     assert expected.count('—') == 1  # the heading's only dash is the one before the label
