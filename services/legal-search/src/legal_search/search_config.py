@@ -32,6 +32,9 @@ class SearchConfig:
     analyser: str = 'today'  # 'today' (normalize.tokens) or 'guardlight' (the bench's stem_fixed + strip_one_suffix)
     df_drop: float = 0.0  # drop query terms in more than this share of articles, the rarest kept (df_drop); 0 is off
     stoplist: bool = True  # drop stopwords from the query
+    # search_law leaves out the articles already served to the answer (plan 2026-11-14 S5b; recall plan Task 6.4). Off in
+    # code; the demo config turns it on (L2). Under either ranker.
+    skip_served: bool = False
 
     def __post_init__(self):
         validate(self)
@@ -58,6 +61,14 @@ def validate(config: SearchConfig) -> None:
 
 
 DEFAULT = SearchConfig()
+
+
+def tag(config: SearchConfig) -> str:
+    """'pg', or the ranker and every field that differs from DEFAULT, sorted: the engine a log row was served by
+    (retrieval_log.engine, FRP 2.6)."""
+    changed = sorted(f'{f.name}={getattr(config, f.name)}' for f in fields(config)
+                     if f.name != 'ranker' and getattr(config, f.name) != getattr(DEFAULT, f.name))
+    return config.ranker + (':' + ','.join(changed) if changed else '')
 
 # The server's overrides of DEFAULT: comma-separated name=value items (ranker=bm25,heading_weight=1.0).
 SEARCH_CONFIG = 'LEGAL_SEARCH_SEARCH_CONFIG'

@@ -3,7 +3,7 @@
 
 Every request must carry the shared secret (`X-Iqraa-Secret`); tool calls must carry the caller's identity
 (`X-Iqraa-User`, `X-Iqraa-Message`, `X-Iqraa-Conversation`), which LibreChat fills from `requestHeaders`
-placeholders. Each tool call reads the guard settings (thresholds and caps, cached for at most 30 s), is
+placeholders, and may carry the answer's tier (`X-Iqraa-Tier`), whose allowance and daily cap the call is served under. Each tool call reads the guard settings (thresholds and caps, cached for at most 30 s), is
 decided by the sweep guard, capped, and written to the retrieval log.
 
 Only the timing stack (compose.timing.yaml) sets LEGAL_SEARCH_TIMING_SPANS=1: each search_law call then appends one
@@ -258,7 +258,11 @@ def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts:
         message = headers.get('x-iqraa-message') or None
         if not PLAIN_ID.fullmatch(user) or (message is not None and not PLAIN_ID.fullmatch(message)):
             raise ValueError('caller identity must be a plain id')
-        return tools.Caller(user, message, headers.get('x-iqraa-conversation') or None)
+        # The answer's tier spec (plan S4). A tier that is not a plain id (an unresolved placeholder) never raises: it
+        # is no tier, and gets the lowest allowance, as any tier without its own does (GuardSettings.caps_for).
+        tier = (headers.get('x-iqraa-tier') or '').strip()
+        return tools.Caller(user, message, headers.get('x-iqraa-conversation') or None,
+                            tier if PLAIN_ID.fullmatch(tier) else None)
 
     @mcp.tool()
     async def search_law(query: str, ctx: Context, limit: int = 5, law: str | None = None) -> str:
@@ -269,8 +273,8 @@ def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts:
         async def body(conn: AsyncConnection) -> str:
             async with spans.span('guard_settings'):
                 settings = await cache.get(conn)
-            return await tools.search_law(conn, settings.caps, who, query, limit, law, guard=settings, max_query=max_query,
-                                          config=config)
+            return await tools.search_law(conn, settings.caps_for(who.tier), who, query, limit, law, guard=settings,
+                                          max_query=max_query, config=config)
 
         if timing_file is None:
             return await serialised(pool, locks, who.user, body, deadline)
@@ -288,7 +292,7 @@ def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts:
 
         async def body(conn: AsyncConnection) -> str:
             settings = await cache.get(conn)
-            return await tools.get_article(conn, settings.caps, who, number, suffix, law, guard=settings)
+            return await tools.get_article(conn, settings.caps_for(who.tier), who, number, suffix, law, guard=settings)
 
         return await serialised(pool, locks, who.user, body, deadline)
 
@@ -300,7 +304,7 @@ def build_server(pool: AsyncConnectionPool, cache: SettingsCache, allowed_hosts:
 
         async def body(conn: AsyncConnection) -> str:
             settings = await cache.get(conn)
-            return await tools.get_memorandum(conn, settings.caps, who, article, offset, guard=settings)
+            return await tools.get_memorandum(conn, settings.caps_for(who.tier), who, article, offset, guard=settings)
 
         return await serialised(pool, locks, who.user, body, deadline)
 
@@ -317,7 +321,10 @@ def build_app(pool: AsyncConnectionPool, caps: Caps, secret: str, allowed_hosts:
     `config`: the search config search_law ranks with. With ranker=bm25 the lifespan builds its keyword index, and
     waits for it, before the app serves: the first search finds it warm instead of falling back to Postgres. A build
     that fails stops the start-up."""
-    defaults = validate(GuardSettings(per_answer=caps.per_answer, daily=caps.daily, max_results=caps.max_results).as_dict())
+    # Every tier starts at the environment's caps; a staff PUT raises a tier (plan S4, L3), never a first start.
+    defaults = validate(GuardSettings(per_answer=caps.per_answer, daily=caps.daily, max_results=caps.max_results,
+                                      per_answer_advanced=caps.per_answer, per_answer_expert=caps.per_answer,
+                                      daily_advanced=caps.daily, daily_expert=caps.daily).as_dict())
     cache = SettingsCache()
     inner = build_server(pool, cache, allowed_hosts, deadline, max_query, timing_file, config).streamable_http_app()
     # The staff admin API shares the app, the pool, the settings cache and SecretGuard.

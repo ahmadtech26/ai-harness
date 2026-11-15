@@ -12,7 +12,8 @@ from legal_search.search_config import SearchConfig
 from legal_search.server import build_app
 import psycopg
 
-from legal_search.tools import SUSPENDED
+from legal_search.normalize import normalize
+from legal_search.tools import BUDGET_LINE, SUSPENDED
 from tests.mcp import tool_text
 from tests.pg import TABLES
 
@@ -434,3 +435,71 @@ def test_a_postgres_server_builds_no_keyword_index(monkeypatch):
         pass
 
     assert warmed == []
+
+
+# Plan S4: the server reads X-Iqraa-Tier and serves each call under settings.caps_for(tier). The remaining-budget line
+# (S3) shows the allowance a call was served under. A tier header that is not a plain id never raises: it gets the
+# lowest allowance, as no header does.
+def _tier_client(secret: str):
+    """The app with per_answer 8, the tier fields at 11 and 16 (a staff PUT, as L3's), Civil Code article 1 that a search
+    for «العربون» finds, and one memorandum note linked to it."""
+    _fresh_tables()
+    client = TestClient(_app(secret))
+    client.__enter__()
+    staff = {'host': 'legal-search:8000', 'x-iqraa-secret': secret, 'x-iqraa-staff': 'staff-1'}
+    put = client.put('/admin/guard-settings', headers=staff,
+                     json={'settings': {'per_answer_advanced': 11, 'per_answer_expert': 16}, 'reason': 'tiers'})
+    assert put.status_code == 200
+    with psycopg.connect(os.environ['DATABASE_URL'], autocommit=True) as conn:
+        text = 'يعتبر دفع العربون دليلا على ان العقد اصبح باتا.'
+        conn.execute("INSERT INTO articles (law_slug, law_title, number, label, text, norm) "
+                     "VALUES ('civil-code', 'القانون المدني الأردني', 1, 'المادة 1', %s, %s)", (text, normalize(text)))
+        conn.execute("INSERT INTO memorandum_notes (note_no, text) VALUES (1, 'شرح العربون.')")
+        conn.execute('INSERT INTO memorandum_links (article_number, note_no) VALUES (1, 1)')
+    return client
+
+
+def test_the_line_states_the_tier_allowance():
+    secret = secrets.token_hex(16)
+    client = _tier_client(secret)
+    try:
+        expert = {'x-iqraa-secret': secret, 'x-iqraa-message': 'm-expert', 'x-iqraa-tier': 'iqraa-expert'}
+        texts = [tool_text(client, 'u-expert', 'search_law', {'query': 'العربون'}, expert),
+                 tool_text(client, 'u-expert', 'get_article', {'number': 1}, {**expert, 'x-iqraa-message': 'm-2'}),
+                 tool_text(client, 'u-expert', 'get_memorandum', {'article': 1}, {**expert, 'x-iqraa-message': 'm-3'})]
+        advanced = tool_text(client, 'u-adv', 'get_article', {'number': 1},
+                             {'x-iqraa-secret': secret, 'x-iqraa-message': 'm-adv', 'x-iqraa-tier': 'iqraa-advanced'})
+    finally:
+        client.__exit__(None, None, None)
+
+    assert [text.rpartition('\n')[2] for text in texts] == [BUDGET_LINE.format(left=15, per_answer=16)] * 3
+    assert advanced.endswith('\n\n' + BUDGET_LINE.format(left=10, per_answer=11))
+
+
+@pytest.mark.parametrize('tier', [None, 'none', 'iqraa-other', '{{LIBRECHAT_BODY_IQRAATIER}}', 'a b'],
+                         ids=['no-header', 'none', 'unknown', 'unresolved', 'not-plain'])
+def test_no_none_unknown_or_unresolved_tier_gets_per_answer(tier):
+    secret = secrets.token_hex(16)
+    headers = {'x-iqraa-secret': secret, 'x-iqraa-message': 'm-1', **({'x-iqraa-tier': tier} if tier is not None else {})}
+    client = _tier_client(secret)
+    try:
+        text = tool_text(client, 'u-1', 'get_article', {'number': 1}, headers)
+    finally:
+        client.__exit__(None, None, None)
+
+    assert 'المادة 1' in text and text.endswith('\n\n' + BUDGET_LINE.format(left=7, per_answer=8))
+
+
+def test_a_bad_tier_header_never_raises():
+    secret = secrets.token_hex(16)
+    client = _tier_client(secret)
+    try:
+        texts = [tool_text(client, 'u-bad', 'get_article', {'number': 1},
+                           {'x-iqraa-secret': secret, 'x-iqraa-message': f'm-{n}', 'x-iqraa-tier': tier})
+                 for n, tier in enumerate(['a b', '{{LIBRECHAT_BODY_IQRAATIER}}'])]
+    finally:
+        client.__exit__(None, None, None)
+
+    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+        logged = [row[0] for row in conn.execute("SELECT tier FROM retrieval_log WHERE user_id = 'u-bad' ORDER BY id")]
+    assert all('المادة 1' in text for text in texts) and logged == [None, None]  # served, and never logged as a tier

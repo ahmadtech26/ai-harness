@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import timedelta
 
 from legal_search.detector import Event, Verdict, detect
@@ -168,3 +169,44 @@ def test_heavy_but_legitimate_topic_research_is_not_flagged():
     verdict = detect(events, SETTINGS, events[-1].at)
 
     assert verdict == Verdict('none')
+
+
+# Plan S4b (owner 2026-11-14): the 7-day alarm, and the daily cap the cap days count, are those of the highest tier the
+# user's calls of the last 7 days were made under (the call being decided included); the lowest when none is logged.
+TIERS = replace(SETTINGS, daily_advanced=400, daily_expert=600, suspected_distinct_7d_advanced=400,
+                suspected_distinct_7d_expert=600)
+
+
+def _tiered(events, tier):
+    return [replace(event, tier=tier) for event in events]
+
+
+def test_the_7_day_alarm_is_the_highest_tier_logged_in_the_window():
+    fast, advanced = _searches(350, T0), _searches(450, T0)
+    one_expert = [replace(fast[0], tier='iqraa-expert'), *fast[1:]]
+    expert_aged_out = [replace(fast[0], tier='iqraa-expert', at=T0 - timedelta(days=8)), *fast[1:]]
+
+    levels = [detect(events, TIERS, events[-1].at).level
+              for events in (fast, one_expert, expert_aged_out, _tiered(advanced, 'iqraa-advanced'),
+                             _tiered(fast, 'iqraa-other'))]
+
+    assert levels == ['suspected', 'none', 'suspected', 'suspected', 'suspected']
+
+
+def test_the_pending_calls_own_tier_counts():
+    events = _searches(350, T0)
+    events[-1] = replace(events[-1], id=None, outcome=None, tier='iqraa-expert')
+
+    verdict = detect(events, TIERS, events[-1].at)
+
+    assert verdict.level == 'none'
+
+
+def test_the_cap_days_count_the_highest_tiers_daily_cap():
+    days = [*_cap_day(1, T0.replace(day=18, hour=8)), *_cap_day(3, T0.replace(day=19, hour=8))]  # 300 a day, two days
+    expert = _tiered(days, 'iqraa-expert')
+    expert_full = [replace(event, documents=600 if event.documents else 0) for event in expert]
+
+    verdicts = [detect(events, TIERS, events[-1].at) for events in (days, expert, expert_full)]
+
+    assert [_kinds(verdict) for verdict in verdicts] == [{'cap_days': 'suspected'}, {}, {'cap_days': 'suspected'}]

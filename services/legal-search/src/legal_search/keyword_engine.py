@@ -268,7 +268,7 @@ SEARCHES = Searches(DEFAULT_SEARCHES)
 
 
 async def search(conn: AsyncConnection, query: str, limit: int, law: str | None, config: SearchConfig,
-                 strict: bool) -> list[db.Found]:
+                 strict: bool, exclude_ids: frozenset[int] = frozenset()) -> list[db.Found]:
     """db.search with ranker='bm25': the engine's best max(limit, DEPTH) ids, read back from Postgres in the engine's
     order and truncated to `limit` last.
 
@@ -276,7 +276,11 @@ async def search(conn: AsyncConnection, query: str, limit: int, law: str | None,
     (d)). The pool is not raised to 400: it stays the bench's 50, or 200 with proximity, at which Gate P2 and the T rows
     were measured. Callers ask for DEPTH (evaluation) or a search_law budget (max_results, 5); a top-50 consumer asks
     for 50, which the pool holds, its ties at the cut kept stable by LOAD's ORDER BY id; a 100-deep reference is read
-    from the bench's rows (basis-rows-depth100.jsonl, made with a pool of 400)."""
+    from the bench's rows (basis-rows-depth100.jsonl, made with a pool of 400).
+
+    `exclude_ids` (plan S5b): left out after ranking and before the read-back. The engine then ranks deeper, by their
+    number, so the limit is still filled, up to the pool and never past it: a raised allowance must not turn a search
+    into the refusal above, which holds `limit` alone to the pool."""
     if limit <= 0:
         return []
     settings = settings_of(config)
@@ -284,14 +288,15 @@ async def search(conn: AsyncConnection, query: str, limit: int, law: str | None,
     if depth > pool_of(settings):
         raise ValueError(f'the keyword engine ranks at most {pool_of(settings)} candidates with these settings; '
                          f'{depth} were asked for')
+    depth = min(max(limit + len(exclude_ids), DEPTH), pool_of(settings))
     try:
         built = await CACHE.ensure(conn, config, wait=strict)
     except Exception as error:
         if strict:
             raise EngineUnavailable(f'the keyword index could not be built ({type(error).__name__})') from error
-        return await _fallback(conn, query, limit, law, config, f'build failed: {type(error).__name__}')
+        return await _fallback(conn, query, limit, law, config, f'build failed: {type(error).__name__}', exclude_ids)
     if built is None:
-        return await _fallback(conn, query, limit, law, config, 'cold')
+        return await _fallback(conn, query, limit, law, config, 'cold', exclude_ids)
     terms, members = query_of(built.analyser, query, settings)
     if not terms:
         CACHE.served()
@@ -301,15 +306,15 @@ async def search(conn: AsyncConnection, query: str, limit: int, law: str | None,
     except Exception as error:
         if strict:
             raise EngineUnavailable(f'the keyword engine failed ({type(error).__name__})') from error
-        return await _fallback(conn, query, limit, law, config, f'search failed: {type(error).__name__}')
+        return await _fallback(conn, query, limit, law, config, f'search failed: {type(error).__name__}', exclude_ids)
     CACHE.served()
-    found = await db.found_by_ids(conn, [doc_id for doc_id, _ in ranked])
+    found = await db.found_by_ids(conn, [doc_id for doc_id, _ in ranked if doc_id not in exclude_ids])
     return found[:limit]
 
 
 async def _fallback(conn: AsyncConnection, query: str, limit: int, law: str | None, config: SearchConfig,
-                    reason: str) -> list[db.Found]:
-    """Today's Postgres search, with the alert line (REQ-RAG-025). The reason never carries the query: it is the
-    user's text."""
+                    reason: str, exclude_ids: frozenset[int] = frozenset()) -> list[db.Found]:
+    """Today's Postgres search, with the alert line (REQ-RAG-025), and the same exclusions. The reason never carries
+    the query: it is the user's text."""
     CACHE.fell_back(reason)
-    return await db._pg_search(conn, query, limit, law, config)
+    return await db._pg_search(conn, query, limit, law, config, exclude_ids)

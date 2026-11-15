@@ -142,12 +142,22 @@ def _reply(text: str, *, error: bool = False, sse: bool = False) -> str:
     return f'event: message\ndata: {body}\n\n' if sse else body
 
 
+def test_timing_reads_a_not_found_reply_with_a_budget_line_as_not_found():
+    # Plan S3: every not-found search now ends with the remaining-budget line; read as a refusal, it fails the run.
+    articles = '[1] القانون المدني الأردني — المادة 2\nيعاقب كل من خالف احكام العقد بالتعويض.\n(المصدر: s)'
+    line = tools.BUDGET_LINE.format(left=8, per_answer=8)
+
+    kinds = [timing.outcome(200, _reply(f'{tools.NOT_FOUND_SEARCH}\n\n{line}')), timing.outcome(200, _reply(f'{articles}\n\n{line}'))]
+
+    assert kinds == ['not_found', 'served']
+
+
 def test_the_driver_counts_refusals_apart_from_served_lists():
     articles = '[1] القانون المدني الأردني — المادة 2\nيعاقب كل من خالف احكام العقد بالتعويض.\n(المصدر: s)'
     responses = [
         (200, _reply(articles, sse=True)),                                  # an article list: a timed search
         (200, _reply(tools.NOT_FOUND_SEARCH)),                              # the not-found text: a timed search
-        (200, _reply(tools.CAP_REACHED)),                                   # a cap refusal
+        (200, _reply(tools.CAP_ANSWER)),                                    # a cap refusal
         (200, _reply(tools.SUSPENDED)),                                     # a suspension refusal
         (200, _reply(f'{tools.UNKNOWN_LAW}. الرموز المتاحة: civil-code.')),  # not a search
         (200, _reply(articles, error=True)),                                # a tool error, whatever its text

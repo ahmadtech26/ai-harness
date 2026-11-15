@@ -72,9 +72,13 @@ async def _served_article(conn: AsyncConnection, key: str) -> str:
 
 
 async def _served_note(conn: AsyncConnection, article: int, offset: int) -> str:
-    """get_memorandum's reply for `article` at `offset` when its page holds one note."""
+    """get_memorandum's reply for `article` at `offset` when its page holds one note, less the remaining-budget line it
+    ends with (plan S3): the snapshot holds the served text, and the line belongs to one answer."""
     caller = tools.Caller('u1', f'm-{article}-{offset}', 'c1')
-    return await tools.get_memorandum(conn, ONE_NOTE, caller, article, offset)
+    reply = await tools.get_memorandum(conn, ONE_NOTE, caller, article, offset)
+    text, _, line = reply.rpartition('\n\n')
+    assert line == tools.BUDGET_LINE.format(left=99, per_answer=100)  # one note of this answer's 100
+    return text
 
 
 async def test_the_snapshot_holds_every_article_and_note_once(conn):

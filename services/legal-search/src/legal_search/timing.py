@@ -69,8 +69,9 @@ SPLITS_NOTE = {
                   "the secret check, the MCP SDK's per-request session and JSON-RPC handling, argument validation, the "
                   'caller identity read and the span-line append, besides the network'),
     'other': ('server_ms less its spans (engine_wait and engine sit inside search, and are not subtracted twice): '
-              'BEGIN, the advisory lock statement, the suspension check, the second budget read, formatting the '
-              'answer, the COMMIT of the outer transaction and the alert hand-off'),
+              'BEGIN, the advisory lock statement, the suspension check, the read of the articles already served to '
+              'the answer, the second budget read, formatting the answer, the COMMIT of the outer transaction and the '
+              'alert hand-off'),
     'budget': "the first of the call's two budget reads only (two statements); the second is in other",
     'log': "the log row and the guard's flag change (_record, a savepoint); the outer transaction's COMMIT is in other",
     'engine_wait': ('ranker=bm25 only, inside search: from the request for an engine turn to the start of the search in '
@@ -95,6 +96,13 @@ RAISED = {
     'suspected_distinct_7d': 999_999,
     'proven_distinct_7d': 1_000_000,
     'suspected_cap_days': 1_000_000,
+    # Plan S4 and S4b: every tier's fields too, or validate refuses the raise (fallback_is_lowest).
+    'per_answer_advanced': 1_000_000,
+    'per_answer_expert': 1_000_000,
+    'daily_advanced': 1_000_000,
+    'daily_expert': 1_000_000,
+    'suspected_distinct_7d_advanced': 999_999,
+    'suspected_distinct_7d_expert': 999_999,
 }
 SPAN_NAMES = ('lock_wait', 'pool_wait', 'guard_settings', 'budget', 'search', 'guard', 'log')
 # Spans timed inside another (keyword_engine.Searches, inside search): reported, but `other` leaves them out, as the
@@ -174,7 +182,7 @@ def outcome(status: int, body: str) -> str:
     """'served' for an article list, 'not_found' for the not-found text (both are timed searches); 'refused' for
     anything else: a cap or suspension refusal, another fixed reply, a tool or protocol error."""
     ok, text = reply_text(status, body)
-    if ok and text == NOT_FOUND_SEARCH:
+    if ok and text.startswith(NOT_FOUND_SEARCH):  # a not-found reply ends with the budget line (plan S3)
         return 'not_found'
     if ok and text.startswith('[1] '):
         return 'served'
