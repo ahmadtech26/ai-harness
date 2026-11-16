@@ -18,9 +18,9 @@ def walk(numbers, *, law='penal-code', first_id=1, start=T0, step=MINUTE, tool='
     ]
 
 
-def search(event_id, at, keys, law=None):
-    """A search_law call that served the given article keys ('law|number|suffix')."""
-    return Event(id=event_id, at=at, tool='search_law', law=law, outcome='served', keys=frozenset(keys),
+def search(event_id, at, keys, law=None, tier=None):
+    """A search_law call that served the given article keys ('law|number|suffix'), made under `tier` (None: no tier)."""
+    return Event(id=event_id, at=at, tool='search_law', law=law, outcome='served', keys=frozenset(keys), tier=tier,
                  documents=len(keys))
 
 

@@ -103,3 +103,12 @@ def test_search_config_from_env_refuses_an_unknown_setting(monkeypatch):
 
     with pytest.raises(ValueError, match="^unknown setting 'heading=1.0'"):
         search_config_from_env()
+
+
+def test_tag_is_pg_for_DEFAULT_and_names_every_changed_field_sorted():
+    # FRP 2.6 / plan S6: the engine a retrieval_log row was served by.
+    from legal_search.search_config import tag
+
+    changed = with_overrides(DEFAULT, ['ranker=bm25', 'stoplist=false', 'heading_weight=1.0'])
+
+    assert [tag(DEFAULT), tag(changed)] == ['pg', 'bm25:heading_weight=1.0,stoplist=False']

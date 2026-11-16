@@ -163,7 +163,7 @@ def test_simulate_lists_the_users_flagged_in_the_window_and_changes_nothing(clie
     response = client.post('/admin/guard-settings/simulate', json={'settings': {'suspected_run': 10}, 'days': 1})
 
     assert (crossing, [(flag['user_id'], flag['level']) for flag in before[1]['flags']]) == (
-        tools.CAP_REACHED, [('coverer', 'suspected')])  # the guard flagged the coverer at that search
+        tools.CAP_DAILY, [('coverer', 'suspected')])  # flagged at that search: throttled, so the daily text
     assert [(user['user_id'], user['level']) for user in response.json()['would_flag']] == [
         ('coverer', 'suspected'), ('walker', 'suspected')]
     assert _snapshot(client) == before
@@ -260,3 +260,40 @@ def test_a_staff_suspension_refuses_every_retrieval_until_the_flag_is_cleared(cl
 
     assert suspended.status_code == 200 and suspended.json()['flag']['level'] == 'proven'
     assert refused == tools.SUSPENDED and 'المادة 1' in served
+
+
+def _loosened(alert_caplog) -> list:
+    import json
+
+    return [json.loads(r.getMessage())['loosened'] for r in alert_caplog.records
+            if r.name == 'legal_search.alerts' and 'guard_settings_loosened' in r.getMessage()]
+
+
+def test_a_put_of_11_and_16_writes_history_and_alerts_both_fields_loosened(client, alert_caplog):
+    # Plan S4 / L3: the allowance per tier is raised by a staff PUT, recorded and alerted like any loosening.
+    response = client.put('/admin/guard-settings', headers=STAFF,
+                          json={'settings': {'per_answer_advanced': 11, 'per_answer_expert': 16}, 'reason': 'tiers'})
+
+    latest = client.get('/admin/guard-settings/history').json()['history'][0]
+    assert response.status_code == 200
+    assert [(latest[k]['per_answer_advanced'], latest[k]['per_answer_expert']) for k in ('previous', 'settings')] == [
+        (8, 8), (11, 16)]
+    assert _loosened(alert_caplog) == [['per_answer_advanced', 'per_answer_expert']]
+
+
+def test_a_put_of_the_tier_daily_caps_and_7_day_alarms_alerts_each_loosened(client, alert_caplog):
+    # Plan S4b (owner 2026-11-14): the daily cap and the 7-day alarm per tier, raised like the allowance.
+    changes = {'daily_advanced': 400, 'daily_expert': 600, 'suspected_distinct_7d_advanced': 400,
+               'suspected_distinct_7d_expert': 600}
+
+    response = client.put('/admin/guard-settings', headers=STAFF, json={'settings': changes, 'reason': 'tiers'})
+
+    assert response.status_code == 200 and {k: response.json()['settings'][k] for k in changes} == changes
+    assert _loosened(alert_caplog) == [list(changes)]
+
+
+def test_a_put_below_the_fast_value_is_refused_like_per_answer(client):
+    responses = [client.put('/admin/guard-settings', headers=STAFF, json={'settings': settings, 'reason': 'r'})
+                 for settings in ({'per_answer_expert': 7}, {'daily_expert': 250}, {'suspected_distinct_7d_advanced': 299})]
+
+    assert [_refusal(response) for response in responses] == [(400, 'invalid_settings', 'fallback_is_lowest', True)] * 3

@@ -9,9 +9,15 @@ The source line never names the copy site a text was taken from (owner: «Hide a
 names the official sources and its label gives the Gazette issues, the Bureau's legislation id and version and the
 verification date; any other article and every memorandum note names the library's own, unofficial copy.
 
+The details parentheses end with the retrieval id (plan S8, owner: «Server + retrieval id»), after the source and
+before « — <label>»: «معرّف النص في المكتبة: <id>», the library id of the row the tool read: an article's articles.id,
+a memorandum note's note_no (memorandum_notes has no id; the number is the note's id).
+
 The fork's client reads the status label as the details line's text after its last « — », up to «؛» or «)»
 (ai-platform overlay/client/src/iqraa/answer/library/output.ts, statusLabelOf and isDetailsLine): the source line
-comes before that dash, and a label never holds « — », «؛», «)» or «المادة» (tests/test_citation.py checks both)."""
+and the id come before that dash, and a label never holds « — », «؛», «)» or «المادة» (tests/test_citation.py checks
+both). A source is read up to «؛» or « — » (AI Harness-demo deploy/staging/lib.mjs sourcesOf), so it never takes in
+the id."""
 
 from datetime import date
 
@@ -25,6 +31,8 @@ MEMORANDUM_TITLE = 'المذكرة الإيضاحية للقانون المدن�
 MEMORANDUM_UNVERIFIED = 'لم يُتحقق بعد من مطابقته للنص الرسمي للمذكرة'
 OFFICIAL_SOURCES = 'الجريدة الرسمية وديوان التشريع والرأي'  # the source of a verified article
 LIBRARY_COPY = 'نسخة المكتبة، غير رسمية'  # the source of every other article and of the memorandum
+# The retrieval id's part of the details parentheses, before the row's id (the fork parses this form).
+RETRIEVAL_ID = 'معرّف النص في المكتبة: '
 # The amendment line's instrument: a law is amended by a law, a regulation by a regulation.
 AMENDING_LAW = 'القانون المعدِّل'
 AMENDING_REGULATION = 'النظام المعدِّل'
@@ -91,6 +99,7 @@ def details(found: Found) -> str:
     else:
         parts.append(f'المصدر: {LIBRARY_COPY}')
         status = UNVERIFIED
+    parts.append(f'{RETRIEVAL_ID}{found.id}')
     if not law.approved:
         status += f'؛ {METADATA_UNVERIFIED}'
     return f'({"؛ ".join(parts)} — {status})'
@@ -118,7 +127,8 @@ def _scope(note: Note) -> str:
 def format_memorandum(article: int, offset: int, notes: list[Note], total: int) -> str:
     last = offset + len(notes)
     blocks = [f'{MEMORANDUM_TITLE} — المادة {article}: الملاحظات {offset + 1} إلى {last} من {total}']
-    blocks += [f'[ملاحظة {note.note_no}]{_scope(note)}\n{note.text}\n(المصدر: {LIBRARY_COPY} — {MEMORANDUM_UNVERIFIED})'
+    blocks += [f'[ملاحظة {note.note_no}]{_scope(note)}\n{note.text}\n'
+               f'(المصدر: {LIBRARY_COPY}؛ {RETRIEVAL_ID}{note.note_no} — {MEMORANDUM_UNVERIFIED})'
                for note in notes]
     left = total - last
     if left > 0:

@@ -18,7 +18,7 @@ BASE_LOOKBACK = timedelta(days=8)
 BATCH = 2_000
 
 _EVENTS = """
-SELECT r.id, r.user_id, r.created_at, r.tool, r.requested_law, r.requested_number, r.requested_suffix, r.outcome,
+SELECT r.id, r.user_id, r.created_at, r.tool, r.requested_law, r.requested_number, r.requested_suffix, r.outcome, r.tier,
        cardinality(r.article_ids) + cardinality(r.note_ids) AS documents,
        ARRAY(SELECT a.law_slug || '|' || a.number || '|' || a.suffix FROM articles a WHERE a.id = ANY (r.article_ids)) AS served,
        ARRAY(SELECT a.law_slug || '|' || a.number || '|' || a.suffix FROM articles a WHERE a.id = ANY (r.candidate_ids)) AS candidates
@@ -35,11 +35,12 @@ class Attempt:
     number: int | None = None
     suffix: str | None = None
     keys: frozenset[str] = frozenset()
+    tier: str | None = None  # the caller's X-Iqraa-Tier (tools.Caller.tier)
 
     def event(self, now: datetime) -> Event:
         """This call as the event being decided (no log id yet)."""
         return Event(id=None, at=now, tool=self.tool, law=self.law, number=self.number, suffix=self.suffix,
-                     keys=keys_of(self.tool, self.law, self.number, self.suffix, self.keys))
+                     keys=keys_of(self.tool, self.law, self.number, self.suffix, self.keys), tier=self.tier)
 
 
 def lookback(settings: GuardSettings) -> timedelta:
@@ -51,7 +52,7 @@ def _event(row: dict) -> Event:
         id=row['id'], at=row['created_at'], tool=row['tool'], law=row['requested_law'],
         number=row['requested_number'], suffix=row['requested_suffix'], outcome=row['outcome'],
         keys=keys_of(row['tool'], row['requested_law'], row['requested_number'], row['requested_suffix'], row['served']),
-        documents=row['documents'], candidates=frozenset(row['candidates']),
+        documents=row['documents'], candidates=frozenset(row['candidates']), tier=row['tier'],
     )
 
 

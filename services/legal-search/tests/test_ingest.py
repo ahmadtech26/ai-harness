@@ -200,11 +200,12 @@ async def test_ingest_verifies_an_article_whose_record_is_verified_for_the_text_
 
     assert matched.problems == []
     assert await _verification_columns(conn) == [VERIFIED_ROW, (2, None, None, None)]
-    served = format_articles([await db.get_article(conn, 'civil-code', 1, '')])
-    assert served.splitlines()[2] == (
-        '(المصدر: الجريدة الرسمية وديوان التشريع والرأي — متحقق منه: الجريدة الرسمية العدد 2645 ص 2، ديوان التشريع '
-        'والرأي معرّف التشريع 536 بصيغته في 1/10/2026، تاريخ التحقق 14/11/2026؛ بيانات النشر لم يُتحقق منها بعد)')
-    assert 'المصدر: نسخة المكتبة، غير رسمية — ' in format_articles([await db.get_article(conn, 'civil-code', 2, '')])
+    first, second = await db.get_article(conn, 'civil-code', 1, ''), await db.get_article(conn, 'civil-code', 2, '')
+    assert format_articles([first]).splitlines()[2] == (
+        f'(المصدر: الجريدة الرسمية وديوان التشريع والرأي؛ معرّف النص في المكتبة: {first.id} — متحقق منه: الجريدة '
+        'الرسمية العدد 2645 ص 2، ديوان التشريع والرأي معرّف التشريع 536 بصيغته في 1/10/2026، تاريخ التحقق 14/11/2026؛ '
+        'بيانات النشر لم يُتحقق منها بعد)')
+    assert f'المصدر: نسخة المكتبة، غير رسمية؛ معرّف النص في المكتبة: {second.id} — ' in format_articles([second])
 
 
 async def test_a_changed_text_or_a_removed_record_sets_the_columns_back_to_null(conn, tmp_path: Path):
@@ -239,6 +240,8 @@ ADDED = {
     'articles': [('verified_gazette', 'jsonb', None), ('verified_bureau', 'jsonb', None), ('provenance', 'text', '')],
     'laws': [('instrument', 'text', 'law')],
     'memorandum_notes': [('provenance', 'text', '')],
+    'retrieval_log': [('duration_ms', 'double precision', None), ('requested_limit', 'integer', None),
+                      ('engine', 'text', None), ('cap_bound', 'text', None), ('tier', 'text', None)],
 }
 _PREVIOUS_ROWS = [
     ("INSERT INTO laws (slug, title, number, year, gazette_issue, gazette_date, gazette_url, amendment_law, amendment_year, "

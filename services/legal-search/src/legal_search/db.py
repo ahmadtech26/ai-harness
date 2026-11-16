@@ -92,6 +92,14 @@ ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS requested_suffix TEXT;
 ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS outcome TEXT NOT NULL DEFAULT 'served'
   CHECK (outcome IN ('served', 'capped', 'throttled', 'suspended'));
 ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS candidate_ids BIGINT[] NOT NULL DEFAULT '{}';
+-- Plan 2026-11-14 S6 (FRP 2.6): the call's duration, the model's limit (search_law), the engine tag (search_config.tag),
+-- the cap that refused it (caps.Grant.bound), and its X-Iqraa-Tier (S4b), NULL for a call with none. All nullable, so
+-- an older image's INSERT, which names its own columns, still works.
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS duration_ms DOUBLE PRECISION;
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS requested_limit INT;
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS engine TEXT;
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS cap_bound TEXT;
+ALTER TABLE retrieval_log ADD COLUMN IF NOT EXISTS tier TEXT;
 -- Verification (owner's instructions 2026-11-14 §3): every ingest sets verified_at and the references the library shows
 -- from the article's record in content/corpus/verification/, or NULL (verification.match). verified_at is in the
 -- articles CREATE statement and in the live database already; the line is there for a database older than both.
@@ -388,19 +396,20 @@ def _found(row: dict) -> Found:
 
 
 async def search(conn: AsyncConnection, query: str, limit: int, law: str | None = None,
-                 config: SearchConfig = DEFAULT, *, strict: bool = False) -> list[Found]:
+                 config: SearchConfig = DEFAULT, *, strict: bool = False,
+                 exclude_ids: frozenset[int] = frozenset()) -> list[Found]:
     """Ranked keyword search, optionally within one law; ties break on number, law and suffix (deterministic).
     config.ranker picks the ranking: 'pg' is today's Postgres search (_pg_search), 'bm25' the in-process keyword
     engine (keyword_engine.search), whose results are these rows too, read back by id.
 
     `strict` is the evaluation mode (legal-search-eval passes True): the engine, which falls back to the Postgres
     search at runtime, never falls back under it (spec REQ-RAG-025). The Postgres search is not a fallback, so it
-    ignores it."""
+    ignores it. `exclude_ids` (plan S5b, skip_served): articles left out before the limit, on every path."""
     if config.ranker == 'bm25':
         from legal_search import keyword_engine  # here, not at the top: keyword_engine imports this module
 
-        return await keyword_engine.search(conn, query, limit, law, config, strict)
-    return await _pg_search(conn, query, limit, law, config)
+        return await keyword_engine.search(conn, query, limit, law, config, strict, exclude_ids)
+    return await _pg_search(conn, query, limit, law, config, exclude_ids)
 
 
 async def found_by_ids(conn: AsyncConnection, ids: list[int]) -> list[Found]:
@@ -414,8 +423,9 @@ async def found_by_ids(conn: AsyncConnection, ids: list[int]) -> list[Found]:
 
 
 async def _pg_search(conn: AsyncConnection, query: str, limit: int, law: str | None,
-                     config: SearchConfig) -> list[Found]:
-    """Today's search: ts_rank_cd over the stored tsvector (the 'pg' ranker, and the keyword engine's fallback)."""
+                     config: SearchConfig, exclude_ids: frozenset[int] = frozenset()) -> list[Found]:
+    """Today's search: ts_rank_cd over the stored tsvector (the 'pg' ranker, and the keyword engine's fallback),
+    without the articles in `exclude_ids`."""
     tsquery = build_tsquery(query, config)
     if tsquery is None or limit <= 0:
         return []
@@ -424,11 +434,11 @@ async def _pg_search(conn: AsyncConnection, query: str, limit: int, law: str | N
             _SELECT
             + """
             CROSS JOIN to_tsquery('simple', %s) q
-            WHERE a.tsv @@ q AND (%s::text IS NULL OR a.law_slug = %s)
+            WHERE a.tsv @@ q AND (%s::text IS NULL OR a.law_slug = %s) AND NOT (a.id = ANY(%s::bigint[]))
             ORDER BY ts_rank_cd(a.tsv, q, %s::int) DESC, a.number ASC, a.law_slug ASC, a.suffix ASC
             LIMIT %s
             """,
-            (tsquery, law, law, config.rank_normalization, limit),
+            (tsquery, law, law, sorted(exclude_ids), config.rank_normalization, limit),
         )
         return [_found(row) for row in await cur.fetchall()]
 
@@ -499,6 +509,12 @@ async def memorandum_page(conn: AsyncConnection, article_number: int, offset: in
     return [Note(*row) for row in await cur.fetchall()]
 
 
+# retrieval_log.requested_limit is an INT, and the model's limit is any whole number (search_law serves at most
+# max_results whatever it asks for): one beyond INT's range is logged at the nearest bound, never failing the call's
+# INSERT and with it the call (Codex round 1).
+INT_MIN, INT_MAX = -2**31, 2**31 - 1
+
+
 async def log_retrieval(
     conn: AsyncConnection,
     *,
@@ -514,18 +530,29 @@ async def log_retrieval(
     requested_suffix: str | None = None,
     outcome: str = 'served',
     candidate_ids: list[int] | None = None,
+    duration_ms: float | None = None,
+    requested_limit: int | None = None,
+    engine: str | None = None,
+    cap_bound: str | None = None,
+    tier: str | None = None,
 ) -> int:
     """One row per tool call, served or refused (the sweep detector's events); returns the row's id.
-    `candidate_ids`: the articles a search was decided on, when it served fewer of them (refused or trimmed)."""
+    `candidate_ids`: the articles a search was decided on, when it served fewer of them (refused or trimmed).
+    `duration_ms`, `requested_limit`, `engine`, `cap_bound`, `tier`: plan S6's columns (None where they do not apply);
+    `requested_limit` is kept within INT_MIN..INT_MAX."""
+    if requested_limit is not None:
+        requested_limit = max(INT_MIN, min(requested_limit, INT_MAX))
     cur = await conn.execute(
         """
         INSERT INTO retrieval_log (user_id, message_id, conversation_id, tool, query, article_ids, note_ids,
-          requested_law, requested_number, requested_suffix, outcome, candidate_ids)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+          requested_law, requested_number, requested_suffix, outcome, candidate_ids, duration_ms, requested_limit,
+          engine, cap_bound, tier)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         RETURNING id
         """,
         (user_id, message_id, conversation_id, tool, query, article_ids, note_ids or [], requested_law,
-         requested_number, requested_suffix, outcome, candidate_ids or []),
+         requested_number, requested_suffix, outcome, candidate_ids or [], duration_ms, requested_limit, engine,
+         cap_bound, tier),
     )
     return (await cur.fetchone())[0]
 
@@ -540,10 +567,14 @@ async def purge_user(conn: AsyncConnection, user_id: str) -> None:
 
 
 async def documents_for_message(conn: AsyncConnection, message_id: str) -> int:
-    """Articles plus memorandum notes already served for this answer."""
+    """Distinct articles plus distinct memorandum notes already served for this answer: a text served again costs no
+    slot of its allowance (owner 2026-11-14, plan S5a). documents_for_user_today still counts every serve."""
     cur = await conn.execute(
-        'SELECT COALESCE(SUM(cardinality(article_ids) + cardinality(note_ids)), 0) FROM retrieval_log WHERE message_id = %s',
-        (message_id,),
+        """
+        SELECT (SELECT count(DISTINCT a) FROM retrieval_log, unnest(article_ids) a WHERE message_id = %s)
+             + (SELECT count(DISTINCT n) FROM retrieval_log, unnest(note_ids) n WHERE message_id = %s)
+        """,
+        (message_id, message_id),
     )
     return int((await cur.fetchone())[0])
 

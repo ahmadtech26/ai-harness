@@ -21,6 +21,9 @@ ambiguous, so the snapshot raises ContractError naming the record instead.
   note count, read through db.memorandum_count and db.memorandum_page. The memorandum loader gives each article at
   most one note, so on its corpus that is get_memorandum(article)'s whole reply. A note linked to no article is
   served by no tool, so its text is empty (the record is the key line and an empty line).
+
+The served text holds each article's library id and each note's number (citation.py's retrieval id, plan S8), so the
+snapshot follows the database's article ids as well as its texts: the same texts under other ids give another file.
 """
 
 import argparse

@@ -395,3 +395,30 @@ async def test_a_word_only_in_the_stored_heading_finds_its_article_under_heading
     found = await db.search(conn, 'السفتجة', 5, config=with_overrides(BM25, ['heading_weight=1.0']), strict=True)
 
     assert [f.number for f in found] == [465]
+
+
+# Plan S5b: with up to 15 texts already served on an expert answer, the engine ranks deep enough to fill the limit, and
+# a raised allowance never turns a search into the depth refusal above: only `limit` alone is held to the pool.
+async def test_the_engine_fills_the_limit_after_excluding_served_ids(conn):
+    await db.upsert_articles(conn, [Article('labour', 'قانون العمل', n, '', f'يعاقب صاحب العمل في الحالة {n}.', 's', 'l.md')
+                                    for n in range(1, 21)])
+    ranked = await db.search(conn, 'يعاقب صاحب العمل', 20, config=BM25, strict=True)
+
+    rest = await db.search(conn, 'يعاقب صاحب العمل', 5, config=BM25, strict=True,
+                           exclude_ids=frozenset(f.id for f in ranked[:15]))
+
+    assert len(ranked) == 20 and [f.id for f in rest] == [f.id for f in ranked[15:]]
+
+
+async def test_exclusions_never_raise_the_depth_past_the_pool(conn):
+    served = await db.search(conn, 'العقد', 5, config=BM25, strict=True, exclude_ids=frozenset(range(1000, 1060)))
+
+    assert [f.number for f in served] == [108, 107]
+
+
+async def test_a_cold_engine_falls_back_to_postgres_with_the_exclusions(conn, alert_caplog):
+    first = (await db.search(conn, 'العقد', 1))[0]
+
+    served = await db.search(conn, 'العقد', 5, config=BM25, exclude_ids=frozenset({first.id}))  # cold cache: fallback
+
+    assert fallbacks(alert_caplog) == 1 and first.id not in [f.id for f in served] and served
