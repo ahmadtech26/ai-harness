@@ -275,6 +275,43 @@ def test_every_cap_reply_begins_with_CAP_PREFIX():
     assert tools.CAP_ANSWER.startswith(tools.CAP_PREFIX) and tools.CAP_DAILY.startswith(tools.CAP_PREFIX)
 
 
+# Plan S8: each article block's details line ends its parentheses with the library id of the row the tool read
+# (articles.id), each memorandum note's with its number (memorandum_notes has no id; note_no is the note's).
+SLUGS = {law.title: law.slug for law in LAWS}
+ARTICLE_IDS = re.compile(r'^\[\d+\] (.+?) — المادة (\d+)(?: (مكرر))?\n.*\n\(.*؛ معرّف النص في المكتبة: (\d+) — ', re.M)
+NOTE_IDS = re.compile(r'^\[ملاحظة (\d+)\].*\n.*\n\(المصدر: نسخة المكتبة، غير رسمية؛ معرّف النص في المكتبة: (\d+) — ', re.M)
+
+
+def _printed_article_ids(text: str) -> list[tuple[tuple[str, int, str], int]]:
+    """Each block's (law slug, number, suffix) and the library id its details line prints."""
+    return [((SLUGS[title], int(number), suffix), int(printed)) for title, number, suffix, printed in ARTICLE_IDS.findall(text)]
+
+
+async def test_search_law_and_get_article_print_the_library_id_of_each_row_they_served(conn):
+    await conn.execute('UPDATE articles SET id = id + 7000')  # ids apart from every number and block index
+    cur = await conn.execute('SELECT law_slug, number, suffix, id FROM articles')
+    stored = {(law, number, suffix): article_id for law, number, suffix, article_id in await cur.fetchall()}
+
+    searched = _printed_article_ids(await tools.search_law(conn, CAPS, CALLER, 'يعاقب', 5))
+    fetched = _printed_article_ids(await tools.get_article(conn, CAPS, CALLER, 153, 'مكرر', 'penal-code'))
+
+    assert sorted(key for key, _ in searched) == [('civil-code', 2, ''), ('penal-code', 153, 'مكرر'), ('penal-code', 154, '')]
+    assert all(printed == stored[key] for key, printed in searched)
+    assert fetched == [(('penal-code', 153, 'مكرر'), stored['penal-code', 153, 'مكرر'])]
+
+
+async def test_get_memorandum_prints_each_notes_number_as_its_library_id(conn):
+    # Note numbers apart from the notes' places on the page (1, 2), so an id taken from the place would show.
+    await db.replace_memorandum(conn, {41: 'شرح أول.', 96: 'شرح ثان.'}, [(1, 41), (1, 96)], 'example.test/memo')
+    cur = await conn.execute('SELECT note_no FROM memorandum_links WHERE article_number = 1 ORDER BY note_no')
+    stored = [row[0] for row in await cur.fetchall()]
+
+    printed = NOTE_IDS.findall(await tools.get_memorandum(conn, CAPS, CALLER, 1))
+
+    assert stored == [41, 96]
+    assert [(int(header), int(note_id)) for header, note_id in printed] == [(41, 41), (96, 96)]
+
+
 # FRP 2.3 / plan S3: every reply that went through a budget computation ends with the remaining-budget line, read after
 # the call's own log row. Replies are compared with format_articles(...), never literal article text (invariant 5).
 async def test_a_served_search_ends_with_the_budget_line_after_the_last_articles_details_line(conn):

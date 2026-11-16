@@ -125,7 +125,7 @@ async function libraryChecks(ctx) {
   const feesLabel = verified('court-fees', 1) ? '— متحقق منه: ' : `— ${UNVERIFIED_LABEL}`;
   const penalApproved = law('penal-code').review.status === 'approved';
   const sources = [fees, penal, majalla, memoOwn, memoRange, filtered, procedure]
-    .flatMap((text) => [...text.matchAll(/المصدر: (.*?) — /g)].map((m) => m[1]));
+    .flatMap((text) => [...text.matchAll(/المصدر: (.*?)(?:؛| — )/g)].map((m) => m[1]));
   return verdict({
     courtFeesArticle1: check(fees.includes('جدول رسوم المحاكم') && fees.includes('عن الدعوى أو الدعوى المتقابلة'), `tool result: ${fees.slice(0, 160)}`),
     unverifiedLabel: check(fees.includes(feesLabel), `court-fees 1 carries «${feesLabel}» (its record in content/corpus/verification)`),
