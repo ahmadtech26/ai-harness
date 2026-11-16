@@ -88,10 +88,18 @@ export function planTierAgents({ tiersDoc, contentDir, startersDoc, env = proces
   return [...tiersDoc.tiers]
     .sort((a, b) => a.order - b.order)
     .map((tier) => {
+      // A tier's own text (tiers.json instructionsSuffix, a path under contentDir) goes after the composed text, pinned
+      // skill included: every tier with a suffix shares the composed text as its prefix.
+      const suffix = tier.instructionsSuffix
+        ? fs.readFileSync(path.join(contentDir, tier.instructionsSuffix), 'utf8').replace(/\r\n/g, '\n')
+        : undefined;
+      const instructions = suffix
+        ? `${composed.instructions}${composed.instructions.endsWith('\n') ? '\n' : '\n\n'}${suffix}`
+        : composed.instructions;
       const body = {
         name: tier.label,
         description: tier.description,
-        instructions: composed.instructions,
+        instructions,
         provider: env.IQRAA_PROVIDER ?? tier.provider,
         model: env.IQRAA_MODEL ?? tier.model,
         model_parameters: spec.model_parameters,

@@ -19,7 +19,7 @@ import {
   wallet, mongoQuery, reconcile, compose, legalSearchHealthy, reservationsOf, usageEventsOf, callsFor,
   titleCallsFor, flakyFor, carries, costOf, check, verdict, countBy, answered,
   providerCalls, titlesAfter, turn, summarizeTurn, waitUntil, chatAndStop, proxyChecks,
-  summaryCallsFor, mcpCalls, legalSearchAlerts, sweepFlagCounts, specFor,
+  summaryCallsFor, mcpCalls, legalSearchAlerts, sweepFlagCounts, specFor, sourcesOf,
 } from './lib.mjs';
 import { composeSpecialist } from '../../content/compose.mjs';
 import { scenarioChatOnly } from './chatonly.mjs';
@@ -83,14 +83,27 @@ async function scenario2(ctx) {
   };
 }
 
+// The source lines legal-search prints (citation.py OFFICIAL_SOURCES, LIBRARY_COPY): never a copy site.
+const LIBRARY_SOURCES = ['الجريدة الرسمية وديوان التشريع والرأي', 'نسخة المكتبة، غير رسمية'];
+const UNVERIFIED_LABEL = 'لم يُتحقق بعد من مطابقته للنص المنشور في الجريدة الرسمية';
+const METADATA_LABEL = '؛ بيانات النشر لم يُتحقق منها بعد';
+
 /**
  * The library: court-fees (REQ-SKL-010) and corpus v1 (REQ-COR-002..005, 007). Expected citation text is
- * built from content/corpus/laws.json at run time, so the checks never assume a value the registry lacks.
+ * built from content/corpus/laws.json at run time, so the checks never assume a value the registry lacks; the
+ * expected verification label likewise from the article's record in content/corpus/verification/ (none: unverified),
+ * which the ingest reads from the same folder.
  */
 async function libraryChecks(ctx) {
   const c = await customer(ctx.staff, 'lib', { credits: 30 });
   const laws = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'corpus', 'laws.json'), 'utf8')).laws;
   const law = (slug) => laws.find((l) => l.slug === slug);
+  const verified = (slug, number, suffix = '') => {
+    const file = path.join(ROOT, 'content', 'corpus', 'verification', `${slug}.jsonl`);
+    if (!fs.existsSync(file)) return false;
+    const records = fs.readFileSync(file, 'utf8').split('\n').filter((line) => line.trim()).map((line) => JSON.parse(line));
+    return records.some((r) => r.number === number && r.suffix === suffix && r.result === 'verified');
+  };
   const toolText = (t) => (t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '');
   const heading = (l, label) => `${l.title}${l.number != null ? ` رقم ${l.number}` : ''}${l.year != null ? ` لسنة ${l.year}` : ''} — ${label}`;
   // When the tool did not run (no second model call), say so with the model's reply, so the failure is readable.
@@ -109,11 +122,16 @@ async function libraryChecks(ctx) {
   const procedure = await ask('lib-procedure', 'get_article:{"number":1,"law":"civil-procedure"}');
   const penalHeading = heading(law('penal-code'), 'المادة 153 مكرر');
   const resultLaws = [...filtered.matchAll(/\[\d+\] (.+?) (?:رقم \d+ )?(?:لسنة \d+ )?— المادة/g)].map((m) => m[1]);
+  const feesLabel = verified('court-fees', 1) ? '— متحقق منه: ' : `— ${UNVERIFIED_LABEL}`;
+  const penalApproved = law('penal-code').review.status === 'approved';
+  // sourcesOf stops at «؛» as well as « — »: the retrieval id follows the source (plan S8).
+  const sources = [fees, penal, majalla, memoOwn, memoRange, filtered, procedure].flatMap(sourcesOf);
   return verdict({
     courtFeesArticle1: check(fees.includes('جدول رسوم المحاكم') && fees.includes('عن الدعوى أو الدعوى المتقابلة'), `tool result: ${fees.slice(0, 160)}`),
-    unverifiedLabel: check(fees.includes('لم يُتحقق بعد'), 'result carries the unverified label'),
+    unverifiedLabel: check(fees.includes(feesLabel), `court-fees 1 carries «${feesLabel}» (its record in content/corpus/verification)`),
     penalCitationLine: check(penal.includes(penalHeading) && penal.includes('على الرغم مما ورد في أي قانون آخر'), `expected «${penalHeading}»; tool result: ${penal.slice(0, 220)}`),
-    publicationDataLabel: check(law('penal-code').review.status === 'approved' || penal.includes('بيانات النشر لم يُتحقق منها بعد'), 'unapproved registry metadata is labelled'),
+    publicationDataLabel: check(penal.includes(METADATA_LABEL) === !penalApproved, `penal-code is ${penalApproved ? 'approved: no' : 'not approved: the'} publication data label`),
+    sourceLinesNameNoSite: check(sources.length >= 7 && sources.every((source) => LIBRARY_SOURCES.includes(source)), `source lines: ${JSON.stringify([...new Set(sources)])}`),
     majallaNote: check(majalla.includes('مجلة الأحكام العدلية') && majalla.includes(law('majalla').note), `tool result: ${majalla.slice(0, 160)}`),
     // Links come from the memorandum's own headings: 107's own note is 74 (العربون); note 166 explains 214–238;
     // article 1 (the short title) has no note.
@@ -558,7 +576,9 @@ async function scenario11(ctx) {
 // ---------------------------------------------------------------- library sweep guard (Phase 3, spec C)
 
 const LIBRARY_SUSPENDED = 'تم إيقاف الوصول إلى المكتبة القانونية لهذا الحساب مؤقتًا. يُرجى التواصل مع الدعم.';
-const LIBRARY_CAP_REACHED = 'تم بلوغ الحد المسموح من النصوص لهذه الإجابة أو لهذا اليوم. يُرجى الاعتماد على ما سبق استرجاعه.';
+// legal-search's cap texts (tools.py, plan 2026-11-14 S2): both begin with the prefix; a throttled account gets the daily one.
+const LIBRARY_CAP_PREFIX = 'تم بلوغ الحد المسموح من النصوص';
+const LIBRARY_CAP_DAILY = `${LIBRARY_CAP_PREFIX} لهذا اليوم في هذا الحساب. لا تستدعِ أدوات المكتبة بعد الآن في هذه الإجابة؛ أجب بما استُرجع وحده، واذكر للمستخدم بموضوعها النقاط التي بقيت دون نص مسترجع، وأن حد اليوم قد بلغ.`;
 const GUARD_LAW = 'penal-code';
 const GUARD_STAFF_ROUTES = [
   ['GET', '/api/iqraa/admin/library/flags'],
@@ -585,7 +605,7 @@ const GUARD_STAFF_ROUTES = [
 async function scenarioGuard(ctx) {
   const { staff, agentId } = ctx;
   const library = (route, options = {}) => api(`/api/iqraa/admin/library${route}`, { token: staff.token, ...options });
-  const refused = (text) => text === LIBRARY_CAP_REACHED || text === LIBRARY_SUSPENDED;
+  const refused = (text) => (text ?? '').startsWith(LIBRARY_CAP_PREFIX) || text === LIBRARY_SUSPENDED;
   const servedArticle = (text, number) => new RegExp(`— المادة ${number}(?!\\d)`).test(text ?? '');
   const article = (number) => ({ tool: 'get_article', arguments: { number, law: GUARD_LAW } });
   const toolText = (t) => (t.calls[1] ? JSON.stringify(t.calls[1].messages.filter((m) => m.role === 'tool')) : '');
@@ -678,8 +698,8 @@ async function scenarioGuard(ctx) {
   const sweeperWould = wouldFlag.find((u) => u.user_id === sweeper.id);
   return {
     ...verdict({
-      suspectedAt12: check(walk.slice(0, 11).every((text, i) => servedArticle(text, i + 1)) && walk[11] === LIBRARY_CAP_REACHED, `articles 1–11 served ${walk.slice(0, 11).filter((text, i) => servedArticle(text, i + 1)).length}/11; article 12: ${walk[11]?.slice(0, 80)}`),
-      provenAt24: check(walk.slice(12, 23).every((text) => text === LIBRARY_CAP_REACHED) && walk.slice(23).every((text) => text === LIBRARY_SUSPENDED), `13–23 throttled ${walk.slice(12, 23).filter((text) => text === LIBRARY_CAP_REACHED).length}/11; 24–40 suspended ${walk.slice(23).filter((text) => text === LIBRARY_SUSPENDED).length}/17`),
+      suspectedAt12: check(walk.slice(0, 11).every((text, i) => servedArticle(text, i + 1)) && walk[11] === LIBRARY_CAP_DAILY, `articles 1–11 served ${walk.slice(0, 11).filter((text, i) => servedArticle(text, i + 1)).length}/11; article 12: ${walk[11]?.slice(0, 80)}`),
+      provenAt24: check(walk.slice(12, 23).every((text) => text === LIBRARY_CAP_DAILY) && walk.slice(23).every((text) => text === LIBRARY_SUSPENDED), `13–23 throttled ${walk.slice(12, 23).filter((text) => text === LIBRARY_CAP_DAILY).length}/11; 24–40 suspended ${walk.slice(23).filter((text) => text === LIBRARY_SUSPENDED).length}/17`),
       alertsInOrder: check(alerts.every((a) => a.level === 'error') && JSON.stringify(changes.map((a) => [a.event, a.flag_level])) === JSON.stringify([['sweep_flag_opened', 'suspected'], ['sweep_flag_escalated', 'proven']]) && JSON.stringify(emittedChanges) === JSON.stringify(['sweep_flag_opened', 'sweep_flag_escalated']) && refusalAlerts === 17, `changes ${JSON.stringify(changes.map((a) => `${a.event}@${a.log_id}`))}; emitted ${JSON.stringify(emittedChanges)}; sweep_refused ${refusalAlerts} (exactly 17: articles 25–40 plus the chat call; more means duplicated alert lines)`),
       staffSeeEvidence: check(flag?.level === 'proven' && opened.kind === 'run' && opened.law === GUARD_LAW && opened.first === 1 && opened.last === 12 && escalated.first === 13 && escalated.last === 24 && escalated.after_flag === true, `flag ${JSON.stringify({ level: flag?.level, opened, escalated }).slice(0, 300)}`),
       refusedThroughLibreChat: check(viaChat.calls.length === 2 && toolText(viaChat).includes(LIBRARY_SUSPENDED), `calls ${viaChat.calls.length}; tool result: ${toolText(viaChat).slice(0, 200)}`),

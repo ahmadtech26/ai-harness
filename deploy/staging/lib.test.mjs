@@ -11,7 +11,7 @@ globalThis.fetch = async (url, options = {}) => {
   }
   return new Response(JSON.stringify({ error: 'stop here' }), { status: 400 }); // ends the turn at its start
 };
-const { chat, specFor, COMPOSE } = await import('./lib.mjs');
+const { chat, specFor, sourcesOf, COMPOSE } = await import('./lib.mjs');
 const started = () => calls.filter((call) => call.url.endsWith('/api/agents/chat/agents')).at(-1).body;
 
 test('names the tier of a tier agent, from the startup config the client reads', async () => {
@@ -76,4 +76,19 @@ test('staging names the app Iqraa LAW AI, so the tab title, the code email and n
 
 test("staging drops the account menu's Help item, which otherwise opens librechat.ai (O-38)", () => {
   assert.equal(librechatEnvironment(COMPOSE).HELP_AND_FAQ_URL, '/');
+});
+
+// legal-search's source lines (citation.py details and format_memorandum), from the details form only: each value runs
+// to the «؛» after it or the « — » before the verification label. S8 puts the retrieval id after the source
+// («؛ معرّف النص في المكتبة: <id>»), so a value read up to « — » alone would carry the id and fail every source check.
+test('reads each source line of a library reply, up to the «؛» or « — » that ends it', () => {
+  const block = (head, source) => [head, 'نص', `(${source})`].join('\n');
+  const reply = [
+    block('[1] قانون العقوبات رقم 16 لسنة 1960 — المادة 1', 'المصدر: الجريدة الرسمية وديوان التشريع والرأي — متحقق منه'),
+    block('[2] قانون العقوبات رقم 16 لسنة 1960 — المادة 2', 'المصدر: نسخة المكتبة، غير رسمية؛ معرّف النص في المكتبة: 13991 — لم يُتحقق بعد'),
+    block('[ملاحظة 74] (تشرح المادة 107)', 'المصدر: jordan-lawyer.com؛ معرّف النص في المكتبة: 74 — لم يُتحقق بعد'),
+  ].join('\n\n');
+
+  assert.deepEqual(sourcesOf(reply), ['الجريدة الرسمية وديوان التشريع والرأي', 'نسخة المكتبة، غير رسمية', 'jordan-lawyer.com']);
+  assert.deepEqual(sourcesOf('لا توجد المادة 9999 من قانون العقوبات في المصادر المحملة'), []);
 });
