@@ -41,6 +41,11 @@ const EXPECTED_DENIED = [
   /^GET \/api\/mcp\/servers$/, // MCP servers
   /^GET \/api\/share\/link\//, // shared links
   /^GET \/api\/tags$/, // bookmarks
+  // LibreChat v0.8.9 asks for these on every chat screen. Presets: ChatRoute.tsx waits for them only when no model
+  // spec is the default, and the tiers always give one (iqraa-fast, every plan). Projects: the sidebar and the landing
+  // chip show nothing without data. A 403 is silent there (App.jsx's query cache acts on 401 only).
+  /^GET \/api\/presets$/,
+  /^GET \/api\/projects$/,
 ];
 /**
  * 404s the stock client causes on a conversation it has named but the server has not saved yet: during a first turn
@@ -244,8 +249,12 @@ const RENAMED_TITLE = 'محادثة مُعاد تسميتها';
       // The thumbs carry only a `title`, and `com_ui_feedback_positive` has no Arabic text: it reads "Love this" here.
       const up = await control('feedback (thumbs up)', [page.getByRole('button', { name: /love this/i }), page.locator('.agent-turn button[aria-haspopup="menu"][aria-pressed]')]);
       await up.click();
-      // The thumb only opens a list of reasons (Feedback.tsx); the rating is sent when one is chosen.
-      const reason = await control('feedback reason', [page.locator('.popover-animate button[aria-pressed]')]);
+      // The thumb only opens a list of reasons (Feedback.tsx); the rating is sent when one is chosen. Since LibreChat
+      // v0.8.9 the list is packages/chat's Feedback.tsx, on an `animate-composer-popover`.
+      const reason = await control('feedback reason', [
+        page.locator('.popover-animate button[aria-pressed]'),
+        page.locator('.animate-composer-popover button[aria-pressed]'),
+      ]);
       await answered('the feedback', 'PUT', /\/api\/messages\/[^/]+\/[^/]+\/feedback/, () => reason.click());
       await page.locator('.agent-turn button[aria-pressed="true"]').first().waitFor({ timeout: 15000 });
       return 'PUT .../feedback answered and the thumb shows as chosen';
