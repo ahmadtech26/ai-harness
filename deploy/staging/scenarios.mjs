@@ -15,7 +15,7 @@ import { spawnSync } from 'node:child_process';
 import {
   HERE, ROOT, OUT, BASE, RUN, PRICES, MODEL, sleep, nonce,
   api, waitForHealth, chat, newAccount, newPhone, signUp, staffAccount, enableApp, appCode, requestCode, verifyCode,
-  withSinkCode, newestSinkRow, sessionOf, AUTH, PLACEHOLDER_DOMAIN, grant, customer,
+  withSinkCode, newestSinkRow, sessionOf, cookieValue, AUTH, PLACEHOLDER_DOMAIN, grant, customer,
   wallet, mongoQuery, reconcile, compose, legalSearchHealthy, reservationsOf, usageEventsOf, callsFor,
   titleCallsFor, flakyFor, carries, costOf, check, verdict, countBy, answered,
   providerCalls, titlesAfter, turn, summarizeTurn, waitUntil, chatAndStop, proxyChecks,
@@ -736,6 +736,10 @@ async function scenarioAuth(ctx) {
 
   // 3. Sessions stay LibreChat's: the refresh cookie of a code sign-in gives a new token.
   const refreshed = await api('/api/auth/refresh', { method: 'POST', cookie: `refreshToken=${a.refreshToken}` });
+  // The refresh rotates the session's refresh token, as a browser keeps it: the app set-up below needs the live one
+  // since LibreChat v0.8.9 (enableApp).
+  const refreshCookieSet = Boolean(a.refreshToken);
+  a = { ...a, refreshToken: cookieValue(refreshed.cookies, 'refreshToken') ?? a.refreshToken };
 
   // 4. Hook L5: staff cannot give ADMIN to an account without the app (before it has one).
   const toAdmin = await api('/api/admin/roles/ADMIN/members', { token: staff.token, method: 'POST', body: { userId: a.id } });
@@ -802,7 +806,7 @@ async function scenarioAuth(ctx) {
     signUpByPhone: check(first.role === 'USER' && first.email === `${first.id}${PLACEHOLDER_DOMAIN}` && meAfterSignUp.json?.phone === first.phone && meAfterSignUp.json?.email === null && meAfterSignUp.json?.twoFactorEnabled === false, `role ${first.role}; email ${first.email}; me ${meAfterSignUp.text.slice(0, 120)}`),
     samePhoneSameAccount: check(again.sent.status === 200 && sameUser(repeat, first.id), `second sign-up ${said(repeat)}, user ${repeat.json?.user?.id ?? repeat.json?.user?._id} (first ${first.id})`),
     signInByWhatsAppCode: check(sameUser(byCode, first.id) && signin.row.channel === 'whatsapp' && signin.row.to === first.phone, `typed ${local}; sink row to ${signin.row.to} by ${signin.row.channel}; verify ${said(byCode)}`),
-    refreshFromCodeSignIn: check(Boolean(a.refreshToken) && refreshed.status === 200 && Boolean(refreshed.json?.token) && sameUser(refreshed, first.id), `refresh cookie ${a.refreshToken ? 'set' : 'missing'}; refresh ${refreshed.status}`),
+    refreshFromCodeSignIn: check(refreshCookieSet && refreshed.status === 200 && Boolean(refreshed.json?.token) && sameUser(refreshed, first.id), `refresh cookie ${refreshCookieSet ? 'set' : 'missing'}; refresh ${refreshed.status}`),
     staffRoleNeedsApp: check(toAdmin.status === 403 && toAdmin.json?.code === 'IQRAA_STAFF_NEEDS_APP', `POST /api/admin/roles/ADMIN/members: ${said(toAdmin)}`),
     staffRoleNeedsFreshCode: check(toAdminNoCode.status === 403 && toAdminNoCode.json?.code === 'IQRAA_STAFF_NEEDS_FRESH_APP', `POST /api/admin/roles/ADMIN/members with no appCode: ${said(toAdminNoCode)}`),
     staffRoleWithApp: check(toAdminWithApp.status === 200 && toAdminWithApp.json?.success === true && fromAdmin.status === 200, `POST /api/admin/roles/ADMIN/members for an account with the app: ${said(toAdminWithApp)}; role taken back (DELETE …/members/<id>): ${said(fromAdmin)}`),
