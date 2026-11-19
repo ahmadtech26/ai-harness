@@ -1,0 +1,32 @@
+{
+  "id": "complaint-criminal",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "لائحة شكوى جزائية",
+  "source": { "file": "source.pdf", "page": 16 },
+  "groups": [
+    { "id": "complainant", "label": "المشتكي" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "accused", "label": "المشتكى عليه" },
+    { "id": "accused_second", "label": "مشتكى عليه ثان (إن وجد)" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 35 },
+    { "id": "complainant_name", "group": "complainant", "label": "اسم المشتكي", "type": "text", "required": true, "max": 35 },
+    { "id": "complainant_national_no", "group": "complainant", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "complainant_address", "group": "complainant", "label": "العنوان", "type": "text", "required": false, "max": 45 },
+    { "id": "complainant_phone", "group": "complainant", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "accused_1_name", "group": "accused", "label": "اسم المشتكى عليه", "type": "text", "required": true, "max": 40 },
+    { "id": "accused_1_address", "group": "accused", "label": "عنوان المشتكى عليه", "type": "text", "required": false, "max": 40 },
+    { "id": "accused_2_name", "group": "accused_second", "label": "اسم المشتكى عليه الثاني", "type": "text", "required": false, "max": 40 },
+    { "id": "accused_2_address", "group": "accused_second", "label": "عنوان المشتكى عليه الثاني", "type": "text", "required": false, "max": 40 },
+    { "id": "subject", "label": "الموضوع", "type": "text", "required": true, "max": 80 },
+    { "id": "facts", "label": "الوقائع", "type": "paragraph", "required": true, "max": 500 }
+  ],
+  "blank": ["signature", "dates"],
+  "reviewFlags": []
+}

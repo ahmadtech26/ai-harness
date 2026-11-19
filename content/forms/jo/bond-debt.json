@@ -1,0 +1,28 @@
+{
+  "id": "bond-debt",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "سند دين",
+  "source": { "file": "source.pdf", "page": 3 },
+  "groups": [
+    { "id": "debt", "label": "الدين" },
+    { "id": "debtor", "label": "المدين" }
+  ],
+  "fields": [
+    { "id": "notary_court", "label": "دائرة الكاتب العدل لدى محكمة", "type": "text", "required": true, "max": 30 },
+    { "id": "debtor_name", "group": "debtor", "label": "اسم المدين", "type": "text", "required": true, "max": 40 },
+    { "id": "amount", "group": "debt", "label": "المبلغ وقدره", "type": "text", "required": true, "max": 32 },
+    { "id": "creditor", "group": "debt", "label": "الدائن", "type": "text", "required": true, "max": 40 },
+    { "id": "cause", "group": "debt", "label": "سبب الدين", "type": "text", "required": true, "max": 42 },
+    { "id": "due_period", "group": "debt", "label": "يدفع غب مرور", "type": "text", "required": true, "max": 18 },
+    { "id": "debtor_national_no", "group": "debtor", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "debtor_address", "group": "debtor", "label": "العنوان", "type": "text", "required": false, "max": 38 },
+    { "id": "debtor_phone", "group": "debtor", "label": "الهاتف", "type": "phone", "required": false }
+  ],
+  "blank": ["notary", "dates", "signature"],
+  "reviewFlags": [
+    "Executed before a notary (الكاتب العدل): the notary's paragraph, the dates and the signature are completed at the notary."
+  ]
+}

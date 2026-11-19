@@ -1,0 +1,27 @@
+{
+  "id": "poa-general",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "وكالة عامة",
+  "source": { "file": "source.pdf", "page": 21 },
+  "groups": [
+    { "id": "principal", "label": "الموكل (أنا الموقع أدناه)" },
+    { "id": "agent", "label": "الوكيل" }
+  ],
+  "fields": [
+    { "id": "principal_name", "group": "principal", "label": "الإسم", "type": "text", "required": true, "max": 100 },
+    { "id": "principal_national_no", "group": "principal", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "principal_address", "group": "principal", "label": "العنوان", "type": "text", "required": false, "max": 45 },
+    { "id": "principal_phone", "group": "principal", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل (السيد)", "type": "text", "required": true, "max": 35 },
+    { "id": "agent_national_no", "group": "agent", "label": "الرقم الوطني للوكيل", "type": "national-number", "required": false },
+    { "id": "property_location", "label": "مكان الأموال (الكائنة في...)", "type": "text", "required": true, "max": 60 },
+    { "id": "date", "label": "تاريخ تحرير الوكالة", "type": "date", "required": false }
+  ],
+  "blank": [],
+  "reviewFlags": [
+    "The exclusion clause («ويستثنى من أحكام هذه الوكالة البيع والرهن في الضفة الغربية من المملكة الأردنية الهاشمية والأراضي المحتلة منذ عام ١٩٤٨ وتوكيل الغير في بيع أو رهن الأموال غير المنقولة»): the lawyer confirms it is still current."
+  ]
+}

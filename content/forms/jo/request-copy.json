@@ -1,0 +1,30 @@
+{
+  "id": "request-copy",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "طلب تصوير",
+  "source": { "file": "source.pdf", "page": 9 },
+  "groups": [
+    { "id": "applicant", "label": "المستدعي" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "case", "label": "الدعوى" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 25 },
+    { "id": "applicant_name", "group": "applicant", "label": "اسم المستدعي", "type": "text", "required": true, "max": 32 },
+    { "id": "applicant_national_no", "group": "applicant", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 32 },
+    { "id": "agent_national_no", "group": "agent", "label": "الرقم الوطني للوكيل", "type": "national-number", "required": false },
+    { "id": "copy_of", "group": "case", "label": "صورة عن", "type": "text", "required": true, "max": 47 },
+    { "id": "case_number", "group": "case", "label": "رقم الدعوى", "type": "text", "required": true, "max": 20 },
+    { "id": "case_status", "group": "case", "label": "حال الدعوى", "type": "choice", "required": true, "options": ["المنظورة", "المفصولة"] },
+    { "id": "judge", "group": "case", "label": "هيئة القاضي (إن كانت منظورة)", "type": "text", "required": false, "max": 18 },
+    { "id": "next_session", "group": "case", "label": "موعد الجلسة القادمة (إن كانت منظورة)", "type": "date", "required": false },
+    { "id": "decided_on", "group": "case", "label": "تاريخ الفصل (إن كانت مفصولة)", "type": "date", "required": false },
+    { "id": "reasons", "label": "الأسباب", "type": "list", "required": true, "maxItems": 6, "itemMax": 80 }
+  ],
+  "blank": ["signature", "dates"],
+  "reviewFlags": []
+}

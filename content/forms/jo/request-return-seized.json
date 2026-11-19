@@ -1,0 +1,21 @@
+{
+  "id": "request-return-seized",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "طلب إعادة مضبوطات",
+  "source": { "file": "source.pdf", "page": 11 },
+  "groups": [
+    { "id": "applicant", "label": "المستدعي" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 25 },
+    { "id": "applicant_name", "group": "applicant", "label": "اسم المستدعي", "type": "text", "required": true, "max": 32 },
+    { "id": "applicant_national_no", "group": "applicant", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "case_number", "label": "رقم القضية", "type": "text", "required": true, "max": 20 },
+    { "id": "seized_items", "label": "المضبوطات", "type": "list", "required": true, "maxItems": 6, "itemMax": 80 }
+  ],
+  "blank": ["signature", "dates"],
+  "reviewFlags": []
+}

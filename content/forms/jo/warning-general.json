@@ -1,0 +1,32 @@
+{
+  "id": "warning-general",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "إنذار عدلي",
+  "source": { "file": "source.pdf", "page": 13 },
+  "groups": [
+    { "id": "warner", "label": "المنذر" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "warned", "label": "المنذر إليه" },
+    { "id": "warning", "label": "الإنذار" }
+  ],
+  "fields": [
+    { "id": "notary_court", "label": "محكمة الكاتب العدل", "type": "text", "required": true, "max": 40 },
+    { "id": "warner_name", "group": "warner", "label": "اسم المنذر", "type": "text", "required": true, "max": 40 },
+    { "id": "warner_national_no", "group": "warner", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "warner_address", "group": "warner", "label": "العنوان", "type": "text", "required": false, "max": 45 },
+    { "id": "warner_phone", "group": "warner", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "agent_phone", "group": "agent", "label": "هاتف الوكيل", "type": "phone", "required": false },
+    { "id": "warned_name", "group": "warned", "label": "اسم المنذر إليه", "type": "text", "required": true, "max": 40 },
+    { "id": "warned_address", "group": "warned", "label": "عنوان المنذر إليه", "type": "text", "required": true, "max": 40 },
+    { "id": "facts", "group": "warning", "label": "الوقائع", "type": "paragraph", "required": true, "max": 800 },
+    { "id": "demand", "group": "warning", "label": "المطلوب ومهلته (لذا أنذركم بـ...)", "type": "text", "required": true, "max": 45 },
+    { "id": "action", "group": "warning", "label": "الإجراء الذي سيتخذ (ومنها إقامة...)", "type": "text", "required": true, "max": 55 }
+  ],
+  "blank": ["signature"],
+  "reviewFlags": []
+}

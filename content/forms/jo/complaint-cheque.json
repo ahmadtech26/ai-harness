@@ -1,0 +1,32 @@
+{
+  "id": "complaint-cheque",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "لائحة شكوى (شيك)",
+  "source": { "file": "source.pdf", "page": 15 },
+  "groups": [
+    { "id": "complainant", "label": "المشتكي" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "accused", "label": "المشتكى عليه" },
+    { "id": "facts", "label": "الوقائع" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 35 },
+    { "id": "complainant_name", "group": "complainant", "label": "اسم المشتكي", "type": "text", "required": true, "max": 35 },
+    { "id": "complainant_national_no", "group": "complainant", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "complainant_address", "group": "complainant", "label": "العنوان", "type": "text", "required": false, "max": 45 },
+    { "id": "complainant_phone", "group": "complainant", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "accused_name", "group": "accused", "label": "اسم المشتكى عليه", "type": "text", "required": true, "max": 40 },
+    { "id": "accused_address", "group": "accused", "label": "عنوان المشتكى عليه", "type": "text", "required": false, "max": 40 },
+    { "id": "fact_1", "group": "facts", "label": "الواقعة الأولى", "type": "paragraph", "required": true, "max": 270 },
+    { "id": "fact_2", "group": "facts", "label": "الواقعة الثانية", "type": "paragraph", "required": false, "max": 270 }
+  ],
+  "blank": ["signature", "dates"],
+  "reviewFlags": [
+    "The subject line cites Article 421 of the Penal Code («إصدار شيك بدون رصيد خلافاً لأحكام المادة رقم (٤٢١) من قانون العقوبات»): the lawyer confirms the article number and that a cheque complaint on this form still applies."
+  ]
+}

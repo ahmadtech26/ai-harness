@@ -1,0 +1,25 @@
+{
+  "id": "poa-special",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "وكالة خاصة",
+  "source": { "file": "source.pdf", "page": 20 },
+  "groups": [
+    { "id": "principal", "label": "الموكل (أنا الموقع أدناه)" },
+    { "id": "agent", "label": "الوكيل" }
+  ],
+  "fields": [
+    { "id": "principal_name", "group": "principal", "label": "الإسم", "type": "text", "required": true, "max": 100 },
+    { "id": "principal_national_no", "group": "principal", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "principal_address", "group": "principal", "label": "العنوان", "type": "text", "required": false, "max": 45 },
+    { "id": "principal_phone", "group": "principal", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل (السيد)", "type": "text", "required": true, "max": 35 },
+    { "id": "agent_national_no", "group": "agent", "label": "الرقم الوطني للوكيل", "type": "national-number", "required": false },
+    { "id": "powers", "label": "ما يوكل به (لينوب عني في...)", "type": "paragraph", "required": true, "max": 750 },
+    { "id": "date", "label": "تاريخ تحرير الوكالة", "type": "date", "required": false }
+  ],
+  "blank": [],
+  "reviewFlags": []
+}

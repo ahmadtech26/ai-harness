@@ -1,0 +1,28 @@
+{
+  "id": "bond-bail-direct",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "سند كفالة نظم مباشرة",
+  "source": { "file": "source.pdf", "page": 18 },
+  "groups": [
+    { "id": "release", "label": "إخلاء السبيل" },
+    { "id": "guarantor", "label": "الكفيل" }
+  ],
+  "fields": [
+    { "id": "notary_court", "label": "محكمة الكاتب العدل", "type": "text", "required": true, "max": 40 },
+    { "id": "released_name", "group": "release", "label": "اسم المخلى سبيله", "type": "text", "required": true, "max": 40 },
+    { "id": "case_number", "group": "release", "label": "رقم القضية", "type": "text", "required": true, "max": 15 },
+    { "id": "case_court", "group": "release", "label": "الجهة التي لديها القضية (لدى...)", "type": "text", "required": true, "max": 35 },
+    { "id": "amount", "group": "release", "label": "قيمة الكفالة (دينار)", "type": "amount", "required": true },
+    { "id": "guarantor_name", "group": "guarantor", "label": "اسم الكفيل", "type": "text", "required": true, "max": 35 },
+    { "id": "guarantor_national_no", "group": "guarantor", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "guarantor_address", "group": "guarantor", "label": "العنوان", "type": "text", "required": false, "max": 35 },
+    { "id": "guarantor_phone", "group": "guarantor", "label": "الهاتف", "type": "phone", "required": false }
+  ],
+  "blank": ["notary", "dates", "signature"],
+  "reviewFlags": [
+    "Executed before a notary (الكاتب العدل): the notary writes the hijri and gregorian dates and the sentence «حضر لدي أنا الكاتب العدل في محكمة ... السيد ...», which print as dotted lines."
+  ]
+}

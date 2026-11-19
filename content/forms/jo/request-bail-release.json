@@ -1,0 +1,23 @@
+{
+  "id": "request-bail-release",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "طلب إخلاء سبيل بالكفالة",
+  "source": { "file": "source.pdf", "page": 8 },
+  "groups": [
+    { "id": "parties", "label": "الموقوف والمستدعي" },
+    { "id": "case", "label": "القضية" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 25 },
+    { "id": "detainee_name", "group": "parties", "label": "اسم الموقوف", "type": "text", "required": true, "max": 42 },
+    { "id": "applicant_name", "group": "parties", "label": "اسم المستدعي", "type": "text", "required": true, "max": 42 },
+    { "id": "case_number", "group": "case", "label": "رقم القضية", "type": "text", "required": true, "max": 25 },
+    { "id": "subject", "group": "case", "label": "موضوع القضية", "type": "text", "required": true, "max": 58 },
+    { "id": "reasons", "label": "الأسباب", "type": "list", "required": true, "maxItems": 6, "itemMax": 80 }
+  ],
+  "blank": ["signature", "dates"],
+  "reviewFlags": []
+}

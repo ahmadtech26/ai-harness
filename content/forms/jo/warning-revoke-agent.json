@@ -1,0 +1,34 @@
+{
+  "id": "warning-revoke-agent",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "إنذار عدلي لعزل وكيل",
+  "source": { "file": "source.pdf", "page": 14 },
+  "groups": [
+    { "id": "warner", "label": "المنذر" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "warned", "label": "المنذر إليه (الوكيل المعزول)" },
+    { "id": "poa", "label": "الوكالة الملغاة" }
+  ],
+  "fields": [
+    { "id": "notary_court", "label": "محكمة الكاتب العدل", "type": "text", "required": true, "max": 50 },
+    { "id": "warner_name", "group": "warner", "label": "اسم المنذر", "type": "text", "required": true, "max": 40 },
+    { "id": "warner_national_no", "group": "warner", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "warner_address", "group": "warner", "label": "العنوان", "type": "text", "required": false, "max": 45 },
+    { "id": "warner_phone", "group": "warner", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 40 },
+    { "id": "agent_phone", "group": "agent", "label": "هاتف الوكيل", "type": "phone", "required": false },
+    { "id": "warned_name", "group": "warned", "label": "اسم المنذر إليه", "type": "text", "required": true, "max": 40 },
+    { "id": "warned_address", "group": "warned", "label": "عنوان المنذر إليه", "type": "text", "required": true, "max": 40 },
+    { "id": "poa_date", "group": "poa", "label": "تاريخ التوكيل", "type": "date", "required": true },
+    { "id": "poa_type", "group": "poa", "label": "نوع الوكالة (عامة، خاصة...)", "type": "text", "required": true, "max": 25 },
+    { "id": "poa_number", "group": "poa", "label": "رقم الوكالة", "type": "text", "required": true, "max": 15 },
+    { "id": "poa_court", "group": "poa", "label": "محكمة الكاتب العدل التي صدرت عنها الوكالة", "type": "text", "required": true, "max": 30 },
+    { "id": "poa_issue_date", "group": "poa", "label": "تاريخ صدور الوكالة", "type": "date", "required": true }
+  ],
+  "blank": ["signature"],
+  "reviewFlags": []
+}

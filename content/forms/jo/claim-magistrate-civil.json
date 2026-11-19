@@ -1,0 +1,37 @@
+{
+  "id": "claim-magistrate-civil",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "لائحة دعوى صلحية حقوقية",
+  "source": { "file": "source.pdf", "page": 4 },
+  "groups": [
+    { "id": "plaintiff", "label": "المدعي" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "defendants", "label": "المدعى عليه / عليهم" },
+    { "id": "claim", "label": "الدعوى" }
+  ],
+  "fields": [
+    { "id": "court", "label": "محكمة صلح حقوق", "type": "text", "required": true, "max": 25 },
+    { "id": "plaintiff_name", "group": "plaintiff", "label": "اسم المدعي", "type": "text", "required": true, "max": 36 },
+    { "id": "plaintiff_national_no", "group": "plaintiff", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "plaintiff_address", "group": "plaintiff", "label": "العنوان", "type": "text", "required": false, "max": 75 },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 30 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 34 },
+    { "id": "defendant_1_name", "group": "defendants", "label": "المدعى عليه الأول: الاسم", "type": "text", "required": true, "max": 38 },
+    { "id": "defendant_1_address", "group": "defendants", "label": "المدعى عليه الأول: العنوان", "type": "text", "required": false, "max": 38 },
+    { "id": "defendant_2_name", "group": "defendants", "label": "المدعى عليه الثاني: الاسم", "type": "text", "required": false, "max": 38 },
+    { "id": "defendant_2_address", "group": "defendants", "label": "المدعى عليه الثاني: العنوان", "type": "text", "required": false, "max": 38 },
+    { "id": "defendant_3_name", "group": "defendants", "label": "المدعى عليه الثالث: الاسم", "type": "text", "required": false, "max": 38 },
+    { "id": "defendant_3_address", "group": "defendants", "label": "المدعى عليه الثالث: العنوان", "type": "text", "required": false, "max": 38 },
+    { "id": "defendant_4_name", "group": "defendants", "label": "المدعى عليه الرابع: الاسم", "type": "text", "required": false, "max": 38 },
+    { "id": "defendant_4_address", "group": "defendants", "label": "المدعى عليه الرابع: العنوان", "type": "text", "required": false, "max": 38 },
+    { "id": "subject", "group": "claim", "label": "موضوع الدعوى", "type": "text", "required": true, "max": 72 },
+    { "id": "claim_value", "group": "claim", "label": "قيمة الدعوى", "type": "text", "required": true, "max": 60 },
+    { "id": "facts", "group": "claim", "label": "وقائع الدعوى", "type": "paragraph", "required": true, "max": 700 },
+    { "id": "request_extra", "group": "claim", "label": "الطلب: مع الرسوم والمصاريف و…", "type": "text", "required": false, "max": 17 }
+  ],
+  "blank": ["signature", "dates", "court-box"],
+  "reviewFlags": []
+}

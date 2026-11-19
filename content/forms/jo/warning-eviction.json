@@ -1,0 +1,36 @@
+{
+  "id": "warning-eviction",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "إنذار عدلي خاص بإخلاء مأجور",
+  "source": { "file": "source.pdf", "page": 12 },
+  "groups": [
+    { "id": "warner", "label": "المنذر" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "warned", "label": "المنذر إليه" },
+    { "id": "facts", "label": "الوقائع" }
+  ],
+  "fields": [
+    { "id": "notary_court", "label": "الكاتب العدل لدى محكمة", "type": "text", "required": true, "max": 30 },
+    { "id": "warner_name", "group": "warner", "label": "اسم المنذر", "type": "text", "required": true, "max": 34 },
+    { "id": "warner_national_no", "group": "warner", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "warner_address", "group": "warner", "label": "العنوان", "type": "text", "required": false, "max": 38 },
+    { "id": "warner_phone", "group": "warner", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 26 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 38 },
+    { "id": "agent_phone", "group": "agent", "label": "هاتف الوكيل", "type": "phone", "required": false },
+    { "id": "warned_name", "group": "warned", "label": "اسم المنذر إليه", "type": "text", "required": true, "max": 32 },
+    { "id": "warned_address", "group": "warned", "label": "عنوان المنذر إليه", "type": "text", "required": true, "max": 32 },
+    { "id": "property_location", "group": "facts", "label": "العقار المأجور: والكائن في", "type": "text", "required": true, "max": 52 },
+    { "id": "rent", "group": "facts", "label": "بأجرة", "type": "text", "required": true, "max": 20 },
+    { "id": "unpaid_period", "group": "facts", "label": "تخلف عن دفع أجرة (المدة)", "type": "text", "required": true, "max": 18 },
+    { "id": "unpaid_amount", "group": "facts", "label": "والبالغة (دينار)", "type": "amount", "required": true },
+    { "id": "total_amount", "group": "facts", "label": "المبلغ المترصد بذمته بدل أجور (دينار)", "type": "amount", "required": true },
+    { "id": "point_4", "group": "facts", "label": "البند الرابع (اختياري)", "type": "paragraph", "required": false, "max": 160 },
+    { "id": "deadline", "label": "مهلة الدفع: وذلك خلال", "type": "text", "required": true, "max": 16 }
+  ],
+  "blank": ["signature"],
+  "reviewFlags": []
+}

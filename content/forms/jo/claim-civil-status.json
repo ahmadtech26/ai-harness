@@ -1,0 +1,29 @@
+{
+  "id": "claim-civil-status",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "لائحة دعوى أحوال مدنية",
+  "source": { "file": "source.pdf", "page": 5 },
+  "groups": [
+    { "id": "plaintiff", "label": "المدعي" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "claim", "label": "الدعوى" }
+  ],
+  "fields": [
+    { "id": "court", "label": "محكمة صلح حقوق", "type": "text", "required": true, "max": 25 },
+    { "id": "plaintiff_name", "group": "plaintiff", "label": "اسم المدعي", "type": "text", "required": true, "max": 36 },
+    { "id": "plaintiff_national_no", "group": "plaintiff", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "plaintiff_address", "group": "plaintiff", "label": "العنوان", "type": "text", "required": false, "max": 75 },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 30 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 34 },
+    { "id": "defendant_3", "group": "claim", "label": "المدعى عليه الثالث (إن وجد)", "type": "text", "required": false, "max": 45 },
+    { "id": "subject", "group": "claim", "label": "موضوع الدعوى", "type": "paragraph", "required": true, "max": 240 },
+    { "id": "facts", "group": "claim", "label": "وقائع الدعوى", "type": "paragraph", "required": true, "max": 560 },
+    { "id": "requested_judgment", "group": "claim", "label": "الحكم بإلزام المدعى عليه/ عليهم بـ", "type": "text", "required": true, "max": 80 },
+    { "id": "request_extra", "group": "claim", "label": "الطلب: الرسوم والمصاريف و…", "type": "text", "required": false, "max": 20 }
+  ],
+  "blank": ["signature", "dates", "court-box"],
+  "reviewFlags": []
+}
