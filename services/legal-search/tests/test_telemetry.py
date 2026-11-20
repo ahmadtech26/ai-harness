@@ -29,6 +29,46 @@ def test_user_days_are_asia_amman_calendar_days():
         ('2026-10-20', 1, 1, 0), ('2026-10-21', 1, 1, 1)]
 
 
+# Plan S4b: a call is capped at its own tier's daily cap, so a cap hit is counted against that cap (Codex round 1: every
+# tier was counted against the base 300). Any other tier, and none, has the base cap.
+DAILY_PER_TIER = replace(SETTINGS, daily_advanced=400, daily_expert=600)
+
+
+def _served(at, documents, tier):
+    """A search_law call that served `documents` texts under `tier`."""
+    return Event(id=None, at=at, tool='search_law', outcome='served', documents=documents, tier=tier)
+
+
+@pytest.mark.parametrize(('tier', 'hits'), [('iqraa-fast', [1, 0]), ('iqraa-advanced', [0, 1]), ('iqraa-expert', [0, 1]),
+                                            ('iqraa-other', [1, 0]), (None, [1, 0])])
+def test_a_cap_hit_is_counted_against_the_daily_cap_of_the_calls_tier(tier, hits):
+    # 300 texts on the 20th (11:00 in Amman), 300 more on the 21st (07:00), inside the rolling 24 h: 600 in all.
+    events = [_served(T0, 300, tier), _served(T0 + timedelta(hours=20), 300, tier)]
+
+    days = user_days(events, DAILY_PER_TIER)
+
+    assert [(d['day'], d['cap_hits']) for d in days] == [('2026-10-20', hits[0]), ('2026-10-21', hits[1])]
+
+
+@pytest.mark.parametrize(('tier', 'hits'), [('iqraa-advanced', [0, 1]), ('iqraa-expert', [0, 0])])
+def test_a_rolling_total_between_the_advanced_and_expert_caps_is_a_hit_on_advanced_only(tier, hits):
+    # 450 in all: past the advanced 400, short of the expert 600 (round 2 review: 300 + 300 crossed both at once).
+    events = [_served(T0, 300, tier), _served(T0 + timedelta(hours=20), 150, tier)]
+
+    days = user_days(events, DAILY_PER_TIER)
+
+    assert [(d['day'], d['cap_hits']) for d in days] == [('2026-10-20', hits[0]), ('2026-10-21', hits[1])]
+
+
+def test_a_user_on_two_tiers_hits_each_cap_on_its_own_tiers_call():
+    # The fast call reaches the fast 300, then an expert call reaches the expert 600: two hits, not the expert one alone.
+    events = [_served(T0, 300, 'iqraa-fast'), _served(T0 + MINUTE, 300, 'iqraa-expert')]
+
+    days = user_days(events, DAILY_PER_TIER)
+
+    assert [d['cap_hits'] for d in days] == [2]
+
+
 def test_telemetry_reports_per_user_day_distributions_users_and_open_flags():
     sweeper = walk([*range(1, 23, 2), 24])  # eleven articles two apart (run_gap), then a jump of three: a run of 11
     reader = [
@@ -145,6 +185,32 @@ def _users():
               for i in range(70)],
         ],
         'bulk': [search(1 + i, T0 + i * MINUTE, {f'commerce|{i * 5 + n}|' for n in range(1, 6)}) for i in range(160)],
+        # Plan S4b: the 7-day alarm and the cap days take the highest tier logged in the window.
+        'expert-reader': [search(1 + i, T0 + i * MINUTE, {f'commerce|{i * 5 + n}|' for n in range(1, 6)}, tier='iqraa-expert')
+                          for i in range(70)],  # 350 distinct: under the expert alarm when it is raised
+        'tier-falls-back': [  # the expert call leaves the window: the last call, one new article, meets the fast alarm
+            search(1, T0, {'commerce|9999|'}, tier='iqraa-expert'),
+            *[search(2 + i, T0 + (i + 1) * MINUTE, {f'commerce|{i * 5 + n}|' for n in range(1, 6)}) for i in range(70)],
+            search(72, T0 + timedelta(days=7, minutes=1), {'commerce|8888|'}),
+        ],
+        'expert-capper': [  # 400 a day on two days: the expert cap is not reached, the fast one is
+            Event(id=1, at=day.replace(day=15, hour=19), tool='search_law', outcome='served', documents=400, tier='iqraa-expert'),
+            Event(id=2, at=day.replace(day=16, hour=19, minute=30), tool='search_law', outcome='served', documents=400,
+                  tier='iqraa-expert'),
+            Event(id=3, at=day.replace(day=17, hour=8), tool='search_law', outcome='capped', tier='iqraa-expert'),
+        ],
+        'advanced-capper': [  # 450 a day on two days: the advanced cap is reached too
+            Event(id=1, at=day.replace(day=15, hour=19), tool='search_law', outcome='served', documents=450, tier='iqraa-advanced'),
+            Event(id=2, at=day.replace(day=16, hour=19, minute=30), tool='search_law', outcome='served', documents=450,
+                  tier='iqraa-advanced'),
+            Event(id=3, at=day.replace(day=17, hour=8), tool='search_law', outcome='capped', tier='iqraa-advanced'),
+        ],
+        'capper-falls-back': [  # the expert call leaves the window after the two fast cap days: then they count
+            Event(id=1, at=day.replace(day=13, hour=0, minute=30), tool='search_law', outcome='served', tier='iqraa-expert'),
+            Event(id=2, at=day.replace(day=14, hour=20), tool='search_law', outcome='served', documents=300),
+            Event(id=3, at=day.replace(day=15, hour=20, minute=30), tool='search_law', outcome='served', documents=300),
+            Event(id=4, at=day.replace(day=20, hour=1), tool='search_law', outcome='served', documents=1),
+        ],
         'refused-searcher': [  # a refused search is decided on its candidates; they count for that call only
             *[search(1 + i, T0 + i * MINUTE, {f'commerce|{i * 5 + n}|' for n in range(1, 6)}) for i in range(59)],
             Event(id=60, at=T0 + 59 * MINUTE, tool='search_law', outcome='throttled',
@@ -161,7 +227,11 @@ TIGHT = GuardSettings(suspected_run=4, proven_run=8, run_gap=1, run_window_hours
                       proven_distinct_7d=100, suspected_cap_days=2, throttle_daily_cap=5, daily=20)
 
 
-@pytest.mark.parametrize('settings', [SETTINGS, BOUNDARIES, TIGHT], ids=['defaults', 'boundaries', 'tight'])
+TIERS = replace(SETTINGS, daily_advanced=400, daily_expert=600, suspected_distinct_7d_advanced=400,
+                suspected_distinct_7d_expert=600)
+
+
+@pytest.mark.parametrize('settings', [SETTINGS, BOUNDARIES, TIGHT, TIERS], ids=['defaults', 'boundaries', 'tight', 'tiers'])
 def test_simulate_agrees_with_deciding_every_event_in_turn(settings, monkeypatch):
     users = _users()
     expected = {user: _decided_one_by_one(events, settings) for user, events in users.items()}
@@ -184,3 +254,13 @@ def test_simulate_runs_the_full_detector_only_where_the_level_changes(monkeypatc
     simulate({'reader': reader, 'sweeper': sweeper}, SETTINGS)
 
     assert calls == [sweeper[11].at, sweeper[23].at]  # the flag at article 12, its escalation at 24
+
+
+def test_simulate_takes_the_highest_tier_logged_in_the_window():
+    tiered = ('expert-reader', 'tier-falls-back', 'expert-capper', 'advanced-capper', 'capper-falls-back')
+    users = {user: events for user, events in _users().items() if user in tiered}
+
+    result = simulate(users, TIERS)
+
+    assert [(u['user_id'], u['signals'][0]['kind']) for u in result] == [
+        ('advanced-capper', 'cap_days'), ('capper-falls-back', 'cap_days'), ('tier-falls-back', 'distinct_7d')]

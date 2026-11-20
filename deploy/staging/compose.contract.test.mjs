@@ -202,6 +202,15 @@ test('reconcile-daily holds no secret in its command or its environment', () => 
   assert.deepEqual(Object.keys(daily.environment ?? {}).filter((key) => /PASS|SECRET|TOKEN|KEY|URI|AUTH/i.test(key)), []);
 });
 
+// The recall plan's timing stack (services/legal-search/compose.timing.yaml) alone sets these: in staging they would
+// write a span line per search to a file, or search with a configuration the release gate never measured.
+test('legal-search sets no timing or search-config switch, nor does any other service', () => {
+  const switches = ['LEGAL_SEARCH_SEARCH_CONFIG', 'LEGAL_SEARCH_TIMING_SPANS', 'LEGAL_SEARCH_TIMING_FILE'];
+  const set = Object.entries(services).flatMap(([name, s]) =>
+    Object.keys(s.environment ?? {}).filter((key) => switches.includes(key)).map((key) => `${name}: ${key}`));
+  assert.deepEqual(set, []);
+});
+
 const published = (c) => c.services.proxy.ports.map((p) => `${p.host_ip}:${p.published}->${p.target}`);
 const origins = (c) => [c.services.librechat.environment.DOMAIN_CLIENT, c.services.librechat.environment.DOMAIN_SERVER];
 

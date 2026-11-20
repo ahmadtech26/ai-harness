@@ -6,7 +6,7 @@ from psycopg import AsyncConnection
 
 from legal_search import db, flags, tools
 from legal_search.corpus import Article
-from legal_search.guard_settings import GuardSettings
+from legal_search.guard_settings import GuardSettings, validate
 from legal_search.registry import Law
 from tests.pg import fresh
 
@@ -55,7 +55,7 @@ def _alerts(alert_caplog):
 
 
 def _refused(text):
-    return text in (tools.CAP_REACHED, tools.SUSPENDED)
+    return text.startswith(tools.CAP_PREFIX) or text == tools.SUSPENDED
 
 
 async def test_every_attempt_is_logged_with_what_it_asked_for_and_its_outcome(conn):
@@ -78,7 +78,7 @@ async def test_the_twelfth_sequential_article_opens_a_suspected_flag_and_is_refu
     flag = await flags.open_flag(conn, 'sweeper')
     rows = await _rows(conn)
     assert [_refused(text) for text in texts] == [False] * 11 + [True]
-    assert texts[11] == tools.CAP_REACHED and rows[11][4] == 'throttled'
+    assert texts[11] == tools.CAP_DAILY and rows[11][4] == 'throttled'
     assert (flag.level, flag.evidence['opened'][0]['first'], flag.evidence['opened'][0]['last']) == ('suspected', 1, 12)
     assert [(a['event'], a['flag_level']) for a in _alerts(alert_caplog)] == [('sweep_flag_opened', 'suspected')]
 
@@ -105,10 +105,26 @@ async def test_the_twelfth_sequential_attempt_after_the_flag_escalates_to_proven
 
     flag = await flags.open_flag(conn, 'sweeper')
     cur = await conn.execute("SELECT max(id) FROM retrieval_log WHERE user_id = 'sweeper'")
-    assert texts[12:23] == [tools.CAP_REACHED] * 11 and texts[23] == tools.SUSPENDED
+    assert texts[12:23] == [tools.CAP_DAILY] * 11 and texts[23] == tools.SUSPENDED
     assert (flag.level, flag.escalated_log_id) == ('proven', (await cur.fetchone())[0])
     assert (flag.evidence['escalated'][0]['first'], flag.evidence['escalated'][0]['last']) == (13, 24)
     assert [a['event'] for a in _alerts(alert_caplog)] == ['sweep_flag_opened', 'sweep_flag_escalated']
+
+
+# Five distinct articles in one call are a proven 7-day sweep under these thresholds.
+LOW_PROVEN = validate({**SETTINGS.as_dict(), 'suspected_distinct_7d': 3, 'suspected_distinct_7d_advanced': 3,
+                       'suspected_distinct_7d_expert': 3, 'proven_distinct_7d': 5})
+
+
+async def test_a_search_whose_own_articles_prove_the_sweep_is_refused_and_opens_a_proven_flag(conn, alert_caplog):
+    # Round 2 review: the guard suspends this very call (decision.caps is None), and the search raised instead.
+    text = await tools.search_law(conn, LOW_PROVEN.caps, SWEEPER, 'نص', 5, law='labour', guard=LOW_PROVEN)
+
+    flag = await flags.open_flag(conn, 'sweeper')
+    cur = await conn.execute('SELECT cardinality(article_ids), cardinality(candidate_ids) FROM retrieval_log')
+    assert (text, [row[4] for row in await _rows(conn)], flag.level) == (tools.SUSPENDED, ['suspended'], 'proven')
+    assert await cur.fetchone() == (0, 5)  # nothing served; the five it was decided on are logged
+    assert [(a['event'], a['flag_level']) for a in _alerts(alert_caplog)] == [('sweep_flag_opened', 'proven')]
 
 
 async def test_a_suspended_user_is_refused_every_retrieval_logged_and_alerted(conn, alert_caplog):

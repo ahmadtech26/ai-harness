@@ -8,6 +8,8 @@ Signals:
   distinct_7d  distinct articles requested or served in the last 7 days (search results count)
   cap_days     consecutive Asia/Amman calendar days on each of which a served call brought the user's rolling
                24 h total of served documents up to the daily cap (refusals never count; the cap stays rolling)
+distinct_7d's threshold and the daily cap cap_days counts are those of the highest tier the user's calls of the last
+7 days were made under (window_tier).
 """
 
 from collections import Counter, defaultdict, deque
@@ -16,7 +18,7 @@ from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
-from legal_search.guard_settings import GuardSettings
+from legal_search.guard_settings import GuardSettings, highest_tier
 
 RUN_TOOLS = frozenset({'get_article', 'get_memorandum'})
 LEVELS = ('none', 'suspected', 'proven')
@@ -52,6 +54,7 @@ class Event:
     keys: frozenset[str] = frozenset()
     documents: int = 0          # articles plus memorandum notes served
     candidates: frozenset[str] = frozenset()  # a search refused or trimmed: the articles it was decided on
+    tier: str | None = None     # the X-Iqraa-Tier the call was made under (retrieval_log.tier); None without one
 
 
 @dataclass(frozen=True)
@@ -216,8 +219,20 @@ def _cap_days_signal(events: Sequence[Event], settings: GuardSettings, now: date
                   **_calls(event for event in events if start <= amman_day(event.at) <= best_end))
 
 
+def window_tier(events: Iterable[Event], now: datetime) -> str | None:
+    """The highest tier the user's calls of the last 7 days were made under, the call being decided included; None when
+    none carries one. The 7-day alarm and the daily cap the cap days count are that tier's (owner 2026-11-14, plan S4b;
+    GuardSettings.detector_settings): the lowest when none is logged."""
+    return highest_tier(event.tier for event in events if event.at > now - DISTINCT_WINDOW)
+
+
 def detect(events: Sequence[Event], settings: GuardSettings, now: datetime) -> Verdict:
     """The user's signals at `now` over `events` (time order; the call being decided last)."""
+    return _detect(events, settings.detector_settings(window_tier(events, now)), now)
+
+
+def _detect(events: Sequence[Event], settings: GuardSettings, now: datetime) -> Verdict:
+    """detect() under settings already resolved for the user's tier."""
     candidates = (
         _run_signal(events, settings, now),
         _distinct_signal(events, settings, now),
@@ -231,11 +246,13 @@ def detect(events: Sequence[Event], settings: GuardSettings, now: datetime) -> V
 def assess(events: Sequence[Event], settings: GuardSettings, now: datetime, flag_from_id: int | None = None) -> Verdict:
     """`detect`, plus the escalation of an open suspected flag opened at log row `flag_from_id`: with
     proven_if_signal_while_throttled, a suspected-level signal computed only from the events after that row
-    (the call being decided included) is proven. Any proven-level signal is proven in any case."""
-    verdict = detect(events, settings, now)
+    (the call being decided included) is proven. Any proven-level signal is proven in any case. Both read the
+    thresholds of the user's tier over all of `events` (window_tier)."""
+    settings = settings.detector_settings(window_tier(events, now))
+    verdict = _detect(events, settings, now)
     if flag_from_id is None or verdict.level == 'proven' or not settings.proven_if_signal_while_throttled:
         return verdict
-    after = detect([event for event in events if event.id is None or event.id > flag_from_id], settings, now)
+    after = _detect([event for event in events if event.id is None or event.id > flag_from_id], settings, now)
     if after.level == 'none':
         return verdict
     return Verdict('proven', tuple(replace(signal, after_flag=True) for signal in after.signals))

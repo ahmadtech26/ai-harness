@@ -1,0 +1,130 @@
+# Timing stack for the whole search_law call through MCP (REQ-RAG-021; recall plan Task 1.5). Never staging:
+#   docker compose -f compose.timing.yaml run --rm --build timing --field query --users 1,5,20 --repeat 5 \
+#     --spans /spans/calls.jsonl --out /evidence/recall-2026-11/timing-a0-query.json
+#   docker compose -f compose.timing.yaml down -v
+# A `run` may recreate legal-search-ingest and legal-search (after a --build it did), and the run then starts on a new
+# server process after a re-ingest. To time several fields on one server process and one ingest, start the stack once
+# (`up -d --build legal-search`) and give each run --no-deps (no --build).
+# Its own project and image tag: a --build under staging's iqraa/legal-search:phase1 would retag the image the running
+# staging container uses. Postgres keeps its data on tmpfs (the bench's RAM disk, spec :185). The ingest and the
+# server copy staging's commands, limits, caps and corpus mounts (deploy/staging/compose.yaml legal-search-ingest and
+# legal-search) without its image, DATABASE_URL_FILE or secrets volume: DATABASE_URL is this stack's test-only URL,
+# as in compose.test.yaml, and timing-init writes a test-only secret. Only this stack sets LEGAL_SEARCH_TIMING_SPANS:
+# the server appends one line of ids and times per search_law call to the spans volume, which the driver reads
+# read-only (no Docker socket). Nothing is published on the host.
+name: legal-search-timing
+
+volumes:
+  secrets: {}
+  spans: {}
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    mem_limit: ${IQRAA_MEM_POSTGRES:-2g}
+    cpus: ${IQRAA_CPUS_POSTGRES:-2}
+    environment:
+      POSTGRES_PASSWORD: test-only
+      POSTGRES_DB: legal
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      # Over TCP: during first-start init the image runs a socket-only temporary server that would pass a socket check.
+      test: ['CMD', 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres']
+      interval: 2s
+      retries: 30
+      start_period: 180s
+      start_interval: 2s
+
+  # One-shot, idempotent: the server's secret (written once, so a second `run` keeps the running server's secret)
+  # and the spans volume handed to the server's user (uid 10001, the Dockerfile's `legal`).
+  timing-init:
+    build: .
+    image: legal-search-timing:local
+    user: root
+    restart: 'no'
+    entrypoint: ['python', '-c']
+    command:
+      - |
+        import os, secrets
+        path = '/secrets/legal_search'
+        if not os.path.exists(path):
+            with open(path, 'w', encoding='utf-8') as handle:
+                handle.write(secrets.token_hex(32))
+        os.chown(path, 10001, 10001)
+        os.chmod(path, 0o400)
+        os.chown('/spans', 10001, 10001)
+    volumes:
+      - secrets:/secrets
+      - spans:/spans
+
+  legal-search-ingest:
+    build: .
+    image: legal-search-timing:local
+    restart: 'no'
+    mem_limit: ${IQRAA_MEM_LEGAL_SEARCH:-2g}
+    cpus: ${IQRAA_CPUS_LEGAL_SEARCH:-2}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:test-only@postgres:5432/legal
+      PGAPPNAME: legal-search-ingest
+    command:
+      - legal-search-ingest
+      - --registry
+      - /content/corpus/laws.json
+      - --corrections
+      - /content/corpus/corrections.json
+      - --corpus
+      - /corpus
+    volumes:
+      - '../../jordanian-law/references/القوانين-الأردنية:/corpus:ro'
+      - '../../content/corpus:/content/corpus:ro'
+
+  legal-search:
+    build: .
+    image: legal-search-timing:local
+    restart: 'no'
+    mem_limit: ${IQRAA_MEM_LEGAL_SEARCH:-2g}
+    cpus: ${IQRAA_CPUS_LEGAL_SEARCH:-2}
+    depends_on:
+      legal-search-ingest:
+        condition: service_completed_successfully
+      timing-init:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://postgres:test-only@postgres:5432/legal
+      PGAPPNAME: legal-search
+      LEGAL_SEARCH_SECRET_FILE: /secrets/legal_search
+      LEGAL_SEARCH_ALLOWED_HOSTS: 'legal-search:*'
+      LEGAL_SEARCH_PER_ANSWER_CAP: '8'
+      LEGAL_SEARCH_DAILY_CAP: '300'
+      LEGAL_SEARCH_TIMING_SPANS: '1'
+      LEGAL_SEARCH_TIMING_FILE: /spans/calls.jsonl
+    volumes:
+      - secrets:/secrets:ro
+      - spans:/spans
+
+  # The driver (legal-search-timing). It waits for the server's /health itself, so the server runs no healthcheck
+  # process during the timed runs. DATABASE_URL: the heavy user's seed rows and the row counts the report records.
+  timing:
+    build: .
+    image: legal-search-timing:local
+    user: root
+    restart: 'no'
+    depends_on:
+      legal-search:
+        condition: service_started
+      timing-init:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://postgres:test-only@postgres:5432/legal
+    entrypoint: ['legal-search-timing', '--url', 'http://legal-search:8000/mcp', '--secret-file', '/secrets/legal_search',
+                 '--set', '/content/eval/retrieval-v1.jsonl']
+    command: ['--help']
+    volumes:
+      - secrets:/secrets:ro
+      - spans:/spans:ro
+      - '../../content:/content:ro'
+      - '../../../.hq/docs/audits/librechat-platform/p3-evidence:/evidence'

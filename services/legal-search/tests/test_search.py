@@ -5,6 +5,7 @@ from psycopg import AsyncConnection
 
 from legal_search import db
 from legal_search.corpus import Article
+from legal_search.search_config import DEFAULT, with_overrides
 from tests.pg import fresh
 
 pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
@@ -34,8 +35,12 @@ async def test_hamza_in_the_query_does_not_matter(conn):
     assert [a.label for a in await db.search(conn, 'أصبح العقد باتاً', 5)][0] == 'المادة 107'
 
 
-async def test_function_words_alone_find_nothing(conn):
-    assert await db.search(conn, 'ما هو في من على', 5) == []
+@pytest.mark.parametrize('ranker', ['pg', 'bm25'])
+async def test_function_words_alone_find_nothing(conn, ranker):
+    # strict: the BM25 engine never falls back to the Postgres search, which would find nothing as well (Task 3.1)
+    config = with_overrides(DEFAULT, [f'ranker={ranker}'])
+
+    assert await db.search(conn, 'ما هو في من على', 5, config=config, strict=True) == []
 
 
 async def test_respects_the_limit(conn):
@@ -62,3 +67,15 @@ async def test_counts_retrievals_per_answer_and_per_day(conn):
     assert await db.documents_for_message(conn, 'm1') == 2
     assert await db.documents_for_user_today(conn, 'u1') == 3
     assert await db.documents_for_user_today(conn, 'u2') == 0
+
+
+# Plan S5b: a search can leave out the articles already served to the answer, under either ranker, and still fill its
+# limit from the rest of the ranking. strict: the engine never falls back to Postgres here.
+@pytest.mark.parametrize('ranker', ['pg', 'bm25'])
+async def test_excluded_ids_are_left_out_before_the_limit(conn, ranker):
+    config = with_overrides(DEFAULT, [f'ranker={ranker}'])
+    ranked = await db.search(conn, 'العقد العربون', 5, config=config, strict=True)
+
+    rest = await db.search(conn, 'العقد العربون', 1, config=config, strict=True, exclude_ids=frozenset({ranked[0].id}))
+
+    assert len(ranked) == 2 and [f.id for f in rest] == [ranked[1].id]

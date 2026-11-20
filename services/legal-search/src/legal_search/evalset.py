@@ -3,10 +3,11 @@
 Line 1 is the header: {"set": <name>, "review": {"status": "draft"|"approved", "approved_by"?, "approved_on"?}, ...}.
 Every other non-empty line is one item:
   {"id", "question", "query", "law"?, "expected": [{"law", "number", "suffix"?}], "expected_notes"?, "notes"}
-Retrieval is scored on `query`; `question` is kept for the Phase 4 end-to-end evaluation. `expected_notes` (a
-memorandum item: exactly one Civil Code expected article) is [the note explaining that article] in plan A's
-load_memorandum links: a data check, not a retrieval score. The set's sha256 covers the item lines only, so
-flipping the header's review status does not change it.
+Retrieval is scored on `query`, or on `question` with `legal-search-eval run --field question` (REQ-RAG-032);
+`question` is also kept for the Phase 4 end-to-end evaluation. `expected_notes` (a memorandum item: exactly one
+Civil Code expected article) is [the note explaining that article] in plan A's load_memorandum links: a data
+check, not a retrieval score. The set's sha256 covers the item lines only, so flipping the header's review status
+does not change it.
 """
 
 import hashlib

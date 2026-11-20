@@ -6,20 +6,23 @@ import pytest
 from psycopg_pool import AsyncConnectionPool
 from starlette.testclient import TestClient
 
+from legal_search import db
 from legal_search.caps import Caps
+from legal_search.search_config import SearchConfig
 from legal_search.server import build_app
 import psycopg
 
-from legal_search.tools import SUSPENDED
+from legal_search.normalize import normalize
+from legal_search.tools import BUDGET_LINE, SUSPENDED
 from tests.mcp import tool_text
 from tests.pg import TABLES
 
 pytestmark = pytest.mark.skipif(not os.environ.get('DATABASE_URL'), reason='needs Postgres')
 
 
-def _app(secret: str):
+def _app(secret: str, **options):
     pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=2, open=False, kwargs={'autocommit': True})
-    return build_app(pool, Caps(per_answer=8, daily=300, max_results=5), secret, ['legal-search:*'])
+    return build_app(pool, Caps(per_answer=8, daily=300, max_results=5), secret, ['legal-search:*'], **options)
 
 
 def _initialize(client: TestClient, secret: str, host: str):
@@ -339,3 +342,164 @@ def test_a_literal_identity_placeholder_is_refused_and_logs_nothing():
             logged = conn.execute('SELECT count(*) FROM retrieval_log').fetchone()[0]
 
     assert logged == 0
+
+
+# Recall plan Task 3.2: the server runs the search config it is given (main reads LEGAL_SEARCH_SEARCH_CONFIG; only the
+# timing stack sets it), and a server that ranks with the keyword engine builds its index before it serves.
+# Not DEFAULT, and a Postgres one: what this server is given reaches the search, with no keyword index to build.
+OWN_CONFIG = SearchConfig(synonyms=False)
+# A keyword engine config whose index key (analyser guardlight) is not DEFAULT's: a warm-up of any other config's
+# index leaves this one cold.
+GUARDLIGHT = SearchConfig(ranker='bm25', analyser='guardlight')
+
+
+def test_the_server_passes_its_search_config_to_search_law(monkeypatch):
+    _fresh_tables()
+    secret = secrets.token_hex(16)
+    seen = []
+
+    async def spy(*args, **kwargs):
+        seen.append(kwargs.get('config'))
+        return []
+
+    monkeypatch.setattr(db, 'search', spy)
+
+    with TestClient(_app(secret, config=OWN_CONFIG)) as client:
+        tool_text(client, 'u-cfg', 'search_law', {'query': 'العربون'}, {'x-iqraa-secret': secret})
+
+    assert seen == [OWN_CONFIG]
+
+
+async def test_a_bm25_server_builds_its_keyword_index_before_it_serves(monkeypatch, alert_caplog):
+    # Without the warm-up the first search finds a cold index: it falls back to Postgres with an alert.
+    from psycopg import AsyncConnection
+
+    from legal_search import bm25
+    from legal_search.corpus import Article
+    from legal_search.registry import Law
+    from tests.pg import fresh
+
+    async with await AsyncConnection.connect(os.environ['DATABASE_URL'], autocommit=True) as conn:
+        await fresh(conn)  # it clears keyword_engine.CACHE too
+        await db.upsert_laws(conn, [Law(slug='civil-code', title='القانون المدني الأردني', folder='c')])
+        await db.upsert_articles(conn, [
+            Article('civil-code', 'x', 1, '', 'يحق للمشتري العدول عن العقد بترك العربون.', 's', 'c.md'),
+            Article('civil-code', 'x', 2, '', 'تنعقد الكفالة بإيجاب الكفيل وحده.', 's', 'c.md'),
+        ])
+    pool = AsyncConnectionPool(os.environ['DATABASE_URL'], min_size=1, max_size=2, open=False,
+                               kwargs={'autocommit': True})
+    guard = build_app(pool, Caps(per_answer=8, daily=300, max_results=5), secrets.token_hex(16), ['legal-search:*'],
+                      config=GUARDLIGHT)
+    inner = guard.app
+    searched = []
+    real = bm25.Index.search
+    monkeypatch.setattr(bm25.Index, 'search', lambda self, *a, **k: searched.append(1) or real(self, *a, **k))
+
+    async with inner.router.lifespan_context(inner):
+        async with pool.connection() as conn:
+            found = await db.search(conn, 'العربون', 5, config=GUARDLIGHT)
+
+    assert searched and [f.number for f in found] == [1]
+    assert not any('keyword_engine_fallback' in r.message for r in alert_caplog.records)
+
+
+async def test_a_bm25_server_whose_keyword_index_cannot_be_built_does_not_start(monkeypatch):
+    # Serving anyway would answer every search from the Postgres fallback under a bm25 config: the timing stack would
+    # time Postgres and record the engine.
+    from legal_search import keyword_engine
+
+    def broken(*args):
+        raise RuntimeError('boom')
+
+    keyword_engine.CACHE.clear()  # an index a previous test built at this version would be served without a build
+    monkeypatch.setattr(keyword_engine, 'build', broken)
+    inner = _app(secrets.token_hex(16), config=GUARDLIGHT).app
+
+    with pytest.raises(RuntimeError, match='^boom$'):
+        async with inner.router.lifespan_context(inner):
+            pass
+
+
+def test_a_postgres_server_builds_no_keyword_index(monkeypatch):
+    # With LEGAL_SEARCH_SEARCH_CONFIG unset the server runs DEFAULT and starts as it did before the engine existed.
+    from legal_search import keyword_engine
+
+    warmed = []
+
+    async def spy(*args, **kwargs):
+        warmed.append(1)
+
+    monkeypatch.setattr(keyword_engine.CACHE, 'ensure', spy)
+
+    with TestClient(_app(secrets.token_hex(16))):
+        pass
+
+    assert warmed == []
+
+
+# Plan S4: the server reads X-Iqraa-Tier and serves each call under settings.caps_for(tier). The remaining-budget line
+# (S3) shows the allowance a call was served under. A tier header that is not a plain id never raises: it gets the
+# lowest allowance, as no header does.
+def _tier_client(secret: str):
+    """The app with per_answer 8, the tier fields at 11 and 16 (a staff PUT, as L3's), Civil Code article 1 that a search
+    for «العربون» finds, and one memorandum note linked to it."""
+    _fresh_tables()
+    client = TestClient(_app(secret))
+    client.__enter__()
+    staff = {'host': 'legal-search:8000', 'x-iqraa-secret': secret, 'x-iqraa-staff': 'staff-1'}
+    put = client.put('/admin/guard-settings', headers=staff,
+                     json={'settings': {'per_answer_advanced': 11, 'per_answer_expert': 16}, 'reason': 'tiers'})
+    assert put.status_code == 200
+    with psycopg.connect(os.environ['DATABASE_URL'], autocommit=True) as conn:
+        text = 'يعتبر دفع العربون دليلا على ان العقد اصبح باتا.'
+        conn.execute("INSERT INTO articles (law_slug, law_title, number, label, text, norm) "
+                     "VALUES ('civil-code', 'القانون المدني الأردني', 1, 'المادة 1', %s, %s)", (text, normalize(text)))
+        conn.execute("INSERT INTO memorandum_notes (note_no, text) VALUES (1, 'شرح العربون.')")
+        conn.execute('INSERT INTO memorandum_links (article_number, note_no) VALUES (1, 1)')
+    return client
+
+
+def test_the_line_states_the_tier_allowance():
+    secret = secrets.token_hex(16)
+    client = _tier_client(secret)
+    try:
+        expert = {'x-iqraa-secret': secret, 'x-iqraa-message': 'm-expert', 'x-iqraa-tier': 'iqraa-expert'}
+        texts = [tool_text(client, 'u-expert', 'search_law', {'query': 'العربون'}, expert),
+                 tool_text(client, 'u-expert', 'get_article', {'number': 1}, {**expert, 'x-iqraa-message': 'm-2'}),
+                 tool_text(client, 'u-expert', 'get_memorandum', {'article': 1}, {**expert, 'x-iqraa-message': 'm-3'})]
+        advanced = tool_text(client, 'u-adv', 'get_article', {'number': 1},
+                             {'x-iqraa-secret': secret, 'x-iqraa-message': 'm-adv', 'x-iqraa-tier': 'iqraa-advanced'})
+    finally:
+        client.__exit__(None, None, None)
+
+    assert [text.rpartition('\n')[2] for text in texts] == [BUDGET_LINE.format(left=15, per_answer=16)] * 3
+    assert advanced.endswith('\n\n' + BUDGET_LINE.format(left=10, per_answer=11))
+
+
+@pytest.mark.parametrize('tier', [None, 'none', 'iqraa-other', '{{LIBRECHAT_BODY_IQRAATIER}}', 'a b'],
+                         ids=['no-header', 'none', 'unknown', 'unresolved', 'not-plain'])
+def test_no_none_unknown_or_unresolved_tier_gets_per_answer(tier):
+    secret = secrets.token_hex(16)
+    headers = {'x-iqraa-secret': secret, 'x-iqraa-message': 'm-1', **({'x-iqraa-tier': tier} if tier is not None else {})}
+    client = _tier_client(secret)
+    try:
+        text = tool_text(client, 'u-1', 'get_article', {'number': 1}, headers)
+    finally:
+        client.__exit__(None, None, None)
+
+    assert 'المادة 1' in text and text.endswith('\n\n' + BUDGET_LINE.format(left=7, per_answer=8))
+
+
+def test_a_bad_tier_header_never_raises():
+    secret = secrets.token_hex(16)
+    client = _tier_client(secret)
+    try:
+        texts = [tool_text(client, 'u-bad', 'get_article', {'number': 1},
+                           {'x-iqraa-secret': secret, 'x-iqraa-message': f'm-{n}', 'x-iqraa-tier': tier})
+                 for n, tier in enumerate(['a b', '{{LIBRECHAT_BODY_IQRAATIER}}'])]
+    finally:
+        client.__exit__(None, None, None)
+
+    with psycopg.connect(os.environ['DATABASE_URL']) as conn:
+        logged = [row[0] for row in conn.execute("SELECT tier FROM retrieval_log WHERE user_id = 'u-bad' ORDER BY id")]
+    assert all('المادة 1' in text for text in texts) and logged == [None, None]  # served, and never logged as a tier

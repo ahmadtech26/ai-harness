@@ -96,7 +96,7 @@ step_eval() {
     && evaluate run --rm --build eval run --label release --reset \
     && evaluate run --rm --entrypoint python -v "$tools:/tools:ro" -v "$baseline:/baseline:ro" eval \
       /tools/release_eval.py check --report /evidence/eval-release.json --baseline /baseline/eval-baseline.json \
-    && evaluate run --rm --entrypoint python -v "$tools:/tools:ro" -w /tools eval -B -m unittest test_release_eval \
+    && evaluate run --rm --entrypoint python -v "$tools:/tools:ro" -w /tools eval -B -m unittest test_release_eval test_recall_compare \
     || rc=1
   evaluate down -v || rc=1
   return "$rc"
