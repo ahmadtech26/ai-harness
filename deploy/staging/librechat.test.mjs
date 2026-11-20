@@ -66,3 +66,10 @@ test('librechat.yaml pins the four library request headers', () => {
   // reach legal-search and every answer would get the lowest allowance.
   assert.deepEqual(libraryRequestHeaders(yaml), Object.entries(LIBRARY_REQUEST_HEADERS));
 });
+
+// LibreChat shows the composer's thinking and effort pill, and the Parameters side panel, only when interface.parameters is
+// true (Thinking.tsx, useSideNavLinks.ts). Model specs default it to false, but an explicit true turns both back on for
+// everyone, and the fork's start-up checks do not refuse it; the owner chose to keep them hidden (2026-11-08).
+test('the interface keeps the thinking and effort pill and the Parameters panel off, for everyone', () => {
+  assert.equal(topLevelBlock(yaml, 'interface').parameters, 'false');
+});
