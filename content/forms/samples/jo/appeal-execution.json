@@ -1,0 +1,18 @@
+{
+  "court": "عمّان",
+  "execution_department": "عمّان",
+  "appellant_name": "فلان محمد الفلاني",
+  "appellant_national_no": "9871234567",
+  "appellant_address": "عمّان - جبل الحسين - شارع خالد بن الوليد",
+  "appellant_phone": "0790000000",
+  "agent_name": "المحامي علان العلاني",
+  "agent_address": "عمّان - العبدلي",
+  "respondent": "شركة المثال للتجارة",
+  "case_number": "1234",
+  "case_year": "2026",
+  "decision_contains": "حبس المدين تسعين يوماً",
+  "reasons": [
+    "القرار المستأنف مخالف للقانون والأصول.",
+    "أخطأ رئيس التنفيذ في وزن البينة المقدمة [نص تجريبي فيه #علامة]."
+  ]
+}

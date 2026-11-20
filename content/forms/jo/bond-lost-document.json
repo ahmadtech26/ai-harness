@@ -1,0 +1,25 @@
+{
+  "id": "bond-lost-document",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "سند كفالة عدلية (بدل فاقد / تالف)",
+  "source": { "file": "source.pdf", "page": 6 },
+  "groups": [
+    { "id": "document", "label": "الوثيقة" },
+    { "id": "guarantor", "label": "الكفيل" }
+  ],
+  "fields": [
+    { "id": "person_name", "group": "document", "label": "اسم المدعو (صاحب الوثيقة)", "type": "text", "required": true, "max": 60 },
+    { "id": "condition", "group": "document", "label": "فقد الوثيقة أم أتلفها", "type": "choice", "required": true, "options": ["فاقد", "تالف"] },
+    { "id": "document", "group": "document", "label": "الوثيقة", "type": "text", "required": true, "max": 26 },
+    { "id": "guarantor_name", "group": "guarantor", "label": "اسم الكفيل", "type": "text", "required": true, "max": 40 },
+    { "id": "guarantor_national_no", "group": "guarantor", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "guarantor_address", "group": "guarantor", "label": "العنوان", "type": "text", "required": false, "max": 38 },
+    { "id": "guarantor_phone", "group": "guarantor", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "amount", "group": "guarantor", "label": "قيمة الكفالة (دينار)", "type": "amount", "required": true }
+  ],
+  "blank": ["signature"],
+  "reviewFlags": []
+}

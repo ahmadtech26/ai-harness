@@ -1,0 +1,24 @@
+{
+  "id": "request-fine-substitution",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "استبدال الحبس بالغرامة",
+  "source": { "file": "source.pdf", "page": 10 },
+  "groups": [
+    { "id": "case", "label": "الدعوى والحكم" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 25 },
+    { "id": "applicant_name", "label": "اسم المستدعي", "type": "text", "required": true, "max": 42 },
+    { "id": "case_number", "group": "case", "label": "رقم الدعوى", "type": "text", "required": true, "max": 16 },
+    { "id": "decision_date", "group": "case", "label": "تاريخ الفصل", "type": "date", "required": true },
+    { "id": "subject", "group": "case", "label": "موضوع الدعوى", "type": "text", "required": true, "max": 47 },
+    { "id": "prison_term", "group": "case", "label": "مدة الحبس المحكوم بها", "type": "text", "required": true, "max": 20 }
+  ],
+  "blank": ["signature", "dates"],
+  "reviewFlags": [
+    "Lawyer: confirm that a request to the court to substitute the prison sentence with a fine is still the right procedure."
+  ]
+}

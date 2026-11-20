@@ -1,0 +1,26 @@
+{
+  "id": "request-case-renewal",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "طلب تجديد دعوى",
+  "source": { "file": "source.pdf", "page": 17 },
+  "groups": [
+    { "id": "applicant", "label": "المستدعي" },
+    { "id": "dropped_case", "label": "الدعوى المسقطة" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 35 },
+    { "id": "applicant_name", "group": "applicant", "label": "اسم المستدعي", "type": "text", "required": true, "max": 70 },
+    { "id": "agent_name", "group": "applicant", "label": "الوكيل (إن وجد)", "type": "text", "required": false, "max": 70 },
+    { "id": "case_number", "label": "رقم الدعوى الصلحية الحقوقية المطلوب تجديدها", "type": "text", "required": true, "max": 20 },
+    { "id": "dropped_case_type", "group": "dropped_case", "label": "نوع الدعوى التي أسقطت", "type": "text", "required": true, "max": 25 },
+    { "id": "dropped_case_number", "group": "dropped_case", "label": "رقم الدعوى التي أسقطت", "type": "text", "required": true, "max": 15 },
+    { "id": "dropped_date", "group": "dropped_case", "label": "تاريخ الإسقاط", "type": "date", "required": true }
+  ],
+  "blank": ["court-box", "signature", "dates"],
+  "reviewFlags": [
+    "The subject is fixed to a magistrate civil case («طلب تجديد الدعوى الصلحية الحقوقية»): the lawyer confirms this form is meant only for such cases."
+  ]
+}

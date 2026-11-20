@@ -1,0 +1,24 @@
+{
+  "id": "bond-guarantee-employee",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "سند كفالة (موظف)",
+  "source": { "file": "source.pdf", "page": 2 },
+  "groups": [
+    { "id": "employee", "label": "الموظف المكفول" },
+    { "id": "guarantee", "label": "الكفالة" }
+  ],
+  "fields": [
+    { "id": "guarantor_name", "label": "اسم الكفيل", "type": "text", "required": true, "max": 40 },
+    { "id": "employee_name", "group": "employee", "label": "اسم الموظف المكفول", "type": "text", "required": true, "max": 40 },
+    { "id": "department", "group": "employee", "label": "عين موظفاً في", "type": "text", "required": true, "max": 42 },
+    { "id": "guarantee_kind", "group": "guarantee", "label": "نوع الكفالة", "type": "choice", "required": true, "options": ["كفالة عدلية مطلقة", "كفالة عدلية لقاء مبلغ"] },
+    { "id": "guarantee_amount", "group": "guarantee", "label": "المبلغ (إن كانت الكفالة لقاء مبلغ)", "type": "text", "required": false, "max": 20 }
+  ],
+  "blank": ["notary", "dates", "seal", "signature"],
+  "reviewFlags": [
+    "Executed before a notary (الكاتب العدل): the notary's paragraph, the dates, the notary's seal and the signatures are completed at the notary."
+  ]
+}

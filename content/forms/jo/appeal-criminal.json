@@ -1,0 +1,30 @@
+{
+  "id": "appeal-criminal",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "لائحة استئناف حكم جزائي",
+  "source": { "file": "source.pdf", "page": 7 },
+  "groups": [
+    { "id": "appellant", "label": "المستأنف" },
+    { "id": "agent", "label": "الوكيل (إن وجد)" },
+    { "id": "appeal", "label": "الاستئناف" }
+  ],
+  "fields": [
+    { "id": "court", "label": "المحكمة", "type": "text", "required": true, "max": 25 },
+    { "id": "appellant_name", "group": "appellant", "label": "اسم المستأنف", "type": "text", "required": true, "max": 32 },
+    { "id": "appellant_national_no", "group": "appellant", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "appellant_address", "group": "appellant", "label": "العنوان", "type": "text", "required": false, "max": 78 },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": false, "max": 26 },
+    { "id": "agent_address", "group": "agent", "label": "عنوان الوكيل", "type": "text", "required": false, "max": 36 },
+    { "id": "decision", "group": "appeal", "label": "القرار المستأنف", "type": "text", "required": true, "max": 72 },
+    { "id": "facts", "group": "appeal", "label": "موجز الوقائع", "type": "paragraph", "required": true, "max": 250 },
+    { "id": "reasons", "group": "appeal", "label": "أسباب الاستئناف", "type": "list", "required": true, "maxItems": 5, "itemMax": 80 },
+    { "id": "requested_judgment", "group": "appeal", "label": "فسخ القرار المستأنف والحكم بـ", "type": "paragraph", "required": true, "max": 160 }
+  ],
+  "blank": ["signature", "dates"],
+  "reviewFlags": [
+    "The respondent is fixed on the page as «الحق العام» (the public right); the user cannot change it."
+  ]
+}

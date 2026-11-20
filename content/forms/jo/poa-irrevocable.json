@@ -1,0 +1,35 @@
+{
+  "id": "poa-irrevocable",
+  "region": "jo",
+  "kind": "court-form",
+  "version": 1,
+  "status": "draft",
+  "title": "وكالة خاصة غير قابلة للعزل",
+  "source": { "file": "source.pdf", "page": 22 },
+  "groups": [
+    { "id": "principal", "label": "الموكل (أنا الموقع أدناه)" },
+    { "id": "agent", "label": "الوكيل (أفوض السيد)" },
+    { "id": "property", "label": "العقار" }
+  ],
+  "fields": [
+    { "id": "principal_name", "group": "principal", "label": "الإسم", "type": "text", "required": true, "max": 100 },
+    { "id": "principal_national_no", "group": "principal", "label": "الرقم الوطني", "type": "national-number", "required": false },
+    { "id": "principal_address", "group": "principal", "label": "العنوان", "type": "text", "required": false, "max": 45 },
+    { "id": "principal_phone", "group": "principal", "label": "الهاتف", "type": "phone", "required": false },
+    { "id": "agent_name", "group": "agent", "label": "اسم الوكيل", "type": "text", "required": true, "max": 35 },
+    { "id": "agent_national_no", "group": "agent", "label": "الرقم الوطني للوكيل", "type": "national-number", "required": false },
+    { "id": "area", "group": "property", "label": "المساحة (ما مساحته)", "type": "text", "required": true, "max": 25 },
+    { "id": "flat_number", "group": "property", "label": "رقم الشقة", "type": "text", "required": false, "max": 10 },
+    { "id": "parcel_number", "group": "property", "label": "رقم قطعة الأرض", "type": "text", "required": true, "max": 10 },
+    { "id": "basin_number", "group": "property", "label": "رقم الحوض", "type": "text", "required": true, "max": 10 },
+    { "id": "basin_name", "group": "property", "label": "اسم الحوض", "type": "text", "required": false, "max": 20 },
+    { "id": "plate_number", "group": "property", "label": "رقم اللوحة", "type": "text", "required": false, "max": 10 },
+    { "id": "village", "group": "property", "label": "القرية", "type": "text", "required": false, "max": 20 },
+    { "id": "lands_of", "group": "property", "label": "من أراضي", "type": "text", "required": true, "max": 20 },
+    { "id": "date", "label": "تاريخ تحرير الوكالة", "type": "date", "required": false }
+  ],
+  "blank": ["signature"],
+  "reviewFlags": [
+    "Cites Article 863 of the Civil Code («وكالة غير قابلة للعزل كوني قبضت الثمن كاملاً وفقاً لأحكام المادة ٨٦٣ من القانون المدني»): the lawyer confirms the article and its use here."
+  ]
+}
