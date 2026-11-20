@@ -63,7 +63,26 @@ interface:
 modelSpecs:
   enforce: false
   prioritize: true
-  list: []
+  list:
+    - name: iqraa-fast
+      label: "عقل سريع"
+      description: "إجابات سريعة عن الأسئلة القانونية المباشرة، من نصوص المكتبة القانونية الأردنية."
+      default: true
+      preset:
+        endpoint: agents
+        agent_id: agent_vYhCm_6c05XjSIrtem-Cp
+    - name: iqraa-advanced
+      label: "عقل متقدم"
+      description: "تحليل أعمق للوقائع والنصوص، مع الربط بين المواد ذات الصلة."
+      preset:
+        endpoint: agents
+        agent_id: agent_NqG7_DeSqJHmLYrT4bBBy
+    - name: iqraa-expert
+      label: "عقل خبير"
+      description: "أعلى مستوى من التحليل: القضايا المركّبة ومراجعة العقود بالتفصيل."
+      preset:
+        endpoint: agents
+        agent_id: agent_XiemsE7DBdiAb7qdte84c
 # END iqraa:modelSpecs
 
 balance:

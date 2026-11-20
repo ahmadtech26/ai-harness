@@ -29,7 +29,29 @@
       "cachedInput": 0.3
     }
   },
-  "tiers": [],
+  "tiers": [
+    {
+      "spec": "iqraa-fast",
+      "plans": [
+        "PLAN_BASIC",
+        "PLAN_PRO",
+        "PLAN_FIRM"
+      ]
+    },
+    {
+      "spec": "iqraa-advanced",
+      "plans": [
+        "PLAN_PRO",
+        "PLAN_FIRM"
+      ]
+    },
+    {
+      "spec": "iqraa-expert",
+      "plans": [
+        "PLAN_FIRM"
+      ]
+    }
+  ],
   "grounding": {
     "mode": "shadow",
     "lawsPath": "/config/grounding-laws.json"
