@@ -1,6 +1,6 @@
 # دليل القوانين — Law Directory
 
-**34 laws — 6,909 articles** (the last 12 rows: unverified drafts added 2026-11-20 from the owner's archive). Text lives in `{slug}/sections/*.md`; find an article's shard via `shard-map.json`.
+**36 laws — 6,981 articles** (the last 14 rows: unverified drafts added 2026-11-20: 12 laws from the owner's archive, then the Chambers of Industry law and its regulation (نظام, not a law), transcribed from Official Gazette page scans). Text lives in `{slug}/sections/*.md`; find an article's shard via `shard-map.json`.
 
 | القانون | slug | المواد | الأقسام | الحالة | الفئة |
 |---|---|---|---|---|---|
@@ -38,3 +38,5 @@
 | قانون علامات البضائع لسنة 1953 | `قانون-علامات-البضائع` | 18 | 1 | draft | ملكية فكرية |
 | قانون غرف التجارة المؤقت لسنة 2003 | `قانون-غرف-التجارة` | 38 | 1 | draft | موضوعي تجاري |
 | قانون منع الإرهاب لسنة 2006 | `قانون-منع-الإرهاب` | 9 | 1 | draft | القانون-الموضوعي-الجزائي |
+| قانون غرف الصناعة لسنة 2005 | `قانون-غرف-الصناعة` | 36 | 1 | draft | موضوعي تجاري |
+| نظام غرف الصناعة لسنة 2005 | `نظام-غرف-الصناعة` | 36 | 1 | draft | موضوعي تجاري |

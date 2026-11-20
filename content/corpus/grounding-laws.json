@@ -220,6 +220,18 @@
       "title": "قانون منع الإرهاب",
       "number": 55,
       "year": 2006
+    },
+    {
+      "slug": "chambers-of-industry",
+      "title": "قانون غرف الصناعة",
+      "number": 10,
+      "year": 2005
+    },
+    {
+      "slug": "chambers-of-industry-regulation",
+      "title": "نظام غرف الصناعة",
+      "number": 56,
+      "year": 2005
     }
   ]
 }

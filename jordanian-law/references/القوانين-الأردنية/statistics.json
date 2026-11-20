@@ -3,10 +3,10 @@
   "description": "Single source of truth for Jordanian Law corpus statistics (rebuilt from actual section files)",
   "count_policy": "total_articles = actual \"### المادة N\" headings; expected_articles = declared target",
   "summary": {
-    "total_laws": 34,
-    "total_articles": 6909,
-    "total_expected_articles": 6909,
-    "total_sections": 137,
+    "total_laws": 36,
+    "total_articles": 6981,
+    "total_expected_articles": 6981,
+    "total_sections": 139,
     "laws_with_memorandum": 1,
     "laws_needing_source": [],
     "case_types": [
@@ -506,6 +506,36 @@
       "has_memorandum": false,
       "memorandum_coverage": null,
       "review_status": "draft"
+    },
+    "قانون-غرف-الصناعة": {
+      "title": "قانون غرف الصناعة لسنة 2005",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 36,
+      "expected_articles": 36,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "نظام-غرف-الصناعة": {
+      "title": "نظام غرف الصناعة لسنة 2005",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 36,
+      "expected_articles": 36,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
     }
   },
   "categories": {
@@ -553,10 +583,12 @@
         "قانون-الصناعة-والتجارة",
         "قانون-المنافسة",
         "قانون-حماية-المستهلك",
-        "قانون-غرف-التجارة"
+        "قانون-غرف-التجارة",
+        "قانون-غرف-الصناعة",
+        "نظام-غرف-الصناعة"
       ],
-      "total_articles": 1298,
-      "expected_articles": 1298
+      "total_articles": 1370,
+      "expected_articles": 1370
     },
     "إجراءات حقوقية": {
       "title": "إجراءات حقوقية",
