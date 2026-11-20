@@ -9,6 +9,7 @@ mounted tree has none."""
 import json
 import os
 import shutil
+from collections import Counter
 from datetime import date
 from pathlib import Path
 
@@ -211,10 +212,17 @@ async def test_no_article_or_memorandum_note_of_the_library_is_served_with_a_cop
     assert note_leaks == []
     assert notes_served == set(memorandum.notes)
 
-    # The copy sites are all still there, in provenance and in source, where no tool reads them.
+    # The copy sites are all still there, in provenance and in source, where no tool reads them: each row keeps its
+    # file's source as it is. The laws added on 2026-11-20 name their own sources there (the owner's archive, the gazette
+    # scans), which are no copy site.
+    expected = {
+        'articles': Counter(article.source for articles in prepared.articles.values() for article in articles),
+        'memorandum_notes': Counter({memorandum.source: len(memorandum.notes)}),
+    }
     for table in ('articles', 'memorandum_notes'):
         cur = await conn.execute(f"SELECT provenance, count(*) FROM {table} GROUP BY provenance")
-        groups = await cur.fetchall()
-        assert all(found_in(provenance, listed) for provenance, _ in groups), table
+        groups = dict(await cur.fetchall())
+        assert groups == dict(expected[table]), table
+        assert any(found_in(provenance, listed) for provenance in groups), table
         cur = await conn.execute(f"SELECT count(*) FROM {table} WHERE source IS DISTINCT FROM provenance")
         assert (await cur.fetchone())[0] == 0

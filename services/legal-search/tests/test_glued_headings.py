@@ -176,7 +176,8 @@ def test_the_real_corpus_keeps_no_glued_heading_beyond_the_pinned_residue(capsys
     assert sum(before.values()) > 1500
     assert residue == RESIDUE
     assert ('civil-code', 288, '') not in prepared.glued
-    assert sum(len(a) for a in prepared.articles.values()) == 6592
+    # 6,592 articles of corpus v1 and the memorandum's laws, and 388 of the 14 draft laws added on 2026-11-20.
+    assert sum(len(a) for a in prepared.articles.values()) == 6980
 
 
 def _stored(prepared, key) -> str:
