@@ -257,14 +257,26 @@ export async function loginWithApp(account, { backupCode } = {}) {
  * Sets up the authenticator app through LibreChat's own routes (spec «Spec review» item 5): enable, then confirm
  * one app code. LibreChat's confirm records no step (only the fork's own sign-ins and the runner's promote do), so
  * the wait for a new step before the next app code is harmless, not required.
+ * Since LibreChat v0.8.9 the confirm rotates the sign-in session the request came from: it needs that session's
+ * refresh cookie (an access token alone gets 401 «Sign in again to enable 2FA», as a browser never does, since it
+ * sends the cookie) and answers the rotated token, the earlier ones retired. Earlier releases answer an empty 200 and
+ * ignore the cookie, so the account keeps its own token there.
  */
 export async function enableApp(account) {
   const enabled = await api('/api/auth/2fa/enable', { token: account.token, method: 'POST', body: {} });
   if (enabled.status !== 200 || !enabled.json?.otpauthUrl) throw new Error(`2fa enable ${account.label}: ${enabled.status} ${enabled.text.slice(0, 200)}`);
   const app = { secret: secretOf(enabled.json.otpauthUrl), backupCodes: enabled.json.backupCodes, lastStep: -1, otpauthUrl: enabled.json.otpauthUrl };
-  const confirmed = await api('/api/auth/2fa/confirm', { token: account.token, method: 'POST', body: { token: await appCode({ app }) } });
+  const confirmed = await api('/api/auth/2fa/confirm', {
+    token: account.token,
+    method: 'POST',
+    body: { token: await appCode({ app }) },
+    ...(account.refreshToken ? { cookie: `refreshToken=${account.refreshToken}` } : {}),
+  });
   if (confirmed.status !== 200) throw new Error(`2fa confirm ${account.label}: ${confirmed.status} ${confirmed.text.slice(0, 200)}`);
-  return { ...account, app };
+  const rotated = confirmed.json?.token
+    ? { token: confirmed.json.token, refreshToken: cookieValue(confirmed.cookies, 'refreshToken') ?? account.refreshToken }
+    : {};
+  return { ...account, ...rotated, app };
 }
 
 // The runner reads its secrets inside the LibreChat container (the entrypoint's exports do not reach an exec
