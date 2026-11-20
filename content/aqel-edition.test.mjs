@@ -12,6 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { corpusV1Laws } from './corpus-v1.mjs';
 import { CORPUS_MARKER, LIBRARY_TOOLS } from './tier-agents.mjs';
 
 const contentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -20,7 +21,8 @@ const readEdition = (version) =>
 const EDITIONS = ['1.3', '1.4', '1.5', '1.3.1'];
 /** 1.3.1 rewrote 1.2's budget bullets (owner, 2026-11-14): the word-for-word tests below do not apply to it. */
 const BUDGET_REWRITTEN = (version) => version === '1.3.1' && 'budget bullets rewritten 2026-11-14, tested in aqel-v131.test.mjs';
-const { laws } = JSON.parse(fs.readFileSync(path.join(contentDir, 'corpus', 'laws.json'), 'utf8'));
+// These editions name corpus v1's 22 laws: the registry's later additions (2026-11-20) are not in their texts.
+const laws = corpusV1Laws(JSON.parse(fs.readFileSync(path.join(contentDir, 'corpus', 'laws.json'), 'utf8')).laws);
 
 /** The whole line of `text` that starts with `prefix`; fails unless exactly one does. */
 function lineStarting(text, prefix) {

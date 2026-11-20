@@ -1,0 +1,59 @@
+{
+  "law": "قانون الصناعة والتجارة",
+  "slug": "قانون-الصناعة-والتجارة",
+  "category": "موضوعي تجاري",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 24,
+  "extracted_heading_count": 24,
+  "distinct_article_numbers": 24,
+  "max_article": 24,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-الصناعة-والتجارة-الكامل.md",
+      "number": "00",
+      "title": "قانون الصناعة والتجارة",
+      "article_count": 24,
+      "article_range": "1-24",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24"
+      ]
+    }
+  ],
+  "official_name": "قانون الصناعة والتجارة رقم 18 لسنة 1998",
+  "year": 1998,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون الصناعة والتجارة/IQRA_13_MINISTRY_18_1998.md (sha256 350223a28f140b320c50e21ad52c8c296b19c043e4b121f5177168e9caa47c33); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}

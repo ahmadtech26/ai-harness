@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { corpusV1Laws } from './corpus-v1.mjs';
 
 const contentDir = path.dirname(fileURLToPath(import.meta.url));
 const readEdition = (version) =>
@@ -93,7 +94,9 @@ test('every law name the edition gives the model maps to its slug for the plan-f
   const aliases = readJson('corpus', 'law-aliases.json');
   const library = arabic.split('\n').find((line) => line.startsWith('- التشريعات المحمّلة في المكتبة ورموزها:'));
   const named = [...library.matchAll(/(?:: |، )([^()،:]+?) \(([a-z-]+)\)/g)].map((m) => ({ name: m[1].trim(), slug: m[2] }));
-  assert.deepEqual(named.map(({ slug }) => slug).sort(), laws.map(({ slug }) => slug).sort(), 'the edition names every law of the registry');
+  // 1.4 names corpus v1's 22 laws: the registry's later additions (2026-11-20) are not in its text.
+  assert.deepEqual(named.map(({ slug }) => slug).sort(), corpusV1Laws(laws).map(({ slug }) => slug).sort(),
+    'the edition names every law of corpus v1');
   const toSlug = new Map(laws.flatMap(({ slug, title }) => [[title, slug], ...(aliases[slug] ?? []).map((alias) => [alias, slug])]));
   assert.deepEqual(named.filter(({ name, slug }) => toSlug.get(name) !== slug), []);
 });

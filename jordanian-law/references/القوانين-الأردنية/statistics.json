@@ -3,10 +3,10 @@
   "description": "Single source of truth for Jordanian Law corpus statistics (rebuilt from actual section files)",
   "count_policy": "total_articles = actual \"### المادة N\" headings; expected_articles = declared target",
   "summary": {
-    "total_laws": 22,
-    "total_articles": 6593,
-    "total_expected_articles": 6593,
-    "total_sections": 123,
+    "total_laws": 36,
+    "total_articles": 6981,
+    "total_expected_articles": 6981,
+    "total_sections": 139,
     "laws_with_memorandum": 1,
     "laws_needing_source": [],
     "case_types": [
@@ -326,6 +326,216 @@
       "needs_source": false,
       "has_memorandum": false,
       "memorandum_coverage": null
+    },
+    "قانون-البيئة-الاستثمارية": {
+      "title": "قانون البيئة الاستثمارية لسنة 2022",
+      "category": "استثمار ومالية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 53,
+      "expected_articles": 53,
+      "sections": 2,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-الصناعة-والتجارة": {
+      "title": "قانون الصناعة والتجارة لسنة 1998",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 24,
+      "expected_articles": 24,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-العلامات-التجارية": {
+      "title": "قانون العلامات التجارية لسنة 1952",
+      "category": "ملكية فكرية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 53,
+      "expected_articles": 53,
+      "sections": 2,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-المؤشرات-الجغرافية": {
+      "title": "قانون المؤشرات الجغرافية لسنة 2000",
+      "category": "ملكية فكرية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 10,
+      "expected_articles": 10,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-المنافسة": {
+      "title": "قانون المنافسة لسنة 2004",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 29,
+      "expected_articles": 29,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-توريد-واردات-الدوائر-والوحدات-الحكومية": {
+      "title": "قانون توريد واردات الدوائر والوحدات الحكومية لسنة 2015",
+      "category": "استثمار ومالية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 7,
+      "expected_articles": 7,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-حماية-التصاميم-للدوائر-المتكاملة": {
+      "title": "قانون حماية التصاميم للدوائر المتكاملة لسنة 2000",
+      "category": "ملكية فكرية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 24,
+      "expected_articles": 24,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-حماية-المستهلك": {
+      "title": "قانون حماية المستهلك لسنة 2017",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 27,
+      "expected_articles": 27,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-رسوم-طوابع-الواردات": {
+      "title": "قانون رسوم طوابع الواردات لسنة 2001",
+      "category": "ضرائب وجمارك",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 24,
+      "expected_articles": 24,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-علامات-البضائع": {
+      "title": "قانون علامات البضائع لسنة 1953",
+      "category": "ملكية فكرية",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 18,
+      "expected_articles": 18,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-غرف-التجارة": {
+      "title": "قانون غرف التجارة المؤقت لسنة 2003",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 38,
+      "expected_articles": 38,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-منع-الإرهاب": {
+      "title": "قانون منع الإرهاب لسنة 2006",
+      "category": "القانون-الموضوعي-الجزائي",
+      "applies_to": [
+        "جزائية"
+      ],
+      "articles": 9,
+      "expected_articles": 9,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "قانون-غرف-الصناعة": {
+      "title": "قانون غرف الصناعة لسنة 2005",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 36,
+      "expected_articles": 36,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
+    },
+    "نظام-غرف-الصناعة": {
+      "title": "نظام غرف الصناعة لسنة 2005",
+      "category": "موضوعي تجاري",
+      "applies_to": [
+        "حقوقية"
+      ],
+      "articles": 36,
+      "expected_articles": 36,
+      "sections": 1,
+      "source_status": "complete",
+      "needs_source": false,
+      "has_memorandum": false,
+      "memorandum_coverage": null,
+      "review_status": "draft"
     }
   },
   "categories": {
@@ -369,10 +579,16 @@
       "laws": [
         "قانون-التجارة",
         "قانون-التجارة-البحرية",
-        "قانون-الشركات"
+        "قانون-الشركات",
+        "قانون-الصناعة-والتجارة",
+        "قانون-المنافسة",
+        "قانون-حماية-المستهلك",
+        "قانون-غرف-التجارة",
+        "قانون-غرف-الصناعة",
+        "نظام-غرف-الصناعة"
       ],
-      "total_articles": 1180,
-      "expected_articles": 1180
+      "total_articles": 1370,
+      "expected_articles": 1370
     },
     "إجراءات حقوقية": {
       "title": "إجراءات حقوقية",
@@ -387,18 +603,20 @@
       "laws": [
         "قانون-الجمارك",
         "قانون-الضريبة-العامة-على-المبيعات",
-        "قانون-ضريبة-الدخل"
+        "قانون-ضريبة-الدخل",
+        "قانون-رسوم-طوابع-الواردات"
       ],
-      "total_articles": 413,
-      "expected_articles": 413
+      "total_articles": 437,
+      "expected_articles": 437
     },
     "القانون-الموضوعي-الجزائي": {
       "title": "القانون الموضوعي الجزائي",
       "laws": [
-        "قانون-العقوبات-الأردني"
+        "قانون-العقوبات-الأردني",
+        "قانون-منع-الإرهاب"
       ],
-      "total_articles": 489,
-      "expected_articles": 489
+      "total_articles": 498,
+      "expected_articles": 498
     },
     "عمل": {
       "title": "عمل",
@@ -429,10 +647,12 @@
     "استثمار ومالية": {
       "title": "استثمار ومالية",
       "laws": [
-        "قانون-صندوق-الاستثمار-الأردني"
+        "قانون-صندوق-الاستثمار-الأردني",
+        "قانون-البيئة-الاستثمارية",
+        "قانون-توريد-واردات-الدوائر-والوحدات-الحكومية"
       ],
-      "total_articles": 16,
-      "expected_articles": 16
+      "total_articles": 76,
+      "expected_articles": 76
     },
     "مهنة-المحاماة": {
       "title": "مهنة المحاماة",
@@ -441,6 +661,17 @@
       ],
       "total_articles": 110,
       "expected_articles": 110
+    },
+    "ملكية فكرية": {
+      "title": "ملكية فكرية",
+      "laws": [
+        "قانون-العلامات-التجارية",
+        "قانون-المؤشرات-الجغرافية",
+        "قانون-حماية-التصاميم-للدوائر-المتكاملة",
+        "قانون-علامات-البضائع"
+      ],
+      "total_articles": 105,
+      "expected_articles": 105
     }
   },
   "external_documents": {

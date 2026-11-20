@@ -341,7 +341,9 @@ def _label(value: str) -> str:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog='legal-search-eval', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--set', dest='evalset', type=Path, default=Path('/content/eval/retrieval-v1.jsonl'))
+    # retrieval-v2 (2026-11-20): retrieval-v1's 80 items unchanged plus 2 per law added that day, so the set covers
+    # every registry law; retrieval-v1.jsonl stays as it was, the set the earlier reports and baselines measured.
+    parser.add_argument('--set', dest='evalset', type=Path, default=Path('/content/eval/retrieval-v2.jsonl'))
     parser.add_argument('--registry', type=Path, default=Path('/content/corpus/laws.json'))
     parser.add_argument('--corrections', type=Path, default=Path('/content/corpus/corrections.json'))
     parser.add_argument('--corpus', type=Path, default=Path(os.environ.get('CORPUS_DIR', '/corpus')))
