@@ -160,7 +160,7 @@ def test_coverage_below_the_minimum_is_reported_per_law():
 def test_the_real_set_passes_its_checks():
     content = Path(os.environ['CONTENT_DIR'])
     sources = Sources(
-        content / 'eval' / 'retrieval-v1.jsonl',
+        content / 'eval' / 'retrieval-v2.jsonl',
         content / 'corpus' / 'laws.json',
         content / 'corpus' / 'corrections.json',
         Path(os.environ['CORPUS_DIR']),

@@ -1,0 +1,62 @@
+{
+  "law": "قانون حماية المستهلك",
+  "slug": "قانون-حماية-المستهلك",
+  "category": "موضوعي تجاري",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 27,
+  "extracted_heading_count": 27,
+  "distinct_article_numbers": 27,
+  "max_article": 27,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-حماية-المستهلك-الكامل.md",
+      "number": "00",
+      "title": "قانون حماية المستهلك",
+      "article_count": 27,
+      "article_range": "1-27",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27"
+      ]
+    }
+  ],
+  "official_name": "قانون حماية المستهلك رقم 7 لسنة 2017",
+  "year": 2017,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون حماية المستهلك/IQRA_23_CONSUMER_7_2017.md (sha256 5dd4aa41f8649b1110f02fe2e39f5545804b4563359b6284b7999a746ffeae77); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}

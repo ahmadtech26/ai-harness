@@ -1,0 +1,42 @@
+{
+  "law": "قانون توريد واردات الدوائر والوحدات الحكومية",
+  "slug": "قانون-توريد-واردات-الدوائر-والوحدات-الحكومية",
+  "category": "استثمار ومالية",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 7,
+  "extracted_heading_count": 7,
+  "distinct_article_numbers": 7,
+  "max_article": 7,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-توريد-واردات-الدوائر-والوحدات-الحكومية-الكامل.md",
+      "number": "00",
+      "title": "قانون توريد واردات الدوائر والوحدات الحكومية",
+      "article_count": 7,
+      "article_range": "1-7",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7"
+      ]
+    }
+  ],
+  "official_name": "قانون توريد واردات الدوائر والوحدات الحكومية رقم 43 لسنة 2015",
+  "year": 2015,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون توريد واردات الدوائر والوحدات الحكومية/IQRA_20_GOV-REVENUES_43_2015.md (sha256 12f80ba6adfe7305eec5e7ea6a40f17dae24eb346d226f953bd986819ebac74d); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}

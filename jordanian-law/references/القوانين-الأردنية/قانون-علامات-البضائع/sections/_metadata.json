@@ -1,0 +1,53 @@
+{
+  "law": "قانون علامات البضائع",
+  "slug": "قانون-علامات-البضائع",
+  "category": "ملكية فكرية",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 18,
+  "extracted_heading_count": 18,
+  "distinct_article_numbers": 18,
+  "max_article": 18,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-علامات-البضائع-الكامل.md",
+      "number": "00",
+      "title": "قانون علامات البضائع",
+      "article_count": 18,
+      "article_range": "1-18",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18"
+      ]
+    }
+  ],
+  "official_name": "قانون علامات البضائع رقم 19 لسنة 1953",
+  "year": 1953,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون علامات البضائع/IQRA_27_GOODS-MARKS_19_1953.md (sha256 be7ca86b2a0eda11ab664886f2b589016ade15c30a48262e934191d5bc8804db); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}

@@ -1,0 +1,59 @@
+{
+  "law": "قانون حماية التصاميم للدوائر المتكاملة",
+  "slug": "قانون-حماية-التصاميم-للدوائر-المتكاملة",
+  "category": "ملكية فكرية",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 24,
+  "extracted_heading_count": 24,
+  "distinct_article_numbers": 24,
+  "max_article": 24,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-حماية-التصاميم-للدوائر-المتكاملة-الكامل.md",
+      "number": "00",
+      "title": "قانون حماية التصاميم للدوائر المتكاملة",
+      "article_count": 24,
+      "article_range": "1-24",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24"
+      ]
+    }
+  ],
+  "official_name": "قانون حماية التصاميم للدوائر المتكاملة رقم 10 لسنة 2000",
+  "year": 2000,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون حماية التصاميم للدوائر المتكاملة/IQRA_22_CIRCUITS_10_2000.md (sha256 b2dc4de72310647ab1e4421e80d7d3da8d65648256e8625d1e27b15501be6f5a); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}

@@ -668,6 +668,257 @@
         "amendment.gazette_issue": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4406&LegislationType=2&isMod=true",
         "amendment.gazette_date": "https://www.lob.gov.jo/?v=3&lang=ar#!/LegislationDetails?LegislationID=4406&LegislationType=2&isMod=true"
       }
+    },
+    {
+      "slug": "investment-environment",
+      "title": "قانون البيئة الاستثمارية",
+      "folder": "قانون-البيئة-الاستثمارية",
+      "number": 21,
+      "year": 2022,
+      "gazette": {
+        "issue": 5821,
+        "date": "2022-10-16"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#investment-environment",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#investment-environment",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#investment-environment",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#investment-environment",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#investment-environment"
+      }
+    },
+    {
+      "slug": "industry-and-trade",
+      "title": "قانون الصناعة والتجارة",
+      "folder": "قانون-الصناعة-والتجارة",
+      "number": 18,
+      "year": 1998,
+      "gazette": {
+        "issue": 4304,
+        "date": "1998-10-01"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#industry-and-trade",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#industry-and-trade",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#industry-and-trade",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#industry-and-trade",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#industry-and-trade"
+      }
+    },
+    {
+      "slug": "trademarks",
+      "title": "قانون العلامات التجارية",
+      "folder": "قانون-العلامات-التجارية",
+      "number": 33,
+      "year": 1952,
+      "gazette": {
+        "issue": 1110,
+        "date": "1952-06-01"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#trademarks",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#trademarks",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#trademarks",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#trademarks",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#trademarks"
+      }
+    },
+    {
+      "slug": "geographical-indications",
+      "title": "قانون المؤشرات الجغرافية",
+      "folder": "قانون-المؤشرات-الجغرافية",
+      "number": 8,
+      "year": 2000,
+      "gazette": {
+        "issue": 4423,
+        "date": "2000-04-02"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#geographical-indications",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#geographical-indications",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#geographical-indications",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#geographical-indications",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#geographical-indications"
+      }
+    },
+    {
+      "slug": "competition",
+      "title": "قانون المنافسة",
+      "folder": "قانون-المنافسة",
+      "number": 33,
+      "year": 2004,
+      "gazette": {
+        "issue": 4673,
+        "date": "2004-09-01"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#competition",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#competition",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#competition",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#competition",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#competition"
+      }
+    },
+    {
+      "slug": "government-revenues",
+      "title": "قانون توريد واردات الدوائر والوحدات الحكومية",
+      "folder": "قانون-توريد-واردات-الدوائر-والوحدات-الحكومية",
+      "number": 43,
+      "year": 2015,
+      "gazette": {
+        "issue": 5363,
+        "date": "2015-10-18"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#government-revenues",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#government-revenues",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#government-revenues",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#government-revenues",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#government-revenues"
+      }
+    },
+    {
+      "slug": "integrated-circuits",
+      "title": "قانون حماية التصاميم للدوائر المتكاملة",
+      "folder": "قانون-حماية-التصاميم-للدوائر-المتكاملة",
+      "number": 10,
+      "year": 2000,
+      "gazette": {
+        "issue": 4423,
+        "date": "2000-04-02"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#integrated-circuits",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#integrated-circuits",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#integrated-circuits",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#integrated-circuits",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#integrated-circuits"
+      }
+    },
+    {
+      "slug": "consumer-protection",
+      "title": "قانون حماية المستهلك",
+      "folder": "قانون-حماية-المستهلك",
+      "number": 7,
+      "year": 2017,
+      "gazette": {
+        "issue": 5455,
+        "date": "2017-04-16"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#consumer-protection",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#consumer-protection",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#consumer-protection",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#consumer-protection",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#consumer-protection"
+      }
+    },
+    {
+      "slug": "revenue-stamps",
+      "title": "قانون رسوم طوابع الواردات",
+      "folder": "قانون-رسوم-طوابع-الواردات",
+      "number": 20,
+      "year": 2001,
+      "gazette": {
+        "issue": 4494,
+        "date": "2001-07-01"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#revenue-stamps",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#revenue-stamps",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#revenue-stamps",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#revenue-stamps",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#revenue-stamps"
+      }
+    },
+    {
+      "slug": "goods-marks",
+      "title": "قانون علامات البضائع",
+      "folder": "قانون-علامات-البضائع",
+      "number": 19,
+      "year": 1953,
+      "gazette": {
+        "issue": 1131,
+        "date": "1953-01-17"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#goods-marks",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#goods-marks",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#goods-marks",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#goods-marks",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#goods-marks"
+      }
+    },
+    {
+      "slug": "chambers-of-trade",
+      "title": "قانون غرف التجارة المؤقت",
+      "folder": "قانون-غرف-التجارة",
+      "number": 70,
+      "year": 2003,
+      "gazette": {
+        "issue": 4606,
+        "date": "2003-06-16"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#chambers-of-trade",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#chambers-of-trade",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#chambers-of-trade",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#chambers-of-trade",
+        "gazette.date": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#chambers-of-trade"
+      }
+    },
+    {
+      "slug": "anti-terrorism",
+      "title": "قانون منع الإرهاب",
+      "folder": "قانون-منع-الإرهاب",
+      "number": 55,
+      "year": 2006,
+      "gazette": {
+        "issue": 4790,
+        "source_url": "https://www.pm.gov.jo/Ar/Pages/NewsPaperDetails/4790"
+      },
+      "review": {
+        "status": "draft"
+      },
+      "sources": {
+        "title": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#anti-terrorism",
+        "number": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#anti-terrorism",
+        "year": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#anti-terrorism",
+        "gazette.issue": "https://github.com/ahmadtech26/ai-harness/blob/main/docs/verification/2026-11-20-new-laws-sources.md#anti-terrorism"
+      }
     }
   ]
 }

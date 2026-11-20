@@ -1,0 +1,59 @@
+{
+  "law": "قانون رسوم طوابع الواردات",
+  "slug": "قانون-رسوم-طوابع-الواردات",
+  "category": "ضرائب وجمارك",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 24,
+  "extracted_heading_count": 24,
+  "distinct_article_numbers": 24,
+  "max_article": 24,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-رسوم-طوابع-الواردات-الكامل.md",
+      "number": "00",
+      "title": "قانون رسوم طوابع الواردات",
+      "article_count": 24,
+      "article_range": "1-24",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24"
+      ]
+    }
+  ],
+  "official_name": "قانون رسوم طوابع الواردات رقم 20 لسنة 2001",
+  "year": 2001,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون رسوم طوابع الواردات/IQRA_24_REVENUE-STAMPS_20_2001.md (sha256 dbbe1f2e7d90a0b41a3c1742b1c6e59b70b2356d653a6ec9e6686271ab98a316); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}

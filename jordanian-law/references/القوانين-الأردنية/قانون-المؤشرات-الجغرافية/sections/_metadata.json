@@ -1,0 +1,45 @@
+{
+  "law": "قانون المؤشرات الجغرافية",
+  "slug": "قانون-المؤشرات-الجغرافية",
+  "category": "ملكية فكرية",
+  "applies_to": [
+    "حقوقية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 10,
+  "extracted_heading_count": 10,
+  "distinct_article_numbers": 10,
+  "max_article": 10,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-المؤشرات-الجغرافية-الكامل.md",
+      "number": "00",
+      "title": "قانون المؤشرات الجغرافية",
+      "article_count": 10,
+      "article_range": "1-10",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ]
+    }
+  ],
+  "official_name": "قانون المؤشرات الجغرافية رقم 8 لسنة 2000",
+  "year": 2000,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون الموؤشرات الجعرافية/IQRA_15_GEOGRAPHICAL-INDICATIONS_8_2000.md (sha256 a60c047b2f83ebe1f61e2c722a94880cdc86ac0ea5b1c0532e3816f65108c8b3); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}

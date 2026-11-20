@@ -148,6 +148,78 @@
       "title": "قانون نقابة المحامين النظاميين",
       "number": 11,
       "year": 1972
+    },
+    {
+      "slug": "investment-environment",
+      "title": "قانون البيئة الاستثمارية",
+      "number": 21,
+      "year": 2022
+    },
+    {
+      "slug": "industry-and-trade",
+      "title": "قانون الصناعة والتجارة",
+      "number": 18,
+      "year": 1998
+    },
+    {
+      "slug": "trademarks",
+      "title": "قانون العلامات التجارية",
+      "number": 33,
+      "year": 1952
+    },
+    {
+      "slug": "geographical-indications",
+      "title": "قانون المؤشرات الجغرافية",
+      "number": 8,
+      "year": 2000
+    },
+    {
+      "slug": "competition",
+      "title": "قانون المنافسة",
+      "number": 33,
+      "year": 2004
+    },
+    {
+      "slug": "government-revenues",
+      "title": "قانون توريد واردات الدوائر والوحدات الحكومية",
+      "number": 43,
+      "year": 2015
+    },
+    {
+      "slug": "integrated-circuits",
+      "title": "قانون حماية التصاميم للدوائر المتكاملة",
+      "number": 10,
+      "year": 2000
+    },
+    {
+      "slug": "consumer-protection",
+      "title": "قانون حماية المستهلك",
+      "number": 7,
+      "year": 2017
+    },
+    {
+      "slug": "revenue-stamps",
+      "title": "قانون رسوم طوابع الواردات",
+      "number": 20,
+      "year": 2001
+    },
+    {
+      "slug": "goods-marks",
+      "title": "قانون علامات البضائع",
+      "number": 19,
+      "year": 1953
+    },
+    {
+      "slug": "chambers-of-trade",
+      "title": "قانون غرف التجارة المؤقت",
+      "number": 70,
+      "year": 2003
+    },
+    {
+      "slug": "anti-terrorism",
+      "title": "قانون منع الإرهاب",
+      "number": 55,
+      "year": 2006
     }
   ]
 }

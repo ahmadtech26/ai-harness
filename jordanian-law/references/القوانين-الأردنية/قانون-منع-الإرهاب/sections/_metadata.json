@@ -1,0 +1,44 @@
+{
+  "law": "قانون منع الإرهاب",
+  "slug": "قانون-منع-الإرهاب",
+  "category": "القانون-الموضوعي-الجزائي",
+  "applies_to": [
+    "جزائية"
+  ],
+  "count_policy": "each \"### المادة N\" heading counts as one article; مكررة headings are counted separately",
+  "expected_total_articles": 9,
+  "extracted_heading_count": 9,
+  "distinct_article_numbers": 9,
+  "max_article": 9,
+  "missing_articles": [],
+  "duplicate_articles": [],
+  "source_status": "complete",
+  "needs_source": false,
+  "has_memorandum": false,
+  "memorandum_coverage": null,
+  "total_sections": 1,
+  "sections": [
+    {
+      "filename": "00-قانون-منع-الإرهاب-الكامل.md",
+      "number": "00",
+      "title": "قانون منع الإرهاب",
+      "article_count": 9,
+      "article_range": "1-9",
+      "articles": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ]
+    }
+  ],
+  "official_name": "قانون منع الإرهاب رقم 55 لسنة 2006",
+  "year": 2006,
+  "review_status": "draft",
+  "provenance": "owner archive 2026-11-20: قانون منع الارهاب/IQRA_LAW_Jordan_Anti_Terrorism_Law_55_2006_ALL_9_ONE_FILE_RAGFlow_SOURCE_PRESERVED_v1.md (sha256 393fff665ec7462f574fb885ecdb176813d9c5974e9257d5bd71cca7867b01bb); unverified, see docs/verification/2026-11-20-new-laws-sources.md"
+}
