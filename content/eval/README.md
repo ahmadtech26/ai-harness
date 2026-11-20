@@ -19,3 +19,11 @@
 أي تعديل على البنود يعيد الحالة إلى `draft` حتى يُراجع، ويُعاد بعده القياس على الصيغة الجديدة.
 
 الفحص (من `services/legal-search`): `docker compose -f compose.test.yaml run --rm --build eval check`
+
+## مجموعة تكميلية: practice-situations-v1
+
+`practice-situations-v1.jsonl`: 50 بندًا (مسودة، لمراجعة المحامي) صيغت أسئلتها بإعادة صياغة وقائع واقعية وصفتها صفحات ممارسة أردنية، وعبارة البحث فيها عبارة محامٍ لا تنقل أربع كلمات متتالية من المادة المتوقعة. الحقل `law` موجود في كل بند ويساوي قانون المواد المتوقعة.
+
+- مجموعة تكميلية لا تستوفي حدود التغطية في `legal-search-eval check` (75 بندًا، والحد الأدنى لكل قانون، و6 بنود للمذكرة)، فلا يشغّلها فحص الإصدار ولا تدخل في خط الأساس `deploy/release/eval-baseline.json` المثبت على `retrieval-v1`.
+- تُفحص بـ `legal-search-eval --set /content/eval/practice-situations-v1.jsonl run --label <label>`، ولا تُلحق بنودها بـ `retrieval-v1.jsonl`.
+- مصدر كل بند (مسار الصفحة وبصمتها وتاريخ نشرها وتاريخ الاستخلاص) في `docs/distillation/jordan-lawyer/sources.jsonl` (`output: 2`)، وهو سجل داخلي لا يُعرض على النموذج.

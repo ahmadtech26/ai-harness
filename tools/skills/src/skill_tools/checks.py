@@ -77,6 +77,21 @@ def check_description(skill: Skill) -> list[Problem]:
     return []
 
 
+# LibreChat's injectSkillCatalog passes at most 250 characters of each description to the model's skill catalog, and may
+# cut further (api/server/services/Endpoints/agents/skills.ts:104-112); past that, the trigger words are lost. Counted as
+# JavaScript counts a string (UTF-16 code units).
+MAX_CATALOG_DESCRIPTION = 250
+
+
+def check_catalog_description(skill: Skill) -> list[Problem]:
+    description = skill.frontmatter.get('description')
+    length = len(description.encode('utf-16-le')) // 2 if isinstance(description, str) else 0
+    if length > MAX_CATALOG_DESCRIPTION:
+        return [Problem(skill.id, 'catalog-description',
+                        f'description has {length} characters; the skill catalog passes at most {MAX_CATALOG_DESCRIPTION}')]
+    return []
+
+
 def check_size(skill: Skill) -> list[Problem]:
     if len(skill.text) > MAX_SKILL_MD_CHARS:
         return [Problem(skill.id, 'size', f'SKILL.md has {len(skill.text)} characters (limit {MAX_SKILL_MD_CHARS})')]

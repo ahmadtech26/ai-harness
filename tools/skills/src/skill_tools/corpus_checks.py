@@ -1,11 +1,16 @@
-"""Law registry and corrections checks (content/corpus/laws.json, corrections.json), run by corpus-ci.
+"""Law registry, corrections and verification-record checks (content/corpus/laws.json, corrections.json,
+verification/<law-slug>.jsonl), run by corpus-ci.
 
 Every check returns problems; an empty list passes. Rules: phase 3 spec A.1–A.3. A present value needs a
 source URL; an absent value is fine (values are never guessed)."""
 
+import hashlib
+import json
 import re
+from collections import Counter
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from skill_tools.checks import Problem
 
@@ -15,8 +20,11 @@ ISO_DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 REVIEW_STATUSES = ('draft', 'approved')
 TOP_FIELDS = {
     'slug': str, 'title': str, 'folder': str, 'number': int, 'year': int, 'gazette': dict,
-    'amendment': dict, 'note': str, 'known_gaps': list, 'review': dict, 'sources': dict,
+    'amendment': dict, 'note': str, 'known_gaps': list, 'review': dict, 'sources': dict, 'instrument': str,
 }
+# What the entry is: a law (قانون, the default when `instrument` is absent) or a regulation (نظام, e.g. court-fees, the
+# schedule of نظام رسوم المحاكم رقم 43 لسنة 2005). legal-search's registry reads it and prints «نظام» for a regulation.
+INSTRUMENTS = ('law', 'regulation')
 REQUIRED = ('slug', 'title', 'folder', 'review', 'sources')
 GAZETTE_FIELDS = {'issue': int, 'date': str, 'source_url': str}
 AMENDMENT_FIELDS = {'law': int, 'year': int, 'gazette_issue': int, 'gazette_date': str, 'source_url': str}
@@ -83,6 +91,8 @@ def check_schema(entry: dict, name: str) -> list[Problem]:
     for key in ('title', 'folder', 'note'):
         if _is(entry.get(key), str) and not entry[key].strip():
             problems.append(Problem(name, 'schema', f'{key} must not be empty'))
+    if _is(entry.get('instrument'), str) and entry['instrument'] not in INSTRUMENTS:
+        problems.append(Problem(name, 'schema', f'instrument must be one of {", ".join(INSTRUMENTS)}'))
     if _is(entry.get('gazette'), dict):
         problems += _fields(entry['gazette'], GAZETTE_FIELDS, 'gazette.', name)
     if _is(entry.get('amendment'), dict):
@@ -217,4 +227,391 @@ def check_all(registry: object, corrections: object, corpus: Path, release: bool
     problems += check_corrections(corrections, {e['slug'] for e in valid if _is(e.get('slug'), str)})
     if release:
         problems += check_approved(corrections.get('review') if _is(corrections, dict) else None, 'corrections.json')
+    return problems
+
+
+# Verification records: content/corpus/verification/<law-slug>.jsonl, one line per corpus article (the record format
+# of content/corpus/verification/README.md). Schema only. Whether a record still matches its article's stored text
+# (`text_sha256`) is checked where the parser lives: legal-search's `--check-verification` on recall-plan. A law
+# without a file is simply unverified.
+SHA256 = re.compile(r'^[0-9a-f]{64}$')
+RESULTS = ('verified', 'differs', 'unverifiable')
+REASONS = ('gazette_offline', 'gazette_image_unread', 'bureau_unreachable', 'no_official_source', 'sources_disagree')
+DIFFERS_FROM = ('gazette', 'bureau', 'both')
+DIFFERENCES = ('formatting', 'trailing-title', 'body', 'repeal')
+METHODS = ('text', 'image')
+# legal-search's verification.EFFECTS (recall-plan) holds the same five values, in this order; both are pinned by tests.
+EFFECTS = ('amended', 'replaced', 'added', 'repealed', 'renumbered')
+# A helper source (owner 2026-11-15, «Helper source only»): read to help find a text, never the Gazette and never counted
+# toward `verified`. Its reading goes in the record's `helper` block, never in `gazette`; a Gazette reference whose URL is
+# on a helper's host is a problem.
+HELPER_SOURCES = {'qistas': 'qistas.com'}
+NORMALISATIONS = ('v1',)
+# (kind, nullable). A kind is a named value type, a tuple of allowed values, a nested object, or [item kind].
+_REFERENCE = {'issue': ('id', True), 'date': ('date', True), 'page': ('id', True), 'document_id': ('id', True),
+              'url': ('refurl', True), 'file_sha256': ('sha256', True)}
+_AMENDMENT = {'law': ('int', True), 'year': ('int', True), **_REFERENCE, 'effect': (EFFECTS, False)}
+_GAZETTE = {'method': (METHODS, True), 'original': (_REFERENCE, True), 'amendments': ([_AMENDMENT], False),
+            'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
+_BUREAU = {'legislation_id': ('id', True), 'url': ('refurl', True), 'as_of': ('date', True),
+           'text_sha256': ('sha256', True), 'checked_on': ('date', True)}
+# The helper's text against the stored text under v1 (information only, for grouping the lawyer list): equal, or the
+# kind of difference v1.compare gives.
+HELPER_RESULTS = ('match', 'formatting', 'body')
+_HELPER = {'source': (tuple(HELPER_SOURCES), False), 'url': ('refurl', False), 'text_sha256': ('sha256', True),
+           'checked_on': ('date', True), 'result': (HELPER_RESULTS, True)}
+RECORD = {
+    'law_slug': ('str', False), 'number': ('int', False), 'suffix': ('str', False), 'text_sha256': ('sha256', False),
+    'norm_sha256': ('sha256', True), 'result': (RESULTS, False), 'reason': (REASONS, True),
+    'differs_from': (DIFFERS_FROM, True), 'difference': (DIFFERENCES, True), 'checked_on': ('date', False),
+    'normalisation': (NORMALISATIONS, False), 'gazette': (_GAZETTE, True), 'bureau': (_BUREAU, True),
+    'helper': (_HELPER, True), 'notes': ('str', True), 'lawyer_item': ('str', True),
+}
+OPTIONAL_RECORD_KEYS = {'norm_sha256', 'helper'}
+_KINDS = {
+    'int': (lambda v: _is(v, int), 'an int'),
+    'str': (lambda v: _is(v, str), 'a string'),
+    'id': (lambda v: _is(v, int) or (_is(v, str) and bool(v.strip())), 'an int or a non-empty string'),
+    'sha256': (lambda v: _is(v, str) and bool(SHA256.match(v)), 'a sha256 (64 lowercase hex digits)'),
+    'date': (lambda v: _iso(v), 'an ISO date (YYYY-MM-DD)'),
+    'url': (lambda v: _url(v), 'an http(s) URL'),
+    # A reference URL of a record or an evidence line: no spelling a browser would resolve to another host (a non-ASCII
+    # host, a percent-escape, a backslash), so the helper-host rule reads the host the URL really names.
+    'refurl': (lambda v: _url(v) and '%' not in v and '\\' not in v and _ascii_host(v),
+               'an http(s) URL with an ASCII host and no «%» or «\\»'),
+}
+MAX_PROBLEMS_PER_FILE = 20
+# `### المادة N`, optionally «مكرر» and one more word, optionally a dash and inline text: the article headings of a
+# law's sections/*.md. Read here for article keys only; the article text and its hash belong to legal-search's parser.
+_HEADING = re.compile(r'^\s*###\s+المادة\s+([0-9٠-٩]+)(.*)$')
+_ARABIC_DIGITS = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+
+
+def _key_label(number: object, suffix: object) -> str:
+    return f'المادة {number}' + (f' {suffix}' if suffix else '')
+
+
+def _value_problems(value: object, kind: object, nullable: bool, path: str) -> list[tuple[str, str]]:
+    if value is None:
+        return [] if nullable else [('schema', f'{path} must not be null')]
+    if isinstance(kind, dict):
+        if not _is(value, dict):
+            return [('schema', f'{path} must be an object')]
+        return _object_problems(value, kind, f'{path}.')
+    if isinstance(kind, list):
+        if not _is(value, list):
+            return [('schema', f'{path} must be a list')]
+        return [problem for index, item in enumerate(value)
+                for problem in _value_problems(item, kind[0], False, f'{path}[{index}]')]
+    if isinstance(kind, tuple):
+        return [] if _is(value, str) and value in kind else [('schema', f'{path} must be one of {", ".join(kind)}')]
+    accepts, description = _KINDS[kind]
+    return [] if accepts(value) else [('date' if kind == 'date' else 'schema', f'{path} must be {description}')]
+
+
+def _object_problems(value: dict, spec: dict, prefix: str, optional: frozenset | set = frozenset()) -> list[tuple[str, str]]:
+    problems = [('schema', f'unknown field {prefix}{key}') for key in value if key not in spec]
+    for key, (kind, nullable) in spec.items():
+        if key in value:
+            problems += _value_problems(value[key], kind, nullable, f'{prefix}{key}')
+        elif key not in optional:
+            problems.append(('schema', f'missing field {prefix}{key}'))
+    return problems
+
+
+def _filled_reference(reference: object, method: object) -> bool:
+    return (_is(reference, dict) and all(reference.get(key) is not None for key in ('issue', 'date', 'page'))
+            and (reference.get('document_id') is not None or reference.get('url') is not None)
+            and (method != 'image' or reference.get('file_sha256') is not None))
+
+
+def _ascii_host(url: str) -> bool:
+    try:
+        host = urlsplit(url).hostname or ''
+    except ValueError:
+        return False
+    return bool(host) and host.isascii()
+
+
+def host_of(url: object) -> str:
+    """The URL's host as a resolver sees it: lowercase, without userinfo, port or a trailing dot; '' when there is none."""
+    if not _is(url, str):
+        return ''
+    try:
+        host = urlsplit(url.strip()).hostname or ''
+    except ValueError:
+        return ''
+    return host.rstrip('.').lower()
+
+
+def helper_of_host(url: object) -> str | None:
+    """The helper source whose host (or a subdomain of it) `url` is on, else None."""
+    host = host_of(url)
+    return next((name for name, helper in HELPER_SOURCES.items() if host == helper or host.endswith('.' + helper)), None)
+
+
+def _helper_problems(record: dict) -> list[str]:
+    """A helper source's reading is never a Gazette or Bureau reference, and a helper block's URL is on its own source's
+    host (run on a record whose schema passed)."""
+    references: list[tuple[str, object]] = []
+    gazette, bureau, helper = record['gazette'], record['bureau'], record.get('helper')
+    if gazette is not None:
+        references += [('gazette.original', gazette['original'])] + [
+            (f'gazette.amendments[{index}]', amendment) for index, amendment in enumerate(gazette['amendments'])]
+    if bureau is not None:
+        references.append(('bureau', bureau))
+    problems = []
+    for path, reference in references:
+        name = helper_of_host(reference['url']) if reference else None
+        if name is not None:
+            problems.append(f'{path}.url is on {HELPER_SOURCES[name]}: {name} is a helper source, never the Gazette '
+                            'or the Bureau (its reading goes in the helper block)')
+    if helper is not None and helper_of_host(helper['url']) != helper['source']:
+        problems.append(f'helper.url is not on {HELPER_SOURCES[helper["source"]]}, the host of helper.source '
+                        f'{helper["source"]!r}')
+    if (helper is not None and gazette is not None and gazette['text_sha256'] is not None
+            and gazette['text_sha256'] == helper['text_sha256']):
+        problems.append('gazette.text_sha256 is the helper\'s text_sha256: a helper\'s reading is never the Gazette\'s')
+    return problems
+
+
+def _result_problems(record: dict) -> list[str]:
+    """What a record's result requires of its other fields (run on a record whose schema passed)."""
+    result = record['result']
+    if result == 'differs':
+        return [f'a differs record needs {key}' for key in ('differs_from', 'difference') if record[key] is None]
+    if result == 'unverifiable':
+        return [] if record['reason'] is not None else ['an unverifiable record needs a reason']
+    problems = [f'a verified record must have {key} null' for key in ('reason', 'differs_from', 'difference')
+                if record[key] is not None]
+    gazette, bureau = record['gazette'], record['bureau']
+    if gazette is None:
+        problems.append('a verified record needs the gazette block')
+    else:
+        problems += [f'a verified record needs gazette.{key}' for key in ('method', 'text_sha256', 'checked_on')
+                     if gazette[key] is None]
+        references = [gazette['original'], *gazette['amendments']]
+        if not any(_filled_reference(reference, gazette['method']) for reference in references):
+            problems.append('a verified record needs a Gazette reference (gazette.original or an amendment) with issue, '
+                            'date, page and document_id or url' + (', and file_sha256 (method image)'
+                                                                  if gazette['method'] == 'image' else ''))
+    if bureau is None:
+        problems.append('a verified record needs the bureau block')
+    else:
+        problems += [f'a verified record needs bureau.{key}' for key in _BUREAU if bureau[key] is None]
+    return problems
+
+
+def check_verification_record(record: object, slug: str) -> list[tuple[str, str]]:
+    """(rule, message) for each problem of one record of verification/<slug>.jsonl."""
+    if not _is(record, dict):
+        return [('schema', 'each line must be a JSON object')]
+    problems = _object_problems(record, RECORD, '', OPTIONAL_RECORD_KEYS)
+    if _is(record.get('law_slug'), str) and record['law_slug'] != slug:
+        problems.append(('schema', f'law_slug {record["law_slug"]!r} is not the file\'s law {slug!r}'))
+    if not problems:
+        problems += [('schema', message) for message in _helper_problems(record) + _result_problems(record)]
+    return problems
+
+
+def heading_keys(law_folder: Path) -> list[tuple[int, str]]:
+    """(number, suffix) of every article heading in a law's sections/*.md, in file order: «### المادة N», with the
+    suffix «مكرر» plus at most one more word before any dash. Keys only; this reads no article text."""
+    keys = []
+    for shard in sorted((law_folder / 'sections').glob('*.md')):
+        for line in shard.read_text(encoding='utf-8').replace('\r\n', '\n').split('\n'):
+            heading = _HEADING.match(line)
+            if not heading:
+                continue
+            words = re.split('[—–-]', heading.group(2), maxsplit=1)[0].split()
+            suffix = ' '.join(words[:2]) if words and words[0] == 'مكرر' else ''
+            keys.append((int(heading.group(1).translate(_ARABIC_DIGITS)), suffix))
+    return keys
+
+
+def article_keys(entry: dict, corrections: object, corpus: Path) -> list[tuple[int, str]]:
+    """The law's article keys as corpus-ci can know them without the parser: the headings, with the corrections that
+    change a key (relabel, split) applied and the registry's known gaps (headings with no text) removed."""
+    keys = heading_keys(corpus / entry['folder'])
+    items = corrections.get('corrections') if _is(corrections, dict) else None
+    for item in items if _is(items, list) else []:
+        if not (_is(item, dict) and item.get('law') == entry['slug'] and item.get('type') in ('relabel', 'split')):
+            continue
+        target = (item.get('number'), item.get('suffix', ''))
+        matches = [index for index, key in enumerate(keys) if key == target]
+        occurrence = item.get('occurrence', 1)
+        if not (_is(occurrence, int) and 1 <= occurrence <= len(matches)):
+            continue  # the ingest fails on a correction that matches nothing; the key list is left as it is
+        index = matches[occurrence - 1]
+        if item['type'] == 'relabel' and _is(item.get('new_suffix'), str):
+            keys[index] = (target[0], item['new_suffix'])
+        elif item['type'] == 'split' and _is(item.get('second'), dict) and _is(item['second'].get('number'), int):
+            keys.insert(index + 1, (item['second']['number'], item['second'].get('suffix', '')))
+    gaps = {(gap.get('number'), gap.get('suffix', '')) for gap in entry.get('known_gaps') or [] if _is(gap, dict)}
+    return [key for key in keys if key not in gaps]
+
+
+def _read_records(path: Path, name: str) -> tuple[list[tuple[int, object]], list[Problem]]:
+    try:
+        text = path.read_bytes().decode('utf-8')
+    except UnicodeDecodeError:
+        return [], [Problem(name, 'schema', 'not UTF-8')]
+    records, problems = [], []
+    for line_number, line in enumerate(text.split('\n'), 1):
+        if not line.strip():
+            if line_number < text.count('\n') + 1:
+                problems.append(Problem(f'{name}:{line_number}', 'schema', 'blank line'))
+            continue
+        try:
+            records.append((line_number, json.loads(line)))
+        except json.JSONDecodeError as error:
+            problems.append(Problem(f'{name}:{line_number}', 'schema', f'not JSON: {error.msg}'))
+    return records, problems
+
+
+def _article_problems(name: str, records: list[tuple[int, object]], expected: list[tuple[int, str]]) -> list[Problem]:
+    known = set(expected)
+    problems = []
+    seen: Counter = Counter()
+    for line_number, record in records:
+        if not (_is(record, dict) and _is(record.get('number'), int) and _is(record.get('suffix'), str)):
+            continue
+        key = (record['number'], record['suffix'])
+        seen[key] += 1
+        if key not in known:
+            problems.append(Problem(f'{name}:{line_number}', 'articles',
+                                    f'{_key_label(*key)} is not an article of this law in the corpus'))
+        elif seen[key] == 2:
+            problems.append(Problem(f'{name}:{line_number}', 'articles', f'{_key_label(*key)} has more than one record'))
+    missing = [key for key in expected if key not in seen]
+    if missing:
+        listed = ', '.join(_key_label(*key) for key in missing[:5]) + (' …' if len(missing) > 5 else '')
+        problems.append(Problem(name, 'articles', f'{len(missing)} corpus article(s) have no record: {listed}'))
+    return problems
+
+
+def check_verification(directory: Path, registry: object, corrections: object, corpus: Path) -> list[Problem]:
+    """Every verification/<law-slug>.jsonl: a registry law, one valid record per corpus article and none for an
+    article that does not exist. A missing directory or a law without a file passes (unverified)."""
+    if not directory.is_dir():
+        return []
+    entries = registry.get('laws') if _is(registry, dict) else None
+    laws = {entry['slug']: entry for entry in entries if _is(entry, dict) and _is(entry.get('slug'), str)
+            and _is(entry.get('folder'), str)} if _is(entries, list) else {}
+    problems: list[Problem] = []
+    for path in sorted(directory.glob('*.jsonl')):
+        slug, name = path.stem, f'verification/{path.name}'
+        if slug not in laws:
+            problems.append(Problem(name, 'schema', f'{slug!r} is not a law in the registry'))
+            continue
+        records, file_problems = _read_records(path, name)
+        for line_number, record in records:
+            file_problems += [Problem(f'{name}:{line_number}', rule, message)
+                              for rule, message in check_verification_record(record, slug)]
+        if (corpus / laws[slug]['folder'] / 'sections').is_dir():
+            file_problems += _article_problems(name, records, article_keys(laws[slug], corrections, corpus))
+        if len(file_problems) > MAX_PROBLEMS_PER_FILE:
+            more = len(file_problems) - MAX_PROBLEMS_PER_FILE
+            file_problems = file_problems[:MAX_PROBLEMS_PER_FILE] + [Problem(name, 'schema', f'{more} more problem(s) not shown')]
+        problems += file_problems
+    return problems
+
+
+# Evidence files: docs/verification/evidence/<law-slug>.jsonl beside content/ (content/corpus/verification/README.md,
+# «Evidence files»), one line per article and source. Schema, the text's hash, the helper rule, and the records' links:
+# every source block's text_sha256 (gazette, bureau, helper) has its own evidence line for the article.
+EVIDENCE_SOURCES = ('gazette', 'bureau', *HELPER_SOURCES)
+_PAGE = {'issue': ('id', True), 'page': ('id', True), 'document_id': ('id', True), 'image_sha256': ('sha256', True)}
+EVIDENCE_LINE = {
+    'law_slug': ('str', False), 'number': ('int', False), 'suffix': ('str', False), 'source': (EVIDENCE_SOURCES, False),
+    'text': ('str', True), 'text_sha256': ('sha256', True), 'url': ('refurl', True), 'document_id': ('id', True),
+    'issue': ('id', True), 'page': ('id', True), 'image_sha256': ('image', True), 'pages': ([_PAGE], True),
+    'note': ('str', True), 'accessed_on': ('date', False),
+}
+OPTIONAL_EVIDENCE_KEYS = {'pages', 'note'}
+_KINDS['image'] = (lambda v: (_is(v, str) and bool(SHA256.match(v)))
+                   or (_is(v, list) and bool(v) and all(_is(x, str) and bool(SHA256.match(x)) for x in v)),
+                   'a sha256 or a non-empty list of sha256, one per page image')
+_GAZETTE_FIELDS = ('document_id', 'issue', 'page', 'image_sha256', 'pages')
+# A Gazette line names what it was read from: its url or its page image(s). The one known exception, until the
+# follow-up (docs/verification/2026-11-15-follow-ups.md, item 2) fills it from the page images:
+GAZETTE_LINES_WITHOUT_SOURCE = {
+    ('companies', 151, ''): 'composite line over pages 5643-5644 and 3642-3643 (evidence/companies.jsonl:193); follow-ups item 2',
+}
+
+
+def check_evidence_line(line: object, slug: str) -> list[tuple[str, str]]:
+    """(rule, message) for each problem of one line of evidence/<slug>.jsonl."""
+    if not _is(line, dict):
+        return [('schema', 'each line must be a JSON object')]
+    problems = _object_problems(line, EVIDENCE_LINE, '', OPTIONAL_EVIDENCE_KEYS)
+    if _is(line.get('law_slug'), str) and line['law_slug'] != slug:
+        problems.append(('schema', f'law_slug {line["law_slug"]!r} is not the file\'s law {slug!r}'))
+    if problems:
+        return problems
+    if (line['text'] is None) != (line['text_sha256'] is None):
+        problems.append(('schema', 'text and text_sha256 are both set or both null'))
+    elif line['text'] is not None and hashlib.sha256(line['text'].encode('utf-8')).hexdigest() != line['text_sha256']:
+        problems.append(('schema', 'text_sha256 is not the sha256 of text (UTF-8)'))
+    helper = helper_of_host(line['url'])
+    if line['source'] in HELPER_SOURCES:
+        if helper != line['source']:
+            problems.append(('schema', f'a {line["source"]} line\'s url is not on {HELPER_SOURCES[line["source"]]}'))
+        problems += [('schema', f'a {line["source"]} line is a helper\'s reading: {key} must be null')
+                     for key in _GAZETTE_FIELDS if line.get(key) is not None]
+    elif helper is not None:
+        problems.append(('schema', f'a {line["source"]} line\'s url is on {HELPER_SOURCES[helper]}: {helper} is a helper '
+                                   'source, its line is labelled ' + repr(helper)))
+    if (line['source'] == 'gazette' and line['url'] is None and line['image_sha256'] is None
+            and (slug, line['number'], line['suffix']) not in GAZETTE_LINES_WITHOUT_SOURCE):
+        problems.append(('schema', 'a gazette line needs its url or its image_sha256'))
+    return problems
+
+
+def _cited_texts(record: dict) -> list[tuple[str, str]]:
+    """(evidence source, text_sha256) of each source block of a record that cites a text."""
+    cited = []
+    for block, source in (('gazette', 'gazette'), ('bureau', 'bureau')):
+        value = record.get(block)
+        if _is(value, dict) and _is(value.get('text_sha256'), str):
+            cited.append((source, value['text_sha256']))
+    helper = record.get('helper')
+    if _is(helper, dict) and _is(helper.get('text_sha256'), str) and _is(helper.get('source'), str):
+        cited.append((helper['source'], helper['text_sha256']))
+    return cited
+
+
+def check_evidence(directory: Path, verification: Path) -> list[Problem]:
+    """Every evidence/<law-slug>.jsonl line, and every text a verification record cites: a line of that source for the
+    article with that text_sha256. A missing evidence folder is a problem only when a record cites a text."""
+    records_by_law: dict[str, list[tuple[int, dict]]] = {}
+    for path in sorted(verification.glob('*.jsonl')) if verification.is_dir() else []:
+        records, _ = _read_records(path, f'verification/{path.name}')
+        records_by_law[path.stem] = [(n, r) for n, r in records if _is(r, dict)]
+    citing = any(_cited_texts(r) for rows in records_by_law.values() for _, r in rows)
+    if not directory.is_dir():
+        return [Problem('docs/verification/evidence', 'evidence', 'missing: the records cite texts')] if citing else []
+    problems: list[Problem] = []
+    for path in sorted(directory.glob('*.jsonl')):
+        slug, name = path.stem, f'evidence/{path.name}'
+        lines, file_problems = _read_records(path, name)
+        seen: set[tuple] = set()
+        for line_number, line in lines:
+            file_problems += [Problem(f'{name}:{line_number}', rule, message)
+                              for rule, message in check_evidence_line(line, slug)]
+            if _is(line, dict):
+                seen.add((line.get('number'), line.get('suffix'), line.get('source'), line.get('text_sha256')))
+        for line_number, record in records_by_law.pop(slug, []):
+            for source, digest in _cited_texts(record):
+                if (record.get('number'), record.get('suffix'), source, digest) not in seen:
+                    file_problems.append(Problem(f'verification/{slug}.jsonl:{line_number}', 'evidence',
+                                                 f'{_key_label(record.get("number"), record.get("suffix"))}: no {source} '
+                                                 f'line in {name} with the {source} text_sha256 the record cites'))
+        if len(file_problems) > MAX_PROBLEMS_PER_FILE:
+            more = len(file_problems) - MAX_PROBLEMS_PER_FILE
+            file_problems = file_problems[:MAX_PROBLEMS_PER_FILE] + [Problem(name, 'evidence', f'{more} more problem(s) not shown')]
+        problems += file_problems
+    for slug, rows in sorted(records_by_law.items()):
+        if any(_cited_texts(r) for _, r in rows):
+            problems.append(Problem(f'verification/{slug}.jsonl', 'evidence', f'cites texts, but evidence/{slug}.jsonl is missing'))
     return problems

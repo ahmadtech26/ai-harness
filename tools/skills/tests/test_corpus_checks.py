@@ -52,6 +52,12 @@ def test_a_valid_registry_passes_every_check(tmp_path: Path):
     assert _problems(tmp_path, [_entry()]) == []
 
 
+def test_an_entry_may_name_its_instrument_a_law_or_a_regulation(tmp_path: Path):
+    for index, instrument in enumerate(('law', 'regulation')):
+        entry = _entry(instrument=instrument, sources=_with_sources(instrument='https://example.test/gazette'))
+        assert _problems(tmp_path / str(index), [entry]) == []
+
+
 def _with_sources(**extra) -> dict:
     return {**_entry()['sources'], **extra}
 
@@ -79,6 +85,9 @@ SCHEMA_VIOLATIONS = [
     ({key: value for key, value in _entry().items() if key != 'folder'}, 'missing required field folder'),
     (_entry(gazette={'issue': '1234', 'date': '1900-03-02', 'source_url': 'https://example.test/gazette'}),
      'gazette.issue must be int'),
+    (_entry(instrument='decree', sources=_with_sources(instrument='https://example.test/gazette')),
+     'instrument must be one of law, regulation'),
+    (_entry(instrument='regulation'), 'instrument has no source URL in sources'),
 ]
 
 
