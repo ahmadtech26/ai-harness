@@ -1,5 +1,5 @@
 """The BM25 index (recall plan Task 2.2), ported from the bench (engine.rs) and its checked Python re-scoring
-(.hq/scratch/recall-gap-2026-11-09/anatomy/tb2_bm25.py, 80/80 top-10 lists identical to the bench's T-B2).
+(the bench workspace: recall-gap-2026-11-09/anatomy/tb2_bm25.py, 80/80 top-10 lists identical to the bench's T-B2).
 
 Expected scores are written from Tantivy's formula, never read back from the engine. The tests from
 test_fieldnorm_steps_double_every_eight_values_up_to_tantivys_last_entry on pin what Gate P2 cannot see (it compares

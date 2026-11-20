@@ -1,7 +1,7 @@
 """The BM25 index of the keyword engine (recall plan Task 2.2): pure, in memory, no I/O.
 
-Ported from the bench's engine (.hq/scratch/rag-bench/engine/src/engine.rs: search, field_clause, term_clause,
-phrase_clause, apply_proximity) and its checked Python re-scoring (.hq/scratch/recall-gap-2026-11-09/anatomy/
+Ported from the bench's engine (the bench workspace: rag-bench/engine/src/engine.rs: search, field_clause, term_clause,
+phrase_clause, apply_proximity) and its checked Python re-scoring (the bench workspace: recall-gap-2026-11-09/anatomy/
 tb2_bm25.py, 80/80 top-10 lists identical to the bench's T-B2), with Tantivy's BM25: k1 1.2, b 0.75,
 idf ln(1 + (N − df + 0.5)/(df + 0.5)) over the whole index, field lengths quantised as Tantivy's fieldnorms are,
 the average length over every document. Python 3.11 syntax only: the host tools import this module.

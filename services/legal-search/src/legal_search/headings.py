@@ -1,5 +1,5 @@
 """Article headings for the keyword engine's heading field (recall plan Task 2.3), ported from the bench's
-.hq/scratch/rag-bench/py/extract.py, `build(copy=True)` (the T-B2 variant «copyhead»). extract is pure; the text is never changed there.
+bench workspace rag-bench/py/extract.py, `build(copy=True)` (the T-B2 variant «copyhead»). extract is pure; the text is never changed there.
 
 An article's heading is
     the previous article's trailing heading: its last paragraph when that reads as a heading (short, unpunctuated,

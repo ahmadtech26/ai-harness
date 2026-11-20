@@ -1,5 +1,5 @@
 """Analysers of the BM25 keyword engine (recall plan Task 2.1), ported from the bench's engine
-(.hq/scratch/rag-bench/engine/src/analyser.rs). Each is applied identically at index and query time.
+(the bench workspace: rag-bench/engine/src/analyser.rs). Each is applied identically at index and query time.
 
     Today       normalize.tokens: a clitic or article goes whenever 3 letters remain (the live search's analyser).
     GuardLight  the O-111 fix (a one-letter clitic goes only when the corpus attests the remainder at least as
